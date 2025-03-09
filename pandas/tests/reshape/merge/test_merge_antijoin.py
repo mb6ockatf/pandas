@@ -17,17 +17,23 @@ def test_merge_antijoin():
     left = DataFrame({"A": [1, 2, 3]}, index=["a", "b", "c"])
     right = DataFrame({"B": [1, 2, 4]}, index=["a", "b", "d"])
 
-    result = merge(left, right, how="left_anti", left_index=True, right_index=True)
+    result = merge(
+        left, right, how="left_anti", left_index=True, right_index=True
+    )
     expected = DataFrame({"A": [3], "B": [np.nan]}, index=["c"])
     tm.assert_frame_equal(result, expected)
 
-    result = merge(left, right, how="right_anti", left_index=True, right_index=True)
+    result = merge(
+        left, right, how="right_anti", left_index=True, right_index=True
+    )
     expected = DataFrame({"A": [np.nan], "B": [4]}, index=["d"])
     tm.assert_frame_equal(result, expected)
 
 
 def test_merge_antijoin_on_different_columns():
-    left = DataFrame({"A": [1.0, 2.0, 3.0], "B": ["a", "b", "c"]}).astype({"B": object})
+    left = DataFrame({"A": [1.0, 2.0, 3.0], "B": ["a", "b", "c"]}).astype(
+        {"B": object}
+    )
     right = DataFrame({"C": [1.0, 2.0, 4.0], "D": ["a", "d", "b"]}).astype(
         {"D": object}
     )
@@ -58,7 +64,9 @@ def test_merge_antijoin_on_different_columns():
 
 
 def test_merge_antijoin_nonunique_keys():
-    left = DataFrame({"A": [1.0, 2.0, 3.0], "B": ["a", "b", "b"]}).astype({"B": object})
+    left = DataFrame({"A": [1.0, 2.0, 3.0], "B": ["a", "b", "b"]}).astype(
+        {"B": object}
+    )
     right = DataFrame({"C": [1.0, 2.0, 4.0], "D": ["b", "d", "d"]}).astype(
         {"D": object}
     )
@@ -90,7 +98,9 @@ def test_merge_antijoin_nonunique_keys():
 
 def test_merge_antijoin_same_df():
     left = DataFrame({"A": [1, 2, 3]}, index=["a", "b", "c"], dtype=np.int64)
-    result = merge(left, left, how="left_anti", left_index=True, right_index=True)
+    result = merge(
+        left, left, how="left_anti", left_index=True, right_index=True
+    )
     expected = DataFrame([], columns=["A_x", "A_y"], dtype=np.int64)
     tm.assert_frame_equal(result, expected, check_index_type=False)
 
@@ -167,7 +177,9 @@ def test_merge_antijoin_multiindex():
         ),
     )
 
-    result = merge(left, right, how="left_anti", left_index=True, right_index=True)
+    result = merge(
+        left, right, how="left_anti", left_index=True, right_index=True
+    )
     expected = DataFrame(
         {
             "A": [3],
@@ -179,7 +191,9 @@ def test_merge_antijoin_multiindex():
     )
     tm.assert_frame_equal(result, expected)
 
-    result = merge(left, right, how="right_anti", left_index=True, right_index=True)
+    result = merge(
+        left, right, how="right_anti", left_index=True, right_index=True
+    )
     expected = DataFrame(
         {
             "A": [np.nan],
@@ -259,7 +273,9 @@ def test_merge_antijoin_with_null_values():
     right = DataFrame({"B": [2.0, None, 5.0]})
 
     result = merge(left, right, how="left_anti", left_on="A", right_on="B")
-    expected = DataFrame({"A": [1.0, 4.0], "B": [np.nan, np.nan]}, index=[0, 3])
+    expected = DataFrame(
+        {"A": [1.0, 4.0], "B": [np.nan, np.nan]}, index=[0, 3]
+    )
     tm.assert_frame_equal(result, expected)
 
     result = merge(left, right, how="right_anti", left_on="A", right_on="B")

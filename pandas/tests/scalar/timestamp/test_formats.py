@@ -93,11 +93,13 @@ def test_isoformat(ts, timespec, expected_iso):
 
 class TestTimestampRendering:
     @pytest.mark.parametrize(
-        "tz", ["UTC", "Asia/Tokyo", "US/Eastern", "dateutil/America/Los_Angeles"]
+        "tz",
+        ["UTC", "Asia/Tokyo", "US/Eastern", "dateutil/America/Los_Angeles"],
     )
     @pytest.mark.parametrize("freq", ["D", "M", "S", "N"])
     @pytest.mark.parametrize(
-        "date", ["2014-03-07", "2014-01-01 09:00", "2014-01-01 00:00:00.000000001"]
+        "date",
+        ["2014-03-07", "2014-01-01 09:00", "2014-01-01 00:00:00.000000001"],
     )
     @pytest.mark.skipif(WASM, reason="tzset is not available on WASM")
     def test_repr(self, date, freq, tz):
@@ -142,7 +144,10 @@ class TestTimestampRendering:
 
     def test_pprint(self):
         # GH#12622
-        nested_obj = {"foo": 1, "bar": [{"w": {"a": Timestamp("2011-01-01")}}] * 10}
+        nested_obj = {
+            "foo": 1,
+            "bar": [{"w": {"a": Timestamp("2011-01-01")}}] * 10,
+        }
         result = pprint.pformat(nested_obj, width=50)
         expected = r"""{'bar': [{'w': {'a': Timestamp('2011-01-01 00:00:00')}},
          {'w': {'a': Timestamp('2011-01-01 00:00:00')}},
@@ -190,7 +195,9 @@ class TestTimestampRendering:
         dt_datetime = datetime(2013, 1, 2, 12, 1, 3, tzinfo=timezone.utc)
         assert str(dt_datetime) == str(Timestamp(dt_datetime))
 
-        dt_datetime_us = datetime(2013, 1, 2, 12, 1, 3, 45, tzinfo=timezone.utc)
+        dt_datetime_us = datetime(
+            2013, 1, 2, 12, 1, 3, 45, tzinfo=timezone.utc
+        )
         assert str(dt_datetime_us) == str(Timestamp(dt_datetime_us))
 
     def test_repr_matches_pydatetime_tz_dateutil(self):

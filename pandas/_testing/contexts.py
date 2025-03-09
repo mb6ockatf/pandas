@@ -45,7 +45,9 @@ def decompress_file(
     -------
     file object
     """
-    with get_handle(path, "rb", compression=compression, is_text=False) as handle:
+    with get_handle(
+        path, "rb", compression=compression, is_text=False
+    ) as handle:
         yield handle.handle
 
 

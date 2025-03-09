@@ -28,7 +28,9 @@ class TestCartesianProduct:
         tm.assert_index_equal(result1, expected1)
         tm.assert_index_equal(result2, expected2)
 
-    @pytest.mark.parametrize("x, y", [[[], []], [[0, 1], []], [[], ["a", "b", "c"]]])
+    @pytest.mark.parametrize(
+        "x, y", [[[], []], [[0, 1], []], [[], ["a", "b", "c"]]]
+    )
     def test_empty(self, x, y):
         # product of empty factors
         expected1 = np.array([], dtype=np.asarray(x).dtype)

@@ -95,8 +95,12 @@ class TestRegistration:
         # We we check that toggling converters off removes it, and toggling it
         # on restores it.
 
-        with cf.option_context("plotting.matplotlib.register_converters", True):
-            with cf.option_context("plotting.matplotlib.register_converters", False):
+        with cf.option_context(
+            "plotting.matplotlib.register_converters", True
+        ):
+            with cf.option_context(
+                "plotting.matplotlib.register_converters", False
+            ):
                 assert Timestamp not in units.registry
             assert Timestamp in units.registry
 
@@ -105,12 +109,16 @@ class TestRegistration:
         _, ax = plt.subplots()
 
         # Test without registering first, no warning
-        with cf.option_context("plotting.matplotlib.register_converters", False):
+        with cf.option_context(
+            "plotting.matplotlib.register_converters", False
+        ):
             ax.plot(s.index, s.values)
 
         # Now test with registering
         register_matplotlib_converters()
-        with cf.option_context("plotting.matplotlib.register_converters", False):
+        with cf.option_context(
+            "plotting.matplotlib.register_converters", False
+        ):
             ax.plot(s.index, s.values)
 
     def test_registry_resets(self):
@@ -179,7 +187,9 @@ class TestDateTimeConverter:
 
         # we have a tz-aware date (constructed to that when we turn to utc it
         # is the same as our sample)
-        ts = Timestamp("2012-01-01").tz_localize("UTC").tz_convert("US/Eastern")
+        ts = (
+            Timestamp("2012-01-01").tz_localize("UTC").tz_convert("US/Eastern")
+        )
         rs = dtc.convert(ts, None, None)
         assert rs == xp
 
@@ -362,7 +372,9 @@ class TestTimeDeltaConverter:
         tdc(0.0, 0)
 
 
-@pytest.mark.parametrize("year_span", [11.25, 30, 80, 150, 400, 800, 1500, 2500, 3500])
+@pytest.mark.parametrize(
+    "year_span", [11.25, 30, 80, 150, 400, 800, 1500, 2500, 3500]
+)
 # The range is limited to 11.25 at the bottom by if statements in
 # the _quarterly_finder() function
 def test_quarterly_finder(year_span):
@@ -370,7 +382,9 @@ def test_quarterly_finder(year_span):
     vmax = vmin + year_span * 4
     span = vmax - vmin + 1
     if span < 45:
-        pytest.skip("the quarterly finder is only invoked if the span is >= 45")
+        pytest.skip(
+            "the quarterly finder is only invoked if the span is >= 45"
+        )
     nyears = span / 4
     (min_anndef, maj_anndef) = converter._get_default_annual_spacing(nyears)
     result = converter._quarterly_finder(vmin, vmax, to_offset("QE"))

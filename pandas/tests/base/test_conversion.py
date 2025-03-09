@@ -64,7 +64,9 @@ class TestToIterable:
         # coerce iteration to underlying python / pandas types
         typ = index_or_series
         if dtype == "float16" and issubclass(typ, pd.Index):
-            with pytest.raises(NotImplementedError, match="float16 indexes are not "):
+            with pytest.raises(
+                NotImplementedError, match="float16 indexes are not "
+            ):
                 typ([1], dtype=dtype)
             return
         s = typ([1], dtype=dtype)
@@ -121,7 +123,9 @@ class TestToIterable:
         # coerce iteration to underlying python / pandas types
         typ = index_or_series
         if dtype == "float16" and issubclass(typ, pd.Index):
-            with pytest.raises(NotImplementedError, match="float16 indexes are not "):
+            with pytest.raises(
+                NotImplementedError, match="float16 indexes are not "
+            ):
                 typ([1], dtype=dtype)
             return
         s = typ([1], dtype=dtype)
@@ -141,7 +145,9 @@ class TestToIterable:
         ids=["tolist", "to_list", "list", "iter"],
     )
     def test_categorial_datetimelike(self, method):
-        i = CategoricalIndex([Timestamp("1999-12-31"), Timestamp("2000-12-31")])
+        i = CategoricalIndex(
+            [Timestamp("1999-12-31"), Timestamp("2000-12-31")]
+        )
 
         result = method(i)[0]
         assert isinstance(result, Timestamp)
@@ -182,7 +188,10 @@ class TestToIterable:
 
     def test_iter_box_period(self):
         # period
-        vals = [pd.Period("2011-01-01", freq="M"), pd.Period("2011-01-02", freq="M")]
+        vals = [
+            pd.Period("2011-01-01", freq="M"),
+            pd.Period("2011-01-02", freq="M"),
+        ]
         s = Series(vals)
         assert s.dtype == "Period[M]"
         for res, exp in zip(s, vals):
@@ -223,7 +232,9 @@ class TestToIterable:
 def test_values_consistent(arr, expected_type, dtype, using_infer_string):
     if using_infer_string and dtype == "object":
         expected_type = (
-            ArrowStringArrayNumpySemantics if HAS_PYARROW else StringArrayNumpySemantics
+            ArrowStringArrayNumpySemantics
+            if HAS_PYARROW
+            else StringArrayNumpySemantics
         )
     l_values = Series(arr)._values
     r_values = pd.Index(arr)._values
@@ -256,19 +267,25 @@ def test_numpy_array_all_dtypes(any_numpy_dtype):
     "arr, attr",
     [
         (pd.Categorical(["a", "b"]), "_codes"),
-        (PeriodArray._from_sequence(["2000", "2001"], dtype="period[D]"), "_ndarray"),
+        (
+            PeriodArray._from_sequence(["2000", "2001"], dtype="period[D]"),
+            "_ndarray",
+        ),
         (pd.array([0, np.nan], dtype="Int64"), "_data"),
         (IntervalArray.from_breaks([0, 1]), "_left"),
         (SparseArray([0, 1]), "_sparse_values"),
         (
-            DatetimeArray._from_sequence(np.array([1, 2], dtype="datetime64[ns]")),
+            DatetimeArray._from_sequence(
+                np.array([1, 2], dtype="datetime64[ns]")
+            ),
             "_ndarray",
         ),
         # tz-aware Datetime
         (
             DatetimeArray._from_sequence(
                 np.array(
-                    ["2000-01-01T12:00:00", "2000-01-02T12:00:00"], dtype="M8[ns]"
+                    ["2000-01-01T12:00:00", "2000-01-02T12:00:00"],
+                    dtype="M8[ns]",
                 ),
                 dtype=DatetimeTZDtype(tz="US/Central"),
             ),
@@ -298,11 +315,21 @@ def test_array_multiindex_raises():
 @pytest.mark.parametrize(
     "arr, expected, zero_copy",
     [
-        (np.array([1, 2], dtype=np.int64), np.array([1, 2], dtype=np.int64), True),
-        (pd.Categorical(["a", "b"]), np.array(["a", "b"], dtype=object), False),
+        (
+            np.array([1, 2], dtype=np.int64),
+            np.array([1, 2], dtype=np.int64),
+            True,
+        ),
+        (
+            pd.Categorical(["a", "b"]),
+            np.array(["a", "b"], dtype=object),
+            False,
+        ),
         (
             pd.core.arrays.period_array(["2000", "2001"], freq="D"),
-            np.array([pd.Period("2000", freq="D"), pd.Period("2001", freq="D")]),
+            np.array(
+                [pd.Period("2000", freq="D"), pd.Period("2001", freq="D")]
+            ),
             False,
         ),
         (pd.array([0, np.nan], dtype="Int64"), np.array([0, np.nan]), False),
@@ -314,14 +341,19 @@ def test_array_multiindex_raises():
         (SparseArray([0, 1]), np.array([0, 1], dtype=np.int64), False),
         # tz-naive datetime
         (
-            DatetimeArray._from_sequence(np.array(["2000", "2001"], dtype="M8[ns]")),
+            DatetimeArray._from_sequence(
+                np.array(["2000", "2001"], dtype="M8[ns]")
+            ),
             np.array(["2000", "2001"], dtype="M8[ns]"),
             True,
         ),
         # tz-aware stays tz`-aware
         (
             DatetimeArray._from_sequence(
-                np.array(["2000-01-01T06:00:00", "2000-01-02T06:00:00"], dtype="M8[ns]")
+                np.array(
+                    ["2000-01-01T06:00:00", "2000-01-02T06:00:00"],
+                    dtype="M8[ns]",
+                )
             )
             .tz_localize("UTC")
             .tz_convert("US/Central"),
@@ -344,7 +376,9 @@ def test_array_multiindex_raises():
         ),
         # GH#26406 tz is preserved in Categorical[dt64tz]
         (
-            pd.Categorical(date_range("2016-01-01", periods=2, tz="US/Pacific")),
+            pd.Categorical(
+                date_range("2016-01-01", periods=2, tz="US/Pacific")
+            ),
             np.array(
                 [
                     Timestamp("2016-01-01", tz="US/Pacific"),
@@ -379,7 +413,9 @@ def test_to_numpy(arr, expected, zero_copy, index_or_series_or_array):
         return
 
     if not zero_copy:
-        with pytest.raises(ValueError, match="Unable to avoid copy while creating"):
+        with pytest.raises(
+            ValueError, match="Unable to avoid copy while creating"
+        ):
             # An error is always acceptable for `copy=False`
             np.array(thing, copy=False)
 
@@ -392,7 +428,11 @@ def test_to_numpy(arr, expected, zero_copy, index_or_series_or_array):
 
 @pytest.mark.parametrize("as_series", [True, False])
 @pytest.mark.parametrize(
-    "arr", [np.array([1, 2, 3], dtype="int64"), np.array(["a", "b", "c"], dtype=object)]
+    "arr",
+    [
+        np.array([1, 2, 3], dtype="int64"),
+        np.array(["a", "b", "c"], dtype=object),
+    ],
 )
 def test_to_numpy_copy(arr, as_series, using_infer_string):
     obj = pd.Index(arr, copy=False)
@@ -401,13 +441,21 @@ def test_to_numpy_copy(arr, as_series, using_infer_string):
 
     # no copy by default
     result = obj.to_numpy()
-    if using_infer_string and arr.dtype == object and obj.dtype.storage == "pyarrow":
+    if (
+        using_infer_string
+        and arr.dtype == object
+        and obj.dtype.storage == "pyarrow"
+    ):
         assert np.shares_memory(arr, result) is False
     else:
         assert np.shares_memory(arr, result) is True
 
     result = obj.to_numpy(copy=False)
-    if using_infer_string and arr.dtype == object and obj.dtype.storage == "pyarrow":
+    if (
+        using_infer_string
+        and arr.dtype == object
+        and obj.dtype.storage == "pyarrow"
+    ):
         assert np.shares_memory(arr, result) is False
     else:
         assert np.shares_memory(arr, result) is True
@@ -486,7 +534,11 @@ def test_to_numpy_na_value_numpy_dtype(
         ),
         (
             [Timestamp("2000"), Timestamp("2000"), pd.NaT],
-            [(0, Timestamp("2021")), (0, Timestamp("2022")), (1, Timestamp("2000"))],
+            [
+                (0, Timestamp("2021")),
+                (0, Timestamp("2022")),
+                (1, Timestamp("2000")),
+            ],
             None,
             Timestamp("2000"),
             [np.datetime64("2000-01-01T00:00:00", "s")] * 3,

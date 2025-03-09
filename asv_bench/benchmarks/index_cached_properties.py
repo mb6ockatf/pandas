@@ -25,7 +25,10 @@ class IndexCache:
         N = 10**5
         if index_type == "MultiIndex":
             self.idx = pd.MultiIndex.from_product(
-                [pd.date_range("1/1/2000", freq="min", periods=N // 2), ["a", "b"]]
+                [
+                    pd.date_range("1/1/2000", freq="min", periods=N // 2),
+                    ["a", "b"],
+                ]
             )
         elif index_type == "DatetimeIndex":
             self.idx = pd.date_range("1/1/2000", freq="min", periods=N)

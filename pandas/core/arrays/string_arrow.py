@@ -81,7 +81,9 @@ def _is_string_view(typ):
 # fallback for the ones that pyarrow doesn't yet support
 
 
-class ArrowStringArray(ObjectStringArrayMixin, ArrowExtensionArray, BaseStringArray):
+class ArrowStringArray(
+    ObjectStringArrayMixin, ArrowExtensionArray, BaseStringArray
+):
     """
     Extension array for string data in a ``pyarrow.ChunkedArray``.
 
@@ -146,7 +148,9 @@ class ArrowStringArray(ObjectStringArrayMixin, ArrowExtensionArray, BaseStringAr
             values = pc.cast(values, pa.large_string())
 
         super().__init__(values)
-        self._dtype = StringDtype(storage=self._storage, na_value=self._na_value)
+        self._dtype = StringDtype(
+            storage=self._storage, na_value=self._na_value
+        )
 
         if not pa.types.is_large_string(self._pa_array.type):
             raise ValueError(
@@ -155,7 +159,9 @@ class ArrowStringArray(ObjectStringArrayMixin, ArrowExtensionArray, BaseStringAr
             )
 
     @classmethod
-    def _box_pa_scalar(cls, value, pa_type: pa.DataType | None = None) -> pa.Scalar:
+    def _box_pa_scalar(
+        cls, value, pa_type: pa.DataType | None = None
+    ) -> pa.Scalar:
         pa_scalar = super()._box_pa_scalar(value, pa_type)
         if pa.types.is_string(pa_scalar.type) and pa_type is None:
             pa_scalar = pc.cast(pa_scalar, pa.large_string())
@@ -190,15 +196,21 @@ class ArrowStringArray(ObjectStringArrayMixin, ArrowExtensionArray, BaseStringAr
 
         if dtype and not (isinstance(dtype, str) and dtype == "string"):
             dtype = pandas_dtype(dtype)
-            assert isinstance(dtype, StringDtype) and dtype.storage == "pyarrow"
+            assert (
+                isinstance(dtype, StringDtype) and dtype.storage == "pyarrow"
+            )
 
         if isinstance(scalars, BaseMaskedArray):
             # avoid costly conversion to object dtype in ensure_string_array and
             # numerical issues with Float32Dtype
             na_values = scalars._mask
             result = scalars._data
-            result = lib.ensure_string_array(result, copy=copy, convert_na_value=False)
-            return cls(pa.array(result, mask=na_values, type=pa.large_string()))
+            result = lib.ensure_string_array(
+                result, copy=copy, convert_na_value=False
+            )
+            return cls(
+                pa.array(result, mask=na_values, type=pa.large_string())
+            )
         elif isinstance(scalars, (pa.Array, pa.ChunkedArray)):
             return cls(pc.cast(scalars, pa.large_string()))
 
@@ -229,8 +241,14 @@ class ArrowStringArray(ObjectStringArrayMixin, ArrowExtensionArray, BaseStringAr
             )
         return super().insert(loc, item)
 
-    def _convert_bool_result(self, values, na=lib.no_default, method_name=None):
-        if na is not lib.no_default and not isna(na) and not isinstance(na, bool):
+    def _convert_bool_result(
+        self, values, na=lib.no_default, method_name=None
+    ):
+        if (
+            na is not lib.no_default
+            and not isna(na)
+            and not isinstance(na, bool)
+        ):
             # GH#59561
             warnings.warn(
                 f"Allowing a non-bool 'na' in obj.str.{method_name} is deprecated "
@@ -248,7 +266,9 @@ class ArrowStringArray(ObjectStringArrayMixin, ArrowExtensionArray, BaseStringAr
                 values = values.fill_null(na)
             return values.to_numpy()
         else:
-            if na is not lib.no_default and not isna(na):  # pyright: ignore [reportGeneralTypeIssues]
+            if na is not lib.no_default and not isna(
+                na
+            ):  # pyright: ignore [reportGeneralTypeIssues]
                 values = values.fill_null(na)
         return BooleanDtype().__from_arrow__(values)
 
@@ -276,7 +296,9 @@ class ArrowStringArray(ObjectStringArrayMixin, ArrowExtensionArray, BaseStringAr
     def isin(self, values: ArrayLike) -> npt.NDArray[np.bool_]:
         value_set = [
             pa_scalar.as_py()
-            for pa_scalar in [pa.scalar(value, from_pandas=True) for value in values]
+            for pa_scalar in [
+                pa.scalar(value, from_pandas=True) for value in values
+            ]
             if pa_scalar.type in (pa.string(), pa.null(), pa.large_string())
         ]
 
@@ -285,7 +307,8 @@ class ArrowStringArray(ObjectStringArrayMixin, ArrowExtensionArray, BaseStringAr
             return np.zeros(len(self), dtype=bool)
 
         result = pc.is_in(
-            self._pa_array, value_set=pa.array(value_set, type=self._pa_array.type)
+            self._pa_array,
+            value_set=pa.array(value_set, type=self._pa_array.type),
         )
         # pyarrow 2.0.0 returned nulls, so we explicitly specify dtype to convert nulls
         # to False
@@ -350,7 +373,9 @@ class ArrowStringArray(ObjectStringArrayMixin, ArrowExtensionArray, BaseStringAr
         if flags:
             return super()._str_contains(pat, case, flags, na, regex)
 
-        return ArrowStringArrayMixin._str_contains(self, pat, case, flags, na, regex)
+        return ArrowStringArrayMixin._str_contains(
+            self, pat, case, flags, na, regex
+        )
 
     def _str_replace(
         self,
@@ -398,9 +423,9 @@ class ArrowStringArray(ObjectStringArrayMixin, ArrowExtensionArray, BaseStringAr
     def _str_get_dummies(self, sep: str = "|", dtype: NpDtype | None = None):
         if dtype is None:
             dtype = np.int64
-        dummies_pa, labels = ArrowExtensionArray(self._pa_array)._str_get_dummies(
-            sep, dtype
-        )
+        dummies_pa, labels = ArrowExtensionArray(
+            self._pa_array
+        )._str_get_dummies(sep, dtype)
         if len(labels) == 0:
             return np.empty(shape=(0, 0), dtype=dtype), labels
         dummies = np.vstack(dummies_pa.to_numpy())
@@ -435,7 +460,12 @@ class ArrowStringArray(ObjectStringArrayMixin, ArrowExtensionArray, BaseStringAr
         return Float64Dtype().__from_arrow__(result)
 
     def _reduce(
-        self, name: str, *, skipna: bool = True, keepdims: bool = False, **kwargs
+        self,
+        name: str,
+        *,
+        skipna: bool = True,
+        keepdims: bool = False,
+        **kwargs,
     ):
         if self.dtype.na_value is np.nan and name in ["any", "all"]:
             if not skipna:
@@ -452,9 +482,13 @@ class ArrowStringArray(ObjectStringArrayMixin, ArrowExtensionArray, BaseStringAr
             return result
 
         if name in ("min", "max", "sum", "argmin", "argmax"):
-            result = self._reduce_calc(name, skipna=skipna, keepdims=keepdims, **kwargs)
+            result = self._reduce_calc(
+                name, skipna=skipna, keepdims=keepdims, **kwargs
+            )
         else:
-            raise TypeError(f"Cannot perform reduction '{name}' with string dtype")
+            raise TypeError(
+                f"Cannot perform reduction '{name}' with string dtype"
+            )
 
         if name in ("argmin", "argmax") and isinstance(result, pa.Array):
             return self._convert_int_result(result)

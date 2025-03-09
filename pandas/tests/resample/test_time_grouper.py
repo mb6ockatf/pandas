@@ -150,11 +150,15 @@ def test_aggregate_normal(resample_method):
 
     expected = getattr(normal_grouped, resample_method)()
     dt_result = getattr(dt_grouped, resample_method)()
-    expected.index = date_range(start="2013-01-01", freq="D", periods=5, name="key")
+    expected.index = date_range(
+        start="2013-01-01", freq="D", periods=5, name="key"
+    )
     tm.assert_equal(expected, dt_result)
 
 
-@pytest.mark.xfail(reason="if TimeGrouper is used included, 'nth' doesn't work yet")
+@pytest.mark.xfail(
+    reason="if TimeGrouper is used included, 'nth' doesn't work yet"
+)
 def test_aggregate_nth():
     """Check TimeGrouper's aggregation is identical as normal groupby."""
 
@@ -175,7 +179,9 @@ def test_aggregate_nth():
     dt_grouped = dt_df.groupby(Grouper(key="key", freq="D"))
 
     expected = normal_grouped.nth(3)
-    expected.index = date_range(start="2013-01-01", freq="D", periods=5, name="key")
+    expected.index = date_range(
+        start="2013-01-01", freq="D", periods=5, name="key"
+    )
     dt_result = dt_grouped.nth(3)
     tm.assert_frame_equal(expected, dt_result)
 
@@ -195,7 +201,9 @@ def test_resample_entirely_nat_window(method, method_args, unit):
     ser = Series([0] * 2 + [np.nan] * 2, index=date_range("2017", periods=4))
     result = methodcaller(method, **method_args)(ser.resample("2D"))
 
-    exp_dti = pd.DatetimeIndex(["2017-01-01", "2017-01-03"], dtype="M8[ns]", freq="2D")
+    exp_dti = pd.DatetimeIndex(
+        ["2017-01-01", "2017-01-03"], dtype="M8[ns]", freq="2D"
+    )
     expected = Series([0.0, unit], index=exp_dti)
     tm.assert_series_equal(result, expected)
 
@@ -233,7 +241,9 @@ def test_aggregate_with_nat(func, fill_value):
     normal_result = getattr(normal_grouped, func)()
     dt_result = getattr(dt_grouped, func)()
 
-    pad = DataFrame([[fill_value] * 4], index=[3], columns=["A", "B", "C", "D"])
+    pad = DataFrame(
+        [[fill_value] * 4], index=[3], columns=["A", "B", "C", "D"]
+    )
     expected = pd.concat([normal_result, pad])
     expected = expected.sort_index()
     dti = date_range(
@@ -407,7 +417,9 @@ def test_groupby_resample_interpolate_with_apply_syntax(groupy_test_df):
         tm.assert_frame_equal(result, expected)
 
 
-def test_groupby_resample_interpolate_with_apply_syntax_off_grid(groupy_test_df):
+def test_groupby_resample_interpolate_with_apply_syntax_off_grid(
+    groupy_test_df,
+):
     """Similar test as test_groupby_resample_interpolate_with_apply_syntax but
     with resampling that results in missing anchor points when interpolating.
     See GH#21351."""

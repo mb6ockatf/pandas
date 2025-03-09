@@ -28,7 +28,9 @@ from pandas.tests.apply.common import (
         pytest.param({}, id="no_kwds"),
         pytest.param({"axis": 1}, id="on_axis"),
         pytest.param({"numeric_only": True}, id="func_kwds"),
-        pytest.param({"axis": 1, "numeric_only": True}, id="axis_and_func_kwds"),
+        pytest.param(
+            {"axis": 1, "numeric_only": True}, id="axis_and_func_kwds"
+        ),
     ],
 )
 @pytest.mark.parametrize("how", ["agg", "apply"])
@@ -53,7 +55,8 @@ def test_apply_np_reducer(op, how):
     # pandas ddof defaults to 1, numpy to 0
     kwargs = {"ddof": 1} if op in ("std", "var") else {}
     expected = Series(
-        getattr(np, op)(float_frame, axis=0, **kwargs), index=float_frame.columns
+        getattr(np, op)(float_frame, axis=0, **kwargs),
+        index=float_frame.columns,
     )
     tm.assert_series_equal(result, expected)
 
@@ -211,7 +214,9 @@ def test_agg_cython_table_frame(df, func, expected, axis):
     # test reducing functions in
     # pandas.core.base.SelectionMixin._cython_table
     warn = None if isinstance(func, str) else FutureWarning
-    with tm.assert_produces_warning(warn, match="is currently using DataFrame.*"):
+    with tm.assert_produces_warning(
+        warn, match="is currently using DataFrame.*"
+    ):
         # GH#53425
         result = df.agg(func, axis=axis)
     tm.assert_series_equal(result, expected)
@@ -241,7 +246,9 @@ def test_agg_cython_table_transform_frame(df, func, expected, axis):
         expected = expected.astype("float64")
 
     warn = None if isinstance(func, str) else FutureWarning
-    with tm.assert_produces_warning(warn, match="is currently using DataFrame.*"):
+    with tm.assert_produces_warning(
+        warn, match="is currently using DataFrame.*"
+    ):
         # GH#53425
         result = df.agg(func, axis=axis)
     tm.assert_frame_equal(result, expected)
@@ -252,7 +259,9 @@ def test_transform_groupby_kernel_series(request, string_series, op):
     # GH 35964
     if op == "ngroup":
         request.applymarker(
-            pytest.mark.xfail(raises=ValueError, reason="ngroup not valid for NDFrame")
+            pytest.mark.xfail(
+                raises=ValueError, reason="ngroup not valid for NDFrame"
+            )
         )
     args = [0.0] if op == "fillna" else []
     ones = np.ones(string_series.shape[0])
@@ -269,7 +278,9 @@ def test_transform_groupby_kernel_series(request, string_series, op):
 def test_transform_groupby_kernel_frame(request, float_frame, op):
     if op == "ngroup":
         request.applymarker(
-            pytest.mark.xfail(raises=ValueError, reason="ngroup not valid for NDFrame")
+            pytest.mark.xfail(
+                raises=ValueError, reason="ngroup not valid for NDFrame"
+            )
         )
 
     # GH 35964
@@ -298,7 +309,9 @@ def test_transform_groupby_kernel_frame(request, float_frame, op):
     tm.assert_frame_equal(result2, expected2)
 
 
-@pytest.mark.parametrize("method", ["abs", "shift", "pct_change", "cumsum", "rank"])
+@pytest.mark.parametrize(
+    "method", ["abs", "shift", "pct_change", "cumsum", "rank"]
+)
 def test_transform_method_name(method):
     # GH 19760
     df = DataFrame({"A": [-1, 2]})

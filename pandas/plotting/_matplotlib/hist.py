@@ -87,7 +87,9 @@ class HistPlot(LinePlot):
             if self.by is not None:
                 by_modified = unpack_single_str_list(self.by)
                 grouped = self.data.groupby(by_modified)[self.columns]
-                bins = [self._calculate_bins(group, bins) for key, group in grouped]
+                bins = [
+                    self._calculate_bins(group, bins) for key, group in grouped
+                ]
             else:
                 bins = self._calculate_bins(self.data, bins)
         return bins
@@ -121,7 +123,9 @@ class HistPlot(LinePlot):
             cls._initialize_stacker(ax, stacking_id, len(bins) - 1)
 
         base = np.zeros(len(bins) - 1)
-        bottom = bottom + cls._get_stacked_values(ax, stacking_id, base, kwds["label"])
+        bottom = bottom + cls._get_stacked_values(
+            ax, stacking_id, base, kwds["label"]
+        )
         # ignore style
         n, bins, patches = ax.hist(y, bins=bins, bottom=bottom, **kwds)
         cls._update_stacker(ax, stacking_id, n)
@@ -162,11 +166,15 @@ class HistPlot(LinePlot):
                 kwds.pop("color")
 
             if self.weights is not None:
-                kwds["weights"] = type(self)._get_column_weights(self.weights, i, y)
+                kwds["weights"] = type(self)._get_column_weights(
+                    self.weights, i, y
+                )
 
             y = reformat_hist_y_given_by(y, self.by)
 
-            artists = self._plot(ax, y, column_num=i, stacking_id=stacking_id, **kwds)
+            artists = self._plot(
+                ax, y, column_num=i, stacking_id=stacking_id, **kwds
+            )
 
             # when by is applied, show title for subplots to know which group it is
             if self.by is not None:
@@ -318,7 +326,12 @@ def _grouped_plot(
 
     naxes = len(grouped)
     fig, axes = create_subplots(
-        naxes=naxes, figsize=figsize, sharex=sharex, sharey=sharey, ax=ax, layout=layout
+        naxes=naxes,
+        figsize=figsize,
+        sharex=sharex,
+        sharey=sharey,
+        ax=ax,
+        layout=layout,
     )
 
     for ax, (key, group) in zip(flatten_axes(axes), grouped):
@@ -403,7 +416,11 @@ def _grouped_hist(
     )
 
     set_ticks_props(
-        axes, xlabelsize=xlabelsize, xrot=xrot, ylabelsize=ylabelsize, yrot=yrot
+        axes,
+        xlabelsize=xlabelsize,
+        xrot=xrot,
+        ylabelsize=ylabelsize,
+        yrot=yrot,
     )
 
     maybe_adjust_figure(
@@ -433,12 +450,17 @@ def hist_series(
 
     if by is None:
         if kwds.get("layout", None) is not None:
-            raise ValueError("The 'layout' keyword is not supported when 'by' is None")
+            raise ValueError(
+                "The 'layout' keyword is not supported when 'by' is None"
+            )
         # hack until the plotting interface is a bit more unified
         fig = kwds.pop(
-            "figure", plt.gcf() if plt.get_fignums() else plt.figure(figsize=figsize)
+            "figure",
+            plt.gcf() if plt.get_fignums() else plt.figure(figsize=figsize),
         )
-        if figsize is not None and tuple(figsize) != tuple(fig.get_size_inches()):
+        if figsize is not None and tuple(figsize) != tuple(
+            fig.get_size_inches()
+        ):
             fig.set_size_inches(*figsize, forward=True)
         if ax is None:
             ax = fig.gca()
@@ -565,7 +587,11 @@ def hist_frame(
             ax.legend()
 
     set_ticks_props(
-        axes, xlabelsize=xlabelsize, xrot=xrot, ylabelsize=ylabelsize, yrot=yrot
+        axes,
+        xlabelsize=xlabelsize,
+        xrot=xrot,
+        ylabelsize=ylabelsize,
+        yrot=yrot,
     )
     maybe_adjust_figure(fig, wspace=0.3, hspace=0.3)
 

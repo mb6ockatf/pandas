@@ -31,7 +31,8 @@ class TestTimedeltaIndex:
 
     def test_astype_object_with_nat(self):
         idx = TimedeltaIndex(
-            [timedelta(days=1), timedelta(days=2), NaT, timedelta(days=4)], name="idx"
+            [timedelta(days=1), timedelta(days=2), NaT, timedelta(days=4)],
+            name="idx",
         )
         expected_list = [
             Timedelta("1 days"),
@@ -50,20 +51,26 @@ class TestTimedeltaIndex:
 
         result = idx.astype(object)
         expected = Index(
-            [Timedelta("1 days 03:46:40")] + [NaT] * 3, dtype=object, name="idx"
+            [Timedelta("1 days 03:46:40")] + [NaT] * 3,
+            dtype=object,
+            name="idx",
         )
         tm.assert_index_equal(result, expected)
 
         result = idx.astype(np.int64)
         expected = Index(
-            [100000000000000] + [-9223372036854775808] * 3, dtype=np.int64, name="idx"
+            [100000000000000] + [-9223372036854775808] * 3,
+            dtype=np.int64,
+            name="idx",
         )
         tm.assert_index_equal(result, expected)
 
         result = idx.astype(str)
         if using_infer_string:
             expected = Index(
-                [str(x) if x is not NaT else None for x in idx], name="idx", dtype="str"
+                [str(x) if x is not NaT else None for x in idx],
+                name="idx",
+                dtype="str",
             )
         else:
             expected = Index([str(x) for x in idx], name="idx", dtype=object)
@@ -123,7 +130,9 @@ class TestTimedeltaIndex:
         )
 
         exp_values = np.asarray(td).astype("m8[s]")
-        exp_tda = TimedeltaArray._simple_new(exp_values, dtype=exp_values.dtype)
+        exp_tda = TimedeltaArray._simple_new(
+            exp_values, dtype=exp_values.dtype
+        )
         expected = index_or_series(exp_tda)
         assert expected.dtype == "m8[s]"
         result = td.astype("timedelta64[s]")

@@ -105,7 +105,9 @@ class _BaseXMLFormatter:
     def __init__(
         self,
         frame: DataFrame,
-        path_or_buffer: FilePath | WriteBuffer[bytes] | WriteBuffer[str] | None = None,
+        path_or_buffer: (
+            FilePath | WriteBuffer[bytes] | WriteBuffer[str] | None
+        ) = None,
         index: bool = True,
         root_name: str | None = "data",
         row_name: str | None = "row",
@@ -117,7 +119,9 @@ class _BaseXMLFormatter:
         encoding: str = "utf-8",
         xml_declaration: bool | None = True,
         pretty_print: bool | None = True,
-        stylesheet: FilePath | ReadBuffer[str] | ReadBuffer[bytes] | None = None,
+        stylesheet: (
+            FilePath | ReadBuffer[str] | ReadBuffer[bytes] | None
+        ) = None,
         compression: CompressionOptions = "infer",
         storage_options: StorageOptions | None = None,
     ) -> None:
@@ -224,7 +228,9 @@ class _BaseXMLFormatter:
 
         first_key = next(iter(self.frame_dicts))
         indexes: list[str] = [
-            x for x in self.frame_dicts[first_key].keys() if x not in self.orig_cols
+            x
+            for x in self.frame_dicts[first_key].keys()
+            if x not in self.orig_cols
         ]
 
         if self.attr_cols:
@@ -357,11 +363,14 @@ class EtreeXMLFormatter(_BaseXMLFormatter):
         )
 
         self.root = Element(
-            f"{self.prefix_uri}{self.root_name}", attrib=self._other_namespaces()
+            f"{self.prefix_uri}{self.root_name}",
+            attrib=self._other_namespaces(),
         )
 
         for d in self.frame_dicts.values():
-            elem_row = SubElement(self.root, f"{self.prefix_uri}{self.row_name}")
+            elem_row = SubElement(
+                self.root, f"{self.prefix_uri}{self.row_name}"
+            )
 
             if not self.attr_cols and not self.elem_cols:
                 self.elem_cols = list(d.keys())
@@ -454,10 +463,14 @@ class LxmlXMLFormatter(_BaseXMLFormatter):
             tostring,
         )
 
-        self.root = Element(f"{self.prefix_uri}{self.root_name}", nsmap=self.namespaces)
+        self.root = Element(
+            f"{self.prefix_uri}{self.root_name}", nsmap=self.namespaces
+        )
 
         for d in self.frame_dicts.values():
-            elem_row = SubElement(self.root, f"{self.prefix_uri}{self.row_name}")
+            elem_row = SubElement(
+                self.root, f"{self.prefix_uri}{self.row_name}"
+            )
 
             if not self.attr_cols and not self.elem_cols:
                 self.elem_cols = list(d.keys())
@@ -544,7 +557,8 @@ class LxmlXMLFormatter(_BaseXMLFormatter):
 
             if isinstance(xml_data, io.StringIO):
                 xsl_doc = fromstring(
-                    xml_data.getvalue().encode(self.encoding), parser=curr_parser
+                    xml_data.getvalue().encode(self.encoding),
+                    parser=curr_parser,
                 )
             else:
                 xsl_doc = parse(xml_data, parser=curr_parser)

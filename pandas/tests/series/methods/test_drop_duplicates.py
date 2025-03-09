@@ -72,7 +72,14 @@ def test_drop_duplicates_no_duplicates(any_numpy_dtype, keep, values):
 
 class TestSeriesDropDuplicates:
     @pytest.fixture(
-        params=["int_", "uint", "float64", "str_", "timedelta64[h]", "datetime64[D]"]
+        params=[
+            "int_",
+            "uint",
+            "float64",
+            "str_",
+            "timedelta64[h]",
+            "datetime64[D]",
+        ]
     )
     def dtype(self, request):
         """
@@ -93,7 +100,9 @@ class TestSeriesDropDuplicates:
         tc1 = Series(cat)
         return tc1
 
-    def test_drop_duplicates_categorical_non_bool(self, cat_series_unused_category):
+    def test_drop_duplicates_categorical_non_bool(
+        self, cat_series_unused_category
+    ):
         tc1 = cat_series_unused_category
 
         expected = Series([False, False, False, True])
@@ -208,7 +217,9 @@ class TestSeriesDropDuplicates:
     def test_drop_duplicates_categorical_bool(self, ordered):
         tc = Series(
             Categorical(
-                [True, False, True, False], categories=[True, False], ordered=ordered
+                [True, False, True, False],
+                categories=[True, False],
+                ordered=ordered,
             )
         )
 
@@ -247,7 +258,9 @@ class TestSeriesDropDuplicates:
         )
         result = ser.drop_duplicates()
         expected = Series(
-            Categorical([True, False, np.nan], categories=[True, False], ordered=True),
+            Categorical(
+                [True, False, np.nan], categories=[True, False], ordered=True
+            ),
             index=[0, 1, 4],
         )
         tm.assert_series_equal(result, expected)

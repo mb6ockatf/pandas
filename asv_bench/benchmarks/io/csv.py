@@ -181,7 +181,8 @@ class ToCSVIndexes(BaseIO):
             "index3": np.full(rows, 1, dtype=int),
         }
         data_cols = {
-            f"col{i}": np.random.uniform(0, 100000.0, rows) for i in range(cols)
+            f"col{i}": np.random.uniform(0, 100000.0, rows)
+            for i in range(cols)
         }
         df = DataFrame({**index_cols, **data_cols})
         return df
@@ -236,7 +237,9 @@ class ReadCSVDInferDatetimeFormat(StringIORewind):
             "ymd": "%Y%m%d",
         }
         dt_format = formats[format]
-        self.StringIO_input = StringIO("\n".join(rng.strftime(dt_format).tolist()))
+        self.StringIO_input = StringIO(
+            "\n".join(rng.strftime(dt_format).tolist())
+        )
 
     def time_read_csv(self, format):
         read_csv(
@@ -252,7 +255,9 @@ class ReadCSVConcatDatetime(StringIORewind):
 
     def setup(self):
         rng = date_range("1/1/2000", periods=50000, freq="s")
-        self.StringIO_input = StringIO("\n".join(rng.strftime(self.iso8601).tolist()))
+        self.StringIO_input = StringIO(
+            "\n".join(rng.strftime(self.iso8601).tolist())
+        )
 
     def time_read_csv(self):
         read_csv(
@@ -320,7 +325,10 @@ class ReadUint64Integers(StringIORewind):
 
     def time_read_uint64_na_values(self):
         read_csv(
-            self.data(self.data1), header=None, names=["foo"], na_values=self.na_values
+            self.data(self.data1),
+            header=None,
+            names=["foo"],
+            na_values=self.na_values,
         )
 
 
@@ -354,7 +362,10 @@ class ReadCSVComment(StringIORewind):
 
     def time_comment(self, engine):
         read_csv(
-            self.data(self.StringIO_input), comment="#", header=None, names=list("abc")
+            self.data(self.StringIO_input),
+            comment="#",
+            header=None,
+            names=list("abc"),
         )
 
 
@@ -400,7 +411,9 @@ class ReadCSVEngine(StringIORewind):
         data = ["A,B,C,D,E"] + (["1,2,3,4,5"] * 100000)
         self.StringIO_input = StringIO("\n".join(data))
         # simulate reading from file
-        self.BytesIO_input = BytesIO(self.StringIO_input.read().encode("utf-8"))
+        self.BytesIO_input = BytesIO(
+            self.StringIO_input.read().encode("utf-8")
+        )
 
     def time_read_stringcsv(self, engine):
         read_csv(self.data(self.StringIO_input), engine=engine)
@@ -461,7 +474,9 @@ class ReadCSVCachedParseDates(StringIORewind):
     param_names = ["do_cache", "engine"]
 
     def setup(self, do_cache, engine):
-        data = ("\n".join([f"10/{year}" for year in range(2000, 2100)]) + "\n") * 10
+        data = (
+            "\n".join([f"10/{year}" for year in range(2000, 2100)]) + "\n"
+        ) * 10
         self.StringIO_input = StringIO(data)
 
     def time_read_csv_cached(self, do_cache, engine):
@@ -547,7 +562,13 @@ class ReadCSVMemMapUTF8:
         df.to_csv(self.fname, index=False, header=False, encoding="utf-8")
 
     def time_read_memmapped_utf8(self):
-        read_csv(self.fname, header=None, memory_map=True, encoding="utf-8", engine="c")
+        read_csv(
+            self.fname,
+            header=None,
+            memory_map=True,
+            encoding="utf-8",
+            engine="c",
+        )
 
 
 class ParseDateComparison(StringIORewind):

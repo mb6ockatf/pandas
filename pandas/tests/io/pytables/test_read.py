@@ -93,7 +93,9 @@ def test_read_column(setup_path):
         ):
             store.select_column("df", "foo")
 
-        msg = re.escape("select_column() got an unexpected keyword argument 'where'")
+        msg = re.escape(
+            "select_column() got an unexpected keyword argument 'where'"
+        )
         with pytest.raises(TypeError, match=msg):
             store.select_column("df", "index", where=["index>5"])
 
@@ -145,7 +147,9 @@ def test_read_column(setup_path):
         tm.assert_almost_equal(result.values, df3["string"].values[-2:2])
 
         # GH 10392 - make sure column name is preserved
-        df4 = DataFrame({"A": np.random.default_rng(2).standard_normal(10), "B": "foo"})
+        df4 = DataFrame(
+            {"A": np.random.default_rng(2).standard_normal(10), "B": "foo"}
+        )
         store.append("df4", df4, data_columns=True)
         expected = df4["B"]
         result = store.select_column("df4", "B")
@@ -160,7 +164,9 @@ def test_pytables_native_read(datapath):
     assert isinstance(d2, DataFrame)
 
 
-@pytest.mark.skipif(is_platform_windows(), reason="native2 read fails oddly on windows")
+@pytest.mark.skipif(
+    is_platform_windows(), reason="native2 read fails oddly on windows"
+)
 def test_pytables_native2_read(datapath):
     with ensure_clean_store(
         datapath("io", "data", "legacy_hdf", "pytables_native2.h5"), mode="r"
@@ -256,7 +262,9 @@ def test_read_nokey(tmp_path, setup_path):
 
 def test_read_nokey_table(tmp_path, setup_path):
     # GH13231
-    df = DataFrame({"i": range(5), "c": Series(list("abacd"), dtype="category")})
+    df = DataFrame(
+        {"i": range(5), "c": Series(list("abacd"), dtype="category")}
+    )
 
     path = tmp_path / setup_path
     df.to_hdf(path, key="df", mode="a", format="table")

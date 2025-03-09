@@ -75,7 +75,9 @@ def get_center_of_mass(
 ) -> float:
     valid_count = common.count_not_none(comass, span, halflife, alpha)
     if valid_count > 1:
-        raise ValueError("comass, span, halflife, and alpha are mutually exclusive")
+        raise ValueError(
+            "comass, span, halflife, and alpha are mutually exclusive"
+        )
 
     # Convert to center of mass; domain checks ensure 0 < alpha <= 1
     if comass is not None:
@@ -367,9 +369,15 @@ class ExponentialMovingWindow(BaseWindow):
             ):
                 raise ValueError("times must be datetime64 dtype.")
             if len(self.times) != len(obj):
-                raise ValueError("times must be the same length as the object.")
-            if not isinstance(self.halflife, (str, datetime.timedelta, np.timedelta64)):
-                raise ValueError("halflife must be a timedelta convertible object")
+                raise ValueError(
+                    "times must be the same length as the object."
+                )
+            if not isinstance(
+                self.halflife, (str, datetime.timedelta, np.timedelta64)
+            ):
+                raise ValueError(
+                    "halflife must be a timedelta convertible object"
+                )
             if isna(self.times).any():
                 raise ValueError("Cannot convert NaT values to integer")
             self._deltas = _calculate_deltas(self.times, self.halflife)
@@ -381,7 +389,9 @@ class ExponentialMovingWindow(BaseWindow):
                         "None of com, span, or alpha can be specified if "
                         "times is provided and adjust=False"
                     )
-                self._com = get_center_of_mass(self.com, self.span, None, self.alpha)
+                self._com = get_center_of_mass(
+                    self.com, self.span, None, self.alpha
+                )
             else:
                 self._com = 1.0
         else:
@@ -393,7 +403,9 @@ class ExponentialMovingWindow(BaseWindow):
                     "times is not None."
                 )
             # Without times, points are equally spaced
-            self._deltas = np.ones(max(self.obj.shape[0] - 1, 0), dtype=np.float64)
+            self._deltas = np.ones(
+                max(self.obj.shape[0] - 1, 0), dtype=np.float64
+            )
             self._com = get_center_of_mass(
                 # error: Argument 3 to "get_center_of_mass" has incompatible type
                 # "Union[float, Any, None, timedelta64, signedinteger[_64Bit]]";
@@ -555,7 +567,9 @@ class ExponentialMovingWindow(BaseWindow):
                 deltas=deltas,
                 normalize=True,
             )
-            return self._apply(window_func, name="mean", numeric_only=numeric_only)
+            return self._apply(
+                window_func, name="mean", numeric_only=numeric_only
+            )
         else:
             raise ValueError("engine must be either 'numba' or 'cython'")
 
@@ -593,7 +607,9 @@ class ExponentialMovingWindow(BaseWindow):
         engine_kwargs=None,
     ):
         if not self.adjust:
-            raise NotImplementedError("sum is not implemented with adjust=False")
+            raise NotImplementedError(
+                "sum is not implemented with adjust=False"
+            )
         if self.times is not None:
             raise NotImplementedError("sum is not implemented with times")
         if maybe_use_numba(engine):
@@ -623,7 +639,9 @@ class ExponentialMovingWindow(BaseWindow):
                 deltas=deltas,
                 normalize=False,
             )
-            return self._apply(window_func, name="sum", numeric_only=numeric_only)
+            return self._apply(
+                window_func, name="sum", numeric_only=numeric_only
+            )
         else:
             raise ValueError("engine must be either 'numba' or 'cython'")
 
@@ -902,19 +920,25 @@ class ExponentialMovingWindow(BaseWindow):
         )
 
 
-class ExponentialMovingWindowGroupby(BaseWindowGroupby, ExponentialMovingWindow):
+class ExponentialMovingWindowGroupby(
+    BaseWindowGroupby, ExponentialMovingWindow
+):
     """
     Provide an exponential moving window groupby implementation.
     """
 
-    _attributes = ExponentialMovingWindow._attributes + BaseWindowGroupby._attributes
+    _attributes = (
+        ExponentialMovingWindow._attributes + BaseWindowGroupby._attributes
+    )
 
     def __init__(self, obj, *args, _grouper=None, **kwargs) -> None:
         super().__init__(obj, *args, _grouper=_grouper, **kwargs)
 
         if not obj.empty and self.times is not None:
             # sort the times and recalculate the deltas according to the groups
-            groupby_order = np.concatenate(list(self._grouper.indices.values()))
+            groupby_order = np.concatenate(
+                list(self._grouper.indices.values())
+            )
             self._deltas = _calculate_deltas(
                 self.times.take(groupby_order),
                 self.halflife,
@@ -968,7 +992,9 @@ class OnlineExponentialMovingWindow(ExponentialMovingWindow):
             times=times,
             selection=selection,
         )
-        self._mean = EWMMeanState(self._com, self.adjust, self.ignore_na, obj.shape)
+        self._mean = EWMMeanState(
+            self._com, self.adjust, self.ignore_na, obj.shape
+        )
         if maybe_use_numba(engine):
             self.engine = engine
             self.engine_kwargs = engine_kwargs

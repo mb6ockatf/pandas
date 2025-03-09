@@ -140,7 +140,10 @@ def _compose(*funcs):
 def _preparse(
     source: str,
     f=_compose(
-        _replace_locals, _replace_booleans, _rewrite_assign, clean_backtick_quoted_toks
+        _replace_locals,
+        _replace_booleans,
+        _rewrite_assign,
+        clean_backtick_quoted_toks,
     ),
 ) -> str:
     """
@@ -168,7 +171,9 @@ def _preparse(
     the ``tokenize`` module and ``tokval`` is a string.
     """
     assert callable(f), "f must be callable"
-    return tokenize.untokenize(f(x) for x in tokenize_string(source))  # pyright: ignore[reportArgumentType]
+    return tokenize.untokenize(
+        f(x) for x in tokenize_string(source)
+    )  # pyright: ignore[reportArgumentType]
 
 
 def _is_type(t):
@@ -194,7 +199,9 @@ def _filter_nodes(superclass, all_nodes=_all_nodes):
     """
     Filter out AST nodes that are subclasses of ``superclass``.
     """
-    node_names = (node.__name__ for node in all_nodes if issubclass(node, superclass))
+    node_names = (
+        node.__name__ for node in all_nodes if issubclass(node, superclass)
+    )
     return frozenset(node_names)
 
 
@@ -409,7 +416,9 @@ class BaseExprVisitor(ast.NodeVisitor):
                 node = ast.fix_missing_locations(ast.parse(clean))
             except SyntaxError as e:
                 if any(iskeyword(x) for x in clean.split()):
-                    e.msg = "Python keyword not valid identifier in numexpr query"
+                    e.msg = (
+                        "Python keyword not valid identifier in numexpr query"
+                    )
                 raise e
 
         method = f"visit_{type(node).__name__}"
@@ -457,7 +466,9 @@ class BaseExprVisitor(ast.NodeVisitor):
             left = self.visit(node.left, side="left")
         if right is None:
             right = self.visit(node.right, side="right")
-        op, op_class, left, right = self._rewrite_membership_op(node, left, right)
+        op, op_class, left, right = self._rewrite_membership_op(
+            node, left, right
+        )
         return op, op_class, left, right
 
     def _maybe_downcast_constants(self, left, right):
@@ -531,7 +542,9 @@ class BaseExprVisitor(ast.NodeVisitor):
             ):
                 # evaluate "==" and "!=" in python if either of our operands
                 # has an object or string return type
-                return self._maybe_eval(res, eval_in_python + maybe_eval_in_python)
+                return self._maybe_eval(
+                    res, eval_in_python + maybe_eval_in_python
+                )
         return res
 
     def visit_BinOp(self, node, **kwargs):
@@ -587,7 +600,10 @@ class BaseExprVisitor(ast.NodeVisitor):
         except AttributeError:
             # an Op instance
             lhs = pd_eval(
-                value, local_dict=self.env, engine=self.engine, parser=self.parser
+                value,
+                local_dict=self.env,
+                engine=self.engine,
+                parser=self.parser,
             )
             v = lhs[result]
         name = self.env.add_tmp(v)
@@ -620,7 +636,9 @@ class BaseExprVisitor(ast.NodeVisitor):
         if len(node.targets) != 1:
             raise SyntaxError("can only assign a single expression")
         if not isinstance(node.targets[0], ast.Name):
-            raise SyntaxError("left hand side of an assignment must be a single name")
+            raise SyntaxError(
+                "left hand side of an assignment must be a single name"
+            )
         if self.env.target is None:
             raise ValueError("cannot assign without a target object")
 
@@ -658,7 +676,10 @@ class BaseExprVisitor(ast.NodeVisitor):
         raise ValueError(f"Invalid Attribute context {type(ctx).__name__}")
 
     def visit_Call(self, node, side=None, **kwargs):
-        if isinstance(node.func, ast.Attribute) and node.func.attr != "__call__":
+        if (
+            isinstance(node.func, ast.Attribute)
+            and node.func.attr != "__call__"
+        ):
             res = self.visit_Attribute(node.func)
         elif not isinstance(node.func, ast.Name):
             raise TypeError("Only named functions are supported")
@@ -725,7 +746,9 @@ class BaseExprVisitor(ast.NodeVisitor):
         values = []
         for op, comp in zip(ops, comps):
             new_node = self.visit(
-                ast.Compare(comparators=[comp], left=left, ops=[self.translate_In(op)])
+                ast.Compare(
+                    comparators=[comp], left=left, ops=[self.translate_In(op)]
+                )
             )
             left = comp
             values.append(new_node)
@@ -741,7 +764,9 @@ class BaseExprVisitor(ast.NodeVisitor):
             lhs = self._try_visit_binop(x)
             rhs = self._try_visit_binop(y)
 
-            op, op_class, lhs, rhs = self._maybe_transform_eq_ne(node, lhs, rhs)
+            op, op_class, lhs, rhs = self._maybe_transform_eq_ne(
+                node, lhs, rhs
+            )
             return self._maybe_evaluate_binop(op, node.op, lhs, rhs)
 
         operands = node.values
@@ -754,7 +779,10 @@ _numexpr_supported_calls = frozenset(REDUCTIONS + MATHOPS)
 
 @disallow(
     (_unsupported_nodes | _python_not_supported)
-    - (_boolop_nodes | frozenset(["BoolOp", "Attribute", "In", "NotIn", "Tuple"]))
+    - (
+        _boolop_nodes
+        | frozenset(["BoolOp", "Attribute", "In", "NotIn", "Tuple"])
+    )
 )
 class PandasExprVisitor(BaseExprVisitor):
     def __init__(
@@ -764,7 +792,9 @@ class PandasExprVisitor(BaseExprVisitor):
         parser,
         preparser=partial(
             _preparse,
-            f=_compose(_replace_locals, _replace_booleans, clean_backtick_quoted_toks),
+            f=_compose(
+                _replace_locals, _replace_booleans, clean_backtick_quoted_toks
+            ),
         ),
     ) -> None:
         super().__init__(env, engine, parser, preparser)

@@ -78,7 +78,9 @@ class TestPeriodIndexEquals(EqualsTests):
 
         # same internal, different tz
         idx3 = PeriodIndex._simple_new(
-            idx._values._simple_new(idx._values.asi8, dtype=pd.PeriodDtype("h"))
+            idx._values._simple_new(
+                idx._values.asi8, dtype=pd.PeriodDtype("h")
+            )
         )
         tm.assert_numpy_array_equal(idx.asi8, idx3.asi8)
         assert not idx.equals(idx3)
@@ -106,7 +108,9 @@ class TestDatetimeIndexEquals(EqualsTests):
         assert not idx.equals(list(idx))
         assert not idx.equals(pd.Series(idx))
 
-        idx2 = DatetimeIndex(["2011-01-01", "2011-01-02", "NaT"], tz="US/Pacific")
+        idx2 = DatetimeIndex(
+            ["2011-01-01", "2011-01-02", "NaT"], tz="US/Pacific"
+        )
         assert not idx.equals(idx2)
         assert not idx.equals(idx2.copy())
         assert not idx.equals(idx2.astype(object))

@@ -54,7 +54,12 @@ class TestDatetimeIndexOps:
 
     @pytest.mark.parametrize(
         "dtype",
-        [None, "datetime64[ns, CET]", "datetime64[ns, EST]", "datetime64[ns, UTC]"],
+        [
+            None,
+            "datetime64[ns, CET]",
+            "datetime64[ns, EST]",
+            "datetime64[ns, UTC]",
+        ],
     )
     def test_dti_date2(self, dtype):
         # Regression test for GH#21230
@@ -67,7 +72,12 @@ class TestDatetimeIndexOps:
 
     @pytest.mark.parametrize(
         "dtype",
-        [None, "datetime64[ns, CET]", "datetime64[ns, EST]", "datetime64[ns, UTC]"],
+        [
+            None,
+            "datetime64[ns, CET]",
+            "datetime64[ns, EST]",
+            "datetime64[ns, UTC]",
+        ],
     )
     def test_dti_time2(self, dtype):
         # Regression test for GH#21267
@@ -128,7 +138,10 @@ class TestDatetimeIndexOps:
 
         # a more unusual time zone, GH#1946
         dr = date_range(
-            "2011-10-02 00:00", freq="h", periods=10, tz=prefix + "America/Atikokan"
+            "2011-10-02 00:00",
+            freq="h",
+            periods=10,
+            tz=prefix + "America/Atikokan",
         )
 
         expected = Index(np.arange(10, dtype=np.int32))
@@ -184,7 +197,9 @@ class TestDatetimeIndexOps:
             "Saturday",
             "Sunday",
         ]
-        for day, name, eng_name in zip(range(4, 11), expected_days, english_days):
+        for day, name, eng_name in zip(
+            range(4, 11), expected_days, english_days
+        ):
             name = name.capitalize()
             assert dti.day_name(locale=time_locale)[day] == name
             assert dti.day_name(locale=None)[day] == eng_name
@@ -229,7 +244,9 @@ class TestDatetimeIndexOps:
     @pytest.mark.parametrize("tz", [None, "US/Eastern"])
     def test_dti_fields(self, tz):
         # GH#13303
-        dti = date_range(freq="D", start=datetime(1998, 1, 1), periods=365, tz=tz)
+        dti = date_range(
+            freq="D", start=datetime(1998, 1, 1), periods=365, tz=tz
+        )
         assert dti.year[0] == 1998
         assert dti.month[0] == 1
         assert dti.day[0] == 1
@@ -339,9 +356,13 @@ class TestDatetimeIndexOps:
             ("2017-12-01", "YS", 3, np.array([True, True, True])),
         ],
     )
-    def test_dti_dr_is_year_start(self, timestamp, freq, periods, expected_values):
+    def test_dti_dr_is_year_start(
+        self, timestamp, freq, periods, expected_values
+    ):
         # GH57377
-        result = date_range(timestamp, freq=freq, periods=periods).is_year_start
+        result = date_range(
+            timestamp, freq=freq, periods=periods
+        ).is_year_start
         tm.assert_numpy_array_equal(result, expected_values)
 
     @pytest.mark.parametrize(
@@ -352,7 +373,9 @@ class TestDatetimeIndexOps:
             ("2017-12-01", "YE", 3, np.array([True, True, True])),
         ],
     )
-    def test_dti_dr_is_year_end(self, timestamp, freq, periods, expected_values):
+    def test_dti_dr_is_year_end(
+        self, timestamp, freq, periods, expected_values
+    ):
         # GH57377
         result = date_range(timestamp, freq=freq, periods=periods).is_year_end
         tm.assert_numpy_array_equal(result, expected_values)
@@ -365,9 +388,13 @@ class TestDatetimeIndexOps:
             ("2017-12-01", "YS", 3, np.array([True, True, True])),
         ],
     )
-    def test_dti_dr_is_quarter_start(self, timestamp, freq, periods, expected_values):
+    def test_dti_dr_is_quarter_start(
+        self, timestamp, freq, periods, expected_values
+    ):
         # GH57377
-        result = date_range(timestamp, freq=freq, periods=periods).is_quarter_start
+        result = date_range(
+            timestamp, freq=freq, periods=periods
+        ).is_quarter_start
         tm.assert_numpy_array_equal(result, expected_values)
 
     @pytest.mark.parametrize(
@@ -378,9 +405,13 @@ class TestDatetimeIndexOps:
             ("2017-12-01", "YE", 3, np.array([True, True, True])),
         ],
     )
-    def test_dti_dr_is_quarter_end(self, timestamp, freq, periods, expected_values):
+    def test_dti_dr_is_quarter_end(
+        self, timestamp, freq, periods, expected_values
+    ):
         # GH57377
-        result = date_range(timestamp, freq=freq, periods=periods).is_quarter_end
+        result = date_range(
+            timestamp, freq=freq, periods=periods
+        ).is_quarter_end
         tm.assert_numpy_array_equal(result, expected_values)
 
     @pytest.mark.parametrize(
@@ -391,9 +422,13 @@ class TestDatetimeIndexOps:
             ("2017-12-01", "YS", 3, np.array([True, True, True])),
         ],
     )
-    def test_dti_dr_is_month_start(self, timestamp, freq, periods, expected_values):
+    def test_dti_dr_is_month_start(
+        self, timestamp, freq, periods, expected_values
+    ):
         # GH57377
-        result = date_range(timestamp, freq=freq, periods=periods).is_month_start
+        result = date_range(
+            timestamp, freq=freq, periods=periods
+        ).is_month_start
         tm.assert_numpy_array_equal(result, expected_values)
 
     @pytest.mark.parametrize(
@@ -404,7 +439,9 @@ class TestDatetimeIndexOps:
             ("2017-12-01", "YE", 3, np.array([True, True, True])),
         ],
     )
-    def test_dti_dr_is_month_end(self, timestamp, freq, periods, expected_values):
+    def test_dti_dr_is_month_end(
+        self, timestamp, freq, periods, expected_values
+    ):
         # GH57377
         result = date_range(timestamp, freq=freq, periods=periods).is_month_end
         tm.assert_numpy_array_equal(result, expected_values)
@@ -437,7 +474,9 @@ class TestDatetimeIndexOps:
 
 
 @given(
-    dt=st.datetimes(min_value=datetime(1960, 1, 1), max_value=datetime(1980, 1, 1)),
+    dt=st.datetimes(
+        min_value=datetime(1960, 1, 1), max_value=datetime(1980, 1, 1)
+    ),
     n=st.integers(min_value=1, max_value=10),
     freq=st.sampled_from(["MS", "QS", "YS"]),
 )

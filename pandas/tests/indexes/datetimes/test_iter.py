@@ -17,7 +17,8 @@ class TestDatetimeIndexIteration:
     def test_iteration_preserves_nanoseconds(self, tz):
         # GH#19603
         index = DatetimeIndex(
-            ["2018-02-08 15:00:00.168456358", "2018-02-08 15:00:00.168456359"], tz=tz
+            ["2018-02-08 15:00:00.168456358", "2018-02-08 15:00:00.168456359"],
+            tz=tz,
         )
         for i, ts in enumerate(index):
             assert ts == index[i]
@@ -40,7 +41,10 @@ class TestDatetimeIndexIteration:
 
     def test_iteration_preserves_tz2(self):
         index = date_range(
-            "2012-01-01", periods=3, freq="h", tz=dateutil.tz.tzoffset(None, -28800)
+            "2012-01-01",
+            periods=3,
+            freq="h",
+            tz=dateutil.tz.tzoffset(None, -28800),
         )
 
         for i, ts in enumerate(index):
@@ -52,7 +56,10 @@ class TestDatetimeIndexIteration:
     def test_iteration_preserves_tz3(self):
         # GH#9100
         index = DatetimeIndex(
-            ["2014-12-01 03:32:39.987000-08:00", "2014-12-01 04:12:34.987000-08:00"]
+            [
+                "2014-12-01 03:32:39.987000-08:00",
+                "2014-12-01 04:12:34.987000-08:00",
+            ]
         )
         for i, ts in enumerate(index):
             result = ts

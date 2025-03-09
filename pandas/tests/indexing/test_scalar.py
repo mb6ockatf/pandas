@@ -292,7 +292,9 @@ class TestMultiIndexScalar:
         assert series.at[1, 3] == 1
         assert series.loc[1, 3] == 1
 
-    @pytest.mark.filterwarnings("ignore:Setting a value on a view:FutureWarning")
+    @pytest.mark.filterwarnings(
+        "ignore:Setting a value on a view:FutureWarning"
+    )
     def test_multiindex_at_set(self):
         # GH 26989
         # DataFrame.at and DataFrame.loc setter works with MultiIndex

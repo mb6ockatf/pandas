@@ -80,7 +80,9 @@ class ArrowStringArray:
             raise NotImplementedError from err
         strings = np.array([str(i) for i in range(10_000)], dtype=object)
         if multiple_chunks:
-            chunks = [strings[i : i + 100] for i in range(0, len(strings), 100)]
+            chunks = [
+                strings[i : i + 100] for i in range(0, len(strings), 100)
+            ]
             self.array = pd.arrays.ArrowStringArray(pa.chunked_array(chunks))
         else:
             self.array = pd.arrays.ArrowStringArray(pa.array(strings))

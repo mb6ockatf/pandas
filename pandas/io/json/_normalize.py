@@ -139,7 +139,9 @@ def nested_to_record(
                 continue
 
             v = new_d.pop(k)
-            new_d.update(nested_to_record(v, newkey, sep, level + 1, max_level))
+            new_d.update(
+                nested_to_record(v, newkey, sep, level + 1, max_level)
+            )
         new_ds.append(new_d)
 
     if singleton:
@@ -188,7 +190,9 @@ def _normalize_json(
     return normalized_dict
 
 
-def _normalize_json_ordered(data: dict[str, Any], separator: str) -> dict[str, Any]:
+def _normalize_json_ordered(
+    data: dict[str, Any], separator: str
+) -> dict[str, Any]:
     """
     Order the top level keys and then recursively go to depth
 
@@ -259,9 +263,13 @@ def _simple_json_normalize(
     normalized_json_object = {}
     # expect a dictionary, as most jsons are. However, lists are perfectly valid
     if isinstance(ds, dict):
-        normalized_json_object = _normalize_json_ordered(data=ds, separator=sep)
+        normalized_json_object = _normalize_json_ordered(
+            data=ds, separator=sep
+        )
     elif isinstance(ds, list):
-        normalized_json_list = [_simple_json_normalize(row, sep=sep) for row in ds]
+        normalized_json_list = [
+            _simple_json_normalize(row, sep=sep) for row in ds
+        ]
         return normalized_json_list
     return normalized_json_object
 
@@ -551,14 +559,18 @@ def json_normalize(
                     if level + 1 == len(val):
                         seen_meta[key] = _pull_field(obj, val[-1])
 
-                _recursive_extract(obj[path[0]], path[1:], seen_meta, level=level + 1)
+                _recursive_extract(
+                    obj[path[0]], path[1:], seen_meta, level=level + 1
+                )
         else:
             for obj in data:
                 recs = _pull_records(obj, path[0])
                 recs = [
-                    nested_to_record(r, sep=sep, max_level=max_level)
-                    if isinstance(r, dict)
-                    else r
+                    (
+                        nested_to_record(r, sep=sep, max_level=max_level)
+                        if isinstance(r, dict)
+                        else r
+                    )
                     for r in recs
                 ]
 

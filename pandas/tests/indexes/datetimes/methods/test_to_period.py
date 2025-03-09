@@ -34,7 +34,9 @@ class TestToPeriod:
         assert pi2[-1] == Period("11/30/2005", freq="D")
         assert pi3[-1], Period("11/30/2005", freq="3D")
 
-        tm.assert_index_equal(pi1, period_range("1/1/2005", "11/1/2005", freq="M"))
+        tm.assert_index_equal(
+            pi1, period_range("1/1/2005", "11/1/2005", freq="M")
+        )
         tm.assert_index_equal(
             pi2, period_range("1/1/2005", "11/1/2005", freq="M").asfreq("D")
         )
@@ -88,7 +90,9 @@ class TestToPeriod:
         dti = date_range("2020-01-01", periods=3, freq=freq_offset)
         pi = dti.to_period()
 
-        tm.assert_index_equal(pi, period_range("2020-01", "2020-05", freq=freq_period))
+        tm.assert_index_equal(
+            pi, period_range("2020-01", "2020-05", freq=freq_period)
+        )
 
     @pytest.mark.parametrize(
         "freq", ["2ME", "1me", "2QE", "2QE-SEP", "1YE", "ye", "2YE-MAR"]
@@ -108,15 +112,21 @@ class TestToPeriod:
             freq="5min",
         )
 
-        with tm.assert_produces_warning(UserWarning, match="drop timezone info"):
+        with tm.assert_produces_warning(
+            UserWarning, match="drop timezone info"
+        ):
             pi1 = rng.to_period("5min")
 
-        with tm.assert_produces_warning(UserWarning, match="drop timezone info"):
+        with tm.assert_produces_warning(
+            UserWarning, match="drop timezone info"
+        ):
             pi2 = rng.to_period()
 
         tm.assert_index_equal(pi1, pi2)
 
-    @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+    @pytest.mark.filterwarnings(
+        r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+    )
     def test_period_dt64_round_trip(self):
         dti = date_range("1/1/2000", "1/7/2002", freq="B")
         pi = dti.to_period()
@@ -134,7 +144,9 @@ class TestToPeriod:
             ]
         )
 
-        with tm.assert_produces_warning(UserWarning, match="drop timezone info"):
+        with tm.assert_produces_warning(
+            UserWarning, match="drop timezone info"
+        ):
             period = index.to_period(freq="ms")
         assert 2 == len(period)
         assert period[0] == Period("2007-01-01 10:11:12.123Z", "ms")
@@ -148,7 +160,9 @@ class TestToPeriod:
             ]
         )
 
-        with tm.assert_produces_warning(UserWarning, match="drop timezone info"):
+        with tm.assert_produces_warning(
+            UserWarning, match="drop timezone info"
+        ):
             period = index.to_period(freq="us")
         assert 2 == len(period)
         assert period[0] == Period("2007-01-01 10:11:12.123456Z", "us")
@@ -167,7 +181,9 @@ class TestToPeriod:
     def test_to_period_tz(self, tz):
         ts = date_range("1/1/2000", "2/1/2000", tz=tz)
 
-        with tm.assert_produces_warning(UserWarning, match="drop timezone info"):
+        with tm.assert_produces_warning(
+            UserWarning, match="drop timezone info"
+        ):
             result = ts.to_period()[0]
             expected = ts[0].to_period(ts.freq)
 
@@ -175,7 +191,9 @@ class TestToPeriod:
 
         expected = date_range("1/1/2000", "2/1/2000").to_period()
 
-        with tm.assert_produces_warning(UserWarning, match="drop timezone info"):
+        with tm.assert_produces_warning(
+            UserWarning, match="drop timezone info"
+        ):
             result = ts.to_period(ts.freq)
 
         tm.assert_index_equal(result, expected)
@@ -184,7 +202,9 @@ class TestToPeriod:
     def test_to_period_tz_utc_offset_consistency(self, tz):
         # GH#22905
         ts = date_range("1/1/2000", "2/1/2000", tz="Etc/GMT-1")
-        with tm.assert_produces_warning(UserWarning, match="drop timezone info"):
+        with tm.assert_produces_warning(
+            UserWarning, match="drop timezone info"
+        ):
             result = ts.to_period()[0]
             expected = ts[0].to_period(ts.freq)
             assert result == expected
@@ -195,9 +215,13 @@ class TestToPeriod:
         with pytest.raises(ValueError, match=msg):
             idx.to_period()
 
-        idx = DatetimeIndex(["2000-01-01", "2000-01-02", "2000-01-03"], freq="infer")
+        idx = DatetimeIndex(
+            ["2000-01-01", "2000-01-02", "2000-01-03"], freq="infer"
+        )
         assert idx.freqstr == "D"
-        expected = PeriodIndex(["2000-01-01", "2000-01-02", "2000-01-03"], freq="D")
+        expected = PeriodIndex(
+            ["2000-01-01", "2000-01-02", "2000-01-03"], freq="D"
+        )
         tm.assert_index_equal(idx.to_period(), expected)
 
         # GH#7606

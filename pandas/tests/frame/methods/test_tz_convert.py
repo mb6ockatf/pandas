@@ -16,7 +16,10 @@ import pandas._testing as tm
 class TestTZConvert:
     def test_tz_convert(self, frame_or_series):
         rng = date_range(
-            "1/1/2011", periods=200, freq="D", tz=zoneinfo.ZoneInfo("US/Eastern")
+            "1/1/2011",
+            periods=200,
+            freq="D",
+            tz=zoneinfo.ZoneInfo("US/Eastern"),
         )
 
         obj = DataFrame({"a": 1}, index=rng)
@@ -32,7 +35,10 @@ class TestTZConvert:
 
     def test_tz_convert_axis1(self):
         rng = date_range(
-            "1/1/2011", periods=200, freq="D", tz=zoneinfo.ZoneInfo("US/Eastern")
+            "1/1/2011",
+            periods=200,
+            freq="D",
+            tz=zoneinfo.ZoneInfo("US/Eastern"),
         )
 
         obj = DataFrame({"a": 1}, index=rng)
@@ -129,11 +135,15 @@ class TestTZConvert:
         # GH#6326
         obj = frame_or_series(
             np.arange(0, 5),
-            index=date_range("20131027", periods=5, freq="h", tz="Europe/Berlin"),
+            index=date_range(
+                "20131027", periods=5, freq="h", tz="Europe/Berlin"
+            ),
         )
         orig = obj.copy()
         result = obj.tz_convert("UTC")
-        expected = frame_or_series(np.arange(0, 5), index=obj.index.tz_convert("UTC"))
+        expected = frame_or_series(
+            np.arange(0, 5), index=obj.index.tz_convert("UTC")
+        )
         tm.assert_equal(result, expected)
         tm.assert_equal(obj, orig)
         assert result.index is not obj.index

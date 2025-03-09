@@ -56,7 +56,9 @@ def test_astype_avoids_copy(dtype, new_dtype):
     tm.assert_frame_equal(df2, df_orig.astype(new_dtype))
 
 
-@pytest.mark.parametrize("dtype", ["float64", "int32", "Int32", "int32[pyarrow]"])
+@pytest.mark.parametrize(
+    "dtype", ["float64", "int32", "Int32", "int32[pyarrow]"]
+)
 def test_astype_different_target_dtype(dtype):
     if dtype == "int32[pyarrow]":
         pytest.importorskip("pyarrow")
@@ -139,7 +141,11 @@ def test_astype_string_read_only_on_pickle_roundrip(any_string_dtype):
 
 def test_astype_dict_dtypes():
     df = DataFrame(
-        {"a": [1, 2, 3], "b": [4, 5, 6], "c": Series([1.5, 1.5, 1.5], dtype="float64")}
+        {
+            "a": [1, 2, 3],
+            "b": [4, 5, 6],
+            "c": Series([1.5, 1.5, 1.5], dtype="float64"),
+        }
     )
     df_orig = df.copy()
     df2 = df.astype({"a": "float64", "c": "float64"})
@@ -201,7 +207,9 @@ def test_astype_arrow_timestamp():
             get_array(df, "a"), get_array(result, "a")._pa_array
         )
     else:
-        assert np.shares_memory(get_array(df, "a"), get_array(result, "a")._pa_array)
+        assert np.shares_memory(
+            get_array(df, "a"), get_array(result, "a")._pa_array
+        )
 
 
 def test_convert_dtypes_infer_objects():
@@ -220,7 +228,9 @@ def test_convert_dtypes_infer_objects():
 
 
 def test_convert_dtypes(using_infer_string):
-    df = DataFrame({"a": ["a", "b"], "b": [1, 2], "c": [1.5, 2.5], "d": [True, False]})
+    df = DataFrame(
+        {"a": ["a", "b"], "b": [1, 2], "c": [1.5, 2.5], "d": [True, False]}
+    )
     df_orig = df.copy()
     df2 = df.convert_dtypes()
 

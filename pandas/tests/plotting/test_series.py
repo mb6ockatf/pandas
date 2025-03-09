@@ -54,13 +54,18 @@ def ts():
 @pytest.fixture
 def series():
     return Series(
-        range(10), dtype=np.float64, name="series", index=[f"i_{i}" for i in range(10)]
+        range(10),
+        dtype=np.float64,
+        name="series",
+        index=[f"i_{i}" for i in range(10)],
     )
 
 
 class TestSeriesPlots:
     @pytest.mark.slow
-    @pytest.mark.parametrize("kwargs", [{"label": "foo"}, {"use_index": False}])
+    @pytest.mark.parametrize(
+        "kwargs", [{"label": "foo"}, {"use_index": False}]
+    )
     def test_plot(self, ts, kwargs):
         _check_plot_works(ts.plot, **kwargs)
 
@@ -113,11 +118,14 @@ class TestSeriesPlots:
 
     def test_plot_series_bar_ax(self):
         ax = _check_plot_works(
-            Series(np.random.default_rng(2).standard_normal(10)).plot.bar, color="black"
+            Series(np.random.default_rng(2).standard_normal(10)).plot.bar,
+            color="black",
         )
         _check_colors([ax.patches[0]], facecolors=["black"])
 
-    @pytest.mark.parametrize("kwargs", [{}, {"layout": (-1, 1)}, {"layout": (1, -1)}])
+    @pytest.mark.parametrize(
+        "kwargs", [{}, {"layout": (-1, 1)}, {"layout": (1, -1)}]
+    )
     def test_plot_6951(self, ts, kwargs):
         # GH 6951
         ax = _check_plot_works(ts.plot, subplots=True, **kwargs)
@@ -241,7 +249,9 @@ class TestSeriesPlots:
         with pytest.raises(TypeError, match=msg):
             _check_plot_works(s.plot)
 
-    @pytest.mark.parametrize("index", [None, date_range("2020-01-01", periods=4)])
+    @pytest.mark.parametrize(
+        "index", [None, date_range("2020-01-01", periods=4)]
+    )
     def test_line_area_nan_series(self, index):
         values = [1, 2, np.nan, 3]
         d = Series(values, index=index)
@@ -250,7 +260,9 @@ class TestSeriesPlots:
         # remove nan for comparison purpose
         exp = np.array([1, 2, 3], dtype=np.float64)
         tm.assert_numpy_array_equal(np.delete(masked.data, 2), exp)
-        tm.assert_numpy_array_equal(masked.mask, np.array([False, False, True, False]))
+        tm.assert_numpy_array_equal(
+            masked.mask, np.array([False, False, True, False])
+        )
 
         expected = np.array([1, 2, 0, 3], dtype=np.float64)
         ax = _check_plot_works(d.plot, stacked=True)
@@ -281,7 +293,9 @@ class TestSeriesPlots:
         reason="Weird rounding problems",
         strict=False,
     )
-    @pytest.mark.parametrize("axis, meth", [("yaxis", "bar"), ("xaxis", "barh")])
+    @pytest.mark.parametrize(
+        "axis, meth", [("yaxis", "bar"), ("xaxis", "barh")]
+    )
     def test_bar_log(self, axis, meth):
         expected = np.array([1e-1, 1e0, 1e1, 1e2, 1e3, 1e4])
 
@@ -413,7 +427,9 @@ class TestSeriesPlots:
         # with labels and colors
         labels = ["A", "B", "C", "D", "E"]
         color_args = ["r", "g", "b", "c", "m"]
-        ax = _check_plot_works(series.plot.pie, labels=labels, colors=color_args)
+        ax = _check_plot_works(
+            series.plot.pie, labels=labels, colors=color_args
+        )
         _check_text_labels(ax.texts, labels)
         _check_colors(ax.patches, facecolors=color_args)
 
@@ -436,12 +452,16 @@ class TestSeriesPlots:
     def test_pie_series_negative_raises(self):
         # includes negative value
         series = Series([1, 2, 0, 4, -1], index=["a", "b", "c", "d", "e"])
-        with pytest.raises(ValueError, match="pie plot doesn't allow negative values"):
+        with pytest.raises(
+            ValueError, match="pie plot doesn't allow negative values"
+        ):
             series.plot.pie()
 
     def test_pie_series_nan(self):
         # includes nan
-        series = Series([1, 2, np.nan, 4], index=["a", "b", "c", "d"], name="YLABEL")
+        series = Series(
+            [1, 2, np.nan, 4], index=["a", "b", "c", "d"], name="YLABEL"
+        )
         ax = _check_plot_works(series.plot.pie)
         _check_text_labels(ax.texts, ["a", "b", "", "d"])
 
@@ -456,7 +476,8 @@ class TestSeriesPlots:
     def test_df_series_secondary_legend(self):
         # GH 9779
         df = DataFrame(
-            np.random.default_rng(2).standard_normal((10, 3)), columns=list("abc")
+            np.random.default_rng(2).standard_normal((10, 3)),
+            columns=list("abc"),
         )
         s = Series(np.random.default_rng(2).standard_normal(10), name="x")
 
@@ -473,7 +494,8 @@ class TestSeriesPlots:
     def test_df_series_secondary_legend_both(self):
         # GH 9779
         df = DataFrame(
-            np.random.default_rng(2).standard_normal((10, 3)), columns=list("abc")
+            np.random.default_rng(2).standard_normal((10, 3)),
+            columns=list("abc"),
         )
         s = Series(np.random.default_rng(2).standard_normal(10), name="x")
         # secondary -> secondary (without passing ax)
@@ -490,7 +512,8 @@ class TestSeriesPlots:
     def test_df_series_secondary_legend_both_with_axis_2(self):
         # GH 9779
         df = DataFrame(
-            np.random.default_rng(2).standard_normal((10, 3)), columns=list("abc")
+            np.random.default_rng(2).standard_normal((10, 3)),
+            columns=list("abc"),
         )
         s = Series(np.random.default_rng(2).standard_normal(10), name="x")
         # secondary -> secondary (with passing ax)
@@ -552,7 +575,9 @@ class TestSeriesPlots:
         # GH59337
         pytest.importorskip("scipy")
         s = Series(np.random.default_rng(2).uniform(size=50))
-        _check_plot_works(s.plot.kde, bw_method=bw_method, ind=ind, weights=weights)
+        _check_plot_works(
+            s.plot.kde, bw_method=bw_method, ind=ind, weights=weights
+        )
 
     def test_density_kwargs(self, ts):
         pytest.importorskip("scipy")
@@ -588,7 +613,8 @@ class TestSeriesPlots:
 
     @pytest.mark.parametrize(
         "kind",
-        plotting.PlotAccessor._common_kinds + plotting.PlotAccessor._series_kinds,
+        plotting.PlotAccessor._common_kinds
+        + plotting.PlotAccessor._series_kinds,
     )
     def test_kind_kwarg(self, kind):
         pytest.importorskip("scipy")
@@ -599,7 +625,8 @@ class TestSeriesPlots:
 
     @pytest.mark.parametrize(
         "kind",
-        plotting.PlotAccessor._common_kinds + plotting.PlotAccessor._series_kinds,
+        plotting.PlotAccessor._common_kinds
+        + plotting.PlotAccessor._series_kinds,
     )
     def test_kind_attr(self, kind):
         pytest.importorskip("scipy")
@@ -632,7 +659,9 @@ class TestSeriesPlots:
 
     def test_invalid_kind(self):
         s = Series([1, 2])
-        with pytest.raises(ValueError, match="invalid_kind is not a valid plot kind"):
+        with pytest.raises(
+            ValueError, match="invalid_kind is not a valid plot kind"
+        ):
             s.plot(kind="invalid_kind")
 
     def test_dup_datetime_index_plot(self):
@@ -650,7 +679,9 @@ class TestSeriesPlots:
 
         ax = s.plot(yerr=err, xerr=err)
 
-        result = np.vstack([i.vertices[:, 1] for i in ax.collections[1].get_paths()])
+        result = np.vstack(
+            [i.vertices[:, 1] for i in ax.collections[1].get_paths()]
+        )
         expected = (err.T * np.array([-1, 1])) + s.to_numpy().reshape(-1, 1)
         tm.assert_numpy_array_equal(result, expected)
 
@@ -738,7 +769,8 @@ class TestSeriesPlots:
         pytest.importorskip("scipy")
         _check_grid_settings(
             Series([1, 2, 3]),
-            plotting.PlotAccessor._series_kinds + plotting.PlotAccessor._common_kinds,
+            plotting.PlotAccessor._series_kinds
+            + plotting.PlotAccessor._common_kinds,
         )
 
     @pytest.mark.parametrize("c", ["r", "red", "green", "#FF0000"])
@@ -793,9 +825,9 @@ class TestSeriesPlots:
     def test_time_series_plot_color_kwargs(self):
         # #1890
         _, ax = mpl.pyplot.subplots()
-        ax = Series(np.arange(12) + 1, index=date_range("1/1/2000", periods=12)).plot(
-            color="green", ax=ax
-        )
+        ax = Series(
+            np.arange(12) + 1, index=date_range("1/1/2000", periods=12)
+        ).plot(color="green", ax=ax)
         _check_colors(ax.get_lines(), linecolors=["green"])
 
     def test_time_series_plot_color_with_empty_kwargs(self):
@@ -896,7 +928,9 @@ class TestSeriesPlots:
         expected = ser.tolist()
         result = [
             patch.get_bbox().ymax
-            for patch in sorted(ax.patches, key=lambda patch: patch.get_bbox().xmax)
+            for patch in sorted(
+                ax.patches, key=lambda patch: patch.get_bbox().xmax
+            )
         ]
         assert expected == result
 
@@ -910,7 +944,9 @@ class TestSeriesPlots:
         [(None, "", "new"), ("old", "old", "new"), (None, "", "")],
     )
     @pytest.mark.parametrize("kind", ["line", "area", "bar", "barh", "hist"])
-    def test_xlabel_ylabel_series(self, kind, index_name, old_label, new_label):
+    def test_xlabel_ylabel_series(
+        self, kind, index_name, old_label, new_label
+    ):
         # GH 9093
         ser = Series([1, 2, 3, 4])
         ser.index.name = index_name

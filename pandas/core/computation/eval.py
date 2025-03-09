@@ -175,7 +175,9 @@ def _check_for_locals(expr: str, stack_level: int, parser: str) -> None:
 
 
 def eval(
-    expr: str | BinOp,  # we leave BinOp out of the docstr bc it isn't for users
+    expr: (
+        str | BinOp
+    ),  # we leave BinOp out of the docstr bc it isn't for users
     parser: str = "pandas",
     engine: str | None = None,
     local_dict=None,
@@ -374,7 +376,10 @@ def eval(
             or (
                 getattr(parsed_expr.terms, "operand_types", None) is not None
                 and any(
-                    (is_extension_array_dtype(elem) and not is_string_dtype(elem))
+                    (
+                        is_extension_array_dtype(elem)
+                        and not is_string_dtype(elem)
+                    )
                     for elem in parsed_expr.terms.operand_types
                 )
             )
@@ -399,7 +404,9 @@ def eval(
                     "if all expressions contain an assignment"
                 )
             if inplace:
-                raise ValueError("Cannot operate inplace if there is no assignment")
+                raise ValueError(
+                    "Cannot operate inplace if there is no assignment"
+                )
 
         # assign if needed
         assigner = parsed_expr.assigner
@@ -415,7 +422,9 @@ def eval(
                     else:
                         target = target.copy()
                 except AttributeError as err:
-                    raise ValueError("Cannot return a copy of the target") from err
+                    raise ValueError(
+                        "Cannot return a copy of the target"
+                    ) from err
             else:
                 target = env.target
 
@@ -429,7 +438,9 @@ def eval(
                 else:
                     target[assigner] = ret  # pyright: ignore[reportIndexIssue]
             except (TypeError, IndexError) as err:
-                raise ValueError("Cannot assign expression output to target") from err
+                raise ValueError(
+                    "Cannot assign expression output to target"
+                ) from err
 
             if not resolvers:
                 resolvers = ({assigner: ret},)

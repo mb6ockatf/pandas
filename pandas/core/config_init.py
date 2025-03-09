@@ -81,7 +81,11 @@ with cf.config_prefix("compute"):
         cb=use_bottleneck_cb,
     )
     cf.register_option(
-        "use_numexpr", True, use_numexpr_doc, validator=is_bool, cb=use_numexpr_cb
+        "use_numexpr",
+        True,
+        use_numexpr_doc,
+        validator=is_bool,
+        cb=use_numexpr_cb,
     )
     cf.register_option(
         "use_numba", False, use_numba_doc, validator=is_bool, cb=use_numba_cb
@@ -310,7 +314,9 @@ def is_terminal() -> bool:
 
 
 with cf.config_prefix("display"):
-    cf.register_option("precision", 6, pc_precision_doc, validator=is_nonnegative_int)
+    cf.register_option(
+        "precision", 6, pc_precision_doc, validator=is_nonnegative_int
+    )
     cf.register_option(
         "float_format",
         None,
@@ -323,14 +329,18 @@ with cf.config_prefix("display"):
         pc_max_info_rows_doc,
         validator=is_int,
     )
-    cf.register_option("max_rows", 60, pc_max_rows_doc, validator=is_nonnegative_int)
+    cf.register_option(
+        "max_rows", 60, pc_max_rows_doc, validator=is_nonnegative_int
+    )
     cf.register_option(
         "min_rows",
         10,
         pc_min_rows_doc,
         validator=is_instance_factory((type(None), int)),
     )
-    cf.register_option("max_categories", 8, pc_max_categories_doc, validator=is_int)
+    cf.register_option(
+        "max_categories", 8, pc_max_categories_doc, validator=is_int
+    )
 
     cf.register_option(
         "max_colwidth",
@@ -351,13 +361,21 @@ with cf.config_prefix("display"):
         pc_large_repr_doc,
         validator=is_one_of_factory(["truncate", "info"]),
     )
-    cf.register_option("max_info_columns", 100, pc_max_info_cols_doc, validator=is_int)
+    cf.register_option(
+        "max_info_columns", 100, pc_max_info_cols_doc, validator=is_int
+    )
     cf.register_option(
         "colheader_justify", "right", colheader_justify_doc, validator=is_text
     )
-    cf.register_option("notebook_repr_html", True, pc_nb_repr_h_doc, validator=is_bool)
-    cf.register_option("pprint_nest_depth", 3, pc_pprint_nest_depth, validator=is_int)
-    cf.register_option("multi_sparse", True, pc_multi_sparse_doc, validator=is_bool)
+    cf.register_option(
+        "notebook_repr_html", True, pc_nb_repr_h_doc, validator=is_bool
+    )
+    cf.register_option(
+        "pprint_nest_depth", 3, pc_pprint_nest_depth, validator=is_int
+    )
+    cf.register_option(
+        "multi_sparse", True, pc_multi_sparse_doc, validator=is_bool
+    )
     cf.register_option("expand_frame_repr", True, pc_expand_repr_doc)
     cf.register_option(
         "show_dimensions",
@@ -368,7 +386,10 @@ with cf.config_prefix("display"):
     cf.register_option("chop_threshold", None, pc_chop_threshold_doc)
     cf.register_option("max_seq_items", 100, pc_max_seq_items)
     cf.register_option(
-        "width", 80, pc_width_doc, validator=is_instance_factory((type(None), int))
+        "width",
+        80,
+        pc_width_doc,
+        validator=is_instance_factory((type(None), int)),
     )
     cf.register_option(
         "memory_usage",
@@ -377,10 +398,16 @@ with cf.config_prefix("display"):
         validator=is_one_of_factory([None, True, False, "deep"]),
     )
     cf.register_option(
-        "unicode.east_asian_width", False, pc_east_asian_width_doc, validator=is_bool
+        "unicode.east_asian_width",
+        False,
+        pc_east_asian_width_doc,
+        validator=is_bool,
     )
     cf.register_option(
-        "unicode.ambiguous_as_wide", False, pc_east_asian_width_doc, validator=is_bool
+        "unicode.ambiguous_as_wide",
+        False,
+        pc_east_asian_width_doc,
+        validator=is_bool,
     )
     cf.register_option(
         "html.table_schema",
@@ -420,9 +447,11 @@ with cf.config_prefix("mode"):
         "copy_on_write",
         # Get the default from an environment variable, if set, otherwise defaults
         # to False. This environment variable can be set for testing.
-        "warn"
-        if os.environ.get("PANDAS_COPY_ON_WRITE", "0") == "warn"
-        else os.environ.get("PANDAS_COPY_ON_WRITE", "0") == "1",
+        (
+            "warn"
+            if os.environ.get("PANDAS_COPY_ON_WRITE", "0") == "warn"
+            else os.environ.get("PANDAS_COPY_ON_WRITE", "0") == "1"
+        ),
         copy_on_write_doc,
         validator=is_one_of_factory([True, False, "warn"]),
     )
@@ -775,7 +804,9 @@ styler_mathjax = """
 """
 
 with cf.config_prefix("styler"):
-    cf.register_option("sparse.index", True, styler_sparse_index_doc, validator=is_bool)
+    cf.register_option(
+        "sparse.index", True, styler_sparse_index_doc, validator=is_bool
+    )
 
     cf.register_option(
         "sparse.columns", True, styler_sparse_columns_doc, validator=is_bool
@@ -809,7 +840,9 @@ with cf.config_prefix("styler"):
         validator=is_nonnegative_int,
     )
 
-    cf.register_option("render.encoding", "utf-8", styler_encoding, validator=is_str)
+    cf.register_option(
+        "render.encoding", "utf-8", styler_encoding, validator=is_str
+    )
 
     cf.register_option("format.decimal", ".", styler_decimal, validator=is_str)
 
@@ -858,7 +891,20 @@ with cf.config_prefix("styler"):
         validator=is_one_of_factory(["c", "t", "b", "naive"]),
     )
 
-    val_mca = ["r", "|r|", "|r", "r|", "c", "|c|", "|c", "c|", "l", "|l|", "|l", "l|"]
+    val_mca = [
+        "r",
+        "|r|",
+        "|r",
+        "r|",
+        "c",
+        "|c|",
+        "|c",
+        "c|",
+        "l",
+        "|l|",
+        "|l",
+        "l|",
+    ]
     val_mca += ["naive-l", "naive-r"]
     cf.register_option(
         "latex.multicol_align",
@@ -880,7 +926,11 @@ with cf.config_prefix("styler"):
 with cf.config_prefix("future"):
     cf.register_option(
         "infer_string",
-        True if os.environ.get("PANDAS_FUTURE_INFER_STRING", "0") == "1" else False,
+        (
+            True
+            if os.environ.get("PANDAS_FUTURE_INFER_STRING", "0") == "1"
+            else False
+        ),
         "Whether to infer sequence of str objects as pyarrow string "
         "dtype, which will be the default in pandas 3.0 "
         "(at which point this option will be deprecated).",

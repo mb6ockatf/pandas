@@ -62,7 +62,9 @@ class TestSparseArray:
         arr.fill_value = np.nan
         assert np.isnan(arr.fill_value)
 
-        arr = SparseArray([True, False, True], fill_value=False, dtype=np.bool_)
+        arr = SparseArray(
+            [True, False, True], fill_value=False, dtype=np.bool_
+        )
         arr.fill_value = True
         assert arr.fill_value is True
 
@@ -75,7 +77,9 @@ class TestSparseArray:
 
     @pytest.mark.parametrize("val", [[1, 2, 3], np.array([1, 2]), (1, 2, 3)])
     def test_set_fill_invalid_non_scalar(self, val):
-        arr = SparseArray([True, False, True], fill_value=False, dtype=np.bool_)
+        arr = SparseArray(
+            [True, False, True], fill_value=False, dtype=np.bool_
+        )
         msg = "fill_value must be a scalar"
 
         with pytest.raises(ValueError, match=msg):
@@ -220,7 +224,9 @@ class TestSparseArray:
 
     def test_nonzero(self):
         # Tests regression #21172.
-        sa = SparseArray([float("nan"), float("nan"), 1, 0, 0, 2, 0, 0, 0, 3, 0, 0])
+        sa = SparseArray(
+            [float("nan"), float("nan"), 1, 0, 0, 2, 0, 0, 0, 3, 0, 0]
+        )
         expected = np.array([2, 5, 9], dtype=np.int32)
         (result,) = sa.nonzero()
         tm.assert_numpy_array_equal(expected, result)
@@ -279,7 +285,9 @@ class TestSparseArrayAnalytics:
         tm.assert_sp_array_equal(np.abs(sparse), result)
 
         sparse = SparseArray([1, -1, 2, -2], fill_value=1)
-        result = SparseArray([1, 2, 2], sparse_index=sparse.sp_index, fill_value=1)
+        result = SparseArray(
+            [1, 2, 2], sparse_index=sparse.sp_index, fill_value=1
+        )
         tm.assert_sp_array_equal(abs(sparse), result)
         tm.assert_sp_array_equal(np.abs(sparse), result)
 
@@ -317,7 +325,9 @@ class TestSparseArrayAnalytics:
     @pytest.mark.parametrize("fill_value", [0.0, np.nan])
     def test_modf(self, fill_value):
         # https://github.com/pandas-dev/pandas/issues/26946
-        sparse = SparseArray([fill_value] * 10 + [1.1, 2.2], fill_value=fill_value)
+        sparse = SparseArray(
+            [fill_value] * 10 + [1.1, 2.2], fill_value=fill_value
+        )
         r1, r2 = np.modf(sparse)
         e1, e2 = np.modf(np.asarray(sparse))
         tm.assert_sp_array_equal(r1, SparseArray(e1, fill_value=fill_value))
@@ -465,9 +475,13 @@ def test_dropna(fill_value):
 
 def test_drop_duplicates_fill_value():
     # GH 11726
-    df = pd.DataFrame(np.zeros((5, 5))).apply(lambda x: SparseArray(x, fill_value=0))
+    df = pd.DataFrame(np.zeros((5, 5))).apply(
+        lambda x: SparseArray(x, fill_value=0)
+    )
     result = df.drop_duplicates()
-    expected = pd.DataFrame({i: SparseArray([0.0], fill_value=0) for i in range(5)})
+    expected = pd.DataFrame(
+        {i: SparseArray([0.0], fill_value=0) for i in range(5)}
+    )
     tm.assert_frame_equal(result, expected)
 
 
@@ -479,7 +493,9 @@ def test_zero_sparse_column():
     expected = df2.loc[df2["B"] != 2]
     tm.assert_frame_equal(result, expected)
 
-    expected = pd.DataFrame({"A": SparseArray([0, 0]), "B": [1, 3]}, index=[0, 2])
+    expected = pd.DataFrame(
+        {"A": SparseArray([0, 0]), "B": [1, 3]}, index=[0, 2]
+    )
     tm.assert_frame_equal(result, expected)
 
 
@@ -503,7 +519,9 @@ def test_array_interface(arr_data, arr):
         return
 
     # for sparse arrays, copy=False is never allowed
-    with pytest.raises(ValueError, match="Unable to avoid copy while creating"):
+    with pytest.raises(
+        ValueError, match="Unable to avoid copy while creating"
+    ):
         np.array(arr, copy=False)
 
     # except when there are actually no sparse filled values

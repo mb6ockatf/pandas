@@ -37,7 +37,9 @@ class BaseOpsUtil:
 
         return result
 
-    def _cast_pointwise_result(self, op_name: str, obj, other, pointwise_result):
+    def _cast_pointwise_result(
+        self, op_name: str, obj, other, pointwise_result
+    ):
         # In _check_op we check that the result of a pointwise operation
         #  (found via _combine) matches the result of the vectorized
         #  operation obj.__op_name__(other).
@@ -84,7 +86,9 @@ class BaseOpsUtil:
         if exc is None:
             result = op(ser, other)
             expected = self._combine(ser, other, op)
-            expected = self._cast_pointwise_result(op_name, ser, other, expected)
+            expected = self._cast_pointwise_result(
+                op_name, ser, other, expected
+            )
             assert isinstance(result, type(ser))
             tm.assert_equal(result, expected)
         else:
@@ -132,7 +136,9 @@ class BaseArithmeticOpsTests(BaseOpsUtil):
 
     def test_arith_series_with_scalar(self, data, all_arithmetic_operators):
         # series & scalar
-        if all_arithmetic_operators == "__rmod__" and is_string_dtype(data.dtype):
+        if all_arithmetic_operators == "__rmod__" and is_string_dtype(
+            data.dtype
+        ):
             pytest.skip("Skip testing Python string formatting")
 
         op_name = all_arithmetic_operators
@@ -141,7 +147,9 @@ class BaseArithmeticOpsTests(BaseOpsUtil):
 
     def test_arith_frame_with_scalar(self, data, all_arithmetic_operators):
         # frame & scalar
-        if all_arithmetic_operators == "__rmod__" and is_string_dtype(data.dtype):
+        if all_arithmetic_operators == "__rmod__" and is_string_dtype(
+            data.dtype
+        ):
             pytest.skip("Skip testing Python string formatting")
 
         op_name = all_arithmetic_operators
@@ -191,7 +199,8 @@ class BaseArithmeticOpsTests(BaseOpsUtil):
         "op_name",
         [
             x
-            for x in tm.arithmetic_dunder_methods + tm.comparison_dunder_methods
+            for x in tm.arithmetic_dunder_methods
+            + tm.comparison_dunder_methods
             if not x.startswith("__r")
         ],
     )
@@ -215,7 +224,9 @@ class BaseComparisonOpsTests(BaseOpsUtil):
             # comparison should match point-wise comparisons
             result = op(ser, other)
             expected = ser.combine(other, op)
-            expected = self._cast_pointwise_result(op.__name__, ser, other, expected)
+            expected = self._cast_pointwise_result(
+                op.__name__, ser, other, expected
+            )
             tm.assert_series_equal(result, expected)
 
         else:
@@ -271,9 +282,11 @@ class BaseUnaryOpsTests(BaseOpsUtil):
     def test_unary_ufunc_dunder_equivalence(self, data, ufunc):
         # the dunder __pos__ works if and only if np.positive works,
         #  same for __neg__/np.negative and __abs__/np.abs
-        attr = {np.positive: "__pos__", np.negative: "__neg__", np.abs: "__abs__"}[
-            ufunc
-        ]
+        attr = {
+            np.positive: "__pos__",
+            np.negative: "__neg__",
+            np.abs: "__abs__",
+        }[ufunc]
 
         exc = None
         try:

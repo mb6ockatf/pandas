@@ -86,7 +86,11 @@ class TestSliceLocs:
 
     def test_slice_locs_not_sorted(self):
         index = MultiIndex(
-            levels=[Index(np.arange(4)), Index(np.arange(4)), Index(np.arange(4))],
+            levels=[
+                Index(np.arange(4)),
+                Index(np.arange(4)),
+                Index(np.arange(4)),
+            ],
             codes=[
                 np.array([0, 0, 1, 2, 2, 2, 3, 3]),
                 np.array([0, 1, 0, 0, 0, 1, 0, 1]),
@@ -133,10 +137,30 @@ class TestSliceLocs:
         [
             ([[np.nan, "a", "b"], ["c", "d", "e"]], (0, 3), np.nan, None),
             ([[np.nan, "a", "b"], ["c", "d", "e"]], (0, 3), np.nan, "b"),
-            ([[np.nan, "a", "b"], ["c", "d", "e"]], (0, 3), np.nan, ("b", "e")),
-            ([["a", "b", "c"], ["d", np.nan, "e"]], (1, 3), ("b", np.nan), None),
-            ([["a", "b", "c"], ["d", np.nan, "e"]], (1, 3), ("b", np.nan), "c"),
-            ([["a", "b", "c"], ["d", np.nan, "e"]], (1, 3), ("b", np.nan), ("c", "e")),
+            (
+                [[np.nan, "a", "b"], ["c", "d", "e"]],
+                (0, 3),
+                np.nan,
+                ("b", "e"),
+            ),
+            (
+                [["a", "b", "c"], ["d", np.nan, "e"]],
+                (1, 3),
+                ("b", np.nan),
+                None,
+            ),
+            (
+                [["a", "b", "c"], ["d", np.nan, "e"]],
+                (1, 3),
+                ("b", np.nan),
+                "c",
+            ),
+            (
+                [["a", "b", "c"], ["d", np.nan, "e"]],
+                (1, 3),
+                ("b", np.nan),
+                ("c", "e"),
+            ),
         ],
     )
     def test_slice_locs_with_missing_value(
@@ -258,9 +282,7 @@ class TestGetIndexer:
 
     def test_get_indexer_nearest(self):
         midx = MultiIndex.from_tuples([("a", 1), ("b", 2)])
-        msg = (
-            "method='nearest' not implemented yet for MultiIndex; see GitHub issue 9365"
-        )
+        msg = "method='nearest' not implemented yet for MultiIndex; see GitHub issue 9365"
         with pytest.raises(NotImplementedError, match=msg):
             midx.get_indexer(["a"], method="nearest")
         msg = "tolerance not implemented yet for MultiIndex"
@@ -286,8 +308,16 @@ class TestGetIndexer:
                 [1, np.nan, 2],
                 np.array([-1, -1, -1], dtype=np.intp),
             ),
-            ([[1, np.nan, 2], [3, 4, 5]], [(np.nan, 4)], np.array([1], dtype=np.intp)),
-            ([[1, 2, 3], [np.nan, 4, 5]], [(1, np.nan)], np.array([0], dtype=np.intp)),
+            (
+                [[1, np.nan, 2], [3, 4, 5]],
+                [(np.nan, 4)],
+                np.array([1], dtype=np.intp),
+            ),
+            (
+                [[1, 2, 3], [np.nan, 4, 5]],
+                [(1, np.nan)],
+                np.array([0], dtype=np.intp),
+            ),
             (
                 [[1, 2, 3], [np.nan, 4, 5]],
                 [np.nan, 4, 5],
@@ -335,7 +365,9 @@ class TestGetIndexer:
         expected = np.array([-1, 6, 7], dtype=indexer.dtype)
         tm.assert_almost_equal(expected, indexer)
 
-        backfill_indexer = mult_idx_1.get_indexer(mult_idx_2, method="backfill")
+        backfill_indexer = mult_idx_1.get_indexer(
+            mult_idx_2, method="backfill"
+        )
         expected = np.array([5, 6, 7], dtype=backfill_indexer.dtype)
         tm.assert_almost_equal(expected, backfill_indexer)
 
@@ -353,7 +385,9 @@ class TestGetIndexer:
         expected = np.array([4, 6, 7], dtype=pad_indexer.dtype)
         tm.assert_almost_equal(expected, pad_indexer)
 
-    @pytest.mark.parametrize("method", ["pad", "ffill", "backfill", "bfill", "nearest"])
+    @pytest.mark.parametrize(
+        "method", ["pad", "ffill", "backfill", "bfill", "nearest"]
+    )
     def test_get_indexer_methods_raise_for_non_monotonic(self, method):
         # 53452
         mi = MultiIndex.from_arrays([[0, 4, 2], [0, 4, 2]])
@@ -420,17 +454,25 @@ class TestGetIndexer:
         assert mult_idx_1[-1] < mult_idx_2[6]
 
         indexer_no_fill = mult_idx_1.get_indexer(mult_idx_2)
-        expected = np.array([-1, -1, 5, -1, -1, -1, -1], dtype=indexer_no_fill.dtype)
+        expected = np.array(
+            [-1, -1, 5, -1, -1, -1, -1], dtype=indexer_no_fill.dtype
+        )
         tm.assert_almost_equal(expected, indexer_no_fill)
 
         # test with backfilling
-        indexer_backfilled = mult_idx_1.get_indexer(mult_idx_2, method="backfill")
-        expected = np.array([0, 4, 5, 6, 6, 6, -1], dtype=indexer_backfilled.dtype)
+        indexer_backfilled = mult_idx_1.get_indexer(
+            mult_idx_2, method="backfill"
+        )
+        expected = np.array(
+            [0, 4, 5, 6, 6, 6, -1], dtype=indexer_backfilled.dtype
+        )
         tm.assert_almost_equal(expected, indexer_backfilled)
 
         # now, the same thing, but forward-filled (aka "padded")
         indexer_padded = mult_idx_1.get_indexer(mult_idx_2, method="pad")
-        expected = np.array([-1, 3, 5, 5, 5, 5, 11], dtype=indexer_padded.dtype)
+        expected = np.array(
+            [-1, 3, 5, 5, 5, 5, 11], dtype=indexer_padded.dtype
+        )
         tm.assert_almost_equal(expected, indexer_padded)
 
         # now, do the indexing in the other direction
@@ -449,7 +491,8 @@ class TestGetIndexer:
 
         indexer = mult_idx_2.get_indexer(mult_idx_1)
         expected = np.array(
-            [-1, -1, -1, -1, -1, 2, -1, -1, -1, -1, -1, -1], dtype=indexer.dtype
+            [-1, -1, -1, -1, -1, 2, -1, -1, -1, -1, -1, -1],
+            dtype=indexer.dtype,
         )
         tm.assert_almost_equal(expected, indexer)
 
@@ -525,8 +568,12 @@ class TestGetIndexer:
 
     def test_get_indexer_nan(self):
         # GH#37222
-        idx1 = MultiIndex.from_product([["A"], [1.0, 2.0]], names=["id1", "id2"])
-        idx2 = MultiIndex.from_product([["A"], [np.nan, 2.0]], names=["id1", "id2"])
+        idx1 = MultiIndex.from_product(
+            [["A"], [1.0, 2.0]], names=["id1", "id2"]
+        )
+        idx2 = MultiIndex.from_product(
+            [["A"], [np.nan, 2.0]], names=["id1", "id2"]
+        )
         expected = np.array([-1, 1])
         result = idx2.get_indexer(idx1)
         tm.assert_numpy_array_equal(result, expected, check_dtype=False)
@@ -595,7 +642,11 @@ class TestGetLoc:
 
         # 3 levels
         index = MultiIndex(
-            levels=[Index(np.arange(4)), Index(np.arange(4)), Index(np.arange(4))],
+            levels=[
+                Index(np.arange(4)),
+                Index(np.arange(4)),
+                Index(np.arange(4)),
+            ],
             codes=[
                 np.array([0, 0, 1, 2, 2, 2, 3, 3]),
                 np.array([0, 1, 0, 0, 0, 1, 0, 1]),
@@ -622,7 +673,11 @@ class TestGetLoc:
 
     def test_get_loc_level(self):
         index = MultiIndex(
-            levels=[Index(np.arange(4)), Index(np.arange(4)), Index(np.arange(4))],
+            levels=[
+                Index(np.arange(4)),
+                Index(np.arange(4)),
+                Index(np.arange(4)),
+            ],
             codes=[
                 np.array([0, 0, 1, 2, 2, 2, 3, 3]),
                 np.array([0, 1, 0, 0, 0, 1, 0, 1]),
@@ -662,7 +717,10 @@ class TestGetLoc:
     @pytest.mark.parametrize("dtype2", [int, float, bool, str])
     def test_get_loc_multiple_dtypes(self, dtype1, dtype2):
         # GH 18520
-        levels = [np.array([0, 1]).astype(dtype1), np.array([0, 1]).astype(dtype2)]
+        levels = [
+            np.array([0, 1]).astype(dtype1),
+            np.array([0, 1]).astype(dtype2),
+        ]
         idx = MultiIndex.from_product(levels)
         assert idx.get_loc(idx[2]) == 2
 
@@ -682,7 +740,10 @@ class TestGetLoc:
     def test_get_loc_cast_bool(self, dtype):
         # GH 19086 : int is casted to bool, but not vice-versa (for object dtype)
         #  With bool dtype, we don't cast in either direction.
-        levels = [Index([False, True], dtype=dtype), np.arange(2, dtype="int64")]
+        levels = [
+            Index([False, True], dtype=dtype),
+            np.arange(2, dtype="int64"),
+        ]
         idx = MultiIndex.from_product(levels)
 
         if dtype is bool:
@@ -740,7 +801,10 @@ class TestGetLoc:
         # TODO: de-duplicate with test_get_loc_duplicates above?
         index = MultiIndex(
             levels=[["D", "B", "C"], [0, 26, 27, 37, 57, 67, 75, 82]],
-            codes=[[0, 0, 0, 1, 2, 2, 2, 2, 2, 2], [1, 3, 4, 6, 0, 2, 2, 3, 5, 7]],
+            codes=[
+                [0, 0, 0, 1, 2, 2, 2, 2, 2, 2],
+                [1, 3, 4, 6, 0, 2, 2, 3, 5, 7],
+            ],
             names=["tag", "day"],
         )
 
@@ -865,7 +929,9 @@ def test_timestamp_multiindex_indexer():
     # https://github.com/pandas-dev/pandas/issues/26944
     idx = MultiIndex.from_product(
         [
-            date_range("2019-01-01T00:15:33", periods=100, freq="h", name="date"),
+            date_range(
+                "2019-01-01T00:15:33", periods=100, freq="h", name="date"
+            ),
             ["x"],
             [3],
         ]
@@ -884,7 +950,9 @@ def test_timestamp_multiindex_indexer():
             [3],
         ]
     )
-    should_be = pd.Series(data=np.arange(24, len(qidx) + 24), index=qidx, name="foo")
+    should_be = pd.Series(
+        data=np.arange(24, len(qidx) + 24), index=qidx, name="foo"
+    )
     tm.assert_series_equal(result, should_be)
 
 
@@ -912,7 +980,9 @@ def test_get_slice_bound_with_missing_value(index_arr, expected, target, algo):
         ([[1, 2, 3], [4, np.nan, 5]], slice(1, 3, None), (2, np.nan), (3, 5)),
     ],
 )
-def test_slice_indexer_with_missing_value(index_arr, expected, start_idx, end_idx):
+def test_slice_indexer_with_missing_value(
+    index_arr, expected, start_idx, end_idx
+):
     # issue 19132
     idx = MultiIndex.from_arrays(index_arr)
     result = idx.slice_indexer(start=start_idx, end=end_idx)
@@ -997,7 +1067,9 @@ def test_get_locs_reordering(keys, expected):
 def test_get_indexer_for_multiindex_with_nans(nulls_fixture):
     # GH37222
     idx1 = MultiIndex.from_product([["A"], [1.0, 2.0]], names=["id1", "id2"])
-    idx2 = MultiIndex.from_product([["A"], [nulls_fixture, 2.0]], names=["id1", "id2"])
+    idx2 = MultiIndex.from_product(
+        [["A"], [nulls_fixture, 2.0]], names=["id1", "id2"]
+    )
 
     result = idx2.get_indexer(idx1)
     expected = np.array([-1, 1], dtype=np.intp)
@@ -1012,7 +1084,11 @@ def test_get_loc_namedtuple_behaves_like_tuple():
     # GH57922
     NamedIndex = namedtuple("NamedIndex", ("a", "b"))
     multi_idx = MultiIndex.from_tuples(
-        [NamedIndex("i1", "i2"), NamedIndex("i3", "i4"), NamedIndex("i5", "i6")]
+        [
+            NamedIndex("i1", "i2"),
+            NamedIndex("i3", "i4"),
+            NamedIndex("i5", "i6"),
+        ]
     )
     for idx in (multi_idx, multi_idx.to_flat_index()):
         assert idx.get_loc(NamedIndex("i1", "i2")) == 0
@@ -1021,7 +1097,9 @@ def test_get_loc_namedtuple_behaves_like_tuple():
         assert idx.get_loc(("i1", "i2")) == 0
         assert idx.get_loc(("i3", "i4")) == 1
         assert idx.get_loc(("i5", "i6")) == 2
-    multi_idx = MultiIndex.from_tuples([("i1", "i2"), ("i3", "i4"), ("i5", "i6")])
+    multi_idx = MultiIndex.from_tuples(
+        [("i1", "i2"), ("i3", "i4"), ("i5", "i6")]
+    )
     for idx in (multi_idx, multi_idx.to_flat_index()):
         assert idx.get_loc(NamedIndex("i1", "i2")) == 0
         assert idx.get_loc(NamedIndex("i3", "i4")) == 1

@@ -20,7 +20,11 @@ def test_concat_mismatched_categoricals_with_empty():
 def test_concat_single_dataframe_tz_aware():
     # https://github.com/pandas-dev/pandas/issues/25257
     df = pd.DataFrame(
-        {"timestamp": [pd.Timestamp("2020-04-08 09:00:00.709949+0000", tz="UTC")]}
+        {
+            "timestamp": [
+                pd.Timestamp("2020-04-08 09:00:00.709949+0000", tz="UTC")
+            ]
+        }
     )
     expected = df.copy()
     result = pd.concat([df])
@@ -37,9 +41,7 @@ def test_concat_periodarray_2d():
     result = _concat.concat_compat([arr[:, :2], arr[:, 2:]], axis=1)
     tm.assert_period_array_equal(result, arr)
 
-    msg = (
-        "all the input array dimensions.* for the concatenation axis must match exactly"
-    )
+    msg = "all the input array dimensions.* for the concatenation axis must match exactly"
     with pytest.raises(ValueError, match=msg):
         _concat.concat_compat([arr[:, :2], arr[:, 2:]], axis=0)
 
@@ -57,9 +59,11 @@ def test_concat_series_between_empty_and_tzaware_series(using_infer_string):
         data=[
             (0.0, None),
         ],
-        index=[tzaware_time]
-        if using_infer_string
-        else pd.Index([tzaware_time], dtype=object),
+        index=(
+            [tzaware_time]
+            if using_infer_string
+            else pd.Index([tzaware_time], dtype=object)
+        ),
         columns=[0, 1],
         dtype=float,
     )

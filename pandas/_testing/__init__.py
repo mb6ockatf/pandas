@@ -90,9 +90,20 @@ if TYPE_CHECKING:
     )
 
 
-UNSIGNED_INT_NUMPY_DTYPES: list[NpDtype] = ["uint8", "uint16", "uint32", "uint64"]
+UNSIGNED_INT_NUMPY_DTYPES: list[NpDtype] = [
+    "uint8",
+    "uint16",
+    "uint32",
+    "uint64",
+]
 UNSIGNED_INT_EA_DTYPES: list[Dtype] = ["UInt8", "UInt16", "UInt32", "UInt64"]
-SIGNED_INT_NUMPY_DTYPES: list[NpDtype] = [int, "int8", "int16", "int32", "int64"]
+SIGNED_INT_NUMPY_DTYPES: list[NpDtype] = [
+    int,
+    "int8",
+    "int16",
+    "int32",
+    "int64",
+]
 SIGNED_INT_EA_DTYPES: list[Dtype] = ["Int8", "Int16", "Int32", "Int64"]
 ALL_INT_NUMPY_DTYPES = UNSIGNED_INT_NUMPY_DTYPES + SIGNED_INT_NUMPY_DTYPES
 ALL_INT_EA_DTYPES = UNSIGNED_INT_EA_DTYPES + SIGNED_INT_EA_DTYPES
@@ -118,7 +129,10 @@ OBJECT_DTYPES: list[Dtype] = [object, "object"]
 
 ALL_REAL_NUMPY_DTYPES = FLOAT_NUMPY_DTYPES + ALL_INT_NUMPY_DTYPES
 ALL_REAL_EXTENSION_DTYPES = FLOAT_EA_DTYPES + ALL_INT_EA_DTYPES
-ALL_REAL_DTYPES: list[Dtype] = [*ALL_REAL_NUMPY_DTYPES, *ALL_REAL_EXTENSION_DTYPES]
+ALL_REAL_DTYPES: list[Dtype] = [
+    *ALL_REAL_NUMPY_DTYPES,
+    *ALL_REAL_EXTENSION_DTYPES,
+]
 ALL_NUMERIC_DTYPES: list[Dtype] = [*ALL_REAL_DTYPES, *COMPLEX_DTYPES]
 
 ALL_NUMPY_DTYPES = (
@@ -186,9 +200,16 @@ NP_NAT_OBJECTS = [
 if not pa_version_under10p1:
     import pyarrow as pa
 
-    UNSIGNED_INT_PYARROW_DTYPES = [pa.uint8(), pa.uint16(), pa.uint32(), pa.uint64()]
+    UNSIGNED_INT_PYARROW_DTYPES = [
+        pa.uint8(),
+        pa.uint16(),
+        pa.uint32(),
+        pa.uint64(),
+    ]
     SIGNED_INT_PYARROW_DTYPES = [pa.int8(), pa.int16(), pa.int32(), pa.int64()]
-    ALL_INT_PYARROW_DTYPES = UNSIGNED_INT_PYARROW_DTYPES + SIGNED_INT_PYARROW_DTYPES
+    ALL_INT_PYARROW_DTYPES = (
+        UNSIGNED_INT_PYARROW_DTYPES + SIGNED_INT_PYARROW_DTYPES
+    )
     ALL_INT_PYARROW_DTYPES_STR_REPR = [
         str(ArrowDtype(typ)) for typ in ALL_INT_PYARROW_DTYPES
     ]
@@ -215,7 +236,9 @@ if not pa_version_under10p1:
         for unit in ["s", "ms", "us", "ns"]
         for tz in [None, "UTC", "US/Pacific", "US/Eastern"]
     ]
-    TIMEDELTA_PYARROW_DTYPES = [pa.duration(unit) for unit in ["s", "ms", "us", "ns"]]
+    TIMEDELTA_PYARROW_DTYPES = [
+        pa.duration(unit) for unit in ["s", "ms", "us", "ns"]
+    ]
 
     BOOL_PYARROW_DTYPES = [pa.bool_()]
 
@@ -243,7 +266,9 @@ else:
     ALL_REAL_PYARROW_DTYPES_STR_REPR = []
 
 ALL_REAL_NULLABLE_DTYPES = (
-    FLOAT_NUMPY_DTYPES + ALL_REAL_EXTENSION_DTYPES + ALL_REAL_PYARROW_DTYPES_STR_REPR
+    FLOAT_NUMPY_DTYPES
+    + ALL_REAL_EXTENSION_DTYPES
+    + ALL_REAL_PYARROW_DTYPES_STR_REPR
 )
 
 arithmetic_dunder_methods = [
@@ -263,7 +288,14 @@ arithmetic_dunder_methods = [
     "__rmod__",
 ]
 
-comparison_dunder_methods = ["__eq__", "__ne__", "__le__", "__lt__", "__ge__", "__gt__"]
+comparison_dunder_methods = [
+    "__eq__",
+    "__ne__",
+    "__le__",
+    "__lt__",
+    "__ge__",
+    "__gt__",
+]
 
 
 # -----------------------------------------------------------------------------
@@ -373,7 +405,9 @@ def convert_rows_list_to_csv_str(rows_list: list[str]) -> str:
     return sep.join(rows_list) + sep
 
 
-def external_error_raised(expected_exception: type[Exception]) -> ContextManager:
+def external_error_raised(
+    expected_exception: type[Exception],
+) -> ContextManager:
     """
     Helper function to mark pytest.raises that have an external error message.
 
@@ -506,7 +540,9 @@ def shares_memory(left, right) -> bool:
     if isinstance(left, pd.core.arrays.SparseArray):
         return shares_memory(left.sp_values, right)
     if isinstance(left, pd.core.arrays.IntervalArray):
-        return shares_memory(left._left, right) or shares_memory(left._right, right)
+        return shares_memory(left._left, right) or shares_memory(
+            left._right, right
+        )
 
     if isinstance(left, ArrowExtensionArray):
         if isinstance(right, ArrowExtensionArray):
@@ -521,7 +557,9 @@ def shares_memory(left, right) -> bool:
             # they can only share memory if they share the same numpy buffer
             return np.shares_memory(left, right)
 
-    if isinstance(left, BaseMaskedArray) and isinstance(right, BaseMaskedArray):
+    if isinstance(left, BaseMaskedArray) and isinstance(
+        right, BaseMaskedArray
+    ):
         # By convention, we'll say these share memory if they share *either*
         #  the _data or the _mask
         return np.shares_memory(left._data, right._data) or np.shares_memory(

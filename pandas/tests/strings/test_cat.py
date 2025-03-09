@@ -107,13 +107,16 @@ def test_str_cat_categorical(
         t = Index(["b", "a", "b", "c"], dtype=dtype_target)
 
         expected = Index(
-            ["ab", "aa", "bb", "ac"], dtype=object if dtype_caller == "object" else None
+            ["ab", "aa", "bb", "ac"],
+            dtype=object if dtype_caller == "object" else None,
         )
         expected = (
             expected
             if box == Index
             else Series(
-                expected, index=Index(s, dtype=dtype_caller), dtype=expected.dtype
+                expected,
+                index=Index(s, dtype=dtype_caller),
+                dtype=expected.dtype,
             )
         )
 
@@ -136,7 +139,9 @@ def test_str_cat_categorical(
             ["aa", "aa", "bb", "bb", "aa"],
             dtype=object if dtype_caller == "object" else None,
         )
-        dtype = object if dtype_caller == "object" else s.dtype.categories.dtype
+        dtype = (
+            object if dtype_caller == "object" else s.dtype.categories.dtype
+        )
         expected = (
             expected
             if box == Index
@@ -182,7 +187,9 @@ def test_str_cat_mixed_inputs(index_or_series):
     d = concat([t, Series(s, index=s)], axis=1)
 
     expected = Index(["aAa", "bBb", "cCc", "dDd"])
-    expected = expected if box == Index else Series(expected.values, index=s.values)
+    expected = (
+        expected if box == Index else Series(expected.values, index=s.values)
+    )
 
     # Series/Index with DataFrame
     result = s.str.cat(d)
@@ -203,7 +210,9 @@ def test_str_cat_mixed_inputs(index_or_series):
     # Series/Index with list of Series; different indexes
     t.index = ["b", "c", "d", "a"]
     expected = box(["aDa", "bAb", "cBc", "dCd"])
-    expected = expected if box == Index else Series(expected.values, index=s.values)
+    expected = (
+        expected if box == Index else Series(expected.values, index=s.values)
+    )
     result = s.str.cat([t, s])
     tm.assert_equal(result, expected)
 
@@ -214,7 +223,9 @@ def test_str_cat_mixed_inputs(index_or_series):
     # Series/Index with DataFrame; different indexes
     d.index = ["b", "c", "d", "a"]
     expected = box(["aDd", "bAa", "cBb", "dCc"])
-    expected = expected if box == Index else Series(expected.values, index=s.values)
+    expected = (
+        expected if box == Index else Series(expected.values, index=s.values)
+    )
     result = s.str.cat(d)
     tm.assert_equal(result, expected)
 
@@ -317,9 +328,11 @@ def test_str_cat_align_mixed_inputs(join_type):
     rhs_idx = (
         t.index.intersection(s.index)
         if join_type == "inner"
-        else t.index.union(s.index)
-        if join_type == "outer"
-        else t.index.append(s.index.difference(t.index))
+        else (
+            t.index.union(s.index)
+            if join_type == "outer"
+            else t.index.append(s.index.difference(t.index))
+        )
     )
 
     expected = expected_outer.loc[s.index.join(rhs_idx, how=join_type)]

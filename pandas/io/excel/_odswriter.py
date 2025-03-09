@@ -151,7 +151,9 @@ class ODSWriter(ExcelWriter):
             for row_nr in range(max(rows.keys()) + 1):
                 wks.addElement(rows[row_nr])
 
-    def _make_table_cell_attributes(self, cell: ExcelCell) -> dict[str, int | str]:
+    def _make_table_cell_attributes(
+        self, cell: ExcelCell
+    ) -> dict[str, int | str]:
         """Convert cell attributes to OpenDocument attributes
 
         Parameters
@@ -209,7 +211,9 @@ class ODSWriter(ExcelWriter):
             pvalue = val.strftime("%c")
             return (
                 pvalue,
-                TableCell(valuetype="date", datevalue=value, attributes=attributes),
+                TableCell(
+                    valuetype="date", datevalue=value, attributes=attributes
+                ),
             )
         elif isinstance(val, datetime.date):
             # Fast formatting
@@ -218,7 +222,9 @@ class ODSWriter(ExcelWriter):
             pvalue = val.strftime("%x")
             return (
                 pvalue,
-                TableCell(valuetype="date", datevalue=value, attributes=attributes),
+                TableCell(
+                    valuetype="date", datevalue=value, attributes=attributes
+                ),
             )
         elif isinstance(val, str):
             return (
@@ -283,7 +289,9 @@ class ODSWriter(ExcelWriter):
                 thickness_translation = {"thin": "0.75pt solid #000000"}
                 odf_style.addElement(
                     TableCellProperties(
-                        attributes={f"border{side}": thickness_translation[thickness]}
+                        attributes={
+                            f"border{side}": thickness_translation[thickness]
+                        }
                     )
                 )
         if "alignment" in style:
@@ -293,7 +301,9 @@ class ODSWriter(ExcelWriter):
                 odf_style.addElement(ParagraphProperties(textalign=horizontal))
             vertical = alignment.get("vertical")
             if vertical:
-                odf_style.addElement(TableCellProperties(verticalalign=vertical))
+                odf_style.addElement(
+                    TableCellProperties(verticalalign=vertical)
+                )
         self.book.styles.addElement(odf_style)
         return name
 
@@ -341,17 +351,25 @@ class ODSWriter(ExcelWriter):
         )
         config_item_map_entry.addElement(
             ConfigItem(
-                name="HorizontalSplitPosition", type="int", text=str(freeze_panes[0])
+                name="HorizontalSplitPosition",
+                type="int",
+                text=str(freeze_panes[0]),
             )
         )
         config_item_map_entry.addElement(
             ConfigItem(
-                name="VerticalSplitPosition", type="int", text=str(freeze_panes[1])
+                name="VerticalSplitPosition",
+                type="int",
+                text=str(freeze_panes[1]),
             )
         )
         config_item_map_entry.addElement(
-            ConfigItem(name="PositionRight", type="int", text=str(freeze_panes[0]))
+            ConfigItem(
+                name="PositionRight", type="int", text=str(freeze_panes[0])
+            )
         )
         config_item_map_entry.addElement(
-            ConfigItem(name="PositionBottom", type="int", text=str(freeze_panes[1]))
+            ConfigItem(
+                name="PositionBottom", type="int", text=str(freeze_panes[1])
+            )
         )

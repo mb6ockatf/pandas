@@ -27,7 +27,9 @@ class TestTimedeltas:
     def test_to_timedelta_dt64_raises(self):
         # Passing datetime64-dtype data to TimedeltaIndex is no longer
         #  supported GH#29794
-        msg = r"dtype datetime64\[ns\] cannot be converted to timedelta64\[ns\]"
+        msg = (
+            r"dtype datetime64\[ns\] cannot be converted to timedelta64\[ns\]"
+        )
 
         ser = Series([pd.NaT], dtype="M8[ns]")
         with pytest.raises(TypeError, match=msg):
@@ -85,7 +87,9 @@ class TestTimedeltas:
         arr = np.array([1] * 5, dtype=dtype)
         result = to_timedelta(arr, unit=unit)
         exp_dtype = "m8[ns]" if dtype == "int64" else "m8[s]"
-        expected = TimedeltaIndex([np.timedelta64(1, unit)] * 5, dtype=exp_dtype)
+        expected = TimedeltaIndex(
+            [np.timedelta64(1, unit)] * 5, dtype=exp_dtype
+        )
         tm.assert_index_equal(result, expected)
 
     def test_to_timedelta_oob_non_nano(self):
@@ -127,9 +131,7 @@ class TestTimedeltas:
 
     def test_to_timedelta_time(self):
         # time not supported ATM
-        msg = (
-            "Value must be Timedelta, string, integer, float, timedelta or convertible"
-        )
+        msg = "Value must be Timedelta, string, integer, float, timedelta or convertible"
         with pytest.raises(ValueError, match=msg):
             to_timedelta(time(second=1))
         assert to_timedelta(time(second=1), errors="coerce") is pd.NaT
@@ -241,7 +243,9 @@ class TestTimedeltas:
     def test_to_timedelta_nullable_int64_dtype(self, expected_val, result_val):
         # GH 35574
         expected = Series([timedelta(days=1), expected_val])
-        result = to_timedelta(Series([1, result_val], dtype="Int64"), unit="days")
+        result = to_timedelta(
+            Series([1, result_val], dtype="Int64"), unit="days"
+        )
 
         tm.assert_series_equal(result, expected)
 

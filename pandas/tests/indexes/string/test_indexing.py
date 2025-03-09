@@ -89,7 +89,9 @@ class TestGetIndexer:
             )
 
     @pytest.mark.parametrize("null", [None, np.nan, float("nan"), pd.NA])
-    def test_get_indexer_missing(self, any_string_dtype, null, using_infer_string):
+    def test_get_indexer_missing(
+        self, any_string_dtype, null, using_infer_string
+    ):
         # NaT and Decimal("NaN") from null_fixture are not supported for string dtype
         index = Index(["a", "b", null], dtype=any_string_dtype)
         result = index.get_indexer(["a", null, "c"])
@@ -167,10 +169,14 @@ class TestSliceLocs:
             (pd.IndexSlice["m":"m":-1], ""),  # type: ignore[misc]
         ],
     )
-    def test_slice_locs_negative_step(self, in_slice, expected, any_string_dtype):
+    def test_slice_locs_negative_step(
+        self, in_slice, expected, any_string_dtype
+    ):
         index = Index(list("bcdxy"), dtype=any_string_dtype)
 
-        s_start, s_stop = index.slice_locs(in_slice.start, in_slice.stop, in_slice.step)
+        s_start, s_stop = index.slice_locs(
+            in_slice.start, in_slice.stop, in_slice.step
+        )
         result = index[s_start : s_stop : in_slice.step]
         expected = Index(list(expected), dtype=any_string_dtype)
         tm.assert_index_equal(result, expected)

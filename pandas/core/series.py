@@ -343,7 +343,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
     _internal_names_set = {"index", "name"} | NDFrame._internal_names_set
     _accessors = {"dt", "cat", "str", "sparse"}
     _hidden_attrs = (
-        base.IndexOpsMixin._hidden_attrs | NDFrame._hidden_attrs | frozenset([])
+        base.IndexOpsMixin._hidden_attrs
+        | NDFrame._hidden_attrs
+        | frozenset([])
     )
 
     # similar to __array_priority__, positions Series after DataFrame
@@ -395,7 +397,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
 
         if isinstance(data, (ExtensionArray, np.ndarray)):
             if copy is not False:
-                if dtype is None or astype_is_view(data.dtype, pandas_dtype(dtype)):
+                if dtype is None or astype_is_view(
+                    data.dtype, pandas_dtype(dtype)
+                ):
                     data = data.copy()
         if copy is None:
             copy = False
@@ -512,7 +516,10 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         self._set_axis(0, index)
 
     def _init_dict(
-        self, data: Mapping, index: Index | None = None, dtype: DtypeObj | None = None
+        self,
+        data: Mapping,
+        index: Index | None = None,
+        dtype: DtypeObj | None = None,
     ):
         """
         Derive the "_mgr" and "index" attributes of a new Series from a
@@ -540,7 +547,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             # Below is the new way of extracting the keys and values
 
             keys = maybe_sequence_to_range(tuple(data.keys()))
-            values = list(data.values())  # Generating list of values- faster way
+            values = list(
+                data.values()
+            )  # Generating list of values- faster way
         elif index is not None:
             # fastpath for Series(data=None). Just use broadcasting a scalar
             # instead of reindexing.
@@ -961,7 +970,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             except (KeyError, TypeError, InvalidIndexError):
                 # InvalidIndexError for e.g. generator
                 #  see test_series_getitem_corner_generator
-                if isinstance(key, tuple) and isinstance(self.index, MultiIndex):
+                if isinstance(key, tuple) and isinstance(
+                    self.index, MultiIndex
+                ):
                     # We still have the corner case where a tuple is a key
                     # in the first level of our MultiIndex
                     return self._get_values_tuple(key)
@@ -1004,14 +1015,18 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
 
         # If key is contained, would have returned by now
         indexer, new_index = self.index.get_loc_level(key)
-        new_ser = self._constructor(self._values[indexer], index=new_index, copy=False)
+        new_ser = self._constructor(
+            self._values[indexer], index=new_index, copy=False
+        )
         if isinstance(indexer, slice):
             new_ser._mgr.add_references(self._mgr)
         return new_ser.__finalize__(self)
 
     def _get_rows_with_mask(self, indexer: npt.NDArray[np.bool_]) -> Series:
         new_mgr = self._mgr.get_rows_with_mask(indexer)
-        return self._constructor_from_mgr(new_mgr, axes=new_mgr.axes).__finalize__(self)
+        return self._constructor_from_mgr(
+            new_mgr, axes=new_mgr.axes
+        ).__finalize__(self)
 
     def _get_value(self, label, takeable: bool = False):
         """
@@ -1058,7 +1073,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         if not PYPY:
             if sys.getrefcount(self) <= 3:
                 warnings.warn(
-                    _chained_assignment_msg, ChainedAssignmentError, stacklevel=2
+                    _chained_assignment_msg,
+                    ChainedAssignmentError,
+                    stacklevel=2,
                 )
 
         check_dict_or_set_indexers(key)
@@ -1085,7 +1102,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             self._set_values(indexer, value)
 
         except InvalidIndexError as err:
-            if isinstance(key, tuple) and not isinstance(self.index, MultiIndex):
+            if isinstance(key, tuple) and not isinstance(
+                self.index, MultiIndex
+            ):
                 # cases with MultiIndex don't get here bc they raise KeyError
                 # e.g. test_basic_getitem_setitem_corner
                 raise KeyError(
@@ -1182,7 +1201,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
     # ----------------------------------------------------------------------
     # Unsorted
 
-    def repeat(self, repeats: int | Sequence[int], axis: None = None) -> Series:
+    def repeat(
+        self, repeats: int | Sequence[int], axis: None = None
+    ) -> Series:
         """
         Repeat elements of a Series.
 
@@ -1236,9 +1257,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         nv.validate_repeat((), {"axis": axis})
         new_index = self.index.repeat(repeats)
         new_values = self._values.repeat(repeats)
-        return self._constructor(new_values, index=new_index, copy=False).__finalize__(
-            self, method="repeat"
-        )
+        return self._constructor(
+            new_values, index=new_index, copy=False
+        ).__finalize__(self, method="repeat")
 
     @overload
     def reset_index(
@@ -1397,7 +1418,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
                     level_list = [level]
                 else:
                     level_list = level
-                level_list = [self.index._get_level_number(lev) for lev in level_list]
+                level_list = [
+                    self.index._get_level_number(lev) for lev in level_list
+                ]
                 if len(level_list) < self.index.nlevels:
                     new_index = self.index.droplevel(level_list)
 
@@ -1672,7 +1695,11 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         {examples}
         """
         return self.to_frame().to_markdown(
-            buf, mode=mode, index=index, storage_options=storage_options, **kwargs
+            buf,
+            mode=mode,
+            index=index,
+            storage_options=storage_options,
+            **kwargs,
         )
 
     # ----------------------------------------------------------------------
@@ -1782,7 +1809,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         # GH16122
         into_c = com.standardize_mapping(into)
 
-        if is_object_dtype(self.dtype) or isinstance(self.dtype, ExtensionDtype):
+        if is_object_dtype(self.dtype) or isinstance(
+            self.dtype, ExtensionDtype
+        ):
             return into_c((k, maybe_box_native(v)) for k, v in self.items())
         else:
             # Not an object dtype => all types will be the same so let the default
@@ -2162,12 +2191,20 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
 
     @overload
     def drop_duplicates(
-        self, *, keep: DropKeep = ..., inplace: Literal[True], ignore_index: bool = ...
+        self,
+        *,
+        keep: DropKeep = ...,
+        inplace: Literal[True],
+        ignore_index: bool = ...,
     ) -> None: ...
 
     @overload
     def drop_duplicates(
-        self, *, keep: DropKeep = ..., inplace: bool = ..., ignore_index: bool = ...
+        self,
+        *,
+        keep: DropKeep = ...,
+        inplace: bool = ...,
+        ignore_index: bool = ...,
     ) -> Series | None: ...
 
     def drop_duplicates(
@@ -2348,7 +2385,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         result = self._constructor(res, index=self.index, copy=False)
         return result.__finalize__(self, method="duplicated")
 
-    def idxmin(self, axis: Axis = 0, skipna: bool = True, *args, **kwargs) -> Hashable:
+    def idxmin(
+        self, axis: Axis = 0, skipna: bool = True, *args, **kwargs
+    ) -> Hashable:
         """
         Return the row label of the minimum value.
 
@@ -2408,7 +2447,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         iloc = self.argmin(axis, skipna, *args, **kwargs)
         return self.index[iloc]
 
-    def idxmax(self, axis: Axis = 0, skipna: bool = True, *args, **kwargs) -> Hashable:
+    def idxmax(
+        self, axis: Axis = 0, skipna: bool = True, *args, **kwargs
+    ) -> Hashable:
         """
         Return the row label of the maximum value.
 
@@ -2512,9 +2553,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         """
         nv.validate_round(args, kwargs)
         new_mgr = self._mgr.round(decimals=decimals)
-        return self._constructor_from_mgr(new_mgr, axes=new_mgr.axes).__finalize__(
-            self, method="round"
-        )
+        return self._constructor_from_mgr(
+            new_mgr, axes=new_mgr.axes
+        ).__finalize__(self, method="round")
 
     @overload
     def quantile(
@@ -2587,7 +2628,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         #  about 2D cases.
         df = self.to_frame()
 
-        result = df.quantile(q=q, interpolation=interpolation, numeric_only=False)
+        result = df.quantile(
+            q=q, interpolation=interpolation, numeric_only=False
+        )
         if result.ndim == 2:
             result = result.iloc[:, 0]
 
@@ -2685,7 +2728,10 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
 
         if method in ["pearson", "spearman", "kendall"] or callable(method):
             return nanops.nancorr(
-                this_values, other_values, method=method, min_periods=min_periods
+                this_values,
+                other_values,
+                method=method,
+                min_periods=min_periods,
             )
 
         raise ValueError(
@@ -2831,9 +2877,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             if not (is_float(periods) and periods.is_integer()):
                 raise ValueError("periods must be an integer")
         result = algorithms.diff(self._values, periods)
-        return self._constructor(result, index=self.index, copy=False).__finalize__(
-            self, method="diff"
-        )
+        return self._constructor(
+            result, index=self.index, copy=False
+        ).__finalize__(self, method="diff")
 
     def autocorr(self, lag: int = 1) -> float:
         """
@@ -2978,13 +3024,18 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         side: Literal["left", "right"] = "left",
         sorter: NumpySorter | None = None,
     ) -> npt.NDArray[np.intp] | np.intp:
-        return base.IndexOpsMixin.searchsorted(self, value, side=side, sorter=sorter)
+        return base.IndexOpsMixin.searchsorted(
+            self, value, side=side, sorter=sorter
+        )
 
     # -------------------------------------------------------------------
     # Combination
 
     def _append(
-        self, to_append, ignore_index: bool = False, verify_integrity: bool = False
+        self,
+        to_append,
+        ignore_index: bool = False,
+        verify_integrity: bool = False,
     ):
         from pandas.core.reshape.concat import concat
 
@@ -2997,7 +3048,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             msg = "to_append should be a Series or list/tuple of Series, got DataFrame"
             raise TypeError(msg)
         return concat(
-            to_concat, ignore_index=ignore_index, verify_integrity=verify_integrity
+            to_concat,
+            ignore_index=ignore_index,
+            verify_integrity=verify_integrity,
         )
 
     @doc(
@@ -3185,7 +3238,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         res_values = maybe_cast_pointwise_result(
             npvalues, self.dtype, same_dtype=same_dtype
         )
-        return self._constructor(res_values, index=new_index, name=new_name, copy=False)
+        return self._constructor(
+            res_values, index=new_index, name=new_name, copy=False
+        )
 
     def combine_first(self, other) -> Series:
         """
@@ -3564,7 +3619,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             values_to_sort = cast(Series, ensure_key_mapped(self, key))._values
         else:
             values_to_sort = self._values
-        sorted_index = nargsort(values_to_sort, kind, bool(ascending), na_position)
+        sorted_index = nargsort(
+            values_to_sort, kind, bool(ascending), na_position
+        )
 
         if is_range_indexer(sorted_index, len(sorted_index)):
             if inplace:
@@ -3572,7 +3629,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             return self.copy(deep=False)
 
         result = self._constructor(
-            self._values[sorted_index], index=self.index[sorted_index], copy=False
+            self._values[sorted_index],
+            index=self.index[sorted_index],
+            copy=False,
         )
 
         if ignore_index:
@@ -4042,7 +4101,10 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         return selectn.SelectNSeries(self, n=n, keep=keep).nsmallest()
 
     def swaplevel(
-        self, i: Level = -2, j: Level = -1, copy: bool | lib.NoDefault = lib.no_default
+        self,
+        i: Level = -2,
+        j: Level = -1,
+        copy: bool | lib.NoDefault = lib.no_default,
     ) -> Series:
         """
         Swap levels i and j in a :class:`MultiIndex`.
@@ -4255,7 +4317,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         else:
             index = self.index.repeat(counts)
 
-        return self._constructor(values, index=index, name=self.name, copy=False)
+        return self._constructor(
+            values, index=index, name=self.name, copy=False
+        )
 
     def unstack(
         self,
@@ -4407,9 +4471,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         if callable(arg):
             arg = functools.partial(arg, **kwargs)
         new_values = self._map_values(arg, na_action=na_action)
-        return self._constructor(new_values, index=self.index, copy=False).__finalize__(
-            self, method="map"
-        )
+        return self._constructor(
+            new_values, index=self.index, copy=False
+        ).__finalize__(self, method="map")
 
     def _gotitem(self, key, ndim, subset=None) -> Self:
         """
@@ -4488,7 +4552,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         # Validate axis argument
         self._get_axis_number(axis)
         ser = self.copy(deep=False)
-        result = SeriesApply(ser, func=func, args=args, kwargs=kwargs).transform()
+        result = SeriesApply(
+            ser, func=func, args=args, kwargs=kwargs
+        ).transform()
         return result
 
     def apply(
@@ -5271,9 +5337,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         dtype: bool
         """
         result = algorithms.isin(self._values, values)
-        return self._constructor(result, index=self.index, copy=False).__finalize__(
-            self, method="isin"
-        )
+        return self._constructor(
+            result, index=self.index, copy=False
+        ).__finalize__(self, method="isin")
 
     def between(
         self,
@@ -5372,7 +5438,8 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         self,
         caselist: list[
             tuple[
-                ArrayLike | Callable[[Series], Series | np.ndarray | Sequence[bool]],
+                ArrayLike
+                | Callable[[Series], Series | np.ndarray | Sequence[bool]],
                 ArrayLike | Scalar | Callable[[Series], Series | np.ndarray],
             ],
         ],
@@ -5457,14 +5524,18 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         ]
         default = self.copy(deep=False)
         conditions, replacements = zip(*caselist)
-        common_dtypes = [infer_dtype_from(arg)[0] for arg in [*replacements, default]]
+        common_dtypes = [
+            infer_dtype_from(arg)[0] for arg in [*replacements, default]
+        ]
         if len(set(common_dtypes)) > 1:
             common_dtype = find_common_type(common_dtypes)
             updated_replacements = []
             for condition, replacement in zip(conditions, replacements):
                 if is_scalar(replacement):
                     replacement = construct_1d_arraylike_from_scalar(
-                        value=replacement, length=len(condition), dtype=common_dtype
+                        value=replacement,
+                        length=len(condition),
+                        dtype=common_dtype,
                     )
                 elif isinstance(replacement, ABCSeries):
                     replacement = replacement.astype(common_dtype)
@@ -5480,7 +5551,11 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         ):
             try:
                 default = default.mask(
-                    condition, other=replacement, axis=0, inplace=False, level=None
+                    condition,
+                    other=replacement,
+                    axis=0,
+                    inplace=False,
+                    level=None,
                 )
             except Exception as error:
                 raise ValueError(
@@ -5851,7 +5926,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         res_name = ops.get_op_result_name(self, other)
 
         if isinstance(other, Series) and not self._indexed_same(other):
-            raise ValueError("Can only compare identically-labeled Series objects")
+            raise ValueError(
+                "Can only compare identically-labeled Series objects"
+            )
 
         lvalues = self._values
         rvalues = extract_array(other, extract_numpy=True, extract_range=True)
@@ -5885,7 +5962,10 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             # avoid repeated alignment
             if not left.index.equals(right.index):
                 if align_asobject:
-                    if left.dtype not in (object, np.bool_) or right.dtype not in (
+                    if left.dtype not in (
+                        object,
+                        np.bool_,
+                    ) or right.dtype not in (
                         object,
                         np.bool_,
                     ):
@@ -5900,7 +5980,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
 
         return left, right
 
-    def _binop(self, other: Series, func, level=None, fill_value=None) -> Series:
+    def _binop(
+        self, other: Series, func, level=None, fill_value=None
+    ) -> Series:
         """
         Perform generic binary operation with optional fill value.
 
@@ -5924,7 +6006,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         if not self.index.equals(other.index):
             this, other = self.align(other, level=level, join="outer")
 
-        this_vals, other_vals = ops.fill_binop(this._values, other._values, fill_value)
+        this_vals, other_vals = ops.fill_binop(
+            this._values, other._values, fill_value
+        )
 
         with np.errstate(all="ignore"):
             result = func(this_vals, other_vals)
@@ -5963,7 +6047,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         # TODO: result should always be ArrayLike, but this fails for some
         #  JSONArray tests
         dtype = getattr(result, "dtype", None)
-        out = self._constructor(result, index=self.index, dtype=dtype, copy=False)
+        out = self._constructor(
+            result, index=self.index, dtype=dtype, copy=False
+        )
         out = out.__finalize__(self)
 
         # Set the result's name after __finalize__ is called because __finalize__
@@ -5971,7 +6057,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         out.name = name
         return out
 
-    def _flex_method(self, other, op, *, level=None, fill_value=None, axis: Axis = 0):
+    def _flex_method(
+        self, other, op, *, level=None, fill_value=None, axis: Axis = 0
+    ):
         if axis is not None:
             self._get_axis_number(axis)
 
@@ -6213,7 +6301,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             other, operator.gt, level=level, fill_value=fill_value, axis=axis
         )
 
-    def add(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def add(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         """
         Return Addition of series and other, element-wise (binary operator `add`).
 
@@ -6276,13 +6366,21 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         )
 
     @Appender(ops.make_flex_doc("radd", "series"))
-    def radd(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def radd(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         return self._flex_method(
-            other, roperator.radd, level=level, fill_value=fill_value, axis=axis
+            other,
+            roperator.radd,
+            level=level,
+            fill_value=fill_value,
+            axis=axis,
         )
 
     @Appender(ops.make_flex_doc("sub", "series"))
-    def sub(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def sub(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         return self._flex_method(
             other, operator.sub, level=level, fill_value=fill_value, axis=axis
         )
@@ -6290,9 +6388,15 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
     subtract = sub
 
     @Appender(ops.make_flex_doc("rsub", "series"))
-    def rsub(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def rsub(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         return self._flex_method(
-            other, roperator.rsub, level=level, fill_value=fill_value, axis=axis
+            other,
+            roperator.rsub,
+            level=level,
+            fill_value=fill_value,
+            axis=axis,
         )
 
     def mul(
@@ -6372,12 +6476,20 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
     multiply = mul
 
     @Appender(ops.make_flex_doc("rmul", "series"))
-    def rmul(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def rmul(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         return self._flex_method(
-            other, roperator.rmul, level=level, fill_value=fill_value, axis=axis
+            other,
+            roperator.rmul,
+            level=level,
+            fill_value=fill_value,
+            axis=axis,
         )
 
-    def truediv(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def truediv(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         """
         Return Floating division of series and other, \
         element-wise (binary operator `truediv`).
@@ -6437,33 +6549,57 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         dtype: float64
         """
         return self._flex_method(
-            other, operator.truediv, level=level, fill_value=fill_value, axis=axis
+            other,
+            operator.truediv,
+            level=level,
+            fill_value=fill_value,
+            axis=axis,
         )
 
     div = truediv
     divide = truediv
 
     @Appender(ops.make_flex_doc("rtruediv", "series"))
-    def rtruediv(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def rtruediv(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         return self._flex_method(
-            other, roperator.rtruediv, level=level, fill_value=fill_value, axis=axis
+            other,
+            roperator.rtruediv,
+            level=level,
+            fill_value=fill_value,
+            axis=axis,
         )
 
     rdiv = rtruediv
 
     @Appender(ops.make_flex_doc("floordiv", "series"))
-    def floordiv(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def floordiv(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         return self._flex_method(
-            other, operator.floordiv, level=level, fill_value=fill_value, axis=axis
+            other,
+            operator.floordiv,
+            level=level,
+            fill_value=fill_value,
+            axis=axis,
         )
 
     @Appender(ops.make_flex_doc("rfloordiv", "series"))
-    def rfloordiv(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def rfloordiv(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         return self._flex_method(
-            other, roperator.rfloordiv, level=level, fill_value=fill_value, axis=axis
+            other,
+            roperator.rfloordiv,
+            level=level,
+            fill_value=fill_value,
+            axis=axis,
         )
 
-    def mod(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def mod(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         """
         Return Modulo of series and other, element-wise (binary operator `mod`).
 
@@ -6526,33 +6662,55 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
         )
 
     @Appender(ops.make_flex_doc("rmod", "series"))
-    def rmod(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def rmod(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         return self._flex_method(
-            other, roperator.rmod, level=level, fill_value=fill_value, axis=axis
+            other,
+            roperator.rmod,
+            level=level,
+            fill_value=fill_value,
+            axis=axis,
         )
 
     @Appender(ops.make_flex_doc("pow", "series"))
-    def pow(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def pow(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         return self._flex_method(
             other, operator.pow, level=level, fill_value=fill_value, axis=axis
         )
 
     @Appender(ops.make_flex_doc("rpow", "series"))
-    def rpow(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def rpow(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         return self._flex_method(
-            other, roperator.rpow, level=level, fill_value=fill_value, axis=axis
+            other,
+            roperator.rpow,
+            level=level,
+            fill_value=fill_value,
+            axis=axis,
         )
 
     @Appender(ops.make_flex_doc("divmod", "series"))
-    def divmod(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def divmod(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         return self._flex_method(
             other, divmod, level=level, fill_value=fill_value, axis=axis
         )
 
     @Appender(ops.make_flex_doc("rdivmod", "series"))
-    def rdivmod(self, other, level=None, fill_value=None, axis: Axis = 0) -> Series:
+    def rdivmod(
+        self, other, level=None, fill_value=None, axis: Axis = 0
+    ) -> Series:
         return self._flex_method(
-            other, roperator.rdivmod, level=level, fill_value=fill_value, axis=axis
+            other,
+            roperator.rdivmod,
+            level=level,
+            fill_value=fill_value,
+            axis=axis,
         )
 
     # ----------------------------------------------------------------------
@@ -6620,7 +6778,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             filter_type="bool",
         )
 
-    @deprecate_nonkeyword_arguments(version="4.0", allowed_args=["self"], name="all")
+    @deprecate_nonkeyword_arguments(
+        version="4.0", allowed_args=["self"], name="all"
+    )
     @Appender(make_doc("all", ndim=1))
     def all(
         self,
@@ -6640,7 +6800,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             filter_type="bool",
         )
 
-    @deprecate_nonkeyword_arguments(version="4.0", allowed_args=["self"], name="min")
+    @deprecate_nonkeyword_arguments(
+        version="4.0", allowed_args=["self"], name="min"
+    )
     def min(
         self,
         axis: Axis | None = 0,
@@ -6711,7 +6873,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             self, axis=axis, skipna=skipna, numeric_only=numeric_only, **kwargs
         )
 
-    @deprecate_nonkeyword_arguments(version="4.0", allowed_args=["self"], name="max")
+    @deprecate_nonkeyword_arguments(
+        version="4.0", allowed_args=["self"], name="max"
+    )
     def max(
         self,
         axis: Axis | None = 0,
@@ -6782,7 +6946,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             self, axis=axis, skipna=skipna, numeric_only=numeric_only, **kwargs
         )
 
-    @deprecate_nonkeyword_arguments(version="4.0", allowed_args=["self"], name="sum")
+    @deprecate_nonkeyword_arguments(
+        version="4.0", allowed_args=["self"], name="sum"
+    )
     def sum(
         self,
         axis: Axis | None = None,
@@ -6883,7 +7049,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             **kwargs,
         )
 
-    @deprecate_nonkeyword_arguments(version="4.0", allowed_args=["self"], name="prod")
+    @deprecate_nonkeyword_arguments(
+        version="4.0", allowed_args=["self"], name="prod"
+    )
     @doc(make_doc("prod", ndim=1))
     def prod(
         self,
@@ -6902,7 +7070,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             **kwargs,
         )
 
-    @deprecate_nonkeyword_arguments(version="4.0", allowed_args=["self"], name="mean")
+    @deprecate_nonkeyword_arguments(
+        version="4.0", allowed_args=["self"], name="mean"
+    )
     def mean(
         self,
         axis: Axis | None = 0,
@@ -6956,7 +7126,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             self, axis=axis, skipna=skipna, numeric_only=numeric_only, **kwargs
         )
 
-    @deprecate_nonkeyword_arguments(version="4.0", allowed_args=["self"], name="median")
+    @deprecate_nonkeyword_arguments(
+        version="4.0", allowed_args=["self"], name="median"
+    )
     def median(
         self,
         axis: Axis | None = 0,
@@ -7037,7 +7209,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             self, axis=axis, skipna=skipna, numeric_only=numeric_only, **kwargs
         )
 
-    @deprecate_nonkeyword_arguments(version="4.0", allowed_args=["self"], name="sem")
+    @deprecate_nonkeyword_arguments(
+        version="4.0", allowed_args=["self"], name="sem"
+    )
     @doc(make_doc("sem", ndim=1))
     def sem(
         self,
@@ -7056,7 +7230,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             **kwargs,
         )
 
-    @deprecate_nonkeyword_arguments(version="4.0", allowed_args=["self"], name="var")
+    @deprecate_nonkeyword_arguments(
+        version="4.0", allowed_args=["self"], name="var"
+    )
     def var(
         self,
         axis: Axis | None = None,
@@ -7143,7 +7319,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             **kwargs,
         )
 
-    @deprecate_nonkeyword_arguments(version="4.0", allowed_args=["self"], name="std")
+    @deprecate_nonkeyword_arguments(
+        version="4.0", allowed_args=["self"], name="std"
+    )
     @doc(make_doc("std", ndim=1))
     def std(
         self,
@@ -7162,7 +7340,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             **kwargs,
         )
 
-    @deprecate_nonkeyword_arguments(version="4.0", allowed_args=["self"], name="skew")
+    @deprecate_nonkeyword_arguments(
+        version="4.0", allowed_args=["self"], name="skew"
+    )
     @doc(make_doc("skew", ndim=1))
     def skew(
         self,
@@ -7175,7 +7355,9 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
             self, axis=axis, skipna=skipna, numeric_only=numeric_only, **kwargs
         )
 
-    @deprecate_nonkeyword_arguments(version="4.0", allowed_args=["self"], name="kurt")
+    @deprecate_nonkeyword_arguments(
+        version="4.0", allowed_args=["self"], name="kurt"
+    )
     def kurt(
         self,
         axis: Axis | None = 0,
@@ -7239,17 +7421,25 @@ class Series(base.IndexOpsMixin, NDFrame):  # type: ignore[misc]
     product = prod
 
     @doc(make_doc("cummin", ndim=1))
-    def cummin(self, axis: Axis = 0, skipna: bool = True, *args, **kwargs) -> Self:
+    def cummin(
+        self, axis: Axis = 0, skipna: bool = True, *args, **kwargs
+    ) -> Self:
         return NDFrame.cummin(self, axis, skipna, *args, **kwargs)
 
     @doc(make_doc("cummax", ndim=1))
-    def cummax(self, axis: Axis = 0, skipna: bool = True, *args, **kwargs) -> Self:
+    def cummax(
+        self, axis: Axis = 0, skipna: bool = True, *args, **kwargs
+    ) -> Self:
         return NDFrame.cummax(self, axis, skipna, *args, **kwargs)
 
     @doc(make_doc("cumsum", ndim=1))
-    def cumsum(self, axis: Axis = 0, skipna: bool = True, *args, **kwargs) -> Self:
+    def cumsum(
+        self, axis: Axis = 0, skipna: bool = True, *args, **kwargs
+    ) -> Self:
         return NDFrame.cumsum(self, axis, skipna, *args, **kwargs)
 
     @doc(make_doc("cumprod", 1))
-    def cumprod(self, axis: Axis = 0, skipna: bool = True, *args, **kwargs) -> Self:
+    def cumprod(
+        self, axis: Axis = 0, skipna: bool = True, *args, **kwargs
+    ) -> Self:
         return NDFrame.cumprod(self, axis, skipna, *args, **kwargs)

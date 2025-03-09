@@ -304,7 +304,11 @@ class Grouper:
         return grouper, obj
 
     def _set_grouper(
-        self, obj: NDFrameT, sort: bool = False, *, gpr_index: Index | None = None
+        self,
+        obj: NDFrameT,
+        sort: bool = False,
+        *,
+        gpr_index: Index | None = None,
     ) -> tuple[NDFrameT, Index, npt.NDArray[np.intp] | None]:
         """
         given an object and the specifications, setup the internal grouper
@@ -326,7 +330,9 @@ class Grouper:
         assert obj is not None
 
         if self.key is not None and self.level is not None:
-            raise ValueError("The Grouper cannot specify both a key and a level!")
+            raise ValueError(
+                "The Grouper cannot specify both a key and a level!"
+            )
 
         # Keep self._grouper value before overriding
         if self._grouper is None:
@@ -338,7 +344,9 @@ class Grouper:
         if self.key is not None:
             key = self.key
             # The 'on' is already defined
-            if getattr(gpr_index, "name", None) == key and isinstance(obj, Series):
+            if getattr(gpr_index, "name", None) == key and isinstance(
+                obj, Series
+            ):
                 # Sometimes self._grouper will have been resorted while
                 # obj has not. In this case there is a mismatch when we
                 # call self._grouper.take(obj.index) so we need to undo the sorting
@@ -364,7 +372,9 @@ class Grouper:
                 # equivalent to the axis name
                 if isinstance(ax, MultiIndex):
                     level = ax._get_level_number(level)
-                    ax = Index(ax._get_level_values(level), name=ax.names[level])
+                    ax = Index(
+                        ax._get_level_values(level), name=ax.names[level]
+                    )
 
                 else:
                     if level not in (0, ax.name):
@@ -484,7 +494,9 @@ class Grouping:
             # check again as we have by this point converted these
             # to an actual value (rather than a pd.Grouper)
             assert self.obj is not None  # for mypy
-            newgrouper, newobj = grouping_vector._get_grouper(self.obj, validate=False)
+            newgrouper, newobj = grouping_vector._get_grouper(
+                self.obj, validate=False
+            )
             self.obj = newobj
 
             if isinstance(newgrouper, ops.BinGrouper):
@@ -515,9 +527,7 @@ class Grouping:
                 and len(grouping_vector) == len(index)
             ):
                 grper = pprint_thing(grouping_vector)
-                errmsg = (
-                    f"Grouper result violates len(labels) == len(data)\nresult: {grper}"
-                )
+                errmsg = f"Grouper result violates len(labels) == len(data)\nresult: {grper}"
                 raise AssertionError(errmsg)
 
         if isinstance(grouping_vector, np.ndarray):
@@ -527,10 +537,14 @@ class Grouping:
                 # TODO 2022-10-08 we only have one test that gets here and
                 #  values are already in nanoseconds in that case.
                 grouping_vector = Series(grouping_vector).to_numpy()
-        elif isinstance(getattr(grouping_vector, "dtype", None), CategoricalDtype):
+        elif isinstance(
+            getattr(grouping_vector, "dtype", None), CategoricalDtype
+        ):
             # a passed Categorical
             self._orig_cats = grouping_vector.categories
-            grouping_vector = recode_for_groupby(grouping_vector, sort, observed)
+            grouping_vector = recode_for_groupby(
+                grouping_vector, sort, observed
+            )
 
         self.grouping_vector = grouping_vector
 
@@ -600,7 +614,9 @@ class Grouping:
         return self._codes_and_uniques[1]
 
     @cache_readonly
-    def _codes_and_uniques(self) -> tuple[npt.NDArray[np.signedinteger], ArrayLike]:
+    def _codes_and_uniques(
+        self,
+    ) -> tuple[npt.NDArray[np.signedinteger], ArrayLike]:
         uniques: ArrayLike
         if self._passed_categorical:
             # we make a CategoricalIndex out of the cat grouper
@@ -633,7 +649,10 @@ class Grouping:
                     ucodes = np.insert(ucodes, na_code, -1)
 
             uniques = Categorical.from_codes(
-                codes=ucodes, categories=categories, ordered=cat.ordered, validate=False
+                codes=ucodes,
+                categories=categories,
+                ordered=cat.ordered,
+                validate=False,
             )
             codes = cat.codes
 
@@ -660,7 +679,9 @@ class Grouping:
             # error: Incompatible types in assignment (expression has type "Union[
             # ndarray[Any, Any], Index]", variable has type "Categorical")
             codes, uniques = algorithms.factorize(  # type: ignore[assignment]
-                self.grouping_vector, sort=self._sort, use_na_sentinel=self._dropna
+                self.grouping_vector,
+                sort=self._sort,
+                use_na_sentinel=self._dropna,
             )
         return codes, uniques
 
@@ -758,13 +779,19 @@ def get_grouper(
                 elif nlevels == 0:
                     raise ValueError("No group keys passed!")
                 else:
-                    raise ValueError("multiple levels only valid with MultiIndex")
+                    raise ValueError(
+                        "multiple levels only valid with MultiIndex"
+                    )
 
             if isinstance(level, str):
                 if obj.index.name != level:
-                    raise ValueError(f"level name {level} is not the name of the index")
+                    raise ValueError(
+                        f"level name {level} is not the name of the index"
+                    )
             elif level > 0 or level < -1:
-                raise ValueError("level > 0 or level < -1 only valid with MultiIndex")
+                raise ValueError(
+                    "level > 0 or level < -1 only valid with MultiIndex"
+                )
 
             # NOTE: `group_axis` and `group_axis.get_level_values(level)`
             # are same in this section.
@@ -904,7 +931,9 @@ def get_grouper(
     if len(groupings) == 0 and len(obj):
         raise ValueError("No group keys passed!")
     if len(groupings) == 0:
-        groupings.append(Grouping(default_index(0), np.array([], dtype=np.intp)))
+        groupings.append(
+            Grouping(default_index(0), np.array([], dtype=np.intp))
+        )
 
     # create the internals grouper
     grouper = ops.BaseGrouper(group_axis, groupings, sort=sort, dropna=dropna)
@@ -912,7 +941,9 @@ def get_grouper(
 
 
 def _is_label_like(val) -> bool:
-    return isinstance(val, (str, tuple)) or (val is not None and is_scalar(val))
+    return isinstance(val, (str, tuple)) or (
+        val is not None and is_scalar(val)
+    )
 
 
 def _convert_grouper(axis: Index, grouper):

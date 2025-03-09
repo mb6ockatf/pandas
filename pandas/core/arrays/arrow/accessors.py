@@ -194,7 +194,9 @@ class ListAccessor(ArrowAccessor):
                 name=self._data.name,
             )
         else:
-            raise ValueError(f"key must be an int or slice, got {type(key).__name__}")
+            raise ValueError(
+                f"key must be an int or slice, got {type(key).__name__}"
+            )
 
     def __iter__(self) -> Iterator:
         raise TypeError(f"'{type(self).__name__}' object is not iterable")
@@ -233,7 +235,9 @@ class ListAccessor(ArrowAccessor):
 
         counts = pa.compute.list_value_length(self._pa_array)
         flattened = pa.compute.list_flatten(self._pa_array)
-        index = self._data.index.repeat(counts.fill_null(pa.scalar(0, counts.type)))
+        index = self._data.index.repeat(
+            counts.fill_null(pa.scalar(0, counts.type))
+        )
         return Series(
             flattened,
             dtype=ArrowDtype(flattened.type),
@@ -308,13 +312,15 @@ class StructAccessor(ArrowAccessor):
 
     def field(
         self,
-        name_or_index: list[str]
-        | list[bytes]
-        | list[int]
-        | pc.Expression
-        | bytes
-        | str
-        | int,
+        name_or_index: (
+            list[str]
+            | list[bytes]
+            | list[int]
+            | pc.Expression
+            | bytes
+            | str
+            | int
+        ),
     ) -> Series:
         """
         Extract a child field of a struct as a Series.
@@ -421,13 +427,15 @@ class StructAccessor(ArrowAccessor):
         from pandas import Series
 
         def get_name(
-            level_name_or_index: list[str]
-            | list[bytes]
-            | list[int]
-            | pc.Expression
-            | bytes
-            | str
-            | int,
+            level_name_or_index: (
+                list[str]
+                | list[bytes]
+                | list[int]
+                | pc.Expression
+                | bytes
+                | str
+                | int
+            ),
             data: pa.ChunkedArray,
         ):
             if isinstance(level_name_or_index, int):
@@ -448,7 +456,9 @@ class StructAccessor(ArrowAccessor):
                     level_name_or_index = cast(list, level_name_or_index)
                     name_or_index = level_name_or_index.pop()
                     name = get_name(name_or_index, selected)
-                    selected = selected.type.field(selected.type.get_field_index(name))
+                    selected = selected.type.field(
+                        selected.type.get_field_index(name)
+                    )
                     name = selected.name
             else:
                 raise ValueError(

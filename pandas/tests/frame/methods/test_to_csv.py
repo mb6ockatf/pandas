@@ -285,7 +285,14 @@ class TestDataFrameToCSV:
             recons.index = ix
             recons = recons.iloc[:, rnlvl - 1 :]
 
-        type_map = {"i": "i", "f": "f", "s": "O", "u": "O", "dt": "O", "p": "O"}
+        type_map = {
+            "i": "i",
+            "f": "f",
+            "s": "O",
+            "u": "O",
+            "dt": "O",
+            "p": "O",
+        }
         if r_dtype:
             if r_dtype == "u":  # unicode
                 r_dtype = "O"
@@ -310,7 +317,8 @@ class TestDataFrameToCSV:
                     [Timestamp(label) for label in idx_list], dtype=r_dtype
                 )
                 df.index = np.array(
-                    list(map(Timestamp, df.index.to_timestamp())), dtype=r_dtype
+                    list(map(Timestamp, df.index.to_timestamp())),
+                    dtype=r_dtype,
                 )
             else:
                 r_dtype = type_map.get(r_dtype)
@@ -328,7 +336,8 @@ class TestDataFrameToCSV:
             elif c_dtype == "dt":
                 c_dtype = "O"
                 recons.columns = np.array(
-                    [Timestamp(label) for label in recons.columns], dtype=c_dtype
+                    [Timestamp(label) for label in recons.columns],
+                    dtype=c_dtype,
                 )
                 df.columns = np.array(
                     [Timestamp(label) for label in df.columns], dtype=c_dtype
@@ -351,7 +360,8 @@ class TestDataFrameToCSV:
 
     @pytest.mark.slow
     @pytest.mark.parametrize(
-        "nrows", [2, 10, 99, 100, 101, 102, 198, 199, 200, 201, 202, 249, 250, 251]
+        "nrows",
+        [2, 10, 99, 100, 101, 102, 198, 199, 200, 201, 202, 249, 250, 251],
     )
     def test_to_csv_nrows(self, nrows):
         df = DataFrame(
@@ -365,13 +375,17 @@ class TestDataFrameToCSV:
 
     @pytest.mark.slow
     @pytest.mark.parametrize(
-        "nrows", [2, 10, 99, 100, 101, 102, 198, 199, 200, 201, 202, 249, 250, 251]
+        "nrows",
+        [2, 10, 99, 100, 101, 102, 198, 199, 200, 201, 202, 249, 250, 251],
     )
     @pytest.mark.parametrize(
-        "r_idx_type, c_idx_type", [("i", "i"), ("s", "s"), ("s", "dt"), ("p", "p")]
+        "r_idx_type, c_idx_type",
+        [("i", "i"), ("s", "s"), ("s", "dt"), ("p", "p")],
     )
     @pytest.mark.parametrize("ncols", [1, 2, 3, 4])
-    @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+    @pytest.mark.filterwarnings(
+        r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+    )
     def test_to_csv_idx_types(self, nrows, r_idx_type, c_idx_type, ncols):
         axes = {
             "i": lambda n: Index(np.arange(n), dtype=np.int64),
@@ -398,7 +412,8 @@ class TestDataFrameToCSV:
 
     @pytest.mark.slow
     @pytest.mark.parametrize(
-        "nrows", [10, 98, 99, 100, 101, 102, 198, 199, 200, 201, 202, 249, 250, 251]
+        "nrows",
+        [10, 98, 99, 100, 101, 102, 198, 199, 200, 201, 202, 249, 250, 251],
     )
     @pytest.mark.parametrize("ncols", [1, 2, 3, 4])
     def test_to_csv_idx_ncols(self, nrows, ncols):
@@ -427,7 +442,9 @@ class TestDataFrameToCSV:
         ix[-2:] = ["rdupe", "rdupe"]
         df.index = ix
         df.columns = cols
-        result, expected = self._return_result_expected(df, 1000, dupe_col=True)
+        result, expected = self._return_result_expected(
+            df, 1000, dupe_col=True
+        )
         tm.assert_frame_equal(result, expected, check_names=False)
 
     @pytest.mark.slow
@@ -450,7 +467,8 @@ class TestDataFrameToCSV:
 
     @pytest.mark.slow
     @pytest.mark.parametrize(
-        "nrows", [2, 10, 99, 100, 101, 102, 198, 199, 200, 201, 202, 249, 250, 251]
+        "nrows",
+        [2, 10, 99, 100, 101, 102, 198, 199, 200, 201, 202, 249, 250, 251],
     )
     @pytest.mark.parametrize("ncols", [2, 3, 4])
     @pytest.mark.parametrize(
@@ -458,7 +476,10 @@ class TestDataFrameToCSV:
         [
             [{"r_idx_nlevels": 2}, {"rnlvl": 2}],
             [{"c_idx_nlevels": 2}, {"cnlvl": 2}],
-            [{"r_idx_nlevels": 2, "c_idx_nlevels": 2}, {"rnlvl": 2, "cnlvl": 2}],
+            [
+                {"r_idx_nlevels": 2, "c_idx_nlevels": 2},
+                {"rnlvl": 2, "cnlvl": 2},
+            ],
         ],
     )
     def test_to_csv_params(self, nrows, df_params, func_params, ncols):
@@ -478,7 +499,9 @@ class TestDataFrameToCSV:
         else:
             columns = Index([f"i-{i}" for i in range(ncols)])
         df = DataFrame(np.ones((nrows, ncols)), index=index, columns=columns)
-        result, expected = self._return_result_expected(df, 1000, **func_params)
+        result, expected = self._return_result_expected(
+            df, 1000, **func_params
+        )
         tm.assert_frame_equal(result, expected, check_names=False)
 
     def test_to_csv_from_csv_w_some_infs(self, temp_file, float_frame):
@@ -574,12 +597,16 @@ class TestDataFrameToCSV:
         tsframe.index = MultiIndex.from_arrays(new_index)
 
         tsframe.to_csv(path, index_label=["time", "foo"])
-        with tm.assert_produces_warning(UserWarning, match="Could not infer format"):
+        with tm.assert_produces_warning(
+            UserWarning, match="Could not infer format"
+        ):
             recons = self.read_csv(path, index_col=[0, 1], parse_dates=True)
 
         # TODO to_csv drops column name
         expected = tsframe.copy()
-        expected.index = MultiIndex.from_arrays([old_index.as_unit("s"), new_index[1]])
+        expected.index = MultiIndex.from_arrays(
+            [old_index.as_unit("s"), new_index[1]]
+        )
         tm.assert_frame_equal(recons, expected, check_names=False)
 
         # do not load index
@@ -604,7 +631,8 @@ class TestDataFrameToCSV:
                 return DataFrame(
                     np.random.default_rng(2).integers(0, 10, size=(3, 3)),
                     columns=MultiIndex.from_tuples(
-                        [("bah", "foo"), ("bah", "bar"), ("ban", "baz")], names=names
+                        [("bah", "foo"), ("bah", "bar"), ("ban", "baz")],
+                        names=names,
                     ),
                     dtype="int64",
                 )
@@ -613,10 +641,12 @@ class TestDataFrameToCSV:
             df = DataFrame(
                 np.ones((5, 3)),
                 columns=MultiIndex.from_arrays(
-                    [[f"i-{i}" for i in range(3)] for _ in range(4)], names=list("abcd")
+                    [[f"i-{i}" for i in range(3)] for _ in range(4)],
+                    names=list("abcd"),
                 ),
                 index=MultiIndex.from_arrays(
-                    [[f"i-{i}" for i in range(5)] for _ in range(2)], names=list("ab")
+                    [[f"i-{i}" for i in range(5)] for _ in range(2)],
+                    names=list("ab"),
                 ),
             )
             df.to_csv(path)
@@ -627,7 +657,8 @@ class TestDataFrameToCSV:
             df = DataFrame(
                 np.ones((5, 3)),
                 columns=MultiIndex.from_arrays(
-                    [[f"i-{i}" for i in range(3)] for _ in range(4)], names=list("abcd")
+                    [[f"i-{i}" for i in range(3)] for _ in range(4)],
+                    names=list("abcd"),
                 ),
             )
             df.to_csv(path)
@@ -638,10 +669,12 @@ class TestDataFrameToCSV:
             df = DataFrame(
                 np.ones((5, 3)),
                 columns=MultiIndex.from_arrays(
-                    [[f"i-{i}" for i in range(3)] for _ in range(4)], names=list("abcd")
+                    [[f"i-{i}" for i in range(3)] for _ in range(4)],
+                    names=list("abcd"),
                 ),
                 index=MultiIndex.from_arrays(
-                    [[f"i-{i}" for i in range(5)] for _ in range(3)], names=list("abc")
+                    [[f"i-{i}" for i in range(5)] for _ in range(3)],
+                    names=list("abc"),
                 ),
             )
             df.to_csv(path)
@@ -700,7 +733,9 @@ class TestDataFrameToCSV:
 
     def test_to_csv_interval_index(self, temp_file, using_infer_string):
         # GH 28210
-        df = DataFrame({"A": list("abc"), "B": range(3)}, index=pd.interval_range(0, 3))
+        df = DataFrame(
+            {"A": list("abc"), "B": range(3)}, index=pd.interval_range(0, 3)
+        )
 
         path = str(temp_file)
         df.to_csv(path)
@@ -748,9 +783,14 @@ class TestDataFrameToCSV:
             dtype="int64",
             columns=create_cols("int"),
         )
-        df_bool = DataFrame(True, index=df_float.index, columns=create_cols("bool"))
+        df_bool = DataFrame(
+            True, index=df_float.index, columns=create_cols("bool")
+        )
         df_object = DataFrame(
-            "foo", index=df_float.index, columns=create_cols("object"), dtype="object"
+            "foo",
+            index=df_float.index,
+            columns=create_cols("object"),
+            dtype="object",
         )
         df_dt = DataFrame(
             Timestamp("20010101"),
@@ -777,7 +817,9 @@ class TestDataFrameToCSV:
 
         path = str(temp_file)
         df.to_csv(path)
-        rs = read_csv(path, index_col=0, dtype=dtypes, parse_dates=create_cols("date"))
+        rs = read_csv(
+            path, index_col=0, dtype=dtypes, parse_dates=create_cols("date")
+        )
         tm.assert_frame_equal(rs, df)
 
     def test_to_csv_dups_cols(self, temp_file):
@@ -794,16 +836,21 @@ class TestDataFrameToCSV:
         tm.assert_frame_equal(result, df)
 
         df_float = DataFrame(
-            np.random.default_rng(2).standard_normal((1000, 3)), dtype="float64"
+            np.random.default_rng(2).standard_normal((1000, 3)),
+            dtype="float64",
         )
-        df_int = DataFrame(np.random.default_rng(2).standard_normal((1000, 3))).astype(
-            "int64"
-        )
+        df_int = DataFrame(
+            np.random.default_rng(2).standard_normal((1000, 3))
+        ).astype("int64")
         df_bool = DataFrame(True, index=df_float.index, columns=range(3))
         df_object = DataFrame("foo", index=df_float.index, columns=range(3))
-        df_dt = DataFrame(Timestamp("20010101"), index=df_float.index, columns=range(3))
+        df_dt = DataFrame(
+            Timestamp("20010101"), index=df_float.index, columns=range(3)
+        )
         df = pd.concat(
-            [df_float, df_int, df_bool, df_object, df_dt], axis=1, ignore_index=True
+            [df_float, df_int, df_bool, df_object, df_dt],
+            axis=1,
+            ignore_index=True,
         )
 
         df.columns = [0, 1, 2] * 5
@@ -858,7 +905,9 @@ class TestDataFrameToCSV:
         )
         path = str(temp_file)
         with monkeypatch.context() as m:
-            m.setattr("pandas.io.formats.csvs._DEFAULT_CHUNKSIZE_CELLS", chunksize)
+            m.setattr(
+                "pandas.io.formats.csvs._DEFAULT_CHUNKSIZE_CELLS", chunksize
+            )
             df.to_csv(path, header=False, index=False)
         rs = read_csv(path, header=None)
         tm.assert_frame_equal(rs, df)
@@ -941,7 +990,9 @@ class TestDataFrameToCSV:
         df = DataFrame({"A": [1, 2, 3], "B": ["foo", "bar", "baz"]})
 
         buf = StringIO()
-        df.to_csv(buf, index=False, quoting=csv.QUOTE_NONNUMERIC, encoding="utf-8")
+        df.to_csv(
+            buf, index=False, quoting=csv.QUOTE_NONNUMERIC, encoding="utf-8"
+        )
 
         result = buf.getvalue()
         expected_rows = ['"A","B"', '1,"foo"', '2,"bar"', '3,"baz"']
@@ -961,7 +1012,9 @@ class TestDataFrameToCSV:
         assert result == expected
 
     def test_to_csv_index_no_leading_comma(self):
-        df = DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]}, index=["one", "two", "three"])
+        df = DataFrame(
+            {"A": [1, 2, 3], "B": [4, 5, 6]}, index=["one", "two", "three"]
+        )
 
         buf = StringIO()
         df.to_csv(buf, index_label=False)
@@ -972,7 +1025,9 @@ class TestDataFrameToCSV:
 
     def test_to_csv_lineterminators(self, temp_file):
         # see gh-20353
-        df = DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]}, index=["one", "two", "three"])
+        df = DataFrame(
+            {"A": [1, 2, 3], "B": [4, 5, 6]}, index=["one", "two", "three"]
+        )
 
         path = str(temp_file)
         # case 1: CRLF as line terminator
@@ -984,7 +1039,9 @@ class TestDataFrameToCSV:
 
     def test_to_csv_lineterminators2(self, temp_file):
         # see gh-20353
-        df = DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]}, index=["one", "two", "three"])
+        df = DataFrame(
+            {"A": [1, 2, 3], "B": [4, 5, 6]}, index=["one", "two", "three"]
+        )
 
         path = str(temp_file)
         # case 2: LF as line terminator
@@ -996,7 +1053,9 @@ class TestDataFrameToCSV:
 
     def test_to_csv_lineterminators3(self, temp_file):
         # see gh-20353
-        df = DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]}, index=["one", "two", "three"])
+        df = DataFrame(
+            {"A": [1, 2, 3], "B": [4, 5, 6]}, index=["one", "two", "three"]
+        )
         path = str(temp_file)
         # case 3: The default line terminator(=os.linesep)(gh-21406)
         df.to_csv(path)
@@ -1053,15 +1112,26 @@ class TestDataFrameToCSV:
         [
             (
                 DataFrame(
-                    [[0.123456, 0.234567, 0.567567], [12.32112, 123123.2, 321321.2]],
+                    [
+                        [0.123456, 0.234567, 0.567567],
+                        [12.32112, 123123.2, 321321.2],
+                    ],
                     index=["A", "B"],
                     columns=["X", "Y", "Z"],
                 ),
                 None,
             ),
             # GH 21241, 21118
-            (DataFrame([["abc", "def", "ghi"]], columns=["X", "Y", "Z"]), "ascii"),
-            (DataFrame(5 * [[123, "你好", "世界"]], columns=["X", "Y", "Z"]), "gb2312"),
+            (
+                DataFrame([["abc", "def", "ghi"]], columns=["X", "Y", "Z"]),
+                "ascii",
+            ),
+            (
+                DataFrame(
+                    5 * [[123, "你好", "世界"]], columns=["X", "Y", "Z"]
+                ),
+                "gb2312",
+            ),
             (
                 DataFrame(
                     5 * [[123, "Γειά σου", "Κόσμε"]],  # noqa: RUF001
@@ -1075,7 +1145,9 @@ class TestDataFrameToCSV:
         path = str(temp_file)
         df.to_csv(path, compression=compression, encoding=encoding)
         # test the round trip - to_csv -> read_csv
-        result = read_csv(path, compression=compression, index_col=0, encoding=encoding)
+        result = read_csv(
+            path, compression=compression, index_col=0, encoding=encoding
+        )
         tm.assert_frame_equal(df, result)
 
         # test the round trip using file handle - to_csv -> read_csv
@@ -1100,7 +1172,9 @@ class TestDataFrameToCSV:
                 assert col in text
 
         with tm.decompress_file(path, compression) as fh:
-            tm.assert_frame_equal(df, read_csv(fh, index_col=0, encoding=encoding))
+            tm.assert_frame_equal(
+                df, read_csv(fh, index_col=0, encoding=encoding)
+            )
 
     def test_to_csv_date_format(self, temp_file, datetime_frame):
         path = str(temp_file)
@@ -1113,7 +1187,9 @@ class TestDataFrameToCSV:
         # Check that the data was put in the specified format
         test = read_csv(path, index_col=0)
 
-        datetime_frame_int = datetime_frame.map(lambda x: int(x.strftime("%Y%m%d")))
+        datetime_frame_int = datetime_frame.map(
+            lambda x: int(x.strftime("%Y%m%d"))
+        )
         datetime_frame_int.index = datetime_frame_int.index.map(
             lambda x: int(x.strftime("%Y%m%d"))
         )
@@ -1124,7 +1200,9 @@ class TestDataFrameToCSV:
 
         # Check that the data was put in the specified format
         test = read_csv(path, index_col=0)
-        datetime_frame_str = datetime_frame.map(lambda x: x.strftime("%Y-%m-%d"))
+        datetime_frame_str = datetime_frame.map(
+            lambda x: x.strftime("%Y-%m-%d")
+        )
         datetime_frame_str.index = datetime_frame_str.index.map(
             lambda x: x.strftime("%Y-%m-%d")
         )
@@ -1191,7 +1269,9 @@ class TestDataFrameToCSV:
             ["2015-10-25", "2015-10-26"],
         ],
     )
-    def test_to_csv_with_dst_transitions_with_pickle(self, start, end, temp_file):
+    def test_to_csv_with_dst_transitions_with_pickle(
+        self, start, end, temp_file
+    ):
         # GH11619
         idx = date_range(start, end, freq="h", tz="Europe/Paris")
         idx = idx._with_freq(None)  # freq does not round-trip
@@ -1349,7 +1429,9 @@ class TestDataFrameToCSV:
 
     def test_multi_index_header(self):
         # see gh-5539
-        columns = MultiIndex.from_tuples([("a", 1), ("a", 2), ("b", 1), ("b", 2)])
+        columns = MultiIndex.from_tuples(
+            [("a", 1), ("a", 2), ("b", 1), ("b", 2)]
+        )
         df = DataFrame([[1, 2, 3, 4], [5, 6, 7, 8]])
         df.columns = columns
 
@@ -1428,7 +1510,10 @@ class TestDataFrameToCSV:
         )
         df["a"] = df["a"].astype("category")
         result = df.to_csv()
-        expected_rows = [",a", '0,"[2020-01-01 00:00:00, 2020-01-02 00:00:00]"']
+        expected_rows = [
+            ",a",
+            '0,"[2020-01-01 00:00:00, 2020-01-02 00:00:00]"',
+        ]
         expected = tm.convert_rows_list_to_csv_str(expected_rows)
         assert result == expected
 

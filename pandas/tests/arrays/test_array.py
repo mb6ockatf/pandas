@@ -52,7 +52,9 @@ def test_dt64_array(dtype_unit):
         (
             [1, 2],
             np.dtype("float32"),
-            NumpyExtensionArray(np.array([1.0, 2.0], dtype=np.dtype("float32"))),
+            NumpyExtensionArray(
+                np.array([1.0, 2.0], dtype=np.dtype("float32"))
+            ),
         ),
         (
             np.array([], dtype=object),
@@ -70,8 +72,16 @@ def test_dt64_array(dtype_unit):
             FloatingArray._from_sequence([1.0, 2.0], dtype="Float64"),
         ),
         # String alias passes through to NumPy
-        ([1, 2], "float32", NumpyExtensionArray(np.array([1, 2], dtype="float32"))),
-        ([1, 2], "int64", NumpyExtensionArray(np.array([1, 2], dtype=np.int64))),
+        (
+            [1, 2],
+            "float32",
+            NumpyExtensionArray(np.array([1, 2], dtype="float32")),
+        ),
+        (
+            [1, 2],
+            "int64",
+            NumpyExtensionArray(np.array([1, 2], dtype=np.int64)),
+        ),
         # GH#44715 FloatingArray does not support float16, so fall
         #  back to NumpyExtensionArray
         (
@@ -168,21 +178,25 @@ def test_dt64_array(dtype_unit):
         (
             # preserve non-nano, i.e. don't cast to NumpyExtensionArray
             TimedeltaArray._simple_new(
-                np.arange(5, dtype=np.int64).view("m8[s]"), dtype=np.dtype("m8[s]")
+                np.arange(5, dtype=np.int64).view("m8[s]"),
+                dtype=np.dtype("m8[s]"),
             ),
             None,
             TimedeltaArray._simple_new(
-                np.arange(5, dtype=np.int64).view("m8[s]"), dtype=np.dtype("m8[s]")
+                np.arange(5, dtype=np.int64).view("m8[s]"),
+                dtype=np.dtype("m8[s]"),
             ),
         ),
         (
             # preserve non-nano, i.e. don't cast to NumpyExtensionArray
             TimedeltaArray._simple_new(
-                np.arange(5, dtype=np.int64).view("m8[s]"), dtype=np.dtype("m8[s]")
+                np.arange(5, dtype=np.int64).view("m8[s]"),
+                dtype=np.dtype("m8[s]"),
             ),
             np.dtype("m8[s]"),
             TimedeltaArray._simple_new(
-                np.arange(5, dtype=np.int64).view("m8[s]"), dtype=np.dtype("m8[s]")
+                np.arange(5, dtype=np.int64).view("m8[s]"),
+                dtype=np.dtype("m8[s]"),
             ),
         ),
         # Category
@@ -218,11 +232,15 @@ def test_dt64_array(dtype_unit):
         (
             ["a", None],
             "str",
-            pd.StringDtype(na_value=np.nan)
-            .construct_array_type()
-            ._from_sequence(["a", None], dtype=pd.StringDtype(na_value=np.nan))
-            if using_string_dtype()
-            else NumpyExtensionArray(np.array(["a", "None"])),
+            (
+                pd.StringDtype(na_value=np.nan)
+                .construct_array_type()
+                ._from_sequence(
+                    ["a", None], dtype=pd.StringDtype(na_value=np.nan)
+                )
+                if using_string_dtype()
+                else NumpyExtensionArray(np.array(["a", "None"]))
+            ),
         ),
         (
             ["a", None],
@@ -236,7 +254,9 @@ def test_dt64_array(dtype_unit):
             pd.StringDtype(na_value=np.nan),
             pd.StringDtype(na_value=np.nan)
             .construct_array_type()
-            ._from_sequence(["a", None], dtype=pd.StringDtype(na_value=np.nan)),
+            ._from_sequence(
+                ["a", None], dtype=pd.StringDtype(na_value=np.nan)
+            ),
         ),
         (
             # numpy array with string dtype
@@ -266,7 +286,11 @@ def test_dt64_array(dtype_unit):
             BooleanArray._from_sequence([True, None], dtype="boolean"),
         ),
         # Index
-        (pd.Index([1, 2]), None, NumpyExtensionArray(np.array([1, 2], dtype=np.int64))),
+        (
+            pd.Index([1, 2]),
+            None,
+            NumpyExtensionArray(np.array([1, 2], dtype=np.int64)),
+        ),
         # Series[EA] returns the EA
         (
             pd.Series(pd.Categorical(["a", "b"], categories=["a", "b", "c"])),
@@ -274,7 +298,11 @@ def test_dt64_array(dtype_unit):
             pd.Categorical(["a", "b"], categories=["a", "b", "c"]),
         ),
         # "3rd party" EAs work
-        ([decimal.Decimal(0), decimal.Decimal(1)], "decimal", to_decimal([0, 1])),
+        (
+            [decimal.Decimal(0), decimal.Decimal(1)],
+            "decimal",
+            to_decimal([0, 1]),
+        ),
         # pass an ExtensionArray, but a different dtype
         (
             period_array(["2000", "2001"], freq="D"),
@@ -320,7 +348,10 @@ def test_array_copy():
             period_array(["2000", "2001"], freq="D"),
         ),
         # interval
-        ([pd.Interval(0, 1), pd.Interval(1, 2)], IntervalArray.from_breaks([0, 1, 2])),
+        (
+            [pd.Interval(0, 1), pd.Interval(1, 2)],
+            IntervalArray.from_breaks([0, 1, 2]),
+        ),
         # datetime
         (
             [pd.Timestamp("2000"), pd.Timestamp("2001")],
@@ -386,15 +417,39 @@ def test_array_copy():
         ([1, pd.NA], IntegerArray._from_sequence([1, pd.NA], dtype="Int64")),
         ([1, np.nan], IntegerArray._from_sequence([1, np.nan], dtype="Int64")),
         # float
-        ([0.1, 0.2], FloatingArray._from_sequence([0.1, 0.2], dtype="Float64")),
-        ([0.1, None], FloatingArray._from_sequence([0.1, pd.NA], dtype="Float64")),
-        ([0.1, np.nan], FloatingArray._from_sequence([0.1, pd.NA], dtype="Float64")),
-        ([0.1, pd.NA], FloatingArray._from_sequence([0.1, pd.NA], dtype="Float64")),
+        (
+            [0.1, 0.2],
+            FloatingArray._from_sequence([0.1, 0.2], dtype="Float64"),
+        ),
+        (
+            [0.1, None],
+            FloatingArray._from_sequence([0.1, pd.NA], dtype="Float64"),
+        ),
+        (
+            [0.1, np.nan],
+            FloatingArray._from_sequence([0.1, pd.NA], dtype="Float64"),
+        ),
+        (
+            [0.1, pd.NA],
+            FloatingArray._from_sequence([0.1, pd.NA], dtype="Float64"),
+        ),
         # integer-like float
-        ([1.0, 2.0], FloatingArray._from_sequence([1.0, 2.0], dtype="Float64")),
-        ([1.0, None], FloatingArray._from_sequence([1.0, pd.NA], dtype="Float64")),
-        ([1.0, np.nan], FloatingArray._from_sequence([1.0, pd.NA], dtype="Float64")),
-        ([1.0, pd.NA], FloatingArray._from_sequence([1.0, pd.NA], dtype="Float64")),
+        (
+            [1.0, 2.0],
+            FloatingArray._from_sequence([1.0, 2.0], dtype="Float64"),
+        ),
+        (
+            [1.0, None],
+            FloatingArray._from_sequence([1.0, pd.NA], dtype="Float64"),
+        ),
+        (
+            [1.0, np.nan],
+            FloatingArray._from_sequence([1.0, pd.NA], dtype="Float64"),
+        ),
+        (
+            [1.0, pd.NA],
+            FloatingArray._from_sequence([1.0, pd.NA], dtype="Float64"),
+        ),
         # mixed-integer-float
         ([1, 2.0], FloatingArray._from_sequence([1.0, 2.0], dtype="Float64")),
         (
@@ -422,8 +477,14 @@ def test_array_copy():
             ._from_sequence(["a", "b"], dtype=pd.StringDtype()),
         ),
         # Boolean
-        ([True, False], BooleanArray._from_sequence([True, False], dtype="boolean")),
-        ([True, None], BooleanArray._from_sequence([True, None], dtype="boolean")),
+        (
+            [True, False],
+            BooleanArray._from_sequence([True, False], dtype="boolean"),
+        ),
+        (
+            [True, None],
+            BooleanArray._from_sequence([True, None], dtype="boolean"),
+        ),
     ],
 )
 def test_array_inference(data, expected):
@@ -453,7 +514,9 @@ def test_array_inference_fails(data):
 
 @pytest.mark.parametrize("data", [np.array(0)])
 def test_nd_raises(data):
-    with pytest.raises(ValueError, match="NumpyExtensionArray must be 1-dimensional"):
+    with pytest.raises(
+        ValueError, match="NumpyExtensionArray must be 1-dimensional"
+    ):
         pd.array(data, dtype="int64")
 
 
@@ -473,7 +536,8 @@ def test_dataframe_raises():
 def test_bounds_check():
     # GH21796
     with pytest.raises(
-        TypeError, match=r"cannot safely cast non-equivalent int(32|64) to uint16"
+        TypeError,
+        match=r"cannot safely cast non-equivalent int(32|64) to uint16",
     ):
         pd.array([-1, 2, 3], dtype="UInt16")
 
@@ -503,7 +567,9 @@ class DecimalArray2(DecimalArray):
     @classmethod
     def _from_sequence(cls, scalars, *, dtype=None, copy=False):
         if isinstance(scalars, (pd.Series, pd.Index)):
-            raise TypeError("scalars should not be of type pd.Series or pd.Index")
+            raise TypeError(
+                "scalars should not be of type pd.Series or pd.Index"
+            )
 
         return super()._from_sequence(scalars, dtype=dtype, copy=copy)
 

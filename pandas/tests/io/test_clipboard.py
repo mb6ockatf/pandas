@@ -52,16 +52,22 @@ def df(request):
     data_type = request.param
 
     if data_type == "delims":
-        return DataFrame({"a": ['"a,\t"b|c', "d\tef`"], "b": ["hi'j", "k''lm"]})
+        return DataFrame(
+            {"a": ['"a,\t"b|c', "d\tef`"], "b": ["hi'j", "k''lm"]}
+        )
     elif data_type == "utf8":
         return DataFrame({"a": ["µasd", "Ωœ∑`"], "b": ["øπ∆˚¬", "œ∑`®"]})
     elif data_type == "utf16":
         return DataFrame(
-            {"a": ["\U0001f44d\U0001f44d", "\U0001f44d\U0001f44d"], "b": ["abc", "def"]}
+            {
+                "a": ["\U0001f44d\U0001f44d", "\U0001f44d\U0001f44d"],
+                "b": ["abc", "def"],
+            }
         )
     elif data_type == "string":
         return DataFrame(
-            np.array([f"i-{i}" for i in range(15)]).reshape(5, 3), columns=list("abc")
+            np.array([f"i-{i}" for i in range(15)]).reshape(5, 3),
+            columns=list("abc"),
         )
     elif data_type == "long":
         max_rows = get_option("display.max_rows")
@@ -70,11 +76,14 @@ def df(request):
             columns=list("abc"),
         )
     elif data_type == "nonascii":
-        return DataFrame({"en": "in English".split(), "es": "en español".split()})
+        return DataFrame(
+            {"en": "in English".split(), "es": "en español".split()}
+        )
     elif data_type == "colwidth":
         _cw = get_option("display.max_colwidth") + 1
         return DataFrame(
-            np.array(["x" * _cw for _ in range(15)]).reshape(5, 3), columns=list("abc")
+            np.array(["x" * _cw for _ in range(15)]).reshape(5, 3),
+            columns=list("abc"),
         )
     elif data_type == "mixed":
         return DataFrame(
@@ -85,10 +94,13 @@ def df(request):
             }
         )
     elif data_type == "float":
-        return DataFrame(np.random.default_rng(2).random((5, 3)), columns=list("abc"))
+        return DataFrame(
+            np.random.default_rng(2).random((5, 3)), columns=list("abc")
+        )
     elif data_type == "int":
         return DataFrame(
-            np.random.default_rng(2).integers(0, 10, (5, 3)), columns=list("abc")
+            np.random.default_rng(2).integers(0, 10, (5, 3)),
+            columns=list("abc"),
         )
     else:
         raise ValueError
@@ -196,7 +208,9 @@ class TestClipboard:
     @pytest.mark.parametrize("encoding", [None, "UTF-8", "utf-8", "utf8"])
     def test_round_trip_frame_sep(self, df, sep, encoding):
         df.to_clipboard(excel=None, sep=sep, encoding=encoding)
-        result = read_clipboard(sep=sep or "\t", index_col=0, encoding=encoding)
+        result = read_clipboard(
+            sep=sep or "\t", index_col=0, encoding=encoding
+        )
         tm.assert_frame_equal(df, result)
 
     # Test white space separator
@@ -218,7 +232,9 @@ class TestClipboard:
 
     # Separator is ignored when excel=False and should produce a warning
     def test_copy_delim_warning(self, df):
-        with tm.assert_produces_warning(UserWarning, match="ignores the sep argument"):
+        with tm.assert_produces_warning(
+            UserWarning, match="ignores the sep argument"
+        ):
             df.to_clipboard(excel=False, sep="\t")
 
     # Tests that the default behavior of to_clipboard is tab
@@ -308,7 +324,12 @@ class TestClipboard:
             ),
             (
                 "\n".join(
-                    ["\t\tcol1\tcol2", "A\t0\t1\tred", "A\t1\t\tblue", "B\t0\t2\tgreen"]
+                    [
+                        "\t\tcol1\tcol2",
+                        "A\t0\t1\tred",
+                        "A\t1\t\tblue",
+                        "B\t0\t2\tgreen",
+                    ]
                 ),
                 [["A", "A", "B"], [0, 1, 0]],
             ),
@@ -345,7 +366,12 @@ class TestClipboard:
 
     @pytest.mark.parametrize("engine", ["c", "python"])
     def test_read_clipboard_dtype_backend(
-        self, clipboard, string_storage, dtype_backend, engine, using_infer_string
+        self,
+        clipboard,
+        string_storage,
+        dtype_backend,
+        engine,
+        using_infer_string,
     ):
         # GH#50502
         if dtype_backend == "pyarrow":
@@ -364,7 +390,9 @@ y,2,5.0,,,,,False,"""
         clipboard.setText(text)
 
         with pd.option_context("mode.string_storage", string_storage):
-            result = read_clipboard(sep=",", dtype_backend=dtype_backend, engine=engine)
+            result = read_clipboard(
+                sep=",", dtype_backend=dtype_backend, engine=engine
+            )
 
         expected = DataFrame(
             {
@@ -384,7 +412,9 @@ y,2,5.0,,,,,False,"""
 
             expected = DataFrame(
                 {
-                    col: ArrowExtensionArray(pa.array(expected[col], from_pandas=True))
+                    col: ArrowExtensionArray(
+                        pa.array(expected[col], from_pandas=True)
+                    )
                     for col in expected.columns
                 }
             )

@@ -43,15 +43,30 @@ class TestUpdate:
             ([61, 63], float, Series([10.0, 61.0, 12.0]), False),
             ([61, 63], object, Series([10, 61, 12], dtype=object), False),
             # other is float, but can be cast to int
-            ([61.0, 63.0], "int32", Series([10, 61, 12], dtype="int32"), False),
+            (
+                [61.0, 63.0],
+                "int32",
+                Series([10, 61, 12], dtype="int32"),
+                False,
+            ),
             ([61.0, 63.0], "int64", Series([10, 61, 12]), False),
             ([61.0, 63.0], float, Series([10.0, 61.0, 12.0]), False),
-            ([61.0, 63.0], object, Series([10, 61.0, 12], dtype=object), False),
+            (
+                [61.0, 63.0],
+                object,
+                Series([10, 61.0, 12], dtype=object),
+                False,
+            ),
             # others is float, cannot be cast to int
             ([61.1, 63.1], "int32", Series([10.0, 61.1, 12.0]), True),
             ([61.1, 63.1], "int64", Series([10.0, 61.1, 12.0]), True),
             ([61.1, 63.1], float, Series([10.0, 61.1, 12.0]), False),
-            ([61.1, 63.1], object, Series([10, 61.1, 12], dtype=object), False),
+            (
+                [61.1, 63.1],
+                object,
+                Series([10, 61.1, 12], dtype=object),
+                False,
+            ),
             # other is object, cannot be cast
             ([(61,), (63,)], "int32", Series([10, (61,), 12]), True),
             ([(61,), (63,)], "int64", Series([10, (61,), 12]), True),
@@ -109,8 +124,14 @@ class TestUpdate:
                 CategoricalDtype(categories=["a", "b"]),
             ),
             (
-                [Timestamp(year=2020, month=1, day=1, tz="Europe/London"), NaT],
-                [NaT, Timestamp(year=2020, month=1, day=1, tz="Europe/London")],
+                [
+                    Timestamp(year=2020, month=1, day=1, tz="Europe/London"),
+                    NaT,
+                ],
+                [
+                    NaT,
+                    Timestamp(year=2020, month=1, day=1, tz="Europe/London"),
+                ],
                 [Timestamp(year=2020, month=1, day=1, tz="Europe/London")] * 2,
                 "datetime64[ns, Europe/London]",
             ),

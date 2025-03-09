@@ -148,7 +148,9 @@ def read_feather(
                 )
 
                 return feather.read_feather(
-                    handles.handle, columns=columns, use_threads=bool(use_threads)
+                    handles.handle,
+                    columns=columns,
+                    use_threads=bool(use_threads),
                 )
 
         pa_table = feather.read_table(

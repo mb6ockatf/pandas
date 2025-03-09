@@ -16,7 +16,9 @@ class TestMultiIndexPartial:
         # with single item
         l1 = [10, 20]
         l2 = ["a", "b"]
-        df = DataFrame(index=range(2), columns=MultiIndex.from_product([l1, l2]))
+        df = DataFrame(
+            index=range(2), columns=MultiIndex.from_product([l1, l2])
+        )
         expected = DataFrame(index=range(2), columns=l2)
         result = df[20]
         tm.assert_frame_equal(result, expected)
@@ -73,7 +75,9 @@ class TestMultiIndexPartial:
         expected = df.loc["foo", "one"]
         tm.assert_frame_equal(result, expected)
 
-    def test_getitem_partial(self, multiindex_year_month_day_dataframe_random_data):
+    def test_getitem_partial(
+        self, multiindex_year_month_day_dataframe_random_data
+    ):
         ymd = multiindex_year_month_day_dataframe_random_data
         ymd = ymd.T
         result = ymd[2000, 2]
@@ -93,7 +97,7 @@ class TestMultiIndexPartial:
         tm.assert_frame_equal(result, expected)
 
         ymd = multiindex_year_month_day_dataframe_random_data
-        result = ymd.loc[(2000, 2) : (2000, 4)]
+        result = ymd.loc[(2000, 2):(2000, 4)]
         lev = ymd.index.codes[1]
         expected = ymd[(lev >= 1) & (lev <= 3)]
         tm.assert_frame_equal(result, expected)
@@ -150,7 +154,9 @@ class TestMultiIndexPartial:
         # GH#33355 dont fall-back to positional when leading level is int
         ymd = multiindex_year_month_day_dataframe_random_data
         levels = ymd.index.levels
-        ymd.index = ymd.index.set_levels([levels[0].astype(dtype)] + levels[1:])
+        ymd.index = ymd.index.set_levels(
+            [levels[0].astype(dtype)] + levels[1:]
+        )
         ser = ymd["A"]
         mi = ser.index
         assert isinstance(mi, MultiIndex)
@@ -218,7 +224,9 @@ class TestMultiIndexPartial:
         date_idx = date_range("2019", periods=2, freq="MS")
         df = DataFrame(
             list(range(4)),
-            index=MultiIndex.from_product([date_idx, [0, 1]], names=["x", "y"]),
+            index=MultiIndex.from_product(
+                [date_idx, [0, 1]], names=["x", "y"]
+            ),
         )
         expected = DataFrame(
             exp_values,
@@ -248,7 +256,9 @@ def test_loc_getitem_partial_both_axis():
     columns = MultiIndex.from_product(iterables, names=["col1", "col2"])
     rows = MultiIndex.from_product(iterables, names=["row1", "row2"])
     df = DataFrame(
-        np.random.default_rng(2).standard_normal((4, 4)), index=rows, columns=columns
+        np.random.default_rng(2).standard_normal((4, 4)),
+        index=rows,
+        columns=columns,
     )
     expected = df.iloc[:2, 2:].droplevel("row1").droplevel("col1", axis=1)
     result = df.loc["a", "b"]

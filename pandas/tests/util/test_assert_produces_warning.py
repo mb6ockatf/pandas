@@ -49,7 +49,9 @@ def test_assert_produces_warning_honors_filter():
         with tm.assert_produces_warning(RuntimeWarning):
             f()
 
-    with tm.assert_produces_warning(RuntimeWarning, raise_on_extra_warnings=False):
+    with tm.assert_produces_warning(
+        RuntimeWarning, raise_on_extra_warnings=False
+    ):
         f()
 
 
@@ -141,7 +143,9 @@ def test_fail_to_catch_actual_warning(pair_different_warnings):
 
 def test_ignore_extra_warning(pair_different_warnings):
     expected_category, extra_category = pair_different_warnings
-    with tm.assert_produces_warning(expected_category, raise_on_extra_warnings=False):
+    with tm.assert_produces_warning(
+        expected_category, raise_on_extra_warnings=False
+    ):
         warnings.warn("Expected warning", expected_category)
         warnings.warn("Unexpected warning OK", extra_category)
 
@@ -238,7 +242,9 @@ class TestFalseOrNoneExpectedWarning:
             pass
 
     def test_no_raise_with_false_raise_on_extra(self, false_or_none):
-        with tm.assert_produces_warning(false_or_none, raise_on_extra_warnings=False):
+        with tm.assert_produces_warning(
+            false_or_none, raise_on_extra_warnings=False
+        ):
             f()
 
 

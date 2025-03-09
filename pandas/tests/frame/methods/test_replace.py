@@ -24,7 +24,11 @@ def mix_ab() -> dict[str, list[int | str]]:
 
 @pytest.fixture
 def mix_abc() -> dict[str, list[float | str]]:
-    return {"a": list(range(4)), "b": list("ab.."), "c": ["a", "b", np.nan, "d"]}
+    return {
+        "a": list(range(4)),
+        "b": list("ab.."),
+        "c": ["a", "b", np.nan, "d"],
+    }
 
 
 class TestDataFrameReplace:
@@ -95,12 +99,18 @@ class TestDataFrameReplace:
     def test_regex_replace_list_obj(
         self, to_replace, values, expected, inplace, use_value_regex_args
     ):
-        df = DataFrame({"a": list("ab.."), "b": list("efgh"), "c": list("helo")})
+        df = DataFrame(
+            {"a": list("ab.."), "b": list("efgh"), "c": list("helo")}
+        )
 
         if use_value_regex_args:
-            result = df.replace(value=values, regex=to_replace, inplace=inplace)
+            result = df.replace(
+                value=values, regex=to_replace, inplace=inplace
+            )
         else:
-            result = df.replace(to_replace, values, regex=True, inplace=inplace)
+            result = df.replace(
+                to_replace, values, regex=True, inplace=inplace
+            )
 
         if inplace:
             assert result is None
@@ -133,7 +143,9 @@ class TestDataFrameReplace:
         to_replace_res = [r"\s*(\.)\s*", r"(a|b)"]
         values = [r"\1\1", r"\1_crap"]
         res = dfmix.replace(to_replace_res, values, regex=True)
-        expec = DataFrame({"a": mix_ab["a"], "b": ["a_crap", "b_crap", "..", ".."]})
+        expec = DataFrame(
+            {"a": mix_ab["a"], "b": ["a_crap", "b_crap", "..", ".."]}
+        )
         tm.assert_frame_equal(res, expec)
 
         # list of [re1, re2, ..., reN] -> [(re1 or v1), (re2 or v2), ..., (reN
@@ -141,13 +153,17 @@ class TestDataFrameReplace:
         to_replace_res = [r"\s*(\.)\s*", r"a", r"(b)"]
         values = [r"\1\1", r"crap", r"\1_crap"]
         res = dfmix.replace(to_replace_res, values, regex=True)
-        expec = DataFrame({"a": mix_ab["a"], "b": ["crap", "b_crap", "..", ".."]})
+        expec = DataFrame(
+            {"a": mix_ab["a"], "b": ["crap", "b_crap", "..", ".."]}
+        )
         tm.assert_frame_equal(res, expec)
 
         to_replace_res = [r"\s*(\.)\s*", r"a", r"(b)"]
         values = [r"\1\1", r"crap", r"\1_crap"]
         res = dfmix.replace(regex=to_replace_res, value=values)
-        expec = DataFrame({"a": mix_ab["a"], "b": ["crap", "b_crap", "..", ".."]})
+        expec = DataFrame(
+            {"a": mix_ab["a"], "b": ["crap", "b_crap", "..", ".."]}
+        )
         tm.assert_frame_equal(res, expec)
 
     def test_regex_replace_list_mixed_inplace(self, mix_ab):
@@ -158,18 +174,26 @@ class TestDataFrameReplace:
         to_replace_res = [r"\s*\.\s*", r"a"]
         values = [np.nan, "crap"]
         res = dfmix.copy()
-        return_value = res.replace(to_replace_res, values, inplace=True, regex=True)
+        return_value = res.replace(
+            to_replace_res, values, inplace=True, regex=True
+        )
         assert return_value is None
-        expec = DataFrame({"a": mix_ab["a"], "b": ["crap", "b", np.nan, np.nan]})
+        expec = DataFrame(
+            {"a": mix_ab["a"], "b": ["crap", "b", np.nan, np.nan]}
+        )
         tm.assert_frame_equal(res, expec)
 
         # list of [re1, re2, ..., reN] -> [re1, re2, .., reN]
         to_replace_res = [r"\s*(\.)\s*", r"(a|b)"]
         values = [r"\1\1", r"\1_crap"]
         res = dfmix.copy()
-        return_value = res.replace(to_replace_res, values, inplace=True, regex=True)
+        return_value = res.replace(
+            to_replace_res, values, inplace=True, regex=True
+        )
         assert return_value is None
-        expec = DataFrame({"a": mix_ab["a"], "b": ["a_crap", "b_crap", "..", ".."]})
+        expec = DataFrame(
+            {"a": mix_ab["a"], "b": ["a_crap", "b_crap", "..", ".."]}
+        )
         tm.assert_frame_equal(res, expec)
 
         # list of [re1, re2, ..., reN] -> [(re1 or v1), (re2 or v2), ..., (reN
@@ -177,17 +201,25 @@ class TestDataFrameReplace:
         to_replace_res = [r"\s*(\.)\s*", r"a", r"(b)"]
         values = [r"\1\1", r"crap", r"\1_crap"]
         res = dfmix.copy()
-        return_value = res.replace(to_replace_res, values, inplace=True, regex=True)
+        return_value = res.replace(
+            to_replace_res, values, inplace=True, regex=True
+        )
         assert return_value is None
-        expec = DataFrame({"a": mix_ab["a"], "b": ["crap", "b_crap", "..", ".."]})
+        expec = DataFrame(
+            {"a": mix_ab["a"], "b": ["crap", "b_crap", "..", ".."]}
+        )
         tm.assert_frame_equal(res, expec)
 
         to_replace_res = [r"\s*(\.)\s*", r"a", r"(b)"]
         values = [r"\1\1", r"crap", r"\1_crap"]
         res = dfmix.copy()
-        return_value = res.replace(regex=to_replace_res, value=values, inplace=True)
+        return_value = res.replace(
+            regex=to_replace_res, value=values, inplace=True
+        )
         assert return_value is None
-        expec = DataFrame({"a": mix_ab["a"], "b": ["crap", "b_crap", "..", ".."]})
+        expec = DataFrame(
+            {"a": mix_ab["a"], "b": ["crap", "b_crap", "..", ".."]}
+        )
         tm.assert_frame_equal(res, expec)
 
     def test_regex_replace_dict_mixed(self, mix_abc):
@@ -206,7 +238,11 @@ class TestDataFrameReplace:
         )
         assert return_value is None
         expec = DataFrame(
-            {"a": mix_abc["a"], "b": ["a", "b", np.nan, np.nan], "c": mix_abc["c"]}
+            {
+                "a": mix_abc["a"],
+                "b": ["a", "b", np.nan, np.nan],
+                "c": mix_abc["c"],
+            }
         )
         tm.assert_frame_equal(res, expec)
         tm.assert_frame_equal(res2, expec)
@@ -220,7 +256,11 @@ class TestDataFrameReplace:
         )
         assert return_value is None
         expec = DataFrame(
-            {"a": mix_abc["a"], "b": ["a", "b", ".ty", ".ty"], "c": mix_abc["c"]}
+            {
+                "a": mix_abc["a"],
+                "b": ["a", "b", ".ty", ".ty"],
+                "c": mix_abc["c"],
+            }
         )
         tm.assert_frame_equal(res, expec)
         tm.assert_frame_equal(res2, expec)
@@ -232,7 +272,11 @@ class TestDataFrameReplace:
         )
         assert return_value is None
         expec = DataFrame(
-            {"a": mix_abc["a"], "b": ["a", "b", ".ty", ".ty"], "c": mix_abc["c"]}
+            {
+                "a": mix_abc["a"],
+                "b": ["a", "b", ".ty", ".ty"],
+                "c": mix_abc["c"],
+            }
         )
         tm.assert_frame_equal(res, expec)
         tm.assert_frame_equal(res2, expec)
@@ -240,21 +284,33 @@ class TestDataFrameReplace:
         # scalar -> dict
         # to_replace regex, {value: value}
         expec = DataFrame(
-            {"a": mix_abc["a"], "b": [np.nan, "b", ".", "."], "c": mix_abc["c"]}
+            {
+                "a": mix_abc["a"],
+                "b": [np.nan, "b", ".", "."],
+                "c": mix_abc["c"],
+            }
         )
         res = dfmix.replace("a", {"b": np.nan}, regex=True)
         res2 = dfmix.copy()
-        return_value = res2.replace("a", {"b": np.nan}, regex=True, inplace=True)
+        return_value = res2.replace(
+            "a", {"b": np.nan}, regex=True, inplace=True
+        )
         assert return_value is None
         tm.assert_frame_equal(res, expec)
         tm.assert_frame_equal(res2, expec)
 
         res = dfmix.replace("a", {"b": np.nan}, regex=True)
         res2 = dfmix.copy()
-        return_value = res2.replace(regex="a", value={"b": np.nan}, inplace=True)
+        return_value = res2.replace(
+            regex="a", value={"b": np.nan}, inplace=True
+        )
         assert return_value is None
         expec = DataFrame(
-            {"a": mix_abc["a"], "b": [np.nan, "b", ".", "."], "c": mix_abc["c"]}
+            {
+                "a": mix_abc["a"],
+                "b": [np.nan, "b", ".", "."],
+                "c": mix_abc["c"],
+            }
         )
         tm.assert_frame_equal(res, expec)
         tm.assert_frame_equal(res2, expec)
@@ -270,10 +326,16 @@ class TestDataFrameReplace:
         )
         assert return_value is None
         res3 = dfmix.replace(regex={"b": {r"\s*\.\s*": np.nan}})
-        return_value = res4.replace(regex={"b": {r"\s*\.\s*": np.nan}}, inplace=True)
+        return_value = res4.replace(
+            regex={"b": {r"\s*\.\s*": np.nan}}, inplace=True
+        )
         assert return_value is None
         expec = DataFrame(
-            {"a": mix_abc["a"], "b": ["a", "b", np.nan, np.nan], "c": mix_abc["c"]}
+            {
+                "a": mix_abc["a"],
+                "b": ["a", "b", np.nan, np.nan],
+                "c": mix_abc["c"],
+            }
         )
         tm.assert_frame_equal(res, expec)
         tm.assert_frame_equal(res2, expec)
@@ -294,7 +356,9 @@ class TestDataFrameReplace:
         df = DataFrame(
             {"Type": Series(["Q", "T", "Q", "Q", "T"], dtype=object), "tmp": 2}
         )
-        expected = DataFrame({"Type": Series([0, 1, 0, 0, 1], dtype=object), "tmp": 2})
+        expected = DataFrame(
+            {"Type": Series([0, 1, 0, 0, 1], dtype=object), "tmp": 2}
+        )
         result = df.replace({"Type": {"Q": 0, "T": 1}})
         tm.assert_frame_equal(result, expected)
 
@@ -333,7 +397,9 @@ class TestDataFrameReplace:
         res3 = df.copy()
         return_value = res3.replace(regex=r"\s*\.\s*", value=0, inplace=True)
         assert return_value is None
-        expec = DataFrame({"a": mix_abc["a"], "b": ["a", "b", 0, 0], "c": mix_abc["c"]})
+        expec = DataFrame(
+            {"a": mix_abc["a"], "b": ["a", "b", 0, 0], "c": mix_abc["c"]}
+        )
         expec["c"] = expec["c"].astype(object)
         tm.assert_frame_equal(res, expec)
         tm.assert_frame_equal(res2, expec)
@@ -343,13 +409,21 @@ class TestDataFrameReplace:
         df = DataFrame(mix_abc)
         res = df.replace([r"\s*\.\s*", "b"], 0, regex=True)
         res2 = df.copy()
-        return_value = res2.replace([r"\s*\.\s*", "b"], 0, regex=True, inplace=True)
+        return_value = res2.replace(
+            [r"\s*\.\s*", "b"], 0, regex=True, inplace=True
+        )
         assert return_value is None
         res3 = df.copy()
-        return_value = res3.replace(regex=[r"\s*\.\s*", "b"], value=0, inplace=True)
+        return_value = res3.replace(
+            regex=[r"\s*\.\s*", "b"], value=0, inplace=True
+        )
         assert return_value is None
         expec = DataFrame(
-            {"a": mix_abc["a"], "b": ["a", 0, 0, 0], "c": ["a", 0, np.nan, "d"]}
+            {
+                "a": mix_abc["a"],
+                "b": ["a", 0, 0, 0],
+                "c": ["a", 0, np.nan, "d"],
+            }
         )
         tm.assert_frame_equal(res, expec)
         tm.assert_frame_equal(res2, expec)
@@ -367,7 +441,11 @@ class TestDataFrameReplace:
         return_value = res3.replace(regex=s1, value=s2, inplace=True)
         assert return_value is None
         expec = DataFrame(
-            {"a": mix_abc["a"], "b": ["a", "b", np.nan, np.nan], "c": mix_abc["c"]}
+            {
+                "a": mix_abc["a"],
+                "b": ["a", "b", np.nan, np.nan],
+                "c": mix_abc["c"],
+            }
         )
         tm.assert_frame_equal(res, expec)
         tm.assert_frame_equal(res2, expec)
@@ -375,7 +453,9 @@ class TestDataFrameReplace:
 
     def test_regex_replace_numeric_to_object_conversion(self, mix_abc):
         df = DataFrame(mix_abc)
-        expec = DataFrame({"a": ["a", 1, 2, 3], "b": mix_abc["b"], "c": mix_abc["c"]})
+        expec = DataFrame(
+            {"a": ["a", 1, 2, 3], "b": mix_abc["b"], "c": mix_abc["c"]}
+        )
         res = df.replace(0, "a")
         tm.assert_frame_equal(res, expec)
         assert res.a.dtype == np.object_
@@ -440,7 +520,9 @@ class TestDataFrameReplace:
 
         zero_filled = datetime_frame.replace(np.nan, -1e8)
         tm.assert_frame_equal(zero_filled, datetime_frame.fillna(-1e8))
-        tm.assert_frame_equal(zero_filled.replace(-1e8, np.nan), datetime_frame)
+        tm.assert_frame_equal(
+            zero_filled.replace(-1e8, np.nan), datetime_frame
+        )
 
         datetime_frame.loc[datetime_frame.index[:5], "A"] = np.nan
         datetime_frame.loc[datetime_frame.index[-5:], "A"] = np.nan
@@ -453,11 +535,17 @@ class TestDataFrameReplace:
         # GH 11698
         # test for mixed data types.
         df = DataFrame(
-            [("-", pd.to_datetime("20150101")), ("a", pd.to_datetime("20150102"))]
+            [
+                ("-", pd.to_datetime("20150101")),
+                ("a", pd.to_datetime("20150102")),
+            ]
         )
         df1 = df.replace("-", np.nan)
         expected_df = DataFrame(
-            [(np.nan, pd.to_datetime("20150101")), ("a", pd.to_datetime("20150102"))]
+            [
+                (np.nan, pd.to_datetime("20150101")),
+                ("a", pd.to_datetime("20150102")),
+            ]
         )
         tm.assert_frame_equal(df1, expected_df)
 
@@ -515,7 +603,9 @@ class TestDataFrameReplace:
         # from GH 3064
         df = DataFrame({"zero": {"a": 0.0, "b": 1}, "one": {"a": 2.0, "b": 0}})
         result = df.replace(0, {"zero": 0.5, "one": 1.0})
-        expected = DataFrame({"zero": {"a": 0.5, "b": 1}, "one": {"a": 2.0, "b": 1.0}})
+        expected = DataFrame(
+            {"zero": {"a": 0.5, "b": 1}, "one": {"a": 2.0, "b": 1.0}}
+        )
         tm.assert_frame_equal(result, expected)
 
         result = df.replace(0, df.mean())
@@ -525,7 +615,9 @@ class TestDataFrameReplace:
         df = DataFrame({"zero": {"a": 0.0, "b": 1}, "one": {"a": 2.0, "b": 0}})
         s = Series({"zero": 0.0, "one": 2.0})
         result = df.replace(s, {"zero": 0.5, "one": 1.0})
-        expected = DataFrame({"zero": {"a": 0.5, "b": 1}, "one": {"a": 1.0, "b": 0.0}})
+        expected = DataFrame(
+            {"zero": {"a": 0.5, "b": 1}, "one": {"a": 1.0, "b": 0.0}}
+        )
         tm.assert_frame_equal(result, expected)
 
         result = df.replace(s, df.mean())
@@ -534,7 +626,8 @@ class TestDataFrameReplace:
     def test_replace_convert(self, any_string_dtype):
         # gh 3907 (pandas >= 3.0 no longer converts dtypes)
         df = DataFrame(
-            [["foo", "bar", "bah"], ["bar", "foo", "bah"]], dtype=any_string_dtype
+            [["foo", "bar", "bah"], ["bar", "foo", "bah"]],
+            dtype=any_string_dtype,
         )
         m = {"foo": 1, "bar": 2, "bah": 3}
         rep = df.replace(m)
@@ -632,7 +725,10 @@ class TestDataFrameReplace:
     def test_replace_mixed3(self):
         # test case from
         df = DataFrame(
-            {"A": Series([3, 0], dtype="int64"), "B": Series([0, 3], dtype="int64")}
+            {
+                "A": Series([3, 0], dtype="int64"),
+                "B": Series([0, 3], dtype="int64"),
+            }
         )
         result = df.replace(3, df.mean().to_dict())
         expected = df.copy().astype("float64")
@@ -643,7 +739,9 @@ class TestDataFrameReplace:
 
     def test_replace_nullable_int_with_string_doesnt_cast(self):
         # GH#25438 don't cast df['a'] to float64
-        df = DataFrame({"a": [1, 2, 3, np.nan], "b": ["some", "strings", "here", "he"]})
+        df = DataFrame(
+            {"a": [1, 2, 3, np.nan], "b": ["some", "strings", "here", "he"]}
+        )
         df["a"] = df["a"].astype("Int64")
 
         res = df.replace("", np.nan)
@@ -715,7 +813,9 @@ class TestDataFrameReplace:
     def test_replace_all_NA(self):
         # GH#60688
         df = DataFrame({"ticker": ["#1234#"], "name": [None]})
-        result = df.replace({col: {r"^#": "$"} for col in df.columns}, regex=True)
+        result = df.replace(
+            {col: {r"^#": "$"} for col in df.columns}, regex=True
+        )
         expected = DataFrame({"ticker": ["$1234#"], "name": [None]})
         tm.assert_frame_equal(result, expected)
 
@@ -756,7 +856,12 @@ class TestDataFrameReplace:
     @pytest.mark.parametrize(
         "frame, to_replace, value, expected",
         [
-            (DataFrame({"ints": [1, 2, 3]}), 1, 0, DataFrame({"ints": [0, 2, 3]})),
+            (
+                DataFrame({"ints": [1, 2, 3]}),
+                1,
+                0,
+                DataFrame({"ints": [0, 2, 3]}),
+            ),
             (
                 DataFrame({"ints": [1, 2, 3]}, dtype=np.int32),
                 1,
@@ -807,7 +912,9 @@ class TestDataFrameReplace:
             (
                 DataFrame(
                     {
-                        "A": date_range("20130101", periods=3, tz="US/Eastern"),
+                        "A": date_range(
+                            "20130101", periods=3, tz="US/Eastern"
+                        ),
                         "B": [0, np.nan, 2],
                     }
                 ),
@@ -1112,18 +1219,24 @@ class TestDataFrameReplace:
 
         result = df.copy()
         result.iloc[1, 0] = np.nan
-        result = result.replace({"A": pd.NaT}, Timestamp("20130104", tz="US/Eastern"))
+        result = result.replace(
+            {"A": pd.NaT}, Timestamp("20130104", tz="US/Eastern")
+        )
         tm.assert_frame_equal(result, expected)
 
         # pre-2.0 this would coerce to object with mismatched tzs
         result = df.copy()
         result.iloc[1, 0] = np.nan
-        result = result.replace({"A": pd.NaT}, Timestamp("20130104", tz="US/Pacific"))
+        result = result.replace(
+            {"A": pd.NaT}, Timestamp("20130104", tz="US/Pacific")
+        )
         expected = DataFrame(
             {
                 "A": [
                     Timestamp("20130101", tz="US/Eastern"),
-                    Timestamp("20130104", tz="US/Pacific").tz_convert("US/Eastern"),
+                    Timestamp("20130104", tz="US/Pacific").tz_convert(
+                        "US/Eastern"
+                    ),
                     Timestamp("20130103", tz="US/Eastern"),
                 ],
                 "B": [0, np.nan, 2],
@@ -1217,7 +1330,9 @@ class TestDataFrameReplace:
         with pytest.raises(TypeError, match=msg):
             df.replace(lambda x: x.strip())
 
-    @pytest.mark.parametrize("dtype", ["float", "float64", "int64", "Int64", "boolean"])
+    @pytest.mark.parametrize(
+        "dtype", ["float", "float64", "int64", "Int64", "boolean"]
+    )
     @pytest.mark.parametrize("value", [np.nan, pd.NA])
     def test_replace_no_replacement_dtypes(self, dtype, value):
         # https://github.com/pandas-dev/pandas/issues/32988
@@ -1240,7 +1355,9 @@ class TestDataFrameReplace:
 
         tm.assert_frame_equal(result, expected)
 
-    @pytest.mark.parametrize("value", [pd.Period("2020-01"), pd.Interval(0, 5)])
+    @pytest.mark.parametrize(
+        "value", [pd.Period("2020-01"), pd.Interval(0, 5)]
+    )
     def test_replace_ea_ignore_float(self, frame_or_series, value):
         # GH#34871
         obj = DataFrame({"Per": [value] * 3})
@@ -1252,7 +1369,10 @@ class TestDataFrameReplace:
 
     @pytest.mark.parametrize(
         "replace_dict, final_data",
-        [({"a": 1, "b": 1}, [[2, 2], [2, 2]]), ({"a": 1, "b": 2}, [[2, 1], [2, 2]])],
+        [
+            ({"a": 1, "b": 1}, [[2, 2], [2, 2]]),
+            ({"a": 1, "b": 2}, [[2, 1], [2, 2]]),
+        ],
     )
     def test_categorical_replace_with_dict(self, replace_dict, final_data):
         # GH 26988
@@ -1323,13 +1443,19 @@ class TestDataFrameReplace:
             lambda x: x.astype("category").cat.rename_categories({"d": "z"})
         )
         input_df = input_df.apply(
-            lambda x: x.astype("category").cat.rename_categories({"obj1": "obj9"})
+            lambda x: x.astype("category").cat.rename_categories(
+                {"obj1": "obj9"}
+            )
         )
         result = input_df.apply(
-            lambda x: x.astype("category").cat.rename_categories({"cat2": "catX"})
+            lambda x: x.astype("category").cat.rename_categories(
+                {"cat2": "catX"}
+            )
         )
 
-        result = result.astype({"col1": "int64", "col3": "float64", "col5": "str"})
+        result = result.astype(
+            {"col1": "int64", "col3": "float64", "col5": "str"}
+        )
         tm.assert_frame_equal(result, expected)
 
     def test_replace_dict_category_type(self):
@@ -1491,7 +1617,9 @@ class TestDataFrameReplaceRegex:
         if regex:
             expected_df2 = DataFrame({"A": [value], "B": ["1"]}, dtype=dtype)
         else:
-            expected_df2 = DataFrame({"A": Series([value], dtype=dtype), "B": ["1"]})
+            expected_df2 = DataFrame(
+                {"A": Series([value], dtype=dtype), "B": ["1"]}
+            )
         result_df2 = df2.replace(to_replace="0", value=value, regex=regex)
         tm.assert_frame_equal(result_df2, expected_df2)
 

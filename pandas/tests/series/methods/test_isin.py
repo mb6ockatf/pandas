@@ -26,7 +26,21 @@ class TestSeriesIsIn:
         s = Series(list("abcdefghijk" * 10**5))
         # If numpy doesn't do the manual comparison/mask, these
         # unorderable mixed types are what cause the exception in numpy
-        in_list = [-1, "a", "b", "G", "Y", "Z", "E", "K", "E", "S", "I", "R", "R"] * 6
+        in_list = [
+            -1,
+            "a",
+            "b",
+            "G",
+            "Y",
+            "Z",
+            "E",
+            "K",
+            "E",
+            "S",
+            "I",
+            "R",
+            "R",
+        ] * 6
 
         assert s.isin(in_list).sum() == 200000
 
@@ -216,12 +230,19 @@ def test_isin_large_series_mixed_dtypes_and_nan(monkeypatch):
     [
         ("boolean", [pd.NA, False, True], [False, pd.NA], [True, True, False]),
         ("Int64", [pd.NA, 2, 1], [1, pd.NA], [True, False, True]),
-        ("boolean", [pd.NA, False, True], [pd.NA, True, "a", 20], [True, False, True]),
+        (
+            "boolean",
+            [pd.NA, False, True],
+            [pd.NA, True, "a", 20],
+            [True, False, True],
+        ),
         ("boolean", [pd.NA, False, True], [], [False, False, False]),
         ("Float64", [20.0, 30.0, pd.NA], [pd.NA], [False, False, True]),
     ],
 )
-def test_isin_large_series_and_pdNA(dtype, data, values, expected, monkeypatch):
+def test_isin_large_series_and_pdNA(
+    dtype, data, values, expected, monkeypatch
+):
     # https://github.com/pandas-dev/pandas/issues/60678
     # combination of  large series (> _MINIMUM_COMP_ARR_LEN elements) and
     # values contains pdNA

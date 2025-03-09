@@ -47,7 +47,9 @@ def test_import_error_message():
     # GH-19810
     df = DataFrame({"A": [1, 2]})
 
-    with pytest.raises(ImportError, match="matplotlib is required for plotting"):
+    with pytest.raises(
+        ImportError, match="matplotlib is required for plotting"
+    ):
         df.plot()
 
 
@@ -60,7 +62,12 @@ def test_get_accessor_args():
 
     msg = "should not be called with positional arguments"
     with pytest.raises(TypeError, match=msg):
-        func(backend_name="", data=Series(dtype=object), args=["line", None], kwargs={})
+        func(
+            backend_name="",
+            data=Series(dtype=object),
+            args=["line", None],
+            kwargs={},
+        )
 
     x, y, kind, kwargs = func(
         backend_name="",
@@ -197,7 +204,9 @@ class TestDataFramePlots:
     def test_andrews_curves_no_warning(self, iris):
         # Ensure no UserWarning when making plot
         with tm.assert_produces_warning(None):
-            _check_plot_works(plotting.andrews_curves, frame=iris, class_column="Name")
+            _check_plot_works(
+                plotting.andrews_curves, frame=iris, class_column="Name"
+            )
 
     @pytest.mark.slow
     @pytest.mark.parametrize(
@@ -225,7 +234,10 @@ class TestDataFramePlots:
         if isinstance(df, str):
             df = request.getfixturevalue(df)
         ax = _check_plot_works(
-            plotting.andrews_curves, frame=df, class_column="Name", color=linecolors
+            plotting.andrews_curves,
+            frame=df,
+            class_column="Name",
+            color=linecolors,
         )
         _check_colors(
             ax.get_lines()[:10], linecolors=linecolors, mapping=df["Name"][:10]
@@ -253,12 +265,16 @@ class TestDataFramePlots:
         ax = _check_plot_works(
             plotting.andrews_curves, frame=df, class_column="Name", color=cmaps
         )
-        _check_colors(ax.get_lines()[:10], linecolors=cmaps, mapping=df["Name"][:10])
+        _check_colors(
+            ax.get_lines()[:10], linecolors=cmaps, mapping=df["Name"][:10]
+        )
 
     @pytest.mark.slow
     def test_andrews_curves_handle(self):
         colors = ["b", "g", "r"]
-        df = DataFrame({"A": [1, 2, 3], "B": [1, 2, 3], "C": [1, 2, 3], "Name": colors})
+        df = DataFrame(
+            {"A": [1, 2, 3], "B": [1, 2, 3], "C": [1, 2, 3], "Name": colors}
+        )
         ax = plotting.andrews_curves(df, "Name", color=colors)
         handles, _ = ax.get_legend_handles_labels()
         _check_colors(handles, linecolors=colors)
@@ -266,15 +282,23 @@ class TestDataFramePlots:
     @pytest.mark.slow
     @pytest.mark.parametrize(
         "color",
-        [("#556270", "#4ECDC4", "#C7F464"), ["dodgerblue", "aquamarine", "seagreen"]],
+        [
+            ("#556270", "#4ECDC4", "#C7F464"),
+            ["dodgerblue", "aquamarine", "seagreen"],
+        ],
     )
     def test_parallel_coordinates_colors(self, iris, color):
         df = iris
 
         ax = _check_plot_works(
-            plotting.parallel_coordinates, frame=df, class_column="Name", color=color
+            plotting.parallel_coordinates,
+            frame=df,
+            class_column="Name",
+            color=color,
         )
-        _check_colors(ax.get_lines()[:10], linecolors=color, mapping=df["Name"][:10])
+        _check_colors(
+            ax.get_lines()[:10], linecolors=color, mapping=df["Name"][:10]
+        )
 
     @pytest.mark.slow
     def test_parallel_coordinates_cmap(self, iris):
@@ -286,8 +310,12 @@ class TestDataFramePlots:
             class_column="Name",
             colormap=cm.jet,
         )
-        cmaps = [mpl.cm.jet(n) for n in np.linspace(0, 1, df["Name"].nunique())]
-        _check_colors(ax.get_lines()[:10], linecolors=cmaps, mapping=df["Name"][:10])
+        cmaps = [
+            mpl.cm.jet(n) for n in np.linspace(0, 1, df["Name"].nunique())
+        ]
+        _check_colors(
+            ax.get_lines()[:10], linecolors=cmaps, mapping=df["Name"][:10]
+        )
 
     @pytest.mark.slow
     def test_parallel_coordinates_line_diff(self, iris):
@@ -300,7 +328,10 @@ class TestDataFramePlots:
         nxticks = len(ax.xaxis.get_ticklabels())
 
         ax = _check_plot_works(
-            plotting.parallel_coordinates, frame=df, class_column="Name", axvlines=False
+            plotting.parallel_coordinates,
+            frame=df,
+            class_column="Name",
+            axvlines=False,
         )
         assert len(ax.get_lines()) == (nlines - nxticks)
 
@@ -308,7 +339,9 @@ class TestDataFramePlots:
     def test_parallel_coordinates_handles(self, iris):
         df = iris
         colors = ["b", "g", "r"]
-        df = DataFrame({"A": [1, 2, 3], "B": [1, 2, 3], "C": [1, 2, 3], "Name": colors})
+        df = DataFrame(
+            {"A": [1, 2, 3], "B": [1, 2, 3], "C": [1, 2, 3], "Name": colors}
+        )
         ax = plotting.parallel_coordinates(df, "Name", color=colors)
         handles, _ = ax.get_legend_handles_labels()
         _check_colors(handles, linecolors=colors)
@@ -330,9 +363,12 @@ class TestDataFramePlots:
         color_label_tuples = zip(
             [polyline.get_color() for polyline in polylines], labels
         )
-        ordered_color_label_tuples = sorted(color_label_tuples, key=lambda x: x[1])
+        ordered_color_label_tuples = sorted(
+            color_label_tuples, key=lambda x: x[1]
+        )
         prev_next_tupels = zip(
-            list(ordered_color_label_tuples[0:-1]), list(ordered_color_label_tuples[1:])
+            list(ordered_color_label_tuples[0:-1]),
+            list(ordered_color_label_tuples[1:]),
         )
         for prev, nxt in prev_next_tupels:
             # labels and colors are ordered strictly increasing
@@ -345,7 +381,10 @@ class TestDataFramePlots:
 
     @pytest.mark.parametrize(
         "color",
-        [("#556270", "#4ECDC4", "#C7F464"), ["dodgerblue", "aquamarine", "seagreen"]],
+        [
+            ("#556270", "#4ECDC4", "#C7F464"),
+            ["dodgerblue", "aquamarine", "seagreen"],
+        ],
     )
     def test_radviz_color(self, iris, color):
         df = iris
@@ -361,14 +400,25 @@ class TestDataFramePlots:
         ax = _check_plot_works(
             plotting.radviz, frame=df, class_column="Name", colormap=cm.jet
         )
-        cmaps = [mpl.cm.jet(n) for n in np.linspace(0, 1, df["Name"].nunique())]
+        cmaps = [
+            mpl.cm.jet(n) for n in np.linspace(0, 1, df["Name"].nunique())
+        ]
         patches = [p for p in ax.patches[:20] if p.get_label() != ""]
         _check_colors(patches, facecolors=cmaps, mapping=df["Name"][:10])
 
     def test_radviz_colors_handles(self):
-        colors = [[0.0, 0.0, 1.0, 1.0], [0.0, 0.5, 1.0, 1.0], [1.0, 0.0, 0.0, 1.0]]
+        colors = [
+            [0.0, 0.0, 1.0, 1.0],
+            [0.0, 0.5, 1.0, 1.0],
+            [1.0, 0.0, 0.0, 1.0],
+        ]
         df = DataFrame(
-            {"A": [1, 2, 3], "B": [2, 1, 3], "C": [3, 2, 1], "Name": ["b", "g", "r"]}
+            {
+                "A": [1, 2, 3],
+                "B": [2, 1, 3],
+                "C": [3, 2, 1],
+                "Name": ["b", "g", "r"],
+            }
         )
         ax = plotting.radviz(df, "Name", color=colors)
         handles, _ = ax.get_legend_handles_labels()
@@ -483,7 +533,8 @@ class TestDataFramePlots:
         assert len(color_after) == len(color_before)
 
         df = DataFrame(
-            np.random.default_rng(2).standard_normal((48, 4)), columns=list("ABCD")
+            np.random.default_rng(2).standard_normal((48, 4)),
+            columns=list("ABCD"),
         )
 
         color_list = mpl.cm.gnuplot(np.linspace(0, 1, 16))
@@ -498,15 +549,21 @@ class TestDataFramePlots:
 
         expected = [(0.5, 0.24, 0.6), (0.3, 0.7, 0.7)]
 
-        df1 = DataFrame(np.random.default_rng(2).random((2, 2)), columns=data_files)
+        df1 = DataFrame(
+            np.random.default_rng(2).random((2, 2)), columns=data_files
+        )
         dic_color = {"b": (0.3, 0.7, 0.7), "a": (0.5, 0.24, 0.6)}
 
         ax = df1.plot(kind=kind, color=dic_color)
         if kind == "bar":
-            colors = [rect.get_facecolor()[0:-1] for rect in ax.get_children()[0:3:2]]
+            colors = [
+                rect.get_facecolor()[0:-1] for rect in ax.get_children()[0:3:2]
+            ]
         else:
             colors = [rect.get_color() for rect in ax.get_lines()[0:2]]
-        assert all(color == expected[index] for index, color in enumerate(colors))
+        assert all(
+            color == expected[index] for index, color in enumerate(colors)
+        )
 
     def test_bar_plot(self):
         # GH38947
@@ -528,7 +585,9 @@ class TestDataFramePlots:
     def test_barh_plot_labels_mixed_integer_string(self):
         # GH39126
         # Test barh plot with string and integer at the same column
-        df = DataFrame([{"word": 1, "value": 0}, {"word": "knowledge", "value": 2}])
+        df = DataFrame(
+            [{"word": 1, "value": 0}, {"word": "knowledge", "value": 2}]
+        )
         plot_barh = df.plot.barh(x="word", legend=None)
         expected_yticklabels = [
             mpl.text.Text(0, 0, "1"),
@@ -638,9 +697,9 @@ class TestDataFramePlots:
         )
         df["a"].plot(ax=plots[1][0])
 
-        df["a"].plot(ax=plots[0][1], title="Internal share (twin) only").set_xlabel(
-            "this label should always be visible"
-        )
+        df["a"].plot(
+            ax=plots[0][1], title="Internal share (twin) only"
+        ).set_xlabel("this label should always be visible")
         df["a"].plot(ax=plots[1][1])
 
         df["a"].plot(ax=plots[0][2], title="Both").set_xlabel(
@@ -671,7 +730,10 @@ class TestDataFramePlots:
     def test_bar_plt_xaxis_intervalrange(self):
         # GH 38969
         # Ensure IntervalIndex x-axis produces a bar plot as expected
-        expected = [mpl.text.Text(0, 0, "([0, 1],)"), mpl.text.Text(1, 0, "([1, 2],)")]
+        expected = [
+            mpl.text.Text(0, 0, "([0, 1],)"),
+            mpl.text.Text(1, 0, "([1, 2],)"),
+        ]
         s = Series(
             [1, 2],
             index=[interval_range(0, 2, closed="both")],

@@ -143,7 +143,10 @@ def _parse_date_columns(data_frame: DataFrame, parse_dates) -> DataFrame:
     # we could in theory do a 'nice' conversion from a FixedOffset tz
     # GH11216
     for i, (col_name, df_col) in enumerate(data_frame.items()):
-        if isinstance(df_col.dtype, DatetimeTZDtype) or col_name in parse_dates:
+        if (
+            isinstance(df_col.dtype, DatetimeTZDtype)
+            or col_name in parse_dates
+        ):
             try:
                 fmt = parse_dates[col_name]
             except (KeyError, TypeError):
@@ -182,7 +185,10 @@ def _convert_arrays_to_dataframe(
         arrays = result_arrays  # type: ignore[assignment]
     if arrays:
         return DataFrame._from_arrays(
-            arrays, columns=columns, index=range(idx_len), verify_integrity=False
+            arrays,
+            columns=columns,
+            index=range(idx_len),
+            verify_integrity=False,
         )
     else:
         return DataFrame(columns=columns)
@@ -198,7 +204,9 @@ def _wrap_result(
     dtype_backend: DtypeBackend | Literal["numpy"] = "numpy",
 ) -> DataFrame:
     """Wrap result set of a SQLAlchemy query in a DataFrame."""
-    frame = _convert_arrays_to_dataframe(data, columns, coerce_float, dtype_backend)
+    frame = _convert_arrays_to_dataframe(
+        data, columns, coerce_float, dtype_backend
+    )
 
     if dtype:
         frame = frame.astype(dtype)
@@ -242,7 +250,9 @@ def read_sql_table(  # pyright: ignore[reportOverlappingOverload]
     schema=...,
     index_col: str | list[str] | None = ...,
     coerce_float=...,
-    parse_dates: list[str] | dict[str, str] | dict[str, dict[str, Any]] | None = ...,
+    parse_dates: (
+        list[str] | dict[str, str] | dict[str, dict[str, Any]] | None
+    ) = ...,
     columns: list[str] | None = ...,
     chunksize: None = ...,
     dtype_backend: DtypeBackend | lib.NoDefault = ...,
@@ -256,7 +266,9 @@ def read_sql_table(
     schema=...,
     index_col: str | list[str] | None = ...,
     coerce_float=...,
-    parse_dates: list[str] | dict[str, str] | dict[str, dict[str, Any]] | None = ...,
+    parse_dates: (
+        list[str] | dict[str, str] | dict[str, dict[str, Any]] | None
+    ) = ...,
     columns: list[str] | None = ...,
     chunksize: int = ...,
     dtype_backend: DtypeBackend | lib.NoDefault = ...,
@@ -269,7 +281,9 @@ def read_sql_table(
     schema: str | None = None,
     index_col: str | list[str] | None = None,
     coerce_float: bool = True,
-    parse_dates: list[str] | dict[str, str] | dict[str, dict[str, Any]] | None = None,
+    parse_dates: (
+        list[str] | dict[str, str] | dict[str, dict[str, Any]] | None
+    ) = None,
     columns: list[str] | None = None,
     chunksize: int | None = None,
     dtype_backend: DtypeBackend | lib.NoDefault = lib.no_default,
@@ -346,7 +360,9 @@ def read_sql_table(
         dtype_backend = "numpy"  # type: ignore[assignment]
     assert dtype_backend is not lib.no_default
 
-    with pandasSQL_builder(con, schema=schema, need_transaction=True) as pandas_sql:
+    with pandasSQL_builder(
+        con, schema=schema, need_transaction=True
+    ) as pandas_sql:
         if not pandas_sql.has_table(table_name):
             raise ValueError(f"Table {table_name} not found")
 
@@ -373,7 +389,9 @@ def read_sql_query(  # pyright: ignore[reportOverlappingOverload]
     index_col: str | list[str] | None = ...,
     coerce_float=...,
     params: list[Any] | Mapping[str, Any] | None = ...,
-    parse_dates: list[str] | dict[str, str] | dict[str, dict[str, Any]] | None = ...,
+    parse_dates: (
+        list[str] | dict[str, str] | dict[str, dict[str, Any]] | None
+    ) = ...,
     chunksize: None = ...,
     dtype: DtypeArg | None = ...,
     dtype_backend: DtypeBackend | lib.NoDefault = ...,
@@ -387,7 +405,9 @@ def read_sql_query(
     index_col: str | list[str] | None = ...,
     coerce_float=...,
     params: list[Any] | Mapping[str, Any] | None = ...,
-    parse_dates: list[str] | dict[str, str] | dict[str, dict[str, Any]] | None = ...,
+    parse_dates: (
+        list[str] | dict[str, str] | dict[str, dict[str, Any]] | None
+    ) = ...,
     chunksize: int = ...,
     dtype: DtypeArg | None = ...,
     dtype_backend: DtypeBackend | lib.NoDefault = ...,
@@ -400,7 +420,9 @@ def read_sql_query(
     index_col: str | list[str] | None = None,
     coerce_float: bool = True,
     params: list[Any] | Mapping[str, Any] | None = None,
-    parse_dates: list[str] | dict[str, str] | dict[str, dict[str, Any]] | None = None,
+    parse_dates: (
+        list[str] | dict[str, str] | dict[str, dict[str, Any]] | None
+    ) = None,
     chunksize: int | None = None,
     dtype: DtypeArg | None = None,
     dtype_backend: DtypeBackend | lib.NoDefault = lib.no_default,
@@ -836,7 +858,9 @@ def to_sql(
             "'frame' argument should be either a Series or a DataFrame"
         )
 
-    with pandasSQL_builder(con, schema=schema, need_transaction=True) as pandas_sql:
+    with pandasSQL_builder(
+        con, schema=schema, need_transaction=True
+    ) as pandas_sql:
         return pandas_sql.to_sql(
             frame,
             name,
@@ -900,10 +924,14 @@ def pandasSQL_builder(
     if isinstance(con, str) and sqlalchemy is None:
         raise ImportError("Using URI string without sqlalchemy installed.")
 
-    if sqlalchemy is not None and isinstance(con, (str, sqlalchemy.engine.Connectable)):
+    if sqlalchemy is not None and isinstance(
+        con, (str, sqlalchemy.engine.Connectable)
+    ):
         return SQLDatabase(con, schema, need_transaction)
 
-    adbc = import_optional_dependency("adbc_driver_manager.dbapi", errors="ignore")
+    adbc = import_optional_dependency(
+        "adbc_driver_manager.dbapi", errors="ignore"
+    )
     if adbc and isinstance(con, adbc.Connection):
         return ADBCDatabase(con)
 
@@ -934,7 +962,9 @@ class SQLTable(PandasObject):
         pandas_sql_engine,
         frame=None,
         index: bool | str | list[str] | None = True,
-        if_exists: Literal["fail", "replace", "append", "delete_rows"] = "fail",
+        if_exists: Literal[
+            "fail", "replace", "append", "delete_rows"
+        ] = "fail",
         prefix: str = "pandas",
         index_label=None,
         schema=None,
@@ -990,7 +1020,9 @@ class SQLTable(PandasObject):
             elif self.if_exists == "delete_rows":
                 self.pd_sql.delete_rows(self.name, self.schema)
             else:
-                raise ValueError(f"'{self.if_exists}' is not valid for if_exists")
+                raise ValueError(
+                    f"'{self.if_exists}' is not valid for if_exists"
+                )
         else:
             self._execute_create()
 
@@ -1034,7 +1066,9 @@ class SQLTable(PandasObject):
             try:
                 temp.reset_index(inplace=True)
             except ValueError as err:
-                raise ValueError(f"duplicate name in index/columns: {err}") from err
+                raise ValueError(
+                    f"duplicate name in index/columns: {err}"
+                ) from err
         else:
             temp = self.frame
 
@@ -1245,7 +1279,11 @@ class SQLTable(PandasObject):
                 column_names_and_types.append((str(idx_label), idx_type, True))
 
         column_names_and_types += [
-            (str(self.frame.columns[i]), dtype_mapper(self.frame.iloc[:, i]), False)
+            (
+                str(self.frame.columns[i]),
+                dtype_mapper(self.frame.iloc[:, i]),
+                False,
+            )
             for i in range(len(self.frame.columns))
         ]
 
@@ -1259,7 +1297,9 @@ class SQLTable(PandasObject):
         )
         from sqlalchemy.schema import MetaData
 
-        column_names_and_types = self._get_column_names_and_types(self._sqlalchemy_type)
+        column_names_and_types = self._get_column_names_and_types(
+            self._sqlalchemy_type
+        )
 
         columns: list[Any] = [
             Column(name, typ, index=is_index)
@@ -1311,7 +1351,9 @@ class SQLTable(PandasObject):
                         fmt = parse_dates[col_name]
                     except TypeError:
                         fmt = None
-                    self.frame[col_name] = _handle_date_column(df_col, format=fmt)
+                    self.frame[col_name] = _handle_date_column(
+                        df_col, format=fmt
+                    )
                     continue
 
                 # the type the dataframe column should have
@@ -1334,7 +1376,9 @@ class SQLTable(PandasObject):
                     and is_object_dtype(self.frame[col_name])
                 ):
                     self.frame[col_name] = df_col.astype(col_type)
-                elif dtype_backend == "numpy" and len(df_col) == df_col.count():
+                elif (
+                    dtype_backend == "numpy" and len(df_col) == df_col.count()
+                ):
                     # No NA values, can convert ints and bools
                     if col_type is np.dtype("int64") or col_type is bool:
                         self.frame[col_name] = df_col.astype(col_type)
@@ -1398,7 +1442,9 @@ class SQLTable(PandasObject):
             elif col.dtype.name.lower() in ("uint16", "int32"):
                 return Integer
             elif col.dtype.name.lower() == "uint64":
-                raise ValueError("Unsigned 64 bit integer datatype is not supported")
+                raise ValueError(
+                    "Unsigned 64 bit integer datatype is not supported"
+                )
             else:
                 return BigInteger
         elif col_type == "boolean":
@@ -1490,7 +1536,9 @@ class PandasSQL(PandasObject, ABC):
         self,
         frame,
         name: str,
-        if_exists: Literal["fail", "replace", "append", "delete_rows"] = "fail",
+        if_exists: Literal[
+            "fail", "replace", "append", "delete_rows"
+        ] = "fail",
         index: bool = True,
         index_label=None,
         schema=None,
@@ -1672,7 +1720,9 @@ class SQLDatabase(PandasSQL):
         try:
             return execute_function(sql, *args)
         except SQLAlchemyError as exc:
-            raise DatabaseError(f"Execution failed on sql '{sql}': {exc}") from exc
+            raise DatabaseError(
+                f"Execution failed on sql '{sql}': {exc}"
+            ) from exc
 
     def read_table(
         self,
@@ -1884,7 +1934,9 @@ class SQLDatabase(PandasSQL):
         self,
         frame,
         name: str,
-        if_exists: Literal["fail", "replace", "append", "delete_rows"] = "fail",
+        if_exists: Literal[
+            "fail", "replace", "append", "delete_rows"
+        ] = "fail",
         index: bool | str | list[str] | None = True,
         index_label=None,
         schema=None,
@@ -1908,12 +1960,16 @@ class SQLDatabase(PandasSQL):
             from sqlalchemy.types import TypeEngine
 
             for col, my_type in dtype.items():
-                if isinstance(my_type, type) and issubclass(my_type, TypeEngine):
+                if isinstance(my_type, type) and issubclass(
+                    my_type, TypeEngine
+                ):
                     pass
                 elif isinstance(my_type, TypeEngine):
                     pass
                 else:
-                    raise ValueError(f"The type of {col} is not a SQLAlchemy type")
+                    raise ValueError(
+                        f"The type of {col} is not a SQLAlchemy type"
+                    )
 
         table = SQLTable(
             name,
@@ -1943,7 +1999,9 @@ class SQLDatabase(PandasSQL):
             from sqlalchemy import inspect as sqlalchemy_inspect
 
             insp = sqlalchemy_inspect(self.con)
-            table_names = insp.get_table_names(schema=schema or self.meta.schema)
+            table_names = insp.get_table_names(
+                schema=schema or self.meta.schema
+            )
             if name not in table_names:
                 msg = (
                     f"The provided table name '{name}' is not found exactly as "
@@ -1961,7 +2019,9 @@ class SQLDatabase(PandasSQL):
         self,
         frame,
         name: str,
-        if_exists: Literal["fail", "replace", "append", "delete_rows"] = "fail",
+        if_exists: Literal[
+            "fail", "replace", "append", "delete_rows"
+        ] = "fail",
         index: bool = True,
         index_label=None,
         schema: str | None = None,
@@ -2064,7 +2124,9 @@ class SQLDatabase(PandasSQL):
         )
 
         schema = schema or self.meta.schema
-        tbl = Table(table_name, self.meta, autoload_with=self.con, schema=schema)
+        tbl = Table(
+            table_name, self.meta, autoload_with=self.con, schema=schema
+        )
         for column in tbl.columns:
             if isinstance(column.type, Numeric):
                 column.type.asdecimal = False
@@ -2222,7 +2284,9 @@ class ADBCDatabase(PandasSQL):
                 "'coerce_float' is not implemented for ADBC drivers"
             )
         if chunksize:
-            raise NotImplementedError("'chunksize' is not implemented for ADBC drivers")
+            raise NotImplementedError(
+                "'chunksize' is not implemented for ADBC drivers"
+            )
 
         if columns:
             if index_col:
@@ -2304,9 +2368,13 @@ class ADBCDatabase(PandasSQL):
                 "'coerce_float' is not implemented for ADBC drivers"
             )
         if params:
-            raise NotImplementedError("'params' is not implemented for ADBC drivers")
+            raise NotImplementedError(
+                "'params' is not implemented for ADBC drivers"
+            )
         if chunksize:
-            raise NotImplementedError("'chunksize' is not implemented for ADBC drivers")
+            raise NotImplementedError(
+                "'chunksize' is not implemented for ADBC drivers"
+            )
 
         with self.execute(sql) as cur:
             pa_table = cur.fetch_arrow_table()
@@ -2325,7 +2393,9 @@ class ADBCDatabase(PandasSQL):
         self,
         frame,
         name: str,
-        if_exists: Literal["fail", "replace", "append", "delete_rows"] = "fail",
+        if_exists: Literal[
+            "fail", "replace", "append", "delete_rows"
+        ] = "fail",
         index: bool = True,
         index_label=None,
         schema: str | None = None,
@@ -2373,11 +2443,17 @@ class ADBCDatabase(PandasSQL):
                 "'index_label' is not implemented for ADBC drivers"
             )
         if chunksize:
-            raise NotImplementedError("'chunksize' is not implemented for ADBC drivers")
+            raise NotImplementedError(
+                "'chunksize' is not implemented for ADBC drivers"
+            )
         if dtype:
-            raise NotImplementedError("'dtype' is not implemented for ADBC drivers")
+            raise NotImplementedError(
+                "'dtype' is not implemented for ADBC drivers"
+            )
         if method:
-            raise NotImplementedError("'method' is not implemented for ADBC drivers")
+            raise NotImplementedError(
+                "'method' is not implemented for ADBC drivers"
+            )
         if engine != "auto":
             raise NotImplementedError(
                 "engine != 'auto' not implemented for ADBC drivers"
@@ -2474,7 +2550,9 @@ def _get_unicode_name(name: object) -> str:
     try:
         uname = str(name).encode("utf-8", "strict").decode("utf-8")
     except UnicodeError as err:
-        raise ValueError(f"Cannot convert identifier to UTF-8: '{name}'") from err
+        raise ValueError(
+            f"Cannot convert identifier to UTF-8: '{name}'"
+        ) from err
     return uname
 
 
@@ -2576,7 +2654,9 @@ class SQLiteTable(SQLTable):
     def _execute_insert_multi(self, conn, keys, data_iter) -> int:
         data_list = list(data_iter)
         flattened_data = [x for row in data_list for x in row]
-        conn.execute(self.insert_statement(num_rows=len(data_list)), flattened_data)
+        conn.execute(
+            self.insert_statement(num_rows=len(data_list)), flattened_data
+        )
         return conn.rowcount
 
     def _create_table_setup(self):
@@ -2585,11 +2665,14 @@ class SQLiteTable(SQLTable):
         structure of a DataFrame.  The first entry will be a CREATE TABLE
         statement while the rest will be CREATE INDEX statements.
         """
-        column_names_and_types = self._get_column_names_and_types(self._sql_type_name)
+        column_names_and_types = self._get_column_names_and_types(
+            self._sql_type_name
+        )
         escape = _get_valid_sqlite_name
 
         create_tbl_stmts = [
-            escape(cname) + " " + ctype for cname, ctype, _ in column_names_and_types
+            escape(cname) + " " + ctype
+            for cname, ctype, _ in column_names_and_types
         ]
 
         if self.keys is not None and len(self.keys):
@@ -2614,7 +2697,9 @@ class SQLiteTable(SQLTable):
             + "\n)"
         ]
 
-        ix_cols = [cname for cname, _, is_index in column_names_and_types if is_index]
+        ix_cols = [
+            cname for cname, _, is_index in column_names_and_types if is_index
+        ]
         if len(ix_cols):
             cnames = "_".join(ix_cols)
             cnames_br = ",".join([escape(c) for c in ix_cols])

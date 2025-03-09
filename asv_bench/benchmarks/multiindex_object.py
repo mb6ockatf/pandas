@@ -21,10 +21,12 @@ class GetLoc:
             names=["one", "two", "three"],
         )
         self.mi_med = MultiIndex.from_product(
-            [np.arange(1000), np.arange(10), list("A")], names=["one", "two", "three"]
+            [np.arange(1000), np.arange(10), list("A")],
+            names=["one", "two", "three"],
         )
         self.mi_small = MultiIndex.from_product(
-            [np.arange(100), list("A"), list("A")], names=["one", "two", "three"]
+            [np.arange(100), list("A"), list("A")],
+            names=["one", "two", "three"],
         )
 
     def time_large_get_loc(self):
@@ -56,10 +58,12 @@ class GetLocs:
             names=["one", "two", "three"],
         )
         self.mi_med = MultiIndex.from_product(
-            [np.arange(1000), np.arange(10), list("A")], names=["one", "two", "three"]
+            [np.arange(1000), np.arange(10), list("A")],
+            names=["one", "two", "three"],
         )
         self.mi_small = MultiIndex.from_product(
-            [np.arange(100), list("A"), list("A")], names=["one", "two", "three"]
+            [np.arange(100), list("A"), list("A")],
+            names=["one", "two", "three"],
         )
 
     def time_large_get_locs(self):
@@ -75,7 +79,10 @@ class GetLocs:
 class Duplicates:
     def setup(self):
         size = 65536
-        arrays = [np.random.randint(0, 8192, size), np.random.randint(0, 1024, size)]
+        arrays = [
+            np.random.randint(0, 8192, size),
+            np.random.randint(0, 1024, size),
+        ]
         mask = np.random.rand(size) < 0.1
         self.mi_unused_levels = MultiIndex.from_arrays(arrays)
         self.mi_unused_levels = self.mi_unused_levels[mask]
@@ -131,7 +138,9 @@ class Integer:
         self.mi_int.get_indexer(self.obj_index)
 
     def time_get_indexer_and_backfill(self):
-        self.mi_int.get_indexer(self.other_mi_many_mismatches, method="backfill")
+        self.mi_int.get_indexer(
+            self.other_mi_many_mismatches, method="backfill"
+        )
 
     def time_get_indexer_and_pad(self):
         self.mi_int.get_indexer(self.other_mi_many_mismatches, method="pad")
@@ -258,11 +267,15 @@ class SetOperations:
         level2 = range(N // 1000)
         int_left = MultiIndex.from_product([level1, level2])
 
-        level2 = Index([f"i-{i}" for i in range(N // 1000)], dtype=object).values
+        level2 = Index(
+            [f"i-{i}" for i in range(N // 1000)], dtype=object
+        ).values
         str_left = MultiIndex.from_product([level1, level2])
 
         level2 = range(N // 1000)
-        ea_int_left = MultiIndex.from_product([level1, Series(level2, dtype="Int64")])
+        ea_int_left = MultiIndex.from_product(
+            [level1, Series(level2, dtype="Int64")]
+        )
 
         data = {
             "datetime": dates_left,
@@ -302,7 +315,9 @@ class Difference:
         level2[0] = NA
         ea_int_left = MultiIndex.from_product([level1, level2])
 
-        level2 = Index([f"i-{i}" for i in range(N // 1000)], dtype=object).values
+        level2 = Index(
+            [f"i-{i}" for i in range(N // 1000)], dtype=object
+        ).values
         str_left = MultiIndex.from_product([level1, level2])
 
         data = {
@@ -363,7 +378,9 @@ class Isin:
         level2 = range(N // 1000)
         int_midx = MultiIndex.from_product([level1, level2])
 
-        level2 = Index([f"i-{i}" for i in range(N // 1000)], dtype=object).values
+        level2 = Index(
+            [f"i-{i}" for i in range(N // 1000)], dtype=object
+        ).values
         str_midx = MultiIndex.from_product([level1, level2])
 
         data = {

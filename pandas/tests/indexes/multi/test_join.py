@@ -12,7 +12,9 @@ from pandas import (
 import pandas._testing as tm
 
 
-@pytest.mark.parametrize("other", [["three", "one", "two"], ["one"], ["one", "three"]])
+@pytest.mark.parametrize(
+    "other", [["three", "one", "two"], ["one"], ["one", "three"]]
+)
 def test_join_level(idx, other, join_type):
     other = Index(other)
     join_index, lidx, ridx = other.join(
@@ -62,7 +64,9 @@ def test_join_self(idx, join_type):
 
 def test_join_multi():
     # GH 10665
-    midx = MultiIndex.from_product([np.arange(4), np.arange(4)], names=["a", "b"])
+    midx = MultiIndex.from_product(
+        [np.arange(4), np.arange(4)], names=["a", "b"]
+    )
     idx = Index([1, 2, 5], name="b")
 
     # inner
@@ -113,7 +117,9 @@ def test_join_multi_wrong_order():
 def test_join_multi_return_indexers():
     # GH 34074
 
-    midx1 = MultiIndex.from_product([[1, 2], [3, 4], [5, 6]], names=["a", "b", "c"])
+    midx1 = MultiIndex.from_product(
+        [[1, 2], [3, 4], [5, 6]], names=["a", "b", "c"]
+    )
     midx2 = MultiIndex.from_product([[1, 2], [3, 4]], names=["a", "b"])
 
     result = midx1.join(midx2, return_indexers=False)
@@ -128,7 +134,10 @@ def test_join_overlapping_interval_level():
             (1, Interval(1.0, 2.0)),
             (1, Interval(2.0, 5.0)),
             (2, Interval(0.0, 1.0)),
-            (2, Interval(1.0, 3.0)),  # interval limit is here at 3.0, not at 2.0
+            (
+                2,
+                Interval(1.0, 3.0),
+            ),  # interval limit is here at 3.0, not at 2.0
             (2, Interval(3.0, 5.0)),
         ],
         names=["num", "interval"],
@@ -169,7 +178,8 @@ def test_join_midx_ea():
         names=["a", "b"],
     )
     midx2 = MultiIndex.from_arrays(
-        [Series([1], dtype="Int64"), Series([3], dtype="Int64")], names=["a", "c"]
+        [Series([1], dtype="Int64"), Series([3], dtype="Int64")],
+        names=["a", "c"],
     )
     result = midx.join(midx2, how="inner")
     expected = MultiIndex.from_arrays(
@@ -193,7 +203,10 @@ def test_join_midx_string():
         names=["a", "b"],
     )
     midx2 = MultiIndex.from_arrays(
-        [Series(["a"], dtype=StringDtype()), Series(["c"], dtype=StringDtype())],
+        [
+            Series(["a"], dtype=StringDtype()),
+            Series(["c"], dtype=StringDtype()),
+        ],
         names=["a", "c"],
     )
     result = midx.join(midx2, how="inner")
@@ -212,16 +225,22 @@ def test_join_multi_with_nan():
     # GH29252
     df1 = DataFrame(
         data={"col1": [1.1, 1.2]},
-        index=MultiIndex.from_product([["A"], [1.0, 2.0]], names=["id1", "id2"]),
+        index=MultiIndex.from_product(
+            [["A"], [1.0, 2.0]], names=["id1", "id2"]
+        ),
     )
     df2 = DataFrame(
         data={"col2": [2.1, 2.2]},
-        index=MultiIndex.from_product([["A"], [np.nan, 2.0]], names=["id1", "id2"]),
+        index=MultiIndex.from_product(
+            [["A"], [np.nan, 2.0]], names=["id1", "id2"]
+        ),
     )
     result = df1.join(df2)
     expected = DataFrame(
         data={"col1": [1.1, 1.2], "col2": [np.nan, 2.2]},
-        index=MultiIndex.from_product([["A"], [1.0, 2.0]], names=["id1", "id2"]),
+        index=MultiIndex.from_product(
+            [["A"], [1.0, 2.0]], names=["id1", "id2"]
+        ),
     )
     tm.assert_frame_equal(result, expected)
 
@@ -229,7 +248,9 @@ def test_join_multi_with_nan():
 @pytest.mark.parametrize("val", [0, 5])
 def test_join_dtypes(any_numeric_ea_dtype, val):
     # GH#49830
-    midx = MultiIndex.from_arrays([Series([1, 2], dtype=any_numeric_ea_dtype), [3, 4]])
+    midx = MultiIndex.from_arrays(
+        [Series([1, 2], dtype=any_numeric_ea_dtype), [3, 4]]
+    )
     midx2 = MultiIndex.from_arrays(
         [Series([1, val, val], dtype=any_numeric_ea_dtype), [3, 4, 4]]
     )
@@ -246,7 +267,10 @@ def test_join_dtypes_all_nan(any_numeric_ea_dtype):
         [Series([1, 2], dtype=any_numeric_ea_dtype), [np.nan, np.nan]]
     )
     midx2 = MultiIndex.from_arrays(
-        [Series([1, 0, 0], dtype=any_numeric_ea_dtype), [np.nan, np.nan, np.nan]]
+        [
+            Series([1, 0, 0], dtype=any_numeric_ea_dtype),
+            [np.nan, np.nan, np.nan],
+        ]
     )
     result = midx.join(midx2, how="outer")
     expected = MultiIndex.from_arrays(

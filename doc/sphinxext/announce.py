@@ -77,15 +77,23 @@ def get_authors(revision_range):
     xpr = re.compile(r"Co-authored-by: (?P<name>[^<]+) ")
     cur = set(
         xpr.findall(
-            this_repo.git.log("--grep=Co-authored", "--pretty=%b", revision_range)
+            this_repo.git.log(
+                "--grep=Co-authored", "--pretty=%b", revision_range
+            )
         )
     )
-    cur |= set(re.findall(pat, this_repo.git.shortlog("-s", revision_range), re.M))
+    cur |= set(
+        re.findall(pat, this_repo.git.shortlog("-s", revision_range), re.M)
+    )
 
     pre = set(
-        xpr.findall(this_repo.git.log("--grep=Co-authored", "--pretty=%b", lst_release))
+        xpr.findall(
+            this_repo.git.log("--grep=Co-authored", "--pretty=%b", lst_release)
+        )
     )
-    pre |= set(re.findall(pat, this_repo.git.shortlog("-s", lst_release), re.M))
+    pre |= set(
+        re.findall(pat, this_repo.git.shortlog("-s", lst_release), re.M)
+    )
 
     # Homu is the author of auto merges, clean him out.
     cur.discard("Homu")

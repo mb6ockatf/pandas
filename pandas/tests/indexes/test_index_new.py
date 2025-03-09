@@ -89,7 +89,8 @@ class TestIndexConstructorInference:
 
     @pytest.mark.parametrize("cast_index", [True, False])
     @pytest.mark.parametrize(
-        "vals", [[True, False, True], np.array([True, False, True], dtype=bool)]
+        "vals",
+        [[True, False, True], np.array([True, False, True], dtype=bool)],
     )
     def test_constructor_dtypes_to_object(self, cast_index, vals):
         if cast_index:
@@ -147,7 +148,9 @@ class TestIndexConstructorInference:
 
         if nulls_fixture is NA:
             expected = Index([NA, NaT])
-            mark = pytest.mark.xfail(reason="Broken with np.NaT ctor; see GH 31884")
+            mark = pytest.mark.xfail(
+                reason="Broken with np.NaT ctor; see GH 31884"
+            )
             request.applymarker(mark)
 
         result = Index(data)
@@ -199,7 +202,9 @@ class TestDtypeEnforced:
         idx = Index(arr, dtype=object)
         assert idx.dtype == object
 
-    @pytest.mark.parametrize("dtype", [object, "float64", "uint64", "category"])
+    @pytest.mark.parametrize(
+        "dtype", [object, "float64", "uint64", "category"]
+    )
     def test_constructor_range_values_mismatched_dtype(self, dtype):
         rng = Index(range(5))
 
@@ -209,8 +214,12 @@ class TestDtypeEnforced:
         result = Index(range(5), dtype=dtype)
         assert result.dtype == dtype
 
-    @pytest.mark.parametrize("dtype", [object, "float64", "uint64", "category"])
-    def test_constructor_categorical_values_mismatched_non_ea_dtype(self, dtype):
+    @pytest.mark.parametrize(
+        "dtype", [object, "float64", "uint64", "category"]
+    )
+    def test_constructor_categorical_values_mismatched_non_ea_dtype(
+        self, dtype
+    ):
         cat = Categorical([1, 2, 3])
 
         result = Index(cat, dtype=dtype)
@@ -325,7 +334,9 @@ class TestDtypeEnforced:
     @pytest.mark.parametrize(
         "vals",
         [
-            np.array([np.datetime64("2011-01-01"), np.datetime64("2011-01-02")]),
+            np.array(
+                [np.datetime64("2011-01-01"), np.datetime64("2011-01-02")]
+            ),
             [datetime(2011, 1, 1), datetime(2011, 1, 2)],
         ],
     )
@@ -379,7 +390,11 @@ class TestIndexConstructorUnwrapping:
 
     @pytest.mark.parametrize("klass", [Index, DatetimeIndex])
     def test_constructor_from_series_dt64(self, klass):
-        stamps = [Timestamp("20110101"), Timestamp("20120101"), Timestamp("20130101")]
+        stamps = [
+            Timestamp("20110101"),
+            Timestamp("20120101"),
+            Timestamp("20130101"),
+        ]
         expected = DatetimeIndex(stamps)
         ser = Series(stamps)
         result = klass(ser)
@@ -418,8 +433,6 @@ class TestIndexConstructorUnwrapping:
 class TestIndexConstructionErrors:
     def test_constructor_overflow_int64(self):
         # see GH#15832
-        msg = (
-            "The elements provided in the data cannot all be casted to the dtype int64"
-        )
+        msg = "The elements provided in the data cannot all be casted to the dtype int64"
         with pytest.raises(OverflowError, match=msg):
             Index([np.iinfo(np.uint64).max - 1], dtype="int64")

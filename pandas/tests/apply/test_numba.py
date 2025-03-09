@@ -12,7 +12,11 @@ from pandas import (
 import pandas._testing as tm
 from pandas.util.version import Version
 
-pytestmark = [td.skip_if_no("numba"), pytest.mark.single_cpu, pytest.mark.skipif()]
+pytestmark = [
+    td.skip_if_no("numba"),
+    pytest.mark.single_cpu,
+    pytest.mark.skipif(),
+]
 
 numba = pytest.importorskip("numba")
 pytestmark.append(
@@ -68,7 +72,12 @@ def test_numba_vs_python_indexing():
 
 @pytest.mark.parametrize(
     "reduction",
-    [lambda x: x.mean(), lambda x: x.min(), lambda x: x.max(), lambda x: x.sum()],
+    [
+        lambda x: x.mean(),
+        lambda x: x.min(),
+        lambda x: x.max(),
+        lambda x: x.sum(),
+    ],
 )
 def test_numba_vs_python_reductions(reduction, apply_axis):
     df = DataFrame(np.ones((4, 4), dtype=np.float64))
@@ -81,7 +90,8 @@ def test_numba_vs_python_reductions(reduction, apply_axis):
 def test_numba_numeric_colnames(colnames):
     # Check that numeric column names lower properly and can be indexed on
     df = DataFrame(
-        np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=np.int64), columns=colnames
+        np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=np.int64),
+        columns=colnames,
     )
     first_col = colnames[0]
     f = lambda x: x[first_col]  # Get the first column

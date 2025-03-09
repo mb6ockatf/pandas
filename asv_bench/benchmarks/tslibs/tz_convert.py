@@ -19,7 +19,9 @@ except ImportError:
         from pandas._libs.tslibs.tzconversion import tz_convert_from_utc
     except ImportError:
         old_sig = True
-        from pandas._libs.tslibs.tzconversion import tz_convert as tz_convert_from_utc
+        from pandas._libs.tslibs.tzconversion import (
+            tz_convert as tz_convert_from_utc,
+        )
 
 
 class TimeTZConvert:

@@ -53,7 +53,13 @@ class TestDatetimeIndexShift:
         drange = date_range("20130101", periods=5, unit=unit)
         result = drange.shift(1)
         expected = DatetimeIndex(
-            ["2013-01-02", "2013-01-03", "2013-01-04", "2013-01-05", "2013-01-06"],
+            [
+                "2013-01-02",
+                "2013-01-03",
+                "2013-01-04",
+                "2013-01-05",
+                "2013-01-06",
+            ],
             dtype=f"M8[{unit}]",
             freq="D",
         )
@@ -61,7 +67,13 @@ class TestDatetimeIndexShift:
 
         result = drange.shift(-1)
         expected = DatetimeIndex(
-            ["2012-12-31", "2013-01-01", "2013-01-02", "2013-01-03", "2013-01-04"],
+            [
+                "2012-12-31",
+                "2013-01-01",
+                "2013-01-02",
+                "2013-01-03",
+                "2013-01-04",
+            ],
             dtype=f"M8[{unit}]",
             freq="D",
         )
@@ -69,7 +81,13 @@ class TestDatetimeIndexShift:
 
         result = drange.shift(3, freq="2D")
         expected = DatetimeIndex(
-            ["2013-01-07", "2013-01-08", "2013-01-09", "2013-01-10", "2013-01-11"],
+            [
+                "2013-01-07",
+                "2013-01-08",
+                "2013-01-09",
+                "2013-01-10",
+                "2013-01-11",
+            ],
             dtype=f"M8[{unit}]",
             freq="D",
         )
@@ -88,8 +106,12 @@ class TestDatetimeIndexShift:
 
     def test_dti_shift_no_freq(self, unit):
         # GH#19147
-        dti = DatetimeIndex(["2011-01-01 10:00", "2011-01-01"], freq=None).as_unit(unit)
-        with pytest.raises(NullFrequencyError, match="Cannot shift with no freq"):
+        dti = DatetimeIndex(
+            ["2011-01-01 10:00", "2011-01-01"], freq=None
+        ).as_unit(unit)
+        with pytest.raises(
+            NullFrequencyError, match="Cannot shift with no freq"
+        ):
             dti.shift(2)
 
     @pytest.mark.parametrize("tzstr", ["US/Eastern", "dateutil/US/Eastern"])
@@ -132,7 +154,10 @@ class TestDatetimeIndexShift:
     def test_shift_periods(self, unit):
         # GH#22458 : argument 'n' was deprecated in favor of 'periods'
         idx = date_range(
-            start=datetime(2009, 1, 1), end=datetime(2010, 1, 1), periods=3, unit=unit
+            start=datetime(2009, 1, 1),
+            end=datetime(2010, 1, 1),
+            periods=3,
+            unit=unit,
         )
         tm.assert_index_equal(idx.shift(periods=0), idx)
         tm.assert_index_equal(idx.shift(0), idx)
@@ -176,6 +201,8 @@ class TestDatetimeIndexShift:
 
     def test_shift_empty(self, unit):
         # GH#14811
-        dti = date_range(start="2016-10-21", end="2016-10-21", freq="BME", unit=unit)
+        dti = date_range(
+            start="2016-10-21", end="2016-10-21", freq="BME", unit=unit
+        )
         result = dti.shift(1)
         tm.assert_index_equal(result, dti)

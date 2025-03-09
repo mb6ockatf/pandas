@@ -51,9 +51,9 @@ class TestDataFramePctChange:
         rs = datetime_frame.pct_change(freq="5D")
         tm.assert_frame_equal(
             rs,
-            (datetime_frame / datetime_frame.shift(freq="5D") - 1).reindex_like(
-                datetime_frame
-            ),
+            (
+                datetime_frame / datetime_frame.shift(freq="5D") - 1
+            ).reindex_like(datetime_frame),
         )
 
     def test_pct_change_shift_over_nas(self):
@@ -85,7 +85,9 @@ class TestDataFramePctChange:
         rs_periods = datetime_frame.pct_change(periods)
         tm.assert_frame_equal(rs_freq, rs_periods)
 
-        empty_ts = DataFrame(index=datetime_frame.index, columns=datetime_frame.columns)
+        empty_ts = DataFrame(
+            index=datetime_frame.index, columns=datetime_frame.columns
+        )
         rs_freq = empty_ts.pct_change(freq=freq)
         rs_periods = empty_ts.pct_change(periods)
         tm.assert_frame_equal(rs_freq, rs_periods)
@@ -94,7 +96,8 @@ class TestDataFramePctChange:
 def test_pct_change_with_duplicated_indices():
     # GH30463
     data = DataFrame(
-        {0: [np.nan, 1, 2, 3, 9, 18], 1: [0, 1, np.nan, 3, 9, 18]}, index=["a", "b"] * 3
+        {0: [np.nan, 1, 2, 3, 9, 18], 1: [0, 1, np.nan, 3, 9, 18]},
+        index=["a", "b"] * 3,
     )
 
     result = data.pct_change()

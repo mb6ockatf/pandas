@@ -337,7 +337,9 @@ class AggFunctions:
         df.groupby(["key1", "key2"]).agg(["sum", "min", "max"])
 
     def time_different_str_functions_singlecol(self, df):
-        df.groupby("key1").agg({"value1": "mean", "value2": "var", "value3": "sum"})
+        df.groupby("key1").agg(
+            {"value1": "mean", "value2": "var", "value3": "sum"}
+        )
 
 
 class GroupStrings:
@@ -535,7 +537,10 @@ class GroupByMethods:
             key = np.random.randint(0, size, size=size, dtype=dtype)
         elif dtype == "float":
             key = np.concatenate(
-                [np.random.random(ngroups) * 0.1, np.random.random(ngroups) * 10.0]
+                [
+                    np.random.random(ngroups) * 0.1,
+                    np.random.random(ngroups) * 10.0,
+                ]
             )
         elif dtype == "object":
             key = ["foo"] * size
@@ -693,7 +698,9 @@ class Cumulative:
             df["key"] = keys
             self.df = df
         else:
-            df = DataFrame(vals, columns=list("abcde")).astype(dtype, copy=False)
+            df = DataFrame(vals, columns=list("abcde")).astype(
+                dtype, copy=False
+            )
             df["key"] = keys
             self.df = df
 
@@ -794,13 +801,17 @@ class Categories:
         self.df_ordered.groupby("a", observed=observed)["b"].count()
 
     def time_groupby_ordered_nosort(self, observed):
-        self.df_ordered.groupby("a", observed=observed, sort=False)["b"].count()
+        self.df_ordered.groupby("a", observed=observed, sort=False)[
+            "b"
+        ].count()
 
     def time_groupby_extra_cat_sort(self, observed):
         self.df_extra_cat.groupby("a", observed=observed)["b"].count()
 
     def time_groupby_extra_cat_nosort(self, observed):
-        self.df_extra_cat.groupby("a", observed=observed, sort=False)["b"].count()
+        self.df_extra_cat.groupby("a", observed=observed, sort=False)[
+            "b"
+        ].count()
 
 
 class MultipleCategories:
@@ -820,8 +831,12 @@ class MultipleCategories:
         }
         self.df_ordered = DataFrame(data)
         data = {
-            "a1": Categorical(np.random.randint(100, size=N), categories=np.arange(N)),
-            "a2": Categorical(np.random.randint(100, size=N), categories=np.arange(N)),
+            "a1": Categorical(
+                np.random.randint(100, size=N), categories=np.arange(N)
+            ),
+            "a2": Categorical(
+                np.random.randint(100, size=N), categories=np.arange(N)
+            ),
             "b": arr,
         }
         self.df_extra_cat = DataFrame(data)
@@ -836,13 +851,17 @@ class MultipleCategories:
         self.df_ordered.groupby(["a1", "a2"], observed=False)["b"].count()
 
     def time_groupby_ordered_nosort(self):
-        self.df_ordered.groupby(["a1", "a2"], observed=False, sort=False)["b"].count()
+        self.df_ordered.groupby(["a1", "a2"], observed=False, sort=False)[
+            "b"
+        ].count()
 
     def time_groupby_extra_cat_sort(self):
         self.df_extra_cat.groupby(["a1", "a2"], observed=False)["b"].count()
 
     def time_groupby_extra_cat_nosort(self):
-        self.df_extra_cat.groupby(["a1", "a2"], observed=False, sort=False)["b"].count()
+        self.df_extra_cat.groupby(["a1", "a2"], observed=False, sort=False)[
+            "b"
+        ].count()
 
     def time_groupby_transform(self):
         self.df_extra_cat.groupby(["a1", "a2"], observed=False)["b"].cumsum()
@@ -913,7 +932,10 @@ class Transform:
         n1 = 400
         n2 = 250
         index = MultiIndex(
-            levels=[np.arange(n1), Index([f"i-{i}" for i in range(n2)], dtype=object)],
+            levels=[
+                np.arange(n1),
+                Index([f"i-{i}" for i in range(n2)], dtype=object),
+            ],
             codes=[np.repeat(range(n1), n2).tolist(), list(range(n2)) * n1],
             names=["lev1", "lev2"],
         )
@@ -944,7 +966,8 @@ class Transform:
         self.df2["jim"] = self.df2["joe"]
 
         self.df3 = DataFrame(
-            np.random.randint(1, (n / 10), (n, 3)), columns=["jim", "joe", "jolie"]
+            np.random.randint(1, (n / 10), (n, 3)),
+            columns=["jim", "joe", "jolie"],
         )
         self.df4 = self.df3.copy()
         self.df4["jim"] = self.df4["joe"]

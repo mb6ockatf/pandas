@@ -191,7 +191,9 @@ def test_astype_to_larger_numpy():
     tm.assert_numpy_array_equal(result, expected)
 
 
-@pytest.mark.parametrize("dtype", [Int8Dtype(), "Int8", UInt32Dtype(), "UInt32"])
+@pytest.mark.parametrize(
+    "dtype", [Int8Dtype(), "Int8", UInt32Dtype(), "UInt32"]
+)
 def test_astype_specific_casting(dtype):
     s = pd.Series([1, 2, 3], dtype="Int64")
     result = s.astype(dtype)
@@ -280,7 +282,9 @@ def test_astype_str(using_infer_string):
     a = pd.array([1, 2, None], dtype="Int64")
 
     if using_infer_string:
-        expected = pd.array(["1", "2", None], dtype=pd.StringDtype(na_value=np.nan))
+        expected = pd.array(
+            ["1", "2", None], dtype=pd.StringDtype(na_value=np.nan)
+        )
 
         tm.assert_extension_array_equal(a.astype(str), expected)
         tm.assert_extension_array_equal(a.astype("str"), expected)

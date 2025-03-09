@@ -79,7 +79,9 @@ _releases_list = [
 ]
 
 
-@pytest.mark.parametrize("mock_response", [(200, _releases_list)], indirect=True)
+@pytest.mark.parametrize(
+    "mock_response", [(200, _releases_list)], indirect=True
+)
 def test_web_preprocessor_creates_releases(mock_response, context) -> None:
     m = mock_open()
     with patch("builtins.open", m):

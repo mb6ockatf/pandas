@@ -6,7 +6,9 @@ import pandas as pd
 class TimeLogicalOps:
     def setup(self):
         N = 10_000
-        left, right, lmask, rmask = np.random.randint(0, 2, size=(4, N)).astype("bool")
+        left, right, lmask, rmask = np.random.randint(
+            0, 2, size=(4, N)
+        ).astype("bool")
         self.left = pd.arrays.BooleanArray(left, lmask)
         self.right = pd.arrays.BooleanArray(right, rmask)
 

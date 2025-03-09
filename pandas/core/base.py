@@ -216,7 +216,9 @@ class SelectionMixin(Generic[NDFrameT]):
             #  but this avoids consolidating and making a copy
             # TODO: following GH#45287 can we now use .drop directly without
             #  making a copy?
-            return self.obj._drop_axis(self.exclusions, axis=1, only_slice=True)
+            return self.obj._drop_axis(
+                self.exclusions, axis=1, only_slice=True
+            )
         else:
             return self.obj
 
@@ -431,7 +433,9 @@ class IndexOpsMixin(OpsMixin):
         """
         if len(self) == 1:
             return next(iter(self))
-        raise ValueError("can only convert an array of size 1 to a Python scalar")
+        raise ValueError(
+            "can only convert an array of size 1 to a Python scalar"
+        )
 
     @property
     def nbytes(self) -> int:
@@ -668,7 +672,9 @@ class IndexOpsMixin(OpsMixin):
               dtype='datetime64[ns]')
         """
         if isinstance(self.dtype, ExtensionDtype):
-            return self.array.to_numpy(dtype, copy=copy, na_value=na_value, **kwargs)
+            return self.array.to_numpy(
+                dtype, copy=copy, na_value=na_value, **kwargs
+            )
         elif kwargs:
             bad_keys = next(iter(kwargs.keys()))
             raise TypeError(
@@ -678,7 +684,9 @@ class IndexOpsMixin(OpsMixin):
         fillna = (
             na_value is not lib.no_default
             # no need to fillna with np.nan if we already have a float dtype
-            and not (na_value is np.nan and np.issubdtype(self.dtype, np.floating))
+            and not (
+                na_value is np.nan and np.issubdtype(self.dtype, np.floating)
+            )
         )
 
         values = self._values
@@ -1310,7 +1318,9 @@ class IndexOpsMixin(OpsMixin):
                 uniques = Index(uniques)
         return codes, uniques
 
-    _shared_docs["searchsorted"] = """
+    _shared_docs[
+        "searchsorted"
+    ] = """
         Find indices where elements should be inserted to maintain order.
 
         Find the indices into a sorted {klass} `self` such that, if the

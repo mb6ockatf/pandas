@@ -70,7 +70,9 @@ class TestGetLoc:
             # listlike/non-hashable raises TypeError
             idx.get_loc([np.nan])
 
-    @pytest.mark.parametrize("vals", [[1], [1.0], [Timestamp("2019-12-31")], ["test"]])
+    @pytest.mark.parametrize(
+        "vals", [[1], [1.0], [Timestamp("2019-12-31")], ["test"]]
+    )
     def test_get_loc_float_index_nan_with_method(self, vals):
         # GH#39382
         idx = Index(vals)
@@ -203,8 +205,12 @@ class TestGetIndexer:
         actual = index.get_indexer([0.2, 1.8, 8.5], method=method)
         tm.assert_numpy_array_equal(actual, np.array(expected, dtype=np.intp))
 
-    @pytest.mark.parametrize("idx_dtype", ["int64", "float64", "uint64", "range"])
-    @pytest.mark.parametrize("method", ["get_indexer", "get_indexer_non_unique"])
+    @pytest.mark.parametrize(
+        "idx_dtype", ["int64", "float64", "uint64", "range"]
+    )
+    @pytest.mark.parametrize(
+        "method", ["get_indexer", "get_indexer_non_unique"]
+    )
     def test_get_indexer_numeric_index_boolean_target(self, method, idx_dtype):
         # GH 16877
 
@@ -266,10 +272,12 @@ class TestGetIndexer:
             idx.get_indexer(target, "pad"), np.array([-1, 0, 1], dtype=np.intp)
         )
         tm.assert_numpy_array_equal(
-            idx.get_indexer(target, "backfill"), np.array([0, 1, 2], dtype=np.intp)
+            idx.get_indexer(target, "backfill"),
+            np.array([0, 1, 2], dtype=np.intp),
         )
         tm.assert_numpy_array_equal(
-            idx.get_indexer(target, "nearest"), np.array([0, 1, 1], dtype=np.intp)
+            idx.get_indexer(target, "nearest"),
+            np.array([0, 1, 1], dtype=np.intp),
         )
 
     def test_get_indexer_nan(self):
@@ -333,7 +341,9 @@ class TestGetIndexer:
 
         idx = Index([1, 2, NA, NA], dtype=any_numeric_ea_and_arrow_dtype)
         result = idx.get_loc(NA)
-        tm.assert_numpy_array_equal(result, np.array([False, False, True, True]))
+        tm.assert_numpy_array_equal(
+            result, np.array([False, False, True, True])
+        )
 
         idx = Index([1, 2, 3], dtype=any_numeric_ea_and_arrow_dtype)
         with pytest.raises(KeyError, match="NA"):
@@ -343,7 +353,8 @@ class TestGetIndexer:
         # GH#39133
         idx = Index(
             FloatingArray(
-                np.array([1, 2, 1, np.nan]), mask=np.array([False, False, True, False])
+                np.array([1, 2, 1, np.nan]),
+                mask=np.array([False, False, True, False]),
             )
         )
         result = idx.get_loc(NA)
@@ -352,7 +363,9 @@ class TestGetIndexer:
         assert result == 3
 
         idx = Index(
-            FloatingArray(np.array([1, 2, 1.0]), mask=np.array([False, False, True]))
+            FloatingArray(
+                np.array([1, 2, 1.0]), mask=np.array([False, False, True])
+            )
         )
         result = idx.get_loc(NA)
         assert result == 2
@@ -425,7 +438,9 @@ class TestWhere:
         result = index.where(listlike_box(cond))
 
         cond = [False] + [True] * (len(index) - 1)
-        expected = Index([index._na_value] + index[1:].tolist(), dtype=np.float64)
+        expected = Index(
+            [index._na_value] + index[1:].tolist(), dtype=np.float64
+        )
         result = index.where(listlike_box(cond))
         tm.assert_index_equal(result, expected)
 
@@ -442,7 +457,9 @@ class TestWhere:
         result = idx.putmask(~mask, other)
         tm.assert_index_equal(result, expected)
 
-    def test_where_infers_type_instead_of_trying_to_convert_string_to_float(self):
+    def test_where_infers_type_instead_of_trying_to_convert_string_to_float(
+        self,
+    ):
         # GH 32413
         index = Index([1, np.nan])
         cond = index.notna()
@@ -474,13 +491,13 @@ class TestTake:
         tm.assert_index_equal(result, expected)
 
         # allow_fill=False
-        result = idx.take(np.array([1, 0, -1]), allow_fill=False, fill_value=True)
+        result = idx.take(
+            np.array([1, 0, -1]), allow_fill=False, fill_value=True
+        )
         expected = Index([2.0, 1.0, 3.0], dtype=np.float64, name="xxx")
         tm.assert_index_equal(result, expected)
 
-        msg = (
-            "When allow_fill=True and fill_value is not None, all indices must be >= -1"
-        )
+        msg = "When allow_fill=True and fill_value is not None, all indices must be >= -1"
         with pytest.raises(ValueError, match=msg):
             idx.take(np.array([1, 0, -2]), fill_value=True)
         with pytest.raises(ValueError, match=msg):
@@ -506,7 +523,9 @@ class TestTake:
             idx.take(np.array([1, 0, -1]), fill_value=True)
 
         # allow_fill=False
-        result = idx.take(np.array([1, 0, -1]), allow_fill=False, fill_value=True)
+        result = idx.take(
+            np.array([1, 0, -1]), allow_fill=False, fill_value=True
+        )
         expected = Index([2, 1, 3], dtype=dtype, name="xxx")
         tm.assert_index_equal(result, expected)
 

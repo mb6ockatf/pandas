@@ -58,7 +58,9 @@ class WriteExcelStyled:
             df_style = self.df.style
             df_style.map(lambda x: "border: red 1px solid;")
             df_style.map(lambda x: "color: blue")
-            df_style.map(lambda x: "border-color: green black", subset=["float1"])
+            df_style.map(
+                lambda x: "border-color: green black", subset=["float1"]
+            )
             df_style.to_excel(writer, sheet_name="Sheet1")
 
 

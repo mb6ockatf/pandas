@@ -92,7 +92,11 @@ class SeriesDtypesConstructors:
         self.arr = np.random.randn(N)
         self.arr_str = np.array(["foo", "bar", "baz"], dtype=object)
         self.s = Series(
-            [Timestamp("20110101"), Timestamp("20120101"), Timestamp("20130101")]
+            [
+                Timestamp("20110101"),
+                Timestamp("20120101"),
+                Timestamp("20130101"),
+            ]
             * N
             * 10
         )
@@ -113,7 +117,10 @@ class SeriesDtypesConstructors:
 class MultiIndexConstructor:
     def setup(self):
         N = 10**4
-        self.iterables = [Index([f"i-{i}" for i in range(N)], dtype=object), range(20)]
+        self.iterables = [
+            Index([f"i-{i}" for i in range(N)], dtype=object),
+            range(20),
+        ]
 
     def time_multiindex_from_iterables(self):
         MultiIndex.from_product(self.iterables)

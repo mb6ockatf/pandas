@@ -34,7 +34,9 @@ def _side_expander(prop_fmt: str) -> Callable:
         function: Return to call when a 'border(-{side}): {value}' string is encountered
     """
 
-    def expand(self: CSSResolver, prop: str, value: str) -> Generator[tuple[str, str]]:
+    def expand(
+        self: CSSResolver, prop: str, value: str
+    ) -> Generator[tuple[str, str]]:
         """
         Expand shorthand property into side-specific property (top, right, bottom, left)
 
@@ -79,7 +81,9 @@ def _border_expander(side: str = "") -> Callable:
     if side != "":
         side = f"-{side}"
 
-    def expand(self: CSSResolver, prop: str, value: str) -> Generator[tuple[str, str]]:
+    def expand(
+        self: CSSResolver, prop: str, value: str
+    ) -> Generator[tuple[str, str]]:
         """
         Expand border into color, style, and width tuples
 
@@ -111,7 +115,9 @@ def _border_expander(side: str = "") -> Callable:
         for token in tokens:
             if token.lower() in self.BORDER_STYLES:
                 border_declarations[f"border{side}-style"] = token
-            elif any(ratio in token.lower() for ratio in self.BORDER_WIDTH_RATIOS):
+            elif any(
+                ratio in token.lower() for ratio in self.BORDER_WIDTH_RATIOS
+            ):
                 border_declarations[f"border{side}-width"] = token
             else:
                 border_declarations[f"border{side}-color"] = token
@@ -342,7 +348,10 @@ class CSSResolver:
         return props
 
     def size_to_pt(
-        self, in_val: str, em_pt: float | None = None, conversions: dict = UNIT_RATIOS
+        self,
+        in_val: str,
+        em_pt: float | None = None,
+        conversions: dict = UNIT_RATIOS,
     ) -> str:
         def _error() -> str:
             warnings.warn(

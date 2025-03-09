@@ -85,7 +85,9 @@ class NumericSeriesIndexing:
 
 class NumericMaskedIndexing:
     monotonic_list = list(range(10**6))
-    non_monotonic_list = list(range(50)) + [54, 53, 52, 51] + list(range(55, 10**6 - 1))
+    non_monotonic_list = (
+        list(range(50)) + [54, 53, 52, 51] + list(range(55, 10**6 - 1))
+    )
 
     params = [
         ("Int64", "UInt64", "Float64"),
@@ -156,7 +158,9 @@ class DataFrameStringIndexing:
         index = Index([f"i-{i}" for i in range(1000)], dtype=object)
         columns = Index([f"i-{i}" for i in range(30)], dtype=object)
         with warnings.catch_warnings(record=True):
-            self.df = DataFrame(np.random.randn(1000, 30), index=index, columns=columns)
+            self.df = DataFrame(
+                np.random.randn(1000, 30), index=index, columns=columns
+            )
         self.idx_scalar = index[100]
         self.col_scalar = columns[10]
         self.bool_indexer = self.df[self.col_scalar] > 0
@@ -201,7 +205,9 @@ class DataFrameNumericIndexing:
             ),
         }
         self.idx_dupe = np.array(range(30)) * 99
-        self.df = DataFrame(np.random.randn(N, 5), index=indices[index_structure])
+        self.df = DataFrame(
+            np.random.randn(N, 5), index=indices[index_structure]
+        )
         self.df_dup = concat([self.df, 2 * self.df, 3 * self.df])
         self.bool_indexer = [True] * (N // 2) + [False] * (N - N // 2)
 
@@ -481,7 +487,9 @@ class InsertColumns:
 
     def time_insert(self):
         for i in range(100):
-            self.df.insert(0, i, np.random.randn(self.N), allow_duplicates=True)
+            self.df.insert(
+                0, i, np.random.randn(self.N), allow_duplicates=True
+            )
 
     def time_insert_middle(self):
         # same as time_insert but inserting to a middle column rather than

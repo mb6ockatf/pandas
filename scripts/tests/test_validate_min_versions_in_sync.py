@@ -26,13 +26,19 @@ from scripts.validate_min_versions_in_sync import (
         ),
         (
             pathlib.Path("scripts/tests/data/deps_minimum.toml"),
-            pathlib.Path("scripts/tests/data/deps_unmodified_same_version.yaml"),
+            pathlib.Path(
+                "scripts/tests/data/deps_unmodified_same_version.yaml"
+            ),
             pathlib.Path("scripts/tests/data/deps_expected_same_version.yaml"),
         ),
         (
             pathlib.Path("scripts/tests/data/deps_minimum.toml"),
-            pathlib.Path("scripts/tests/data/deps_unmodified_duplicate_package.yaml"),
-            pathlib.Path("scripts/tests/data/deps_expected_duplicate_package.yaml"),
+            pathlib.Path(
+                "scripts/tests/data/deps_unmodified_duplicate_package.yaml"
+            ),
+            pathlib.Path(
+                "scripts/tests/data/deps_expected_duplicate_package.yaml"
+            ),
         ),
         (
             pathlib.Path("scripts/tests/data/deps_minimum.toml"),
@@ -46,7 +52,9 @@ from scripts.validate_min_versions_in_sync import (
         ),
     ],
 )
-def test_pin_min_versions_to_yaml_file(src_toml, src_yaml, expected_yaml) -> None:
+def test_pin_min_versions_to_yaml_file(
+    src_toml, src_yaml, expected_yaml
+) -> None:
     with open(src_toml, "rb") as toml_f:
         toml_map = tomllib.load(toml_f)
     with open(src_yaml, encoding="utf-8") as yaml_f:
@@ -55,7 +63,9 @@ def test_pin_min_versions_to_yaml_file(src_toml, src_yaml, expected_yaml) -> Non
     yaml_dependencies = yaml_file["dependencies"]
     yaml_map = get_yaml_map_from(yaml_dependencies)
     toml_map = get_toml_map_from(toml_map)
-    result_yaml_file = pin_min_versions_to_yaml_file(yaml_map, toml_map, yaml_file_data)
+    result_yaml_file = pin_min_versions_to_yaml_file(
+        yaml_map, toml_map, yaml_file_data
+    )
     with open(expected_yaml, encoding="utf-8") as yaml_f:
         dummy_yaml_expected_file_1 = yaml_f.read()
     assert result_yaml_file == dummy_yaml_expected_file_1

@@ -46,7 +46,10 @@ def _astype_nansafe(
 
 @overload
 def _astype_nansafe(
-    arr: np.ndarray, dtype: ExtensionDtype, copy: bool = ..., skipna: bool = ...
+    arr: np.ndarray,
+    dtype: ExtensionDtype,
+    copy: bool = ...,
+    skipna: bool = ...,
 ) -> ExtensionArray: ...
 
 
@@ -74,7 +77,9 @@ def _astype_nansafe(
 
     # dispatch on extension dtype if needed
     if isinstance(dtype, ExtensionDtype):
-        return dtype.construct_array_type()._from_sequence(arr, dtype=dtype, copy=copy)
+        return dtype.construct_array_type()._from_sequence(
+            arr, dtype=dtype, copy=copy
+        )
 
     elif not isinstance(dtype, np.dtype):  # pragma: no cover
         raise ValueError("dtype must be np.dtype or ExtensionDtype")
@@ -145,13 +150,17 @@ def _astype_float_to_int_nansafe(
     if dtype.kind == "u":
         # GH#45151
         if not (values >= 0).all():
-            raise ValueError(f"Cannot losslessly cast from {values.dtype} to {dtype}")
+            raise ValueError(
+                f"Cannot losslessly cast from {values.dtype} to {dtype}"
+            )
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         return values.astype(dtype, copy=copy)
 
 
-def astype_array(values: ArrayLike, dtype: DtypeObj, copy: bool = False) -> ArrayLike:
+def astype_array(
+    values: ArrayLike, dtype: DtypeObj, copy: bool = False
+) -> ArrayLike:
     """
     Cast array (ndarray or ExtensionArray) to the new dtype.
 
@@ -258,7 +267,9 @@ def astype_is_view(dtype: DtypeObj, new_dtype: DtypeObj) -> bool:
     if dtype.kind in "iufb" and dtype.kind == new_dtype.kind:
         # fastpath for numeric dtypes
         if hasattr(dtype, "itemsize") and hasattr(new_dtype, "itemsize"):
-            return dtype.itemsize == new_dtype.itemsize  # pyright: ignore[reportAttributeAccessIssue]
+            return (
+                dtype.itemsize == new_dtype.itemsize
+            )  # pyright: ignore[reportAttributeAccessIssue]
 
     if isinstance(dtype, np.dtype) and not isinstance(new_dtype, np.dtype):
         new_dtype, dtype = dtype, new_dtype

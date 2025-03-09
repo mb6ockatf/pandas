@@ -33,13 +33,17 @@ def test_multi_thread_string_io_read_csv(all_parsers, request):
         pa = pytest.importorskip("pyarrow")
         if Version(pa.__version__) < Version("16.0"):
             request.applymarker(
-                pytest.mark.xfail(reason="# ValueError: Found non-unique column index")
+                pytest.mark.xfail(
+                    reason="# ValueError: Found non-unique column index"
+                )
             )
     max_row_range = 100
     num_files = 10
 
     bytes_to_df = (
-        "\n".join([f"{i:d},{i:d},{i:d}" for i in range(max_row_range)]).encode()
+        "\n".join(
+            [f"{i:d},{i:d},{i:d}" for i in range(max_row_range)]
+        ).encode()
         for _ in range(num_files)
     )
 
@@ -111,7 +115,8 @@ def _generate_multi_thread_dataframe(parser, path, num_rows, num_tasks):
         )
 
     tasks = [
-        (num_rows * i // num_tasks, num_rows // num_tasks) for i in range(num_tasks)
+        (num_rows * i // num_tasks, num_rows // num_tasks)
+        for i in range(num_tasks)
     ]
 
     with ThreadPool(processes=num_tasks) as pool:
@@ -144,7 +149,9 @@ def test_multi_thread_path_multipart_read_csv(all_parsers):
             "foo": ["foo"] * num_rows,
             "bar": ["bar"] * num_rows,
             "baz": ["baz"] * num_rows,
-            "date": pd.date_range("20000101 09:00:00", periods=num_rows, freq="s"),
+            "date": pd.date_range(
+                "20000101 09:00:00", periods=num_rows, freq="s"
+            ),
             "int": np.arange(num_rows, dtype="int64"),
         }
     )
@@ -152,7 +159,9 @@ def test_multi_thread_path_multipart_read_csv(all_parsers):
     with tm.ensure_clean(file_name) as path:
         df.to_csv(path)
 
-        result = _generate_multi_thread_dataframe(parser, path, num_rows, num_tasks)
+        result = _generate_multi_thread_dataframe(
+            parser, path, num_rows, num_tasks
+        )
 
     expected = df[:]
     expected["date"] = expected["date"].astype("M8[s]")

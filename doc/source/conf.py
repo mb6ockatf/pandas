@@ -101,9 +101,14 @@ if pattern:
         reldir = os.path.relpath(dirname, source_path)
         for fname in fnames:
             if os.path.splitext(fname)[-1] in (".rst", ".ipynb"):
-                rel_fname = os.path.relpath(os.path.join(dirname, fname), source_path)
+                rel_fname = os.path.relpath(
+                    os.path.join(dirname, fname), source_path
+                )
 
-                if rel_fname == "index.rst" and os.path.abspath(dirname) == source_path:
+                if (
+                    rel_fname == "index.rst"
+                    and os.path.abspath(dirname) == source_path
+                ):
                     continue
                 if pattern == "-api" and reldir.startswith("reference"):
                     exclude_patterns.append(rel_fname)
@@ -116,7 +121,9 @@ if pattern:
                 elif single_doc and rel_fname != pattern:
                     exclude_patterns.append(rel_fname)
 
-with open(os.path.join(source_path, "index.rst.template"), encoding="utf-8") as f:
+with open(
+    os.path.join(source_path, "index.rst.template"), encoding="utf-8"
+) as f:
     t = jinja2.Template(f.read())
 with open(os.path.join(source_path, "index.rst"), "w", encoding="utf-8") as f:
     f.write(
@@ -246,7 +253,9 @@ html_theme_options = {
         "plausible_analytics_domain": "pandas.pydata.org",
         "plausible_analytics_url": "https://views.scientific-python.org/js/script.js",
     },
-    "logo": {"image_dark": "https://pandas.pydata.org/static/img/pandas_white.svg"},
+    "logo": {
+        "image_dark": "https://pandas.pydata.org/static/img/pandas_white.svg"
+    },
     "navbar_align": "left",
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "switcher": {
@@ -359,10 +368,14 @@ for old, new in moved_classes:
     mod, classname = new.rsplit(".", 1)
     klass = getattr(importlib.import_module(mod), classname)
     methods = [
-        x for x in dir(klass) if not x.startswith("_") or x in ("__iter__", "__array__")
+        x
+        for x in dir(klass)
+        if not x.startswith("_") or x in ("__iter__", "__array__")
     ]
     # ... and each of its public methods
-    moved_api_pages.extend((f"{old}.{method}", f"{new}.{method}") for method in methods)
+    moved_api_pages.extend(
+        (f"{old}.{method}", f"{new}.{method}") for method in methods
+    )
 
 if include_api:
     html_additional_pages = {
@@ -565,7 +578,9 @@ class AccessorLevelDocumenter(Documenter):
         return modname, parents + [base]
 
 
-class AccessorAttributeDocumenter(AccessorLevelDocumenter, AttributeDocumenter):
+class AccessorAttributeDocumenter(
+    AccessorLevelDocumenter, AttributeDocumenter
+):
     objtype = "accessorattribute"
     directivetype = "attribute"
 
@@ -759,7 +774,9 @@ _BUSINED_ALIASES = [
 ]
 
 
-def process_business_alias_docstrings(app, what, name, obj, options, lines) -> None:
+def process_business_alias_docstrings(
+    app, what, name, obj, options, lines
+) -> None:
     """
     Starting with sphinx 3.4, the "autodoc-process-docstring" event also
     gets called for alias classes. This results in numpydoc adding the
@@ -791,7 +808,9 @@ def rstjinja(app, docname, source) -> None:
     if app.builder.format != "html":
         return
     src = source[0]
-    rendered = app.builder.templates.render_string(src, app.config.html_context)
+    rendered = app.builder.templates.render_string(
+        src, app.config.html_context
+    )
     source[0] = rendered
 
 

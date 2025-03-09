@@ -47,7 +47,10 @@ class Visitor(ast.NodeVisitor):
         self.imported_from_pandas: set[str] = set()
 
     def visit_Attribute(self, node: ast.Attribute) -> None:
-        if isinstance(node.value, ast.Name) and node.value.id in {"pandas", "pd"}:
+        if isinstance(node.value, ast.Name) and node.value.id in {
+            "pandas",
+            "pd",
+        }:
             offset_with_namespace = OffsetWithNamespace(
                 node.lineno, node.col_offset, node.value.id
             )
@@ -60,7 +63,9 @@ class Visitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def replace_inconsistent_pandas_namespace(visitor: Visitor, content: str) -> str:
+def replace_inconsistent_pandas_namespace(
+    visitor: Visitor, content: str
+) -> str:
     from tokenize_rt import (
         reversed_enumerate,
         src_to_tokens,
@@ -69,7 +74,9 @@ def replace_inconsistent_pandas_namespace(visitor: Visitor, content: str) -> str
 
     tokens = src_to_tokens(content)
     for n, i in reversed_enumerate(tokens):
-        offset_with_namespace = OffsetWithNamespace(i.offset[0], i.offset[1], i.src)
+        offset_with_namespace = OffsetWithNamespace(
+            i.offset[0], i.offset[1], i.src
+        )
         if (
             offset_with_namespace in visitor.pandas_namespace
             and visitor.pandas_namespace[offset_with_namespace]
@@ -103,7 +110,9 @@ def check_for_inconsistent_pandas_namespace(
     if not replace:
         inconsistency = inconsistencies.pop()
         lineno, col_offset, prefix = next(
-            key for key, val in visitor.pandas_namespace.items() if val == inconsistency
+            key
+            for key, val in visitor.pandas_namespace.items()
+            if val == inconsistency
         )
         msg = ERROR_MESSAGE.format(
             lineno=lineno,

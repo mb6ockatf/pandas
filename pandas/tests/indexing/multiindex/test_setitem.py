@@ -18,7 +18,9 @@ def assert_equal(a, b):
 
 
 class TestMultiIndexSetItem:
-    def check(self, target, indexers, value, compare_fn=assert_equal, expected=None):
+    def check(
+        self, target, indexers, value, compare_fn=assert_equal, expected=None
+    ):
         target.loc[indexers] = value
         result = target.loc[indexers]
         if expected is None:
@@ -58,7 +60,9 @@ class TestMultiIndexSetItem:
     def test_setitem_multiindex2(self):
         # GH#5206
         df = DataFrame(
-            np.arange(25).reshape(5, 5), columns="A,B,C,D,E".split(","), dtype=float
+            np.arange(25).reshape(5, 5),
+            columns="A,B,C,D,E".split(","),
+            dtype=float,
         )
         df["F"] = 99
         row_selection = df["A"] % 2 == 0
@@ -77,7 +81,10 @@ class TestMultiIndexSetItem:
     def test_setitem_multiindex3(self):
         # GH#11372
         idx = MultiIndex.from_product(
-            [["A", "B", "C"], date_range("2015-01-01", "2015-04-01", freq="MS")]
+            [
+                ["A", "B", "C"],
+                date_range("2015-01-01", "2015-04-01", freq="MS"),
+            ]
         )
         cols = MultiIndex.from_product(
             [["foo", "bar"], date_range("2016-01-01", "2016-02-01", freq="MS")]
@@ -95,7 +102,9 @@ class TestMultiIndexSetItem:
         )
 
         vals = DataFrame(
-            np.random.default_rng(2).random((2, 2)), index=subidx, columns=subcols
+            np.random.default_rng(2).random((2, 2)),
+            index=subidx,
+            columns=subcols,
         )
         self.check(
             target=df,
@@ -144,7 +153,9 @@ class TestMultiIndexSetItem:
         tm.assert_frame_equal(df.loc[["bar"]], expected)
 
         # raise because these have differing levels
-        msg = "cannot align on a multi-index with out specifying the join levels"
+        msg = (
+            "cannot align on a multi-index with out specifying the join levels"
+        )
         with pytest.raises(TypeError, match=msg):
             df.loc["bar"] *= 2
 
@@ -192,7 +203,9 @@ class TestMultiIndexSetItem:
         arr = np.array([0.0, 1.0])
 
         df.loc[4, "d"] = arr
-        tm.assert_series_equal(df.loc[4, "d"], Series(arr, index=[8, 10], name="d"))
+        tm.assert_series_equal(
+            df.loc[4, "d"], Series(arr, index=[8, 10], name="d")
+        )
 
     def test_multiindex_assignment_single_dtype(self):
         # GH3777 part 2b
@@ -225,7 +238,9 @@ class TestMultiIndexSetItem:
         tm.assert_series_equal(df.loc[4, "c"], exp)
 
         # invalid assignments
-        msg = "Must have equal len keys and value when setting with an iterable"
+        msg = (
+            "Must have equal len keys and value when setting with an iterable"
+        )
         with pytest.raises(ValueError, match=msg):
             df.loc[4, "c"] = [0, 1, 2, 3]
 
@@ -241,7 +256,9 @@ class TestMultiIndexSetItem:
         # groupby example
         NUM_ROWS = 100
         NUM_COLS = 10
-        col_names = ["A" + num for num in map(str, np.arange(NUM_COLS).tolist())]
+        col_names = [
+            "A" + num for num in map(str, np.arange(NUM_COLS).tolist())
+        ]
         index_cols = col_names[:5]
 
         df = DataFrame(
@@ -259,7 +276,9 @@ class TestMultiIndexSetItem:
             new_vals = np.arange(df2.shape[0])
             df.loc[name, "new_col"] = new_vals
 
-    def test_series_setitem(self, multiindex_year_month_day_dataframe_random_data):
+    def test_series_setitem(
+        self, multiindex_year_month_day_dataframe_random_data
+    ):
         ymd = multiindex_year_month_day_dataframe_random_data
         s = ymd["A"]
 
@@ -275,7 +294,9 @@ class TestMultiIndexSetItem:
             # GH#33355 dont fall-back to positional when leading level is int
             s[49]
 
-    def test_frame_getitem_setitem_boolean(self, multiindex_dataframe_random_data):
+    def test_frame_getitem_setitem_boolean(
+        self, multiindex_dataframe_random_data
+    ):
         frame = multiindex_dataframe_random_data
         df = frame.T.copy()
         values = df.values.copy()
@@ -372,10 +393,13 @@ class TestMultiIndexSetItem:
         expected = df.loc[2000, 1, 6][["A", "B", "C"]]
         tm.assert_series_equal(result, expected)
 
-    @pytest.mark.filterwarnings("ignore:Setting a value on a view:FutureWarning")
+    @pytest.mark.filterwarnings(
+        "ignore:Setting a value on a view:FutureWarning"
+    )
     def test_loc_getitem_setitem_slice_integers(self, frame_or_series):
         index = MultiIndex(
-            levels=[[0, 1, 2], [0, 2]], codes=[[0, 0, 1, 1, 2, 2], [0, 1, 0, 1, 0, 1]]
+            levels=[[0, 1, 2], [0, 2]],
+            codes=[[0, 0, 1, 1, 2, 2], [0, 1, 0, 1, 0, 1]],
         )
 
         obj = DataFrame(
@@ -403,7 +427,9 @@ class TestMultiIndexSetItem:
         reindexed = dft.reindex(columns=[("foo", "two")])
         tm.assert_series_equal(reindexed["foo", "two"], s > s.median())
 
-    def test_set_column_scalar_with_loc(self, multiindex_dataframe_random_data):
+    def test_set_column_scalar_with_loc(
+        self, multiindex_dataframe_random_data
+    ):
         frame = multiindex_dataframe_random_data
         subset = frame.index[[1, 4, 5]]
 
@@ -418,7 +444,8 @@ class TestMultiIndexSetItem:
 
     def test_nonunique_assignment_1750(self):
         df = DataFrame(
-            [[1, 1, "x", "X"], [1, 1, "y", "Y"], [1, 2, "z", "Z"]], columns=list("ABCD")
+            [[1, 1, "x", "X"], [1, 1, "y", "Y"], [1, 2, "z", "Z"]],
+            columns=list("ABCD"),
         )
 
         df = df.set_index(["A", "B"])
@@ -432,7 +459,9 @@ class TestMultiIndexSetItem:
         # GH 4686
         # assignment with dups that has a dtype change
         cols = MultiIndex.from_tuples([("A", "1"), ("B", "1"), ("A", "2")])
-        df = DataFrame(np.arange(3).reshape((1, 3)), columns=cols, dtype=object)
+        df = DataFrame(
+            np.arange(3).reshape((1, 3)), columns=cols, dtype=object
+        )
         index = df.index.copy()
 
         df["A"] = df["A"].astype(np.float64)
@@ -459,7 +488,9 @@ class TestSetitemWithExpansionMultiIndex:
 
         tuples = sorted(zip(*arrays))
         index = MultiIndex.from_tuples(tuples)
-        df = DataFrame(np.random.default_rng(2).standard_normal((4, 6)), columns=index)
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((4, 6)), columns=index
+        )
 
         result = df.copy()
         expected = df.copy()
@@ -469,7 +500,9 @@ class TestSetitemWithExpansionMultiIndex:
 
     def test_setitem_new_column_all_na(self):
         # GH#1534
-        mix = MultiIndex.from_tuples([("1a", "2a"), ("1a", "2b"), ("1a", "2c")])
+        mix = MultiIndex.from_tuples(
+            [("1a", "2a"), ("1a", "2b"), ("1a", "2c")]
+        )
         df = DataFrame([[1, 2], [3, 4], [5, 6]], index=mix)
         s = Series({(1, 1): 1, (1, 2): 2})
         df["new"] = s

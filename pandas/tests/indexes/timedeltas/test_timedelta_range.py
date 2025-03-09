@@ -18,7 +18,9 @@ class TestTimedeltas:
     def test_timedelta_range_unit(self):
         # GH#49824
         tdi = timedelta_range("0 Days", periods=10, freq="100000D", unit="s")
-        exp_arr = (np.arange(10, dtype="i8") * 100_000).view("m8[D]").astype("m8[s]")
+        exp_arr = (
+            (np.arange(10, dtype="i8") * 100_000).view("m8[D]").astype("m8[s]")
+        )
         tm.assert_numpy_array_equal(tdi.to_numpy(), exp_arr)
 
     def test_timedelta_range(self):
@@ -31,7 +33,9 @@ class TestTimedeltas:
         tm.assert_index_equal(result, expected)
 
         expected = to_timedelta(np.arange(5), unit="D") + Second(2) + Day()
-        result = timedelta_range("1 days, 00:00:02", "5 days, 00:00:02", freq="D")
+        result = timedelta_range(
+            "1 days, 00:00:02", "5 days, 00:00:02", freq="D"
+        )
         tm.assert_index_equal(result, expected)
 
         expected = to_timedelta([1, 3, 5, 7, 9], unit="D") + Second(2)
@@ -42,12 +46,12 @@ class TestTimedeltas:
         result = timedelta_range("0 days", freq="30min", periods=50)
         tm.assert_index_equal(result, expected)
 
-    @pytest.mark.parametrize("depr_unit, unit", [("H", "hour"), ("S", "second")])
+    @pytest.mark.parametrize(
+        "depr_unit, unit", [("H", "hour"), ("S", "second")]
+    )
     def test_timedelta_units_H_S_deprecated(self, depr_unit, unit):
         # GH#52536
-        depr_msg = (
-            f"'{depr_unit}' is deprecated and will be removed in a future version."
-        )
+        depr_msg = f"'{depr_unit}' is deprecated and will be removed in a future version."
         expected = to_timedelta(np.arange(5), unit=unit)
         with tm.assert_produces_warning(FutureWarning, match=depr_msg):
             result = to_timedelta(np.arange(5), unit=depr_unit)
@@ -61,7 +65,8 @@ class TestTimedeltas:
             to_timedelta(np.arange(5), unit=unit)
 
     @pytest.mark.parametrize(
-        "periods, freq", [(3, "2D"), (5, "D"), (6, "19h12min"), (7, "16h"), (9, "12h")]
+        "periods, freq",
+        [(3, "2D"), (5, "D"), (6, "19h12min"), (7, "16h"), (9, "12h")],
     )
     def test_linspace_behavior(self, periods, freq):
         # GH 20976
@@ -115,7 +120,9 @@ class TestTimedeltas:
             ("8D", "16D", "40s", (16 * 3600 * 24 - 8 * 3600 * 24) // 40 + 1),
         ],
     )
-    def test_timedelta_range_freq_divide_end(self, start, end, freq, expected_periods):
+    def test_timedelta_range_freq_divide_end(
+        self, start, end, freq, expected_periods
+    ):
         # GH 33498 only the cases where `(end % freq) == 0` used to fail
         res = timedelta_range(start=start, end=end, freq=freq)
         assert Timedelta(start) == res[0]

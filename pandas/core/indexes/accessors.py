@@ -108,9 +108,13 @@ class Properties(PandasDelegate, PandasObject, NoNewAttributesMixin):
         else:
             index = self._parent.index
         # return the result as a Series
-        return Series(result, index=index, name=self.name).__finalize__(self._parent)
+        return Series(result, index=index, name=self.name).__finalize__(
+            self._parent
+        )
 
-    def _delegate_property_set(self, name: str, value, *args, **kwargs) -> NoReturn:
+    def _delegate_property_set(
+        self, name: str, value, *args, **kwargs
+    ) -> NoReturn:
         raise ValueError(
             "modifications to a property of a datetimelike object are not supported. "
             "Change values on the original."
@@ -127,9 +131,9 @@ class Properties(PandasDelegate, PandasObject, NoNewAttributesMixin):
         if not is_list_like(result):
             return result
 
-        return Series(result, index=self._parent.index, name=self.name).__finalize__(
-            self._parent
-        )
+        return Series(
+            result, index=self._parent.index, name=self.name
+        ).__finalize__(self._parent)
 
 
 @delegate_names(
@@ -160,7 +164,9 @@ class Properties(PandasDelegate, PandasObject, NoNewAttributesMixin):
     accessor_mapping=lambda x: f"_dt_{x}",
     raise_on_missing=False,
 )
-class ArrowTemporalProperties(PandasDelegate, PandasObject, NoNewAttributesMixin):
+class ArrowTemporalProperties(
+    PandasDelegate, PandasObject, NoNewAttributesMixin
+):
     def __init__(self, data: Series, orig) -> None:
         if not isinstance(data, ABCSeries):
             raise TypeError(
@@ -221,11 +227,15 @@ class ArrowTemporalProperties(PandasDelegate, PandasObject, NoNewAttributesMixin
             FutureWarning,
             stacklevel=find_stack_level(),
         )
-        return cast(ArrowExtensionArray, self._parent.array)._dt_to_pytimedelta()
+        return cast(
+            ArrowExtensionArray, self._parent.array
+        )._dt_to_pytimedelta()
 
     def to_pydatetime(self) -> Series:
         # GH#20306
-        return cast(ArrowExtensionArray, self._parent.array)._dt_to_pydatetime()
+        return cast(
+            ArrowExtensionArray, self._parent.array
+        )._dt_to_pydatetime()
 
     def isocalendar(self) -> DataFrame:
         from pandas import DataFrame
@@ -429,7 +439,9 @@ class DatetimeProperties(Properties):
 
 
 @delegate_names(
-    delegate=TimedeltaArray, accessors=TimedeltaArray._datetimelike_ops, typ="property"
+    delegate=TimedeltaArray,
+    accessors=TimedeltaArray._datetimelike_ops,
+    typ="property",
 )
 @delegate_names(
     delegate=TimedeltaArray,
@@ -555,10 +567,14 @@ class TimedeltaProperties(Properties):
 
 
 @delegate_names(
-    delegate=PeriodArray, accessors=PeriodArray._datetimelike_ops, typ="property"
+    delegate=PeriodArray,
+    accessors=PeriodArray._datetimelike_ops,
+    typ="property",
 )
 @delegate_names(
-    delegate=PeriodArray, accessors=PeriodArray._datetimelike_methods, typ="method"
+    delegate=PeriodArray,
+    accessors=PeriodArray._datetimelike_methods,
+    typ="method",
 )
 class PeriodProperties(Properties):
     """
@@ -662,7 +678,9 @@ class CombinedDatetimelikeProperties(
     dtype: int32
     """
 
-    def __new__(cls, data: Series):  # pyright: ignore[reportInconsistentConstructor]
+    def __new__(
+        cls, data: Series
+    ):  # pyright: ignore[reportInconsistentConstructor]
         # CombinedDatetimelikeProperties isn't really instantiated. Instead
         # we need to choose which parent (datetime or timedelta) is
         # appropriate. Since we're checking the dtypes anyway, we'll just
@@ -694,4 +712,6 @@ class CombinedDatetimelikeProperties(
         elif isinstance(data.dtype, PeriodDtype):
             return PeriodProperties(data, orig)
 
-        raise AttributeError("Can only use .dt accessor with datetimelike values")
+        raise AttributeError(
+            "Can only use .dt accessor with datetimelike values"
+        )

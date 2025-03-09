@@ -24,7 +24,9 @@ def df_main_dtypes():
             "category_string": pd.Series(list("abc")).astype("category"),
             "category_int": [7, 8, 9],
             "datetime": pd.date_range("20130101", periods=3),
-            "datetimetz": pd.date_range("20130101", periods=3, tz="US/Eastern"),
+            "datetimetz": pd.date_range(
+                "20130101", periods=3, tz="US/Eastern"
+            ),
             "timedelta": pd.timedelta_range("1 s", periods=3, freq="s"),
         },
         columns=[
@@ -69,7 +71,9 @@ class TestNLargestNSmallest:
             {
                 "a": np.random.default_rng(2).permutation(10),
                 "b": list(ascii_lowercase[:10]),
-                "c": np.random.default_rng(2).permutation(10).astype("float64"),
+                "c": np.random.default_rng(2)
+                .permutation(10)
+                .astype("float64"),
             }
         )
         if "b" in order:
@@ -142,7 +146,14 @@ class TestNLargestNSmallest:
 
     @pytest.mark.parametrize(
         "order",
-        [["a", "b", "c"], ["c", "b", "a"], ["a"], ["b"], ["a", "b"], ["c", "b"]],
+        [
+            ["a", "b", "c"],
+            ["c", "b", "a"],
+            ["a"],
+            ["b"],
+            ["a", "b"],
+            ["c", "b"],
+        ],
     )
     @pytest.mark.parametrize("n", range(1, 6))
     def test_nlargest_n_duplicate_index(self, n, order, request):
@@ -159,7 +170,8 @@ class TestNLargestNSmallest:
         result = df.nlargest(n, order)
         expected = df.sort_values(order, ascending=False).head(n)
         if Version(np.__version__) >= Version("1.25") and (
-            (order == ["a"] and n in (1, 2, 3, 4)) or ((order == ["a", "b"]) and n == 5)
+            (order == ["a"] and n in (1, 2, 3, 4))
+            or ((order == ["a", "b"]) and n == 5)
         ):
             request.applymarker(
                 pytest.mark.xfail(

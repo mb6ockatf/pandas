@@ -30,13 +30,19 @@ class FromDicts:
         N, K = 5000, 50
         self.index = pd.Index([f"i-{i}" for i in range(N)], dtype=object)
         self.columns = pd.Index([f"i-{i}" for i in range(K)], dtype=object)
-        frame = DataFrame(np.random.randn(N, K), index=self.index, columns=self.columns)
+        frame = DataFrame(
+            np.random.randn(N, K), index=self.index, columns=self.columns
+        )
         self.data = frame.to_dict()
         self.dict_list = frame.to_dict(orient="records")
-        self.data2 = {i: {j: float(j) for j in range(100)} for i in range(2000)}
+        self.data2 = {
+            i: {j: float(j) for j in range(100)} for i in range(2000)
+        }
 
         # arrays which we won't consolidate
-        self.dict_of_categoricals = {i: Categorical(np.arange(N)) for i in range(K)}
+        self.dict_of_categoricals = {
+            i: Categorical(np.arange(N)) for i in range(K)
+        }
 
     def time_list_of_dict(self):
         DataFrame(self.dict_list)
@@ -163,7 +169,9 @@ class FromArrays:
         N_cols = 1000
         self.float_arrays = [np.random.randn(N_rows) for _ in range(N_cols)]
         self.sparse_arrays = [
-            pd.arrays.SparseArray(np.random.randint(0, 2, N_rows), dtype="float64")
+            pd.arrays.SparseArray(
+                np.random.randint(0, 2, N_rows), dtype="float64"
+            )
             for _ in range(N_cols)
         ]
         self.int_arrays = [

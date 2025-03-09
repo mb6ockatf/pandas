@@ -64,7 +64,9 @@ def adjoin(space: int, *lists: list[str], **kwargs: Any) -> str:
     return "\n".join("".join(lines) for lines in toJoin)
 
 
-def _adj_justify(texts: Iterable[str], max_len: int, mode: str = "right") -> list[str]:
+def _adj_justify(
+    texts: Iterable[str], max_len: int, mode: str = "right"
+) -> list[str]:
     """
     Perform ljust, center, rjust against string or list-like
     """
@@ -101,7 +103,10 @@ def _adj_justify(texts: Iterable[str], max_len: int, mode: str = "right") -> lis
 
 
 def _pprint_seq(
-    seq: ListLike, _nest_lvl: int = 0, max_seq_items: int | None = None, **kwds: Any
+    seq: ListLike,
+    _nest_lvl: int = 0,
+    max_seq_items: int | None = None,
+    **kwds: Any,
 ) -> str:
     """
     internal. pprinter for iterables. you should probably use pprint_thing()
@@ -129,7 +134,11 @@ def _pprint_seq(
         if (max_items is not None) and (i >= max_items):
             max_items_reached = True
             break
-        r.append(pprint_thing(item, _nest_lvl + 1, max_seq_items=max_seq_items, **kwds))
+        r.append(
+            pprint_thing(
+                item, _nest_lvl + 1, max_seq_items=max_seq_items, **kwds
+            )
+        )
     body = ", ".join(r)
 
     if max_items_reached:
@@ -141,7 +150,10 @@ def _pprint_seq(
 
 
 def _pprint_dict(
-    seq: Mapping, _nest_lvl: int = 0, max_seq_items: int | None = None, **kwds: Any
+    seq: Mapping,
+    _nest_lvl: int = 0,
+    max_seq_items: int | None = None,
+    **kwds: Any,
 ) -> str:
     """
     internal. pprinter for iterables. you should probably use pprint_thing()
@@ -160,8 +172,12 @@ def _pprint_dict(
     for k, v in list(seq.items())[:nitems]:
         pairs.append(
             pfmt.format(
-                key=pprint_thing(k, _nest_lvl + 1, max_seq_items=max_seq_items, **kwds),
-                val=pprint_thing(v, _nest_lvl + 1, max_seq_items=max_seq_items, **kwds),
+                key=pprint_thing(
+                    k, _nest_lvl + 1, max_seq_items=max_seq_items, **kwds
+                ),
+                val=pprint_thing(
+                    v, _nest_lvl + 1, max_seq_items=max_seq_items, **kwds
+                ),
             )
         )
 
@@ -228,7 +244,9 @@ def pprint_thing(
         result = _pprint_dict(
             thing, _nest_lvl, quote_strings=True, max_seq_items=max_seq_items
         )
-    elif is_sequence(thing) and _nest_lvl < get_option("display.pprint_nest_depth"):
+    elif is_sequence(thing) and _nest_lvl < get_option(
+        "display.pprint_nest_depth"
+    ):
         result = _pprint_seq(
             # error: Argument 1 to "_pprint_seq" has incompatible type "object";
             # expected "ExtensionArray | ndarray[Any, Any] | Index | Series |
@@ -360,7 +378,11 @@ def format_object_summary(
     adj = get_adjustment()
 
     def _extend_line(
-        s: str, line: str, value: str, display_width: int, next_line_prefix: str
+        s: str,
+        line: str,
+        value: str,
+        display_width: int,
+        next_line_prefix: str,
     ) -> tuple[str, str]:
         if adj.len(line.rstrip()) + adj.len(value.rstrip()) >= display_width:
             s += line.rstrip()
@@ -437,7 +459,9 @@ def format_object_summary(
 
         for head_value in head:
             word = head_value + sep + " "
-            summary, line = _extend_line(summary, line, word, display_width, space2)
+            summary, line = _extend_line(
+                summary, line, word, display_width, space2
+            )
 
         if is_truncated:
             # remove trailing space of last line
@@ -446,10 +470,14 @@ def format_object_summary(
 
         for tail_item in tail[:-1]:
             word = tail_item + sep + " "
-            summary, line = _extend_line(summary, line, word, display_width, space2)
+            summary, line = _extend_line(
+                summary, line, word, display_width, space2
+            )
 
         # last value: no sep added + 1 space of width used for trailing ','
-        summary, line = _extend_line(summary, line, tail[-1], display_width - 2, space2)
+        summary, line = _extend_line(
+            summary, line, tail[-1], display_width - 2, space2
+        )
         summary += line
 
         # right now close is either '' or ', '
@@ -501,10 +529,12 @@ def _justify(
 
     # justify each item in each list-like in head and tail using max_length
     head_tuples = [
-        tuple(x.rjust(max_len) for x, max_len in zip(seq, max_length)) for seq in head
+        tuple(x.rjust(max_len) for x, max_len in zip(seq, max_length))
+        for seq in head
     ]
     tail_tuples = [
-        tuple(x.rjust(max_len) for x, max_len in zip(seq, max_length)) for seq in tail
+        tuple(x.rjust(max_len) for x, max_len in zip(seq, max_length))
+        for seq in tail
     ]
     return head_tuples, tail_tuples
 
@@ -523,7 +553,9 @@ class _TextAdjustment:
     def len(self, text: str) -> int:
         return len(text)
 
-    def justify(self, texts: Any, max_len: int, mode: str = "right") -> list[str]:
+    def justify(
+        self, texts: Any, max_len: int, mode: str = "right"
+    ) -> list[str]:
         """
         Perform ljust, center, rjust against string or list-like
         """
@@ -535,7 +567,9 @@ class _TextAdjustment:
             return [x.rjust(max_len) for x in texts]
 
     def adjoin(self, space: int, *lists: Any, **kwargs: Any) -> str:
-        return adjoin(space, *lists, strlen=self.len, justfunc=self.justify, **kwargs)
+        return adjoin(
+            space, *lists, strlen=self.len, justfunc=self.justify, **kwargs
+        )
 
 
 class _EastAsianTextAdjustment(_TextAdjustment):
@@ -559,7 +593,8 @@ class _EastAsianTextAdjustment(_TextAdjustment):
             return len(text)
 
         return sum(
-            self._EAW_MAP.get(east_asian_width(c), self.ambiguous_width) for c in text
+            self._EAW_MAP.get(east_asian_width(c), self.ambiguous_width)
+            for c in text
         )
 
     def justify(

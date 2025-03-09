@@ -11,7 +11,9 @@ import pandas._testing as tm
 class TestSeriesPctChange:
     def test_pct_change(self, datetime_series):
         rs = datetime_series.pct_change()
-        tm.assert_series_equal(rs, datetime_series / datetime_series.shift(1) - 1)
+        tm.assert_series_equal(
+            rs, datetime_series / datetime_series.shift(1) - 1
+        )
 
         rs = datetime_series.pct_change(2)
         filled = datetime_series.ffill()
@@ -39,7 +41,9 @@ class TestSeriesPctChange:
         expected = Series([np.nan, 0.5, np.nan, np.nan, 0.2])
         tm.assert_series_equal(chg, expected)
 
-    @pytest.mark.parametrize("freq, periods", [("5B", 5), ("3B", 3), ("14B", 14)])
+    @pytest.mark.parametrize(
+        "freq, periods", [("5B", 5), ("3B", 3), ("14B", 14)]
+    )
     def test_pct_change_periods_freq(self, freq, periods, datetime_series):
         # GH#7292
         rs_freq = datetime_series.pct_change(freq=freq)
@@ -56,7 +60,9 @@ def test_pct_change_with_duplicated_indices():
     # GH30463
     s = Series([np.nan, 1, 2, 3, 9, 18], index=["a", "b"] * 3)
     result = s.pct_change()
-    expected = Series([np.nan, np.nan, 1.0, 0.5, 2.0, 1.0], index=["a", "b"] * 3)
+    expected = Series(
+        [np.nan, np.nan, 1.0, 0.5, 2.0, 1.0], index=["a", "b"] * 3
+    )
     tm.assert_series_equal(result, expected)
 
 

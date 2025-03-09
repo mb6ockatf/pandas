@@ -29,7 +29,9 @@ def _get_current_locale(lc_var: int = locale.LC_ALL) -> str:
     return locale.setlocale(lc_var)
 
 
-@pytest.mark.parametrize("lc_var", (locale.LC_ALL, locale.LC_CTYPE, locale.LC_TIME))
+@pytest.mark.parametrize(
+    "lc_var", (locale.LC_ALL, locale.LC_CTYPE, locale.LC_TIME)
+)
 def test_can_set_current_locale(lc_var):
     # Can set the current locale
     before_locale = _get_current_locale(lc_var)
@@ -38,7 +40,9 @@ def test_can_set_current_locale(lc_var):
     assert before_locale == after_locale
 
 
-@pytest.mark.parametrize("lc_var", (locale.LC_ALL, locale.LC_CTYPE, locale.LC_TIME))
+@pytest.mark.parametrize(
+    "lc_var", (locale.LC_ALL, locale.LC_CTYPE, locale.LC_TIME)
+)
 def test_can_set_locale_valid_set(lc_var):
     # Can set the default locale.
     before_locale = _get_current_locale(lc_var)
@@ -77,7 +81,9 @@ def test_can_set_locale_invalid_set(lc_var):
         ("it_IT", "ISO-8859-1"),
     ],
 )
-@pytest.mark.parametrize("lc_var", (locale.LC_ALL, locale.LC_CTYPE, locale.LC_TIME))
+@pytest.mark.parametrize(
+    "lc_var", (locale.LC_ALL, locale.LC_CTYPE, locale.LC_TIME)
+)
 def test_can_set_locale_no_leak(lang, enc, lc_var):
     # Test that can_set_locale does not leak even when returning False. See GH#46595
     before_locale = _get_current_locale(lc_var)
@@ -147,7 +153,9 @@ def test_set_locale(lang, enc):
 
 def test_encoding_detected():
     system_locale = os.environ.get("LC_ALL")
-    system_encoding = system_locale.split(".")[-1] if system_locale else "utf-8"
+    system_encoding = (
+        system_locale.split(".")[-1] if system_locale else "utf-8"
+    )
 
     assert (
         codecs.lookup(pd.options.display.encoding).name

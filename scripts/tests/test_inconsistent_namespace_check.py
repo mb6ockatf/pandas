@@ -19,19 +19,25 @@ BAD_FILE_2 = (
     "cat_0 = pandas.Categorical()\n"
     "cat_1 = Categorical()"
 )
-GOOD_FILE_0 = (
-    "from pandas import Categorical\ncat_0 = Categorical()\ncat_1 = Categorical()"
-)
+GOOD_FILE_0 = "from pandas import Categorical\ncat_0 = Categorical()\ncat_1 = Categorical()"
 GOOD_FILE_1 = "cat_0 = pd.Categorical()\ncat_1 = pd.Categorical()"
-GOOD_FILE_2 = "from array import array\nimport pandas as pd\narr = pd.array([])"
+GOOD_FILE_2 = (
+    "from array import array\nimport pandas as pd\narr = pd.array([])"
+)
 PATH = "t.py"
 
 
 @pytest.mark.parametrize(
     "content, expected",
     [
-        (BAD_FILE_0, "t.py:3:8: Found both 'pd.Categorical' and 'Categorical' in t.py"),
-        (BAD_FILE_1, "t.py:2:8: Found both 'pd.Categorical' and 'Categorical' in t.py"),
+        (
+            BAD_FILE_0,
+            "t.py:3:8: Found both 'pd.Categorical' and 'Categorical' in t.py",
+        ),
+        (
+            BAD_FILE_1,
+            "t.py:2:8: Found both 'pd.Categorical' and 'Categorical' in t.py",
+        ),
         (
             BAD_FILE_2,
             "t.py:2:8: Found both 'pandas.Categorical' and 'Categorical' in t.py",
@@ -54,8 +60,8 @@ def test_consistent_usage(content, replace):
 
 @pytest.mark.parametrize("content", [BAD_FILE_0, BAD_FILE_1, BAD_FILE_2])
 def test_inconsistent_usage_with_replace(content):
-    result = check_for_inconsistent_pandas_namespace(content, PATH, replace=True)
-    expected = (
-        "from pandas import Categorical\ncat_0 = Categorical()\ncat_1 = Categorical()"
+    result = check_for_inconsistent_pandas_namespace(
+        content, PATH, replace=True
     )
+    expected = "from pandas import Categorical\ncat_0 = Categorical()\ncat_1 = Categorical()"
     assert result == expected

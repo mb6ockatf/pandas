@@ -156,7 +156,10 @@ def test_scikit_learn():
 def test_seaborn(mpl_cleanup):
     seaborn = pytest.importorskip("seaborn")
     tips = DataFrame(
-        {"day": pd.date_range("2023", freq="D", periods=5), "total_bill": range(5)}
+        {
+            "day": pd.date_range("2023", freq="D", periods=5),
+            "total_bill": range(5),
+        }
     )
     seaborn.stripplot(x="day", y="total_bill", data=tips)
 
@@ -237,7 +240,9 @@ def test_frame_setitem_dask_array_into_new_col(request):
             np.__version__
         ) >= Version("2.1"):
             request.applymarker(
-                pytest.mark.xfail(reason="loc.__setitem__ incorrectly mutated column c")
+                pytest.mark.xfail(
+                    reason="loc.__setitem__ incorrectly mutated column c"
+                )
             )
 
         dda = da.array([1, 2])

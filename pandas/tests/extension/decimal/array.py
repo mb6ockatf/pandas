@@ -80,7 +80,9 @@ class DecimalArray(OpsMixin, ExtensionScalarOpsMixin, ExtensionArray):
                     # Sequence[int], int]"
                     values[i] = DecimalDtype.type(val)  # type: ignore[arg-type]
             elif not isinstance(val, decimal.Decimal):
-                raise TypeError("All values must be of type " + str(decimal.Decimal))
+                raise TypeError(
+                    "All values must be of type " + str(decimal.Decimal)
+                )
         values = np.asarray(values, dtype=object)
 
         self._data = values
@@ -101,7 +103,9 @@ class DecimalArray(OpsMixin, ExtensionScalarOpsMixin, ExtensionArray):
         return cls(scalars)
 
     @classmethod
-    def _from_sequence_of_strings(cls, strings, *, dtype: ExtensionDtype, copy=False):
+    def _from_sequence_of_strings(
+        cls, strings, *, dtype: ExtensionDtype, copy=False
+    ):
         return cls._from_sequence(
             [decimal.Decimal(x) for x in strings], dtype=dtype, copy=copy
         )
@@ -126,7 +130,8 @@ class DecimalArray(OpsMixin, ExtensionScalarOpsMixin, ExtensionArray):
 
     def __array_ufunc__(self, ufunc: np.ufunc, method: str, *inputs, **kwargs):
         if not all(
-            isinstance(t, self._HANDLED_TYPES + (DecimalArray,)) for t in inputs
+            isinstance(t, self._HANDLED_TYPES + (DecimalArray,))
+            for t in inputs
         ):
             return NotImplemented
 
@@ -142,7 +147,9 @@ class DecimalArray(OpsMixin, ExtensionScalarOpsMixin, ExtensionArray):
                 self, ufunc, method, *inputs, **kwargs
             )
 
-        inputs = tuple(x._data if isinstance(x, DecimalArray) else x for x in inputs)
+        inputs = tuple(
+            x._data if isinstance(x, DecimalArray) else x for x in inputs
+        )
         result = getattr(ufunc, method)(*inputs, **kwargs)
 
         if method == "reduce":
@@ -178,7 +185,9 @@ class DecimalArray(OpsMixin, ExtensionScalarOpsMixin, ExtensionArray):
         if allow_fill and fill_value is None:
             fill_value = self.dtype.na_value
 
-        result = take(data, indexer, fill_value=fill_value, allow_fill=allow_fill)
+        result = take(
+            data, indexer, fill_value=fill_value, allow_fill=allow_fill
+        )
         return self._from_sequence(result, dtype=self.dtype)
 
     def copy(self):
@@ -240,7 +249,12 @@ class DecimalArray(OpsMixin, ExtensionScalarOpsMixin, ExtensionArray):
         return cls(np.concatenate([x._data for x in to_concat]))
 
     def _reduce(
-        self, name: str, *, skipna: bool = True, keepdims: bool = False, **kwargs
+        self,
+        name: str,
+        *,
+        skipna: bool = True,
+        keepdims: bool = False,
+        **kwargs,
     ):
         if skipna and self.isna().any():
             # If we don't have any NAs, we can ignore skipna
@@ -297,7 +311,9 @@ def to_decimal(values, context=None):
 
 
 def make_data():
-    return [decimal.Decimal(val) for val in np.random.default_rng(2).random(100)]
+    return [
+        decimal.Decimal(val) for val in np.random.default_rng(2).random(100)
+    ]
 
 
 DecimalArray._add_arithmetic_ops()

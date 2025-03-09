@@ -46,7 +46,9 @@ def scatter_matrix(
     df = frame._get_numeric_data()
     n = df.columns.size
     naxes = n * n
-    fig, axes = create_subplots(naxes=naxes, figsize=figsize, ax=ax, squeeze=False)
+    fig, axes = create_subplots(
+        naxes=naxes, figsize=figsize, ax=ax, squeeze=False
+    )
 
     # no gaps between subplots
     maybe_adjust_figure(fig, wspace=0, hspace=0)
@@ -93,7 +95,11 @@ def scatter_matrix(
                 common = (mask[a] & mask[b]).values
 
                 ax.scatter(
-                    df[b][common], df[a][common], marker=marker, alpha=alpha, **kwds
+                    df[b][common],
+                    df[a][common],
+                    marker=marker,
+                    alpha=alpha,
+                    **kwds,
                 )
 
                 ax.set_xlim(boundaries_list[j])
@@ -160,7 +166,10 @@ def radviz(
 
     to_plot: dict[Hashable, list[list]] = {}
     colors = get_standard_colors(
-        num_colors=len(classes), colormap=colormap, color_type="random", color=color
+        num_colors=len(classes),
+        colormap=colormap,
+        color_type="random",
+        color=color,
     )
 
     for kls in classes:
@@ -168,7 +177,10 @@ def radviz(
 
     m = len(frame.columns) - 1
     s = np.array(
-        [(np.cos(t), np.sin(t)) for t in [2 * np.pi * (i / m) for i in range(m)]]
+        [
+            (np.cos(t), np.sin(t))
+            for t in [2 * np.pi * (i / m) for i in range(m)]
+        ]
     )
 
     for i in range(n):
@@ -196,7 +208,12 @@ def radviz(
 
         if xy[0] < 0.0 and xy[1] < 0.0:
             ax.text(
-                xy[0] - 0.025, xy[1] - 0.025, name, ha="right", va="top", size="small"
+                xy[0] - 0.025,
+                xy[1] - 0.025,
+                name,
+                ha="right",
+                va="top",
+                size="small",
             )
         elif xy[0] < 0.0 <= xy[1]:
             ax.text(
@@ -209,11 +226,21 @@ def radviz(
             )
         elif xy[1] < 0.0 <= xy[0]:
             ax.text(
-                xy[0] + 0.025, xy[1] - 0.025, name, ha="left", va="top", size="small"
+                xy[0] + 0.025,
+                xy[1] - 0.025,
+                name,
+                ha="left",
+                va="top",
+                size="small",
             )
         elif xy[0] >= 0.0 and xy[1] >= 0.0:
             ax.text(
-                xy[0] + 0.025, xy[1] + 0.025, name, ha="left", va="bottom", size="small"
+                xy[0] + 0.025,
+                xy[1] + 0.025,
+                name,
+                ha="left",
+                va="bottom",
+                size="small",
             )
 
     ax.axis("equal")
@@ -264,7 +291,10 @@ def andrews_curves(
     used_legends: set[str] = set()
 
     color_values = get_standard_colors(
-        num_colors=len(classes), colormap=colormap, color_type="random", color=color
+        num_colors=len(classes),
+        colormap=colormap,
+        color_type="random",
+        color=color,
     )
     colors = dict(zip(classes, color_values))
     if ax is None:
@@ -393,7 +423,10 @@ def parallel_coordinates(
         ax = plt.gca()
 
     color_values = get_standard_colors(
-        num_colors=len(classes), colormap=colormap, color_type="random", color=color
+        num_colors=len(classes),
+        colormap=colormap,
+        color_type="random",
+        color=color,
     )
 
     if sort_labels:
@@ -423,7 +456,9 @@ def parallel_coordinates(
     return ax
 
 
-def lag_plot(series: Series, lag: int = 1, ax: Axes | None = None, **kwds) -> Axes:
+def lag_plot(
+    series: Series, lag: int = 1, ax: Axes | None = None, **kwds
+) -> Axes:
     # workaround because `c='b'` is hardcoded in matplotlib's scatter method
     import matplotlib.pyplot as plt
 
@@ -440,7 +475,9 @@ def lag_plot(series: Series, lag: int = 1, ax: Axes | None = None, **kwds) -> Ax
     return ax
 
 
-def autocorrelation_plot(series: Series, ax: Axes | None = None, **kwds) -> Axes:
+def autocorrelation_plot(
+    series: Series, ax: Axes | None = None, **kwds
+) -> Axes:
     import matplotlib.pyplot as plt
 
     n = len(series)

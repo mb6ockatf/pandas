@@ -374,21 +374,26 @@ def _datetime_to_stata_elapsed_vec(dates: Series, fmt: str) -> Series:
     MS_PER_DAY = NS_PER_DAY / 1_000_000
 
     def parse_dates_safe(
-        dates: Series, delta: bool = False, year: bool = False, days: bool = False
+        dates: Series,
+        delta: bool = False,
+        year: bool = False,
+        days: bool = False,
     ) -> DataFrame:
         d = {}
         if lib.is_np_dtype(dates.dtype, "M"):
             if delta:
-                time_delta = dates.dt.as_unit("ms") - Timestamp(stata_epoch).as_unit(
-                    "ms"
-                )
+                time_delta = dates.dt.as_unit("ms") - Timestamp(
+                    stata_epoch
+                ).as_unit("ms")
                 d["delta"] = time_delta._values.view(np.int64)
             if days or year:
                 date_index = DatetimeIndex(dates)
                 d["year"] = date_index._data.year
                 d["month"] = date_index._data.month
             if days:
-                year_start = np.asarray(dates).astype("M8[Y]").astype(dates.dtype)
+                year_start = (
+                    np.asarray(dates).astype("M8[Y]").astype(dates.dtype)
+                )
                 diff = dates - year_start
                 d["days"] = np.asarray(diff).astype("m8[D]").view("int64")
 
@@ -397,7 +402,11 @@ def _datetime_to_stata_elapsed_vec(dates: Series, fmt: str) -> Series:
                 delta = dates._values - stata_epoch
 
                 def f(x: timedelta) -> float:
-                    return US_PER_DAY * x.days + 1000000 * x.seconds + x.microseconds
+                    return (
+                        US_PER_DAY * x.days
+                        + 1000000 * x.seconds
+                        + x.microseconds
+                    )
 
                 v = np.vectorize(f)
                 d["delta"] = v(delta)
@@ -451,7 +460,9 @@ def _datetime_to_stata_elapsed_vec(dates: Series, fmt: str) -> Series:
         conv_dates = 4 * (d.year - stata_epoch.year) + (d.month - 1) // 3
     elif fmt in ["%th", "th"]:
         d = parse_dates_safe(dates, year=True)
-        conv_dates = 2 * (d.year - stata_epoch.year) + (d.month > 6).astype(int)
+        conv_dates = 2 * (d.year - stata_epoch.year) + (d.month > 6).astype(
+            int
+        )
     elif fmt in ["%ty", "ty"]:
         d = parse_dates_safe(dates, year=True)
         conv_dates = d.year
@@ -564,7 +575,9 @@ def _cast_to_stata_types(data: DataFrame) -> DataFrame:
         if is_nullable_int:
             fv = 0 if data[col].dtype.kind in "iu" else False
             # Replace with NumPy-compatible column
-            data[col] = data[col].fillna(fv).astype(data[col].dtype.numpy_dtype)
+            data[col] = (
+                data[col].fillna(fv).astype(data[col].dtype.numpy_dtype)
+            )
         elif isinstance(data[col].dtype, ExtensionDtype):
             if getattr(data[col].dtype, "numpy_dtype", None) is not None:
                 data[col] = data[col].astype(data[col].dtype.numpy_dtype)
@@ -599,7 +612,8 @@ def _cast_to_stata_types(data: DataFrame) -> DataFrame:
                 data[col] = data[col].astype(np.int32)
         elif dtype == np.int64:
             if empty_df or (
-                data[col].max() <= 2147483620 and data[col].min() >= -2147483647
+                data[col].max() <= 2147483620
+                and data[col].min() >= -2147483647
             ):
                 data[col] = data[col].astype(np.int32)
             else:
@@ -624,7 +638,9 @@ def _cast_to_stata_types(data: DataFrame) -> DataFrame:
         if is_nullable_int:
             if orig_missing.any():
                 # Replace missing by Stata sentinel value
-                sentinel = StataMissingValue.BASE_MISSING_VALUES[data[col].dtype.name]
+                sentinel = StataMissingValue.BASE_MISSING_VALUES[
+                    data[col].dtype.name
+                ]
                 data.loc[orig_missing, col] = sentinel
     if ws:
         warnings.warn(
@@ -649,7 +665,9 @@ class StataValueLabel:
     """
 
     def __init__(
-        self, catarray: Series, encoding: Literal["latin-1", "utf-8"] = "latin-1"
+        self,
+        catarray: Series,
+        encoding: Literal["latin-1", "utf-8"] = "latin-1",
     ) -> None:
         if encoding not in ("latin-1", "utf-8"):
             raise ValueError("Only latin-1 and utf-8 are supported.")
@@ -835,7 +853,9 @@ class StataMissingValue:
         MISSING_VALUES[key] = "."
         if i > 0:
             MISSING_VALUES[key] += chr(96 + i)
-        int_value = struct.unpack("<i", struct.pack("<f", key))[0] + increment_32
+        int_value = (
+            struct.unpack("<i", struct.pack("<f", key))[0] + increment_32
+        )
         float32_base = struct.pack("<i", int_value)
 
     float64_base: bytes = b"\x00\x00\x00\x00\x00\x00\xe0\x7f"
@@ -845,7 +865,9 @@ class StataMissingValue:
         MISSING_VALUES[key] = "."
         if i > 0:
             MISSING_VALUES[key] += chr(96 + i)
-        int_value = struct.unpack("q", struct.pack("<d", key))[0] + increment_64
+        int_value = (
+            struct.unpack("q", struct.pack("<d", key))[0] + increment_64
+        )
         float64_base = struct.pack("q", int_value)
 
     BASE_MISSING_VALUES: Final = {
@@ -1208,22 +1230,34 @@ class StataReader(StataParser, abc.Iterator):
         return struct.unpack("B", self._path_or_buf.read(1))[0]
 
     def _read_uint16(self) -> int:
-        return struct.unpack(f"{self._byteorder}H", self._path_or_buf.read(2))[0]
+        return struct.unpack(f"{self._byteorder}H", self._path_or_buf.read(2))[
+            0
+        ]
 
     def _read_uint32(self) -> int:
-        return struct.unpack(f"{self._byteorder}I", self._path_or_buf.read(4))[0]
+        return struct.unpack(f"{self._byteorder}I", self._path_or_buf.read(4))[
+            0
+        ]
 
     def _read_uint64(self) -> int:
-        return struct.unpack(f"{self._byteorder}Q", self._path_or_buf.read(8))[0]
+        return struct.unpack(f"{self._byteorder}Q", self._path_or_buf.read(8))[
+            0
+        ]
 
     def _read_int16(self) -> int:
-        return struct.unpack(f"{self._byteorder}h", self._path_or_buf.read(2))[0]
+        return struct.unpack(f"{self._byteorder}h", self._path_or_buf.read(2))[
+            0
+        ]
 
     def _read_int32(self) -> int:
-        return struct.unpack(f"{self._byteorder}i", self._path_or_buf.read(4))[0]
+        return struct.unpack(f"{self._byteorder}i", self._path_or_buf.read(4))[
+            0
+        ]
 
     def _read_int64(self) -> int:
-        return struct.unpack(f"{self._byteorder}q", self._path_or_buf.read(8))[0]
+        return struct.unpack(f"{self._byteorder}q", self._path_or_buf.read(8))[
+            0
+        ]
 
     def _read_char8(self) -> bytes:
         return struct.unpack("c", self._path_or_buf.read(1))[0]
@@ -1246,13 +1280,17 @@ class StataReader(StataParser, abc.Iterator):
         self._path_or_buf.read(27)  # stata_dta><header><release>
         self._format_version = int(self._path_or_buf.read(3))
         if self._format_version not in [117, 118, 119]:
-            raise ValueError(_version_error.format(version=self._format_version))
+            raise ValueError(
+                _version_error.format(version=self._format_version)
+            )
         self._set_encoding()
         self._path_or_buf.read(21)  # </release><byteorder>
         self._byteorder = ">" if self._path_or_buf.read(3) == b"MSF" else "<"
         self._path_or_buf.read(15)  # </byteorder><K>
         self._nvar = (
-            self._read_uint16() if self._format_version <= 118 else self._read_uint32()
+            self._read_uint16()
+            if self._format_version <= 118
+            else self._read_uint32()
         )
         self._path_or_buf.read(7)  # </K><N>
 
@@ -1313,14 +1351,18 @@ class StataReader(StataParser, abc.Iterator):
                     typlist.append(self.TYPE_MAP_XML[typ])  # type: ignore[arg-type]
                     dtyplist.append(self.DTYPE_MAP_XML[typ])  # type: ignore[arg-type]
                 except KeyError as err:
-                    raise ValueError(f"cannot convert stata types [{typ}]") from err
+                    raise ValueError(
+                        f"cannot convert stata types [{typ}]"
+                    ) from err
 
         return typlist, dtyplist  # type: ignore[return-value]
 
     def _get_varlist(self) -> list[str]:
         # 33 in order formats, 129 in formats 118 and 119
         b = 33 if self._format_version < 118 else 129
-        return [self._decode(self._path_or_buf.read(b)) for _ in range(self._nvar)]
+        return [
+            self._decode(self._path_or_buf.read(b)) for _ in range(self._nvar)
+        ]
 
     # Returns the format list
     def _get_fmtlist(self) -> list[str]:
@@ -1333,7 +1375,9 @@ class StataReader(StataParser, abc.Iterator):
         else:
             b = 7
 
-        return [self._decode(self._path_or_buf.read(b)) for _ in range(self._nvar)]
+        return [
+            self._decode(self._path_or_buf.read(b)) for _ in range(self._nvar)
+        ]
 
     # Returns the label list
     def _get_lbllist(self) -> list[str]:
@@ -1343,20 +1387,25 @@ class StataReader(StataParser, abc.Iterator):
             b = 33
         else:
             b = 9
-        return [self._decode(self._path_or_buf.read(b)) for _ in range(self._nvar)]
+        return [
+            self._decode(self._path_or_buf.read(b)) for _ in range(self._nvar)
+        ]
 
     def _get_variable_labels(self) -> list[str]:
         if self._format_version >= 118:
             vlblist = [
-                self._decode(self._path_or_buf.read(321)) for _ in range(self._nvar)
+                self._decode(self._path_or_buf.read(321))
+                for _ in range(self._nvar)
             ]
         elif self._format_version > 105:
             vlblist = [
-                self._decode(self._path_or_buf.read(81)) for _ in range(self._nvar)
+                self._decode(self._path_or_buf.read(81))
+                for _ in range(self._nvar)
             ]
         else:
             vlblist = [
-                self._decode(self._path_or_buf.read(32)) for _ in range(self._nvar)
+                self._decode(self._path_or_buf.read(32))
+                for _ in range(self._nvar)
             ]
         return vlblist
 
@@ -1418,7 +1467,9 @@ class StataReader(StataParser, abc.Iterator):
             114,
             115,
         ]:
-            raise ValueError(_version_error.format(version=self._format_version))
+            raise ValueError(
+                _version_error.format(version=self._format_version)
+            )
         self._set_encoding()
         # Note 102 format will have a zero in this header position, so support
         # relies on little-endian being set whenever this value isn't one,
@@ -1453,20 +1504,26 @@ class StataReader(StataParser, abc.Iterator):
             self._typlist = [self.TYPE_MAP[typ] for typ in typlist]
         except ValueError as err:
             invalid_types = ",".join([str(x) for x in typlist])
-            raise ValueError(f"cannot convert stata types [{invalid_types}]") from err
+            raise ValueError(
+                f"cannot convert stata types [{invalid_types}]"
+            ) from err
         try:
             self._dtyplist = [self.DTYPE_MAP[typ] for typ in typlist]
         except ValueError as err:
             invalid_dtypes = ",".join([str(x) for x in typlist])
-            raise ValueError(f"cannot convert stata dtypes [{invalid_dtypes}]") from err
+            raise ValueError(
+                f"cannot convert stata dtypes [{invalid_dtypes}]"
+            ) from err
 
         if self._format_version > 108:
             self._varlist = [
-                self._decode(self._path_or_buf.read(33)) for _ in range(self._nvar)
+                self._decode(self._path_or_buf.read(33))
+                for _ in range(self._nvar)
             ]
         else:
             self._varlist = [
-                self._decode(self._path_or_buf.read(9)) for _ in range(self._nvar)
+                self._decode(self._path_or_buf.read(9))
+                for _ in range(self._nvar)
             ]
         self._srtlist = self._read_int16_count(self._nvar + 1)[:-1]
 
@@ -1504,7 +1561,9 @@ class StataReader(StataParser, abc.Iterator):
         for i, typ in enumerate(self._typlist):
             if typ in self.NUMPY_TYPE_MAP:
                 typ = cast(str, typ)  # only strs in NUMPY_TYPE_MAP
-                dtypes.append((f"s{i}", f"{self._byteorder}{self.NUMPY_TYPE_MAP[typ]}"))
+                dtypes.append(
+                    (f"s{i}", f"{self._byteorder}{self.NUMPY_TYPE_MAP[typ]}")
+                )
             else:
                 dtypes.append((f"s{i}", f"S{typ}"))
         self._dtype = np.dtype(dtypes)
@@ -1560,10 +1619,14 @@ the string values returned are correct."""
             n = self._read_uint32()
             txtlen = self._read_uint32()
             off = np.frombuffer(
-                self._path_or_buf.read(4 * n), dtype=f"{self._byteorder}i4", count=n
+                self._path_or_buf.read(4 * n),
+                dtype=f"{self._byteorder}i4",
+                count=n,
             )
             val = np.frombuffer(
-                self._path_or_buf.read(4 * n), dtype=f"{self._byteorder}i4", count=n
+                self._path_or_buf.read(4 * n),
+                dtype=f"{self._byteorder}i4",
+                count=n,
             )
             ii = np.argsort(off)
             off = off[ii]
@@ -1596,7 +1659,9 @@ the string values returned are correct."""
             labname = self._decode(self._path_or_buf.read(9))
             self._path_or_buf.read(1)  # padding
             codes = np.frombuffer(
-                self._path_or_buf.read(2 * n), dtype=f"{self._byteorder}i2", count=n
+                self._path_or_buf.read(2 * n),
+                dtype=f"{self._byteorder}i2",
+                count=n,
             )
             self._value_label_dict[labname] = {}
             for i in range(n):
@@ -1769,7 +1834,9 @@ the string values returned are correct."""
         data = self._insert_strls(data)
 
         # Convert columns (if needed) to match input type
-        valid_dtypes = [i for i, dtyp in enumerate(self._dtyplist) if dtyp is not None]
+        valid_dtypes = [
+            i for i, dtyp in enumerate(self._dtyplist) if dtyp is not None
+        ]
         object_type = np.dtype(object)
         for idx in valid_dtypes:
             dtype = data.iloc[:, idx].dtype
@@ -1782,7 +1849,10 @@ the string values returned are correct."""
             for i, fmt in enumerate(self._fmtlist):
                 if any(fmt.startswith(date_fmt) for date_fmt in _date_formats):
                     data.isetitem(
-                        i, _stata_elapsed_date_to_datetime_vec(data.iloc[:, i], fmt)
+                        i,
+                        _stata_elapsed_date_to_datetime_vec(
+                            data.iloc[:, i], fmt
+                        ),
                     )
 
         if convert_categoricals:
@@ -1814,7 +1884,9 @@ the string values returned are correct."""
 
         return data
 
-    def _do_convert_missing(self, data: DataFrame, convert_missing: bool) -> DataFrame:
+    def _do_convert_missing(
+        self, data: DataFrame, convert_missing: bool
+    ) -> DataFrame:
         # missing code for double was different in version 105 and prior
         old_missingdouble = float.fromhex("0x1.0p333")
 
@@ -1851,7 +1923,9 @@ the string values returned are correct."""
 
             if convert_missing:  # Replacement follows Stata notation
                 missing_loc = np.nonzero(np.asarray(missing))[0]
-                umissing, umissing_loc = np.unique(series[missing], return_inverse=True)
+                umissing, umissing_loc = np.unique(
+                    series[missing], return_inverse=True
+                )
                 replacement = Series(series, dtype=object)
                 for j, um in enumerate(umissing):
                     if self._format_version <= 111:
@@ -1887,7 +1961,9 @@ the string values returned are correct."""
             data.isetitem(i, [self.GSO[str(k)] for k in data.iloc[:, i]])
         return data
 
-    def _do_select_columns(self, data: DataFrame, columns: Sequence[str]) -> DataFrame:
+    def _do_select_columns(
+        self, data: DataFrame, columns: Sequence[str]
+    ) -> DataFrame:
         if not self._column_selector_set:
             column_set = set(columns)
             if len(column_set) != len(columns):
@@ -1955,7 +2031,9 @@ the string values returned are correct."""
                         )
                     initial_categories = None
                 cat_data = Categorical(
-                    column, categories=initial_categories, ordered=order_categoricals
+                    column,
+                    categories=initial_categories,
+                    ordered=order_categoricals,
                 )
                 if initial_categories is None:
                     # If None here, then we need to match the cats in the Categorical
@@ -2204,7 +2282,9 @@ def _convert_datetime_to_stata_type(fmt: str) -> np.dtype:
         raise NotImplementedError(f"Format {fmt} not implemented")
 
 
-def _maybe_convert_to_int_keys(convert_dates: dict, varlist: list[Hashable]) -> dict:
+def _maybe_convert_to_int_keys(
+    convert_dates: dict, varlist: list[Hashable]
+) -> dict:
     new_dict = {}
     for key, value in convert_dates.items():
         if not convert_dates[key].startswith("%"):  # make sure proper fmts
@@ -2213,7 +2293,9 @@ def _maybe_convert_to_int_keys(convert_dates: dict, varlist: list[Hashable]) -> 
             new_dict[varlist.index(key)] = convert_dates[key]
         else:
             if not isinstance(key, int):
-                raise ValueError("convert_dates key must be a column or an integer")
+                raise ValueError(
+                    "convert_dates key must be a column or an integer"
+                )
             new_dict[key] = convert_dates[key]
     return new_dict
 
@@ -2255,7 +2337,10 @@ def _dtype_to_stata_type(dtype: np.dtype, column: Series) -> int:
 
 
 def _dtype_to_default_stata_fmt(
-    dtype: np.dtype, column: Series, dta_version: int = 114, force_strl: bool = False
+    dtype: np.dtype,
+    column: Series,
+    dta_version: int = 114,
+    force_strl: bool = False,
 ) -> str:
     """
     Map numpy dtype to stata's default format for this type. Not terribly
@@ -2285,7 +2370,9 @@ def _dtype_to_default_stata_fmt(
             if dta_version >= 117:
                 return "%9s"
             else:
-                raise ValueError(excessive_string_length_error.format(column.name))
+                raise ValueError(
+                    excessive_string_length_error.format(column.name)
+                )
         return "%" + str(max(itemsize, 1)) + "s"
     elif dtype == np.float64:
         return "%10.0g"
@@ -2637,7 +2724,9 @@ class StataWriter(StataParser):
         self.fmtlist: list[str] = []
         self.typlist: list[int] = []
         for col, dtype in dtypes.items():
-            self.fmtlist.append(_dtype_to_default_stata_fmt(dtype, self.data[col]))
+            self.fmtlist.append(
+                _dtype_to_default_stata_fmt(dtype, self.data[col])
+            )
             self.typlist.append(_dtype_to_stata_type(dtype, self.data[col]))
 
     def _prepare_pandas(self, data: DataFrame) -> None:
@@ -2692,7 +2781,9 @@ class StataWriter(StataParser):
             self._convert_dates, self.varlist
         )
         for key in self._convert_dates:
-            new_type = _convert_datetime_to_stata_type(self._convert_dates[key])
+            new_type = _convert_datetime_to_stata_type(
+                self._convert_dates[key]
+            )
             dtypes.iloc[key] = np.dtype(new_type)
 
         # Verify object arrays are strings and encode to bytes
@@ -2798,7 +2889,10 @@ supported types."""
             if self.handles.compression["method"] is not None:
                 # ZipFile creates a file (with the same name) for each write call.
                 # Write it first into a buffer and then write the buffer to the ZipFile.
-                self._output_file, self.handles.handle = self.handles.handle, BytesIO()
+                self._output_file, self.handles.handle = (
+                    self.handles.handle,
+                    BytesIO(),
+                )
                 self.handles.created_handles.append(self.handles.handle)
 
             try:
@@ -2823,9 +2917,9 @@ supported types."""
                 self._close()
             except Exception as exc:
                 self.handles.close()
-                if isinstance(self._fname, (str, os.PathLike)) and os.path.isfile(
-                    self._fname
-                ):
+                if isinstance(
+                    self._fname, (str, os.PathLike)
+                ) and os.path.isfile(self._fname):
                     try:
                         os.unlink(self._fname)
                     except OSError:
@@ -2972,7 +3066,9 @@ supported types."""
             if col in self._variable_labels:
                 label = self._variable_labels[col]
                 if len(label) > 80:
-                    raise ValueError("Variable labels must be 80 characters or fewer")
+                    raise ValueError(
+                        "Variable labels must be 80 characters or fewer"
+                    )
                 is_latin1 = all(ord(c) < 256 for c in label)
                 if not is_latin1:
                     raise ValueError(
@@ -3032,7 +3128,9 @@ supported types."""
         return self._null_terminate_str(s).encode(self._encoding)
 
 
-def _dtype_to_stata_type_117(dtype: np.dtype, column: Series, force_strl: bool) -> int:
+def _dtype_to_stata_type_117(
+    dtype: np.dtype, column: Series, force_strl: bool
+) -> int:
     """
     Converts dtype types to stata types. Returns the byte of the given ordinal.
     See TYPE_MAP and comments for an explanation. This is also explained in
@@ -3130,7 +3228,9 @@ class StataStrLWriter:
             byteorder = sys.byteorder
         self._byteorder = _set_endianness(byteorder)
         # Flag whether chosen byteorder matches the system on which we're running
-        self._native_byteorder = self._byteorder == _set_endianness(sys.byteorder)
+        self._native_byteorder = self._byteorder == _set_endianness(
+            sys.byteorder
+        )
 
         gso_v_type = "I"  # uint32
         gso_o_type = "Q"  # uint64
@@ -3406,7 +3506,11 @@ class StataWriter117(StataWriter):
         """Surround val with <tag></tag>"""
         if isinstance(val, str):
             val = bytes(val, "utf-8")
-        return bytes("<" + tag + ">", "utf-8") + val + bytes("</" + tag + ">", "utf-8")
+        return (
+            bytes("<" + tag + ">", "utf-8")
+            + val
+            + bytes("</" + tag + ">", "utf-8")
+        )
 
     def _update_map(self, tag: str) -> None:
         """Update map location for tag with file position"""
@@ -3425,13 +3529,19 @@ class StataWriter117(StataWriter):
         # ds_format - 117
         bio.write(self._tag(bytes(str(self._dta_version), "utf-8"), "release"))
         # byteorder
-        bio.write(self._tag((byteorder == ">" and "MSF") or "LSF", "byteorder"))
+        bio.write(
+            self._tag((byteorder == ">" and "MSF") or "LSF", "byteorder")
+        )
         # number of vars, 2 bytes in 117 and 118, 4 byte in 119
         nvar_type = "H" if self._dta_version <= 118 else "I"
-        bio.write(self._tag(struct.pack(byteorder + nvar_type, self.nvar), "K"))
+        bio.write(
+            self._tag(struct.pack(byteorder + nvar_type, self.nvar), "K")
+        )
         # 117 uses 4 bytes, 118 uses 8
         nobs_size = "I" if self._dta_version == 117 else "Q"
-        bio.write(self._tag(struct.pack(byteorder + nobs_size, self.nobs), "N"))
+        bio.write(
+            self._tag(struct.pack(byteorder + nobs_size, self.nobs), "N")
+        )
         # data label 81 bytes, char, null terminated
         label = data_label[:80] if data_label is not None else ""
         encoded_label = label.encode(self._encoding)
@@ -3522,7 +3632,9 @@ class StataWriter117(StataWriter):
     def _write_sortlist(self) -> None:
         self._update_map("sortlist")
         sort_size = 2 if self._dta_version < 119 else 4
-        self._write_bytes(self._tag(b"\x00" * sort_size * (self.nvar + 1), "sortlist"))
+        self._write_bytes(
+            self._tag(b"\x00" * sort_size * (self.nvar + 1), "sortlist")
+        )
 
     def _write_formats(self) -> None:
         self._update_map("formats")
@@ -3543,7 +3655,9 @@ class StataWriter117(StataWriter):
             if self._has_value_labels[i]:
                 name = self.varlist[i]
             name = self._null_terminate_str(name)
-            encoded_name = _pad_bytes_new(name[:32].encode(self._encoding), vl_len + 1)
+            encoded_name = _pad_bytes_new(
+                name[:32].encode(self._encoding), vl_len + 1
+            )
             bio.write(encoded_name)
         self._write_bytes(self._tag(bio.getvalue(), "value_label_names"))
 
@@ -3565,7 +3679,9 @@ class StataWriter117(StataWriter):
             if col in self._variable_labels:
                 label = self._variable_labels[col]
                 if len(label) > 80:
-                    raise ValueError("Variable labels must be 80 characters or fewer")
+                    raise ValueError(
+                        "Variable labels must be 80 characters or fewer"
+                    )
                 try:
                     encoded = label.encode(self._encoding)
                 except UnicodeEncodeError as err:
@@ -3634,7 +3750,10 @@ class StataWriter117(StataWriter):
 
         if convert_cols:
             ssw = StataStrLWriter(
-                data, convert_cols, version=self._dta_version, byteorder=self._byteorder
+                data,
+                convert_cols,
+                version=self._dta_version,
+                byteorder=self._byteorder,
             )
             tab, new_data = ssw.generate_table()
             data = new_data

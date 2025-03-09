@@ -73,14 +73,22 @@ class TestXport:
         tm.assert_frame_equal(data, data_csv, check_index_type=False)
 
         # Test incremental read with `read` method.
-        with read_sas(file01, index="SEQN", format="xport", iterator=True) as reader:
+        with read_sas(
+            file01, index="SEQN", format="xport", iterator=True
+        ) as reader:
             data = reader.read(10)
-        tm.assert_frame_equal(data, data_csv.iloc[0:10, :], check_index_type=False)
+        tm.assert_frame_equal(
+            data, data_csv.iloc[0:10, :], check_index_type=False
+        )
 
         # Test incremental read with `get_chunk` method.
-        with read_sas(file01, index="SEQN", format="xport", chunksize=10) as reader:
+        with read_sas(
+            file01, index="SEQN", format="xport", chunksize=10
+        ) as reader:
             data = reader.get_chunk()
-        tm.assert_frame_equal(data, data_csv.iloc[0:10, :], check_index_type=False)
+        tm.assert_frame_equal(
+            data, data_csv.iloc[0:10, :], check_index_type=False
+        )
 
     def test1_incremental(self, datapath):
         # Test with DEMO_G.xpt, reading full file incrementally
@@ -150,4 +158,6 @@ class TestXport:
         # (despite the extension, it's a cpt file)
         msg = "Header record indicates a CPORT file, which is not readable."
         with pytest.raises(ValueError, match=msg):
-            read_sas(datapath("io", "sas", "data", "DEMO_PUF.cpt"), format="xport")
+            read_sas(
+                datapath("io", "sas", "data", "DEMO_PUF.cpt"), format="xport"
+            )

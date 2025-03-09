@@ -52,7 +52,9 @@ def invalid_comparison(
         res_values = np.ones(left.shape, dtype=bool)
     else:
         typ = type(right).__name__
-        raise TypeError(f"Invalid comparison between dtype={left.dtype} and {typ}")
+        raise TypeError(
+            f"Invalid comparison between dtype={left.dtype} and {typ}"
+        )
     return res_values
 
 

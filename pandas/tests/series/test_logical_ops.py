@@ -17,7 +17,9 @@ from pandas.core import ops
 
 
 class TestSeriesLogicalOps:
-    @pytest.mark.parametrize("bool_op", [operator.and_, operator.or_, operator.xor])
+    @pytest.mark.parametrize(
+        "bool_op", [operator.and_, operator.or_, operator.xor]
+    )
     def test_bool_operators_with_nas(self, bool_op):
         # boolean &, |, ^ should work with object arrays and propagate NAs
         ser = Series(bdate_range("1/1/2000", periods=10), dtype=object)
@@ -153,7 +155,8 @@ class TestSeriesLogicalOps:
 
         s_abNd = Series(["a", "b", np.nan, "d"])
         with pytest.raises(
-            TypeError, match="unsupported.* 'int' and 'str'|'rand_' not supported"
+            TypeError,
+            match="unsupported.* 'int' and 'str'|'rand_' not supported",
         ):
             s_0123 & s_abNd
 
@@ -268,7 +271,9 @@ class TestSeriesLogicalOps:
         s[::2] = np.nan
         d = DataFrame({"A": s})
 
-        expected = DataFrame(False, index=range(9), columns=["A"] + list(range(9)))
+        expected = DataFrame(
+            False, index=range(9), columns=["A"] + list(range(9))
+        )
 
         result = s & d
         tm.assert_frame_equal(result, expected)
@@ -288,7 +293,9 @@ class TestSeriesLogicalOps:
         result = op(ser, idx1)
         tm.assert_series_equal(result, expected)
 
-        expected = Series([op(ser[n], idx2[n]) for n in range(len(ser))], dtype=bool)
+        expected = Series(
+            [op(ser[n], idx2[n]) for n in range(len(ser))], dtype=bool
+        )
 
         result = op(ser, idx2)
         tm.assert_series_equal(result, expected)
@@ -415,7 +422,8 @@ class TestSeriesLogicalOps:
                 # TODO(infer_string) should this behave differently?
                 # -> https://github.com/pandas-dev/pandas/issues/60234
                 with pytest.raises(
-                    TypeError, match="not supported for dtype|unsupported operand type"
+                    TypeError,
+                    match="not supported for dtype|unsupported operand type",
                 ):
                     result = a[a | e]
             else:
@@ -465,18 +473,26 @@ class TestSeriesLogicalOps:
         tm.assert_series_equal(s2 & s1, exp)
 
         # True | np.nan => True
-        exp_or1 = Series([True, True, True, False], index=list("ABCD"), name="x")
+        exp_or1 = Series(
+            [True, True, True, False], index=list("ABCD"), name="x"
+        )
         tm.assert_series_equal(s1 | s2, exp_or1)
         # np.nan | True => np.nan, filled with False
-        exp_or = Series([True, True, False, False], index=list("ABCD"), name="x")
+        exp_or = Series(
+            [True, True, False, False], index=list("ABCD"), name="x"
+        )
         tm.assert_series_equal(s2 | s1, exp_or)
 
         # DataFrame doesn't fill nan with False
         tm.assert_frame_equal(s1.to_frame() & s2.to_frame(), exp.to_frame())
         tm.assert_frame_equal(s2.to_frame() & s1.to_frame(), exp.to_frame())
 
-        exp = DataFrame({"x": [True, True, np.nan, np.nan]}, index=list("ABCD"))
-        tm.assert_frame_equal(s1.to_frame() | s2.to_frame(), exp_or1.to_frame())
+        exp = DataFrame(
+            {"x": [True, True, np.nan, np.nan]}, index=list("ABCD")
+        )
+        tm.assert_frame_equal(
+            s1.to_frame() | s2.to_frame(), exp_or1.to_frame()
+        )
         tm.assert_frame_equal(s2.to_frame() | s1.to_frame(), exp_or.to_frame())
 
         # different length
@@ -488,7 +504,9 @@ class TestSeriesLogicalOps:
         tm.assert_series_equal(s4 & s3, exp)
 
         # np.nan | True => np.nan, filled with False
-        exp_or1 = Series([True, True, True, False], index=list("ABCD"), name="x")
+        exp_or1 = Series(
+            [True, True, True, False], index=list("ABCD"), name="x"
+        )
         tm.assert_series_equal(s3 | s4, exp_or1)
         # True | np.nan => True
         exp_or = Series([True, True, True, True], index=list("ABCD"), name="x")
@@ -497,7 +515,9 @@ class TestSeriesLogicalOps:
         tm.assert_frame_equal(s3.to_frame() & s4.to_frame(), exp.to_frame())
         tm.assert_frame_equal(s4.to_frame() & s3.to_frame(), exp.to_frame())
 
-        tm.assert_frame_equal(s3.to_frame() | s4.to_frame(), exp_or1.to_frame())
+        tm.assert_frame_equal(
+            s3.to_frame() | s4.to_frame(), exp_or1.to_frame()
+        )
         tm.assert_frame_equal(s4.to_frame() | s3.to_frame(), exp_or.to_frame())
 
     def test_int_dtype_different_index_not_bool(self):

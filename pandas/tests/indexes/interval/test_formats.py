@@ -21,12 +21,19 @@ class TestIntervalIndexRendering:
         [
             (
                 Series,
-                ("(0.0, 1.0]    a\nNaN           b\n(2.0, 3.0]    c\ndtype: object"),
+                (
+                    "(0.0, 1.0]    a\nNaN           b\n(2.0, 3.0]    c\ndtype: object"
+                ),
             ),
-            (DataFrame, ("            0\n(0.0, 1.0]  a\nNaN         b\n(2.0, 3.0]  c")),
+            (
+                DataFrame,
+                ("            0\n(0.0, 1.0]  a\nNaN         b\n(2.0, 3.0]  c"),
+            ),
         ],
     )
-    def test_repr_missing(self, constructor, expected, using_infer_string, request):
+    def test_repr_missing(
+        self, constructor, expected, using_infer_string, request
+    ):
         # GH 25984
         if using_infer_string and constructor is Series:
             request.applymarker(pytest.mark.xfail(reason="repr different"))
@@ -51,7 +58,9 @@ class TestIntervalIndexRendering:
             ),
         )
         result = str(markers)
-        expected = "(329.973, 345.137]    1\n(345.137, 360.191]    2\ndtype: int64"
+        expected = (
+            "(329.973, 345.137]    1\n(345.137, 360.191]    2\ndtype: int64"
+        )
         assert result == expected
 
     @pytest.mark.filterwarnings(

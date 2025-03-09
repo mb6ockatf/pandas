@@ -49,7 +49,9 @@ class ConstructorTests:
         ],
     )
     @pytest.mark.parametrize("name", [None, "foo"])
-    def test_constructor(self, constructor, breaks_and_expected_subtype, closed, name):
+    def test_constructor(
+        self, constructor, breaks_and_expected_subtype, closed, name
+    ):
         breaks, expected_subtype = breaks_and_expected_subtype
 
         result_kwargs = self.get_kwargs_from_breaks(breaks, closed)
@@ -59,8 +61,12 @@ class ConstructorTests:
         assert result.closed == closed
         assert result.name == name
         assert result.dtype.subtype == expected_subtype
-        tm.assert_index_equal(result.left, Index(breaks[:-1], dtype=expected_subtype))
-        tm.assert_index_equal(result.right, Index(breaks[1:], dtype=expected_subtype))
+        tm.assert_index_equal(
+            result.left, Index(breaks[:-1], dtype=expected_subtype)
+        )
+        tm.assert_index_equal(
+            result.right, Index(breaks[1:], dtype=expected_subtype)
+        )
 
     @pytest.mark.parametrize(
         "breaks, subtype",
@@ -102,10 +108,14 @@ class ConstructorTests:
 
         for dtype in (iv_dtype, str(iv_dtype)):
             with tm.assert_produces_warning(None):
-                result = constructor(dtype=dtype, closed="left", **result_kwargs)
+                result = constructor(
+                    dtype=dtype, closed="left", **result_kwargs
+                )
             assert result.dtype.closed == "left"
 
-    @pytest.mark.parametrize("breaks", [[np.nan] * 2, [np.nan] * 4, [np.nan] * 50])
+    @pytest.mark.parametrize(
+        "breaks", [[np.nan] * 2, [np.nan] * 4, [np.nan] * 50]
+    )
     def test_constructor_nan(self, constructor, breaks, closed):
         # GH 18421
         result_kwargs = self.get_kwargs_from_breaks(breaks)
@@ -153,13 +163,13 @@ class ConstructorTests:
     )
     def test_constructor_string(self, constructor, breaks):
         # GH 19016
-        msg = (
-            "category, object, and string subtypes are not supported for IntervalIndex"
-        )
+        msg = "category, object, and string subtypes are not supported for IntervalIndex"
         with pytest.raises(TypeError, match=msg):
             constructor(**self.get_kwargs_from_breaks(breaks))
 
-    @pytest.mark.parametrize("cat_constructor", [Categorical, CategoricalIndex])
+    @pytest.mark.parametrize(
+        "cat_constructor", [Categorical, CategoricalIndex]
+    )
     def test_constructor_categorical_valid(self, constructor, cat_constructor):
         # GH 21243/21253
 
@@ -222,9 +232,7 @@ class TestFromArrays(ConstructorTests):
     def test_constructor_errors(self):
         # GH 19016: categorical data
         data = Categorical(list("01234abcde"), ordered=True)
-        msg = (
-            "category, object, and string subtypes are not supported for IntervalIndex"
-        )
+        msg = "category, object, and string subtypes are not supported for IntervalIndex"
         with pytest.raises(TypeError, match=msg):
             IntervalIndex.from_arrays(data[:-1], data[1:])
 
@@ -236,7 +244,8 @@ class TestFromArrays(ConstructorTests):
             IntervalIndex.from_arrays(left, right)
 
     @pytest.mark.parametrize(
-        "left_subtype, right_subtype", [(np.int64, np.float64), (np.float64, np.int64)]
+        "left_subtype, right_subtype",
+        [(np.int64, np.float64), (np.float64, np.int64)],
     )
     def test_mixed_float_int(self, left_subtype, right_subtype):
         """mixed int/float left/right results in float for both sides"""
@@ -294,9 +303,7 @@ class TestFromBreaks(ConstructorTests):
     def test_constructor_errors(self):
         # GH 19016: categorical data
         data = Categorical(list("01234abcde"), ordered=True)
-        msg = (
-            "category, object, and string subtypes are not supported for IntervalIndex"
-        )
+        msg = "category, object, and string subtypes are not supported for IntervalIndex"
         with pytest.raises(TypeError, match=msg):
             IntervalIndex.from_breaks(data)
 
@@ -311,7 +318,10 @@ class TestFromBreaks(ConstructorTests):
         # GH#36310
         breaks = np.arange(5)
         result = IntervalIndex.from_breaks(breaks)._data
-        assert result._left.base is None or result._left.base is not result._right.base
+        assert (
+            result._left.base is None
+            or result._left.base is not result._right.base
+        )
 
 
 class TestFromTuples(ConstructorTests):
@@ -328,7 +338,9 @@ class TestFromTuples(ConstructorTests):
         specific to the format expected by IntervalIndex.from_tuples
         """
         if is_unsigned_integer_dtype(breaks):
-            pytest.skip(f"{breaks.dtype} not relevant IntervalIndex.from_tuples tests")
+            pytest.skip(
+                f"{breaks.dtype} not relevant IntervalIndex.from_tuples tests"
+            )
 
         if len(breaks) == 0:
             return {"data": breaks}
@@ -379,7 +391,9 @@ class TestClassConstructors(ConstructorTests):
         specific to the format expected by the IntervalIndex/Index constructors
         """
         if is_unsigned_integer_dtype(breaks):
-            pytest.skip(f"{breaks.dtype} not relevant for class constructor tests")
+            pytest.skip(
+                f"{breaks.dtype} not relevant for class constructor tests"
+            )
 
         if len(breaks) == 0:
             return {"data": breaks}
@@ -438,11 +452,17 @@ class TestClassConstructors(ConstructorTests):
             ([], "both"),
             ([np.nan, np.nan], "neither"),
             (
-                [Interval(0, 3, closed="neither"), Interval(2, 5, closed="neither")],
+                [
+                    Interval(0, 3, closed="neither"),
+                    Interval(2, 5, closed="neither"),
+                ],
                 "left",
             ),
             (
-                [Interval(0, 3, closed="left"), Interval(2, 5, closed="right")],
+                [
+                    Interval(0, 3, closed="left"),
+                    Interval(2, 5, closed="right"),
+                ],
                 "neither",
             ),
             (IntervalIndex.from_breaks(range(5), closed="both"), "right"),
@@ -487,7 +507,9 @@ class TestClassConstructors(ConstructorTests):
 def test_interval_index_subtype(timezone, inclusive_endpoints_fixture):
     # GH#46999
     dates = date_range("2022", periods=3, tz=timezone)
-    dtype = f"interval[datetime64[ns, {timezone}], {inclusive_endpoints_fixture}]"
+    dtype = (
+        f"interval[datetime64[ns, {timezone}], {inclusive_endpoints_fixture}]"
+    )
     result = IntervalIndex.from_arrays(
         ["2022-01-01", "2022-01-02"],
         ["2022-01-02", "2022-01-03"],
@@ -515,13 +537,20 @@ def test_dtype_closed_mismatch():
 
 @pytest.mark.parametrize(
     "dtype",
-    ["Float64", pytest.param("float64[pyarrow]", marks=td.skip_if_no("pyarrow"))],
+    [
+        "Float64",
+        pytest.param("float64[pyarrow]", marks=td.skip_if_no("pyarrow")),
+    ],
 )
 def test_ea_dtype(dtype):
     # GH#56765
     bins = [(0.0, 0.4), (0.4, 0.6)]
     interval_dtype = IntervalDtype(subtype=dtype, closed="left")
-    result = IntervalIndex.from_tuples(bins, closed="left", dtype=interval_dtype)
+    result = IntervalIndex.from_tuples(
+        bins, closed="left", dtype=interval_dtype
+    )
     assert result.dtype == interval_dtype
-    expected = IntervalIndex.from_tuples(bins, closed="left").astype(interval_dtype)
+    expected = IntervalIndex.from_tuples(bins, closed="left").astype(
+        interval_dtype
+    )
     tm.assert_index_equal(result, expected)

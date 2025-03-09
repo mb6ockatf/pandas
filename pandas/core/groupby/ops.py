@@ -134,8 +134,12 @@ class WrappedCythonOp:
             "all": functools.partial(libgroupby.group_any_all, val_test="all"),
             "sum": "group_sum",
             "prod": "group_prod",
-            "idxmin": functools.partial(libgroupby.group_idxmin_idxmax, name="idxmin"),
-            "idxmax": functools.partial(libgroupby.group_idxmin_idxmax, name="idxmax"),
+            "idxmin": functools.partial(
+                libgroupby.group_idxmin_idxmax, name="idxmin"
+            ),
+            "idxmax": functools.partial(
+                libgroupby.group_idxmin_idxmax, name="idxmax"
+            ),
             "min": "group_min",
             "max": "group_max",
             "mean": "group_mean",
@@ -402,7 +406,9 @@ class WrappedCythonOp:
                 result_mask = result_mask.T
 
         out_shape = self._get_output_shape(ngroups, values)
-        func = self._get_cython_function(self.kind, self.how, values.dtype, is_numeric)
+        func = self._get_cython_function(
+            self.kind, self.how, values.dtype, is_numeric
+        )
         values = self._get_cython_vals(values)
         out_dtype = self._get_out_dtype(values.dtype)
 
@@ -490,7 +496,9 @@ class WrappedCythonOp:
             # see GH#40767. For idxmin/idxmax is handled specially via post-processing
             if result.dtype.kind in "iu" and not is_datetimelike:
                 # if the op keeps the int dtypes, we have to use 0
-                cutoff = max(0 if self.how in ["sum", "prod"] else 1, min_count)
+                cutoff = max(
+                    0 if self.how in ["sum", "prod"] else 1, min_count
+                )
                 empty_groups = counts < cutoff
                 if empty_groups.any():
                     if result_mask is not None:
@@ -517,7 +525,9 @@ class WrappedCythonOp:
     @final
     def _validate_axis(self, axis: AxisInt, values: ArrayLike) -> None:
         if values.ndim > 2:
-            raise NotImplementedError("number of dimensions is currently limited to 2")
+            raise NotImplementedError(
+                "number of dimensions is currently limited to 2"
+            )
         if values.ndim == 2:
             assert axis == 1, axis
         elif not is_1d_only_ea_dtype(values.dtype):
@@ -605,7 +615,9 @@ class BaseGrouper:
     def nkeys(self) -> int:
         return len(self.groupings)
 
-    def get_iterator(self, data: NDFrameT) -> Iterator[tuple[Hashable, NDFrameT]]:
+    def get_iterator(
+        self, data: NDFrameT
+    ) -> Iterator[tuple[Hashable, NDFrameT]]:
         """
         Groupby iterator
 
@@ -642,7 +654,9 @@ class BaseGrouper:
     @cache_readonly
     def indices(self) -> dict[Hashable, npt.NDArray[np.intp]]:
         """dict {group name -> group indices}"""
-        if len(self.groupings) == 1 and isinstance(self.result_index, CategoricalIndex):
+        if len(self.groupings) == 1 and isinstance(
+            self.result_index, CategoricalIndex
+        ):
             # This shows unused categories in indices GH#38642
             return self.groupings[0].indices
         codes_list = [ping.codes for ping in self.groupings]
@@ -754,7 +768,8 @@ class BaseGrouper:
     def result_index_and_ids(self) -> tuple[Index, npt.NDArray[np.intp]]:
         levels = [Index._with_infer(ping.uniques) for ping in self.groupings]
         obs = [
-            ping._observed or not ping._passed_categorical for ping in self.groupings
+            ping._observed or not ping._passed_categorical
+            for ping in self.groupings
         ]
         sorts = [ping._sort for ping in self.groupings]
         # When passed a categorical grouping, keep all categories
@@ -771,7 +786,9 @@ class BaseGrouper:
                 levels, self.codes, self.names, sorts
             )
         elif not any(obs):
-            result_index, ids = self._unob_index_and_ids(levels, self.codes, self.names)
+            result_index, ids = self._unob_index_and_ids(
+                levels, self.codes, self.names
+            )
         else:
             # Combine unobserved and observed parts
             names = self.names
@@ -814,7 +831,9 @@ class BaseGrouper:
                     if not sort
                 ]
                 if len(drop_levels) > 0:
-                    sorter = result_index._drop_level_numbers(drop_levels).argsort()
+                    sorter = result_index._drop_level_numbers(
+                        drop_levels
+                    ).argsort()
                 else:
                     sorter = result_index.argsort()
                 result_index = result_index.take(sorter)
@@ -843,7 +862,9 @@ class BaseGrouper:
     @cache_readonly
     def _observed_grouper(self) -> BaseGrouper:
         groupings = [ping.observed_grouping for ping in self.groupings]
-        grouper = BaseGrouper(self.axis, groupings, sort=self._sort, dropna=self.dropna)
+        grouper = BaseGrouper(
+            self.axis, groupings, sort=self._sort, dropna=self.dropna
+        )
         return grouper
 
     def _ob_index_and_ids(
@@ -857,7 +878,9 @@ class BaseGrouper:
         sort_in_compress = sorts[0] if consistent_sorting else False
         shape = tuple(len(level) for level in levels)
         group_index = get_group_index(codes, shape, sort=True, xnull=True)
-        ob_ids, obs_group_ids = compress_group_index(group_index, sort=sort_in_compress)
+        ob_ids, obs_group_ids = compress_group_index(
+            group_index, sort=sort_in_compress
+        )
         ob_ids = ensure_platform_int(ob_ids)
         ob_index_codes = decons_obs_group_ids(
             ob_ids, obs_group_ids, shape, codes, xnull=True
@@ -927,7 +950,9 @@ class BaseGrouper:
         """
         assert kind in ["transform", "aggregate"]
 
-        cy_op = WrappedCythonOp(kind=kind, how=how, has_dropped_na=self.has_dropped_na)
+        cy_op = WrappedCythonOp(
+            kind=kind, how=how, has_dropped_na=self.has_dropped_na
+        )
 
         return cy_op.cython_operation(
             values=values,
@@ -966,7 +991,9 @@ class BaseGrouper:
 
         npvalues = lib.maybe_convert_objects(result, try_float=False)
         if preserve_dtype:
-            out = maybe_cast_pointwise_result(npvalues, obj.dtype, numeric_only=True)
+            out = maybe_cast_pointwise_result(
+                npvalues, obj.dtype, numeric_only=True
+            )
         else:
             out = npvalues
         return out

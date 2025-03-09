@@ -208,7 +208,9 @@ def _isna(obj):
     elif isinstance(obj, ABCSeries):
         result = _isna_array(obj._values)
         # box
-        result = obj._constructor(result, index=obj.index, name=obj.name, copy=False)
+        result = obj._constructor(
+            result, index=obj.index, name=obj.name, copy=False
+        )
         return result
     elif isinstance(obj, ABCDataFrame):
         return obj.isna()
@@ -485,7 +487,9 @@ def _array_equivalent_float(left: np.ndarray, right: np.ndarray) -> bool:
     return bool(((left == right) | (np.isnan(left) & np.isnan(right))).all())
 
 
-def _array_equivalent_datetimelike(left: np.ndarray, right: np.ndarray) -> bool:
+def _array_equivalent_datetimelike(
+    left: np.ndarray, right: np.ndarray
+) -> bool:
     return np.array_equal(left.view("i8"), right.view("i8"))
 
 
@@ -682,14 +686,18 @@ def is_valid_na_for_dtype(obj, dtype: DtypeObj) -> bool:
         return not isinstance(obj, (np.datetime64, Decimal))
     elif dtype.kind in "iufc":
         # Numeric
-        return obj is not NaT and not isinstance(obj, (np.datetime64, np.timedelta64))
+        return obj is not NaT and not isinstance(
+            obj, (np.datetime64, np.timedelta64)
+        )
     elif dtype.kind == "b":
         # We allow pd.NA, None, np.nan in BooleanArray (same as IntervalDtype)
         return lib.is_float(obj) or obj is None or obj is libmissing.NA
 
     elif dtype == _dtype_str:
         # numpy string dtypes to avoid float np.nan
-        return not isinstance(obj, (np.datetime64, np.timedelta64, Decimal, float))
+        return not isinstance(
+            obj, (np.datetime64, np.timedelta64, Decimal, float)
+        )
 
     elif dtype == _dtype_object:
         # This is needed for Categorical, but is kind of weird
@@ -736,5 +744,6 @@ def isna_all(arr: ArrayLike) -> bool:
         checker = _isna_array  # type: ignore[assignment]
 
     return all(
-        checker(arr[i : i + chunk_len]).all() for i in range(0, total_len, chunk_len)
+        checker(arr[i : i + chunk_len]).all()
+        for i in range(0, total_len, chunk_len)
     )

@@ -90,7 +90,10 @@ class CParserWrapper(ParserBase):
             kwds.pop(key, None)
 
         kwds["dtype"] = ensure_dtype_objs(kwds.get("dtype", None))
-        if "dtype_backend" not in kwds or kwds["dtype_backend"] is lib.no_default:
+        if (
+            "dtype_backend" not in kwds
+            or kwds["dtype_backend"] is lib.no_default
+        ):
             kwds["dtype_backend"] = "numpy"
         if kwds["dtype_backend"] == "pyarrow":
             # Fail here loudly instead of in cython after reading
@@ -277,7 +280,9 @@ class CParserWrapper(ParserBase):
             # implicit index, no index names
             arrays = []
 
-            if self.index_col and self._reader.leading_cols != len(self.index_col):
+            if self.index_col and self._reader.leading_cols != len(
+                self.index_col
+            ):
                 raise ParserError(
                     "Could not construct index. Requested to use "
                     f"{len(self.index_col)} number of columns, but "
@@ -293,9 +298,11 @@ class CParserWrapper(ParserBase):
                 if self._should_parse_dates(i):
                     values = date_converter(
                         values,
-                        col=self.index_names[i]
-                        if self.index_names is not None
-                        else None,
+                        col=(
+                            self.index_names[i]
+                            if self.index_names is not None
+                            else None
+                        ),
                         dayfirst=self.dayfirst,
                         cache_dates=self.cache_dates,
                         date_format=self.date_format,
@@ -306,7 +313,9 @@ class CParserWrapper(ParserBase):
 
             names = _filter_usecols(self.usecols, names)
 
-            names = dedup_names(names, is_potential_multi_index(names, self.index_col))
+            names = dedup_names(
+                names, is_potential_multi_index(names, self.index_col)
+            )
 
             # rename dict keys
             data_tups = sorted(data.items())
@@ -315,7 +324,9 @@ class CParserWrapper(ParserBase):
             date_data = self._do_date_conversions(names, data)
 
             # maybe create a mi on the columns
-            column_names = self._maybe_make_multi_index_columns(names, self.col_names)
+            column_names = self._maybe_make_multi_index_columns(
+                names, self.col_names
+            )
 
         else:
             # rename dict keys
@@ -326,7 +337,9 @@ class CParserWrapper(ParserBase):
             # assert for mypy, orig_names is List or None, None would error in list(...)
             assert self.orig_names is not None
             names = list(self.orig_names)
-            names = dedup_names(names, is_potential_multi_index(names, self.index_col))
+            names = dedup_names(
+                names, is_potential_multi_index(names, self.index_col)
+            )
 
             names = _filter_usecols(self.usecols, names)
 
@@ -347,7 +360,11 @@ def _filter_usecols(usecols, names: SequenceT) -> SequenceT | list[Hashable]:
     # hackish
     usecols = evaluate_callable_usecols(usecols, names)
     if usecols is not None and len(names) != len(usecols):
-        return [name for i, name in enumerate(names) if i in usecols or name in usecols]
+        return [
+            name
+            for i, name in enumerate(names)
+            if i in usecols or name in usecols
+        ]
     return names
 
 
@@ -368,14 +385,18 @@ def _concatenate_chunks(
         arrs = [chunk.pop(name) for chunk in chunks]
         # Check each arr for consistent types.
         dtypes = {a.dtype for a in arrs}
-        non_cat_dtypes = {x for x in dtypes if not isinstance(x, CategoricalDtype)}
+        non_cat_dtypes = {
+            x for x in dtypes if not isinstance(x, CategoricalDtype)
+        }
 
         dtype = dtypes.pop()
         if isinstance(dtype, CategoricalDtype):
             result[name] = union_categoricals(arrs, sort_categories=False)
         else:
             result[name] = concat_compat(arrs)
-            if len(non_cat_dtypes) > 1 and result[name].dtype == np.dtype(object):
+            if len(non_cat_dtypes) > 1 and result[name].dtype == np.dtype(
+                object
+            ):
                 warning_columns.append(column_names[name])
 
     if warning_columns:
@@ -388,7 +409,9 @@ def _concatenate_chunks(
                 f"Specify dtype option on import or set low_memory=False."
             ]
         )
-        warnings.warn(warning_message, DtypeWarning, stacklevel=find_stack_level())
+        warnings.warn(
+            warning_message, DtypeWarning, stacklevel=find_stack_level()
+        )
     return result
 
 

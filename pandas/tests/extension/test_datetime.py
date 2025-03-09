@@ -76,7 +76,8 @@ def data_for_grouping(dtype):
     c = pd.Timestamp("2000-01-03")
     na = "NaT"
     return DatetimeArray._from_sequence(
-        np.array([b, b, na, na, a, a, b, c], dtype="datetime64[ns]"), dtype=dtype
+        np.array([b, b, na, na, a, a, b, c], dtype="datetime64[ns]"),
+        dtype=dtype,
     )
 
 
@@ -111,7 +112,9 @@ class TestDatetimeArray(base.ExtensionTests):
         meth = all_boolean_reductions
         msg = f"datetime64 type does not support operation '{meth}'"
         with pytest.raises(TypeError, match=msg):
-            super().test_reduce_series_boolean(data, all_boolean_reductions, skipna)
+            super().test_reduce_series_boolean(
+                data, all_boolean_reductions, skipna
+            )
 
     def test_series_constructor(self, data):
         # Series construction drops any .freq attr

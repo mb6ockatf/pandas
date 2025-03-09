@@ -59,7 +59,9 @@ def test_groupby_preserves_subclass(obj, groupby_func):
 
 def test_groupby_preserves_metadata():
     # GH-37343
-    custom_df = tm.SubclassedDataFrame({"a": [1, 2, 3], "b": [1, 1, 2], "c": [7, 8, 9]})
+    custom_df = tm.SubclassedDataFrame(
+        {"a": [1, 2, 3], "b": [1, 1, 2], "c": [7, 8, 9]}
+    )
     assert "testattr" in custom_df._metadata
     custom_df.testattr = "hello"
     for _, group_df in custom_df.groupby("c"):
@@ -73,7 +75,9 @@ def test_groupby_preserves_metadata():
         return group.testattr
 
     result = custom_df.groupby("c").apply(func)
-    expected = tm.SubclassedSeries(["hello"] * 3, index=Index([7, 8, 9], name="c"))
+    expected = tm.SubclassedSeries(
+        ["hello"] * 3, index=Index([7, 8, 9], name="c")
+    )
     tm.assert_series_equal(result, expected)
 
     result = custom_df.groupby("c").apply(func)
@@ -102,7 +106,9 @@ def test_groupby_resample_preserves_subclass(obj):
 
     df = obj(
         {
-            "Buyer": Series("Carl Carl Carl Carl Joe Carl".split(), dtype=object),
+            "Buyer": Series(
+                "Carl Carl Carl Carl Joe Carl".split(), dtype=object
+            ),
             "Quantity": [18, 3, 5, 1, 9, 3],
             "Date": [
                 datetime(2013, 9, 1, 13, 0),

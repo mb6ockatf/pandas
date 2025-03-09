@@ -120,7 +120,9 @@ def test_encoding_options(datapath):
             pass
     tm.assert_frame_equal(df1, df2)
 
-    with contextlib.closing(SAS7BDATReader(fname, convert_header_text=False)) as rdr:
+    with contextlib.closing(
+        SAS7BDATReader(fname, convert_header_text=False)
+    ) as rdr:
         df3 = rdr.read()
     for x, y in zip(df1.columns, df3.columns):
         assert x == y.decode()
@@ -246,7 +248,9 @@ def test_zero_rows(datapath, encoding):
     fname = datapath("io", "sas", "data", "zero_rows.sas7bdat")
     result = pd.read_sas(fname, encoding=encoding)
     str_value = b"a" if encoding is None else "a"
-    expected = pd.DataFrame([{"char_field": str_value, "num_field": 1.0}]).iloc[:0]
+    expected = pd.DataFrame(
+        [{"char_field": str_value, "num_field": 1.0}]
+    ).iloc[:0]
     tm.assert_frame_equal(result, expected)
 
 
@@ -259,7 +263,9 @@ def test_corrupt_read(datapath):
         pd.read_sas(fname)
 
 
-@pytest.mark.xfail(WASM, reason="failing with currently set tolerances on WASM")
+@pytest.mark.xfail(
+    WASM, reason="failing with currently set tolerances on WASM"
+)
 def test_max_sas_date(datapath):
     # GH 20927
     # NB. max datetime in SAS dataset is 31DEC9999:23:59:59.999
@@ -289,7 +295,13 @@ def test_max_sas_date(datapath):
                 dtype="M8[s]",
             ),
         },
-        columns=["text", "dt_as_float", "dt_as_dt", "date_as_float", "date_as_date"],
+        columns=[
+            "text",
+            "dt_as_float",
+            "dt_as_dt",
+            "date_as_float",
+            "date_as_date",
+        ],
     )
 
     if not IS64:
@@ -299,13 +311,21 @@ def test_max_sas_date(datapath):
     tm.assert_frame_equal(df, expected)
 
 
-@pytest.mark.xfail(WASM, reason="failing with currently set tolerances on WASM")
+@pytest.mark.xfail(
+    WASM, reason="failing with currently set tolerances on WASM"
+)
 def test_max_sas_date_iterator(datapath):
     # GH 20927
     # when called as an iterator, only those chunks with a date > pd.Timestamp.max
     # are returned as datetime.datetime, if this happens that whole chunk is returned
     # as datetime.datetime
-    col_order = ["text", "dt_as_float", "dt_as_dt", "date_as_float", "date_as_date"]
+    col_order = [
+        "text",
+        "dt_as_float",
+        "dt_as_dt",
+        "date_as_float",
+        "date_as_date",
+    ]
     fname = datapath("io", "sas", "data", "max_sas_date.sas7bdat")
     results = []
     for df in pd.read_sas(fname, encoding="iso-8859-1", chunksize=1):
@@ -318,10 +338,13 @@ def test_max_sas_date_iterator(datapath):
                 "text": ["max"],
                 "dt_as_float": [253717747199.999],
                 "dt_as_dt": np.array(
-                    [datetime(9999, 12, 29, 23, 59, 59, 999000)], dtype="M8[ms]"
+                    [datetime(9999, 12, 29, 23, 59, 59, 999000)],
+                    dtype="M8[ms]",
                 ),
                 "date_as_float": [2936547.0],
-                "date_as_date": np.array([datetime(9999, 12, 29)], dtype="M8[s]"),
+                "date_as_date": np.array(
+                    [datetime(9999, 12, 29)], dtype="M8[s]"
+                ),
             },
             columns=col_order,
         ),
@@ -329,7 +352,9 @@ def test_max_sas_date_iterator(datapath):
             {
                 "text": ["normal"],
                 "dt_as_float": [1880323199.999],
-                "dt_as_dt": np.array(["2019-08-01 23:59:59.999"], dtype="M8[ms]"),
+                "dt_as_dt": np.array(
+                    ["2019-08-01 23:59:59.999"], dtype="M8[ms]"
+                ),
                 "date_as_float": [21762.0],
                 "date_as_date": np.array(["2019-08-01"], dtype="M8[s]"),
             },

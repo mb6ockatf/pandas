@@ -148,7 +148,11 @@ Look,a snake,🐍"""
 ©,®,®
 Look,a snake,🐍"""
         expected = pd.DataFrame(
-            {"a": ["1", "©", "Look"], "b": ["2", "®", "a snake"], "c": ["3", "®", "🐍"]}
+            {
+                "a": ["1", "©", "Look"],
+                "b": ["2", "®", "a snake"],
+                "c": ["3", "®", "🐍"],
+            }
         )
         s = StringIO(data)
         with icom.get_handle(s, "rb", is_text=False) as handles:
@@ -198,9 +202,7 @@ Look,a snake,🐍"""
             rf"'.+does_not_exist\.{fn_ext}'"
         )
         msg6 = rf"\[Errno 2\] 没有那个文件或目录: '.+does_not_exist\.{fn_ext}'"
-        msg7 = (
-            rf"\[Errno 2\] File o directory non esistente: '.+does_not_exist\.{fn_ext}'"
-        )
+        msg7 = rf"\[Errno 2\] File o directory non esistente: '.+does_not_exist\.{fn_ext}'"
         msg8 = rf"Failed to open local file.+does_not_exist\.{fn_ext}"
 
         with pytest.raises(
@@ -223,12 +225,18 @@ Look,a snake,🐍"""
         ],
     )
     # NOTE: Missing parent directory for pd.DataFrame.to_hdf is handled by PyTables
-    def test_write_missing_parent_directory(self, method, module, error_class, fn_ext):
+    def test_write_missing_parent_directory(
+        self, method, module, error_class, fn_ext
+    ):
         pytest.importorskip(module)
 
-        dummy_frame = pd.DataFrame({"a": [1, 2, 3], "b": [2, 3, 4], "c": [3, 4, 5]})
+        dummy_frame = pd.DataFrame(
+            {"a": [1, 2, 3], "b": [2, 3, 4], "c": [3, 4, 5]}
+        )
 
-        path = os.path.join(HERE, "data", "missing_folder", "does_not_exist." + fn_ext)
+        path = os.path.join(
+            HERE, "data", "missing_folder", "does_not_exist." + fn_ext
+        )
 
         with pytest.raises(
             error_class,
@@ -258,7 +266,9 @@ Look,a snake,🐍"""
         pytest.importorskip(module)
 
         path = os.path.join("~", "does_not_exist." + fn_ext)
-        monkeypatch.setattr(icom, "_expand_user", lambda x: os.path.join("foo", x))
+        monkeypatch.setattr(
+            icom, "_expand_user", lambda x: os.path.join("foo", x)
+        )
 
         msg1 = rf"File (b')?.+does_not_exist\.{fn_ext}'? does not exist"
         msg2 = rf"\[Errno 2\] No such file or directory: '.+does_not_exist\.{fn_ext}'"
@@ -269,9 +279,7 @@ Look,a snake,🐍"""
             rf"'.+does_not_exist\.{fn_ext}'"
         )
         msg6 = rf"\[Errno 2\] 没有那个文件或目录: '.+does_not_exist\.{fn_ext}'"
-        msg7 = (
-            rf"\[Errno 2\] File o directory non esistente: '.+does_not_exist\.{fn_ext}'"
-        )
+        msg7 = rf"\[Errno 2\] File o directory non esistente: '.+does_not_exist\.{fn_ext}'"
         msg8 = rf"Failed to open local file.+does_not_exist\.{fn_ext}"
 
         with pytest.raises(
@@ -335,7 +343,11 @@ Look,a snake,🐍"""
             ("to_json", {}, "os"),
             ("to_latex", {}, "os"),
             ("to_pickle", {}, "os"),
-            ("to_stata", {"time_stamp": pd.to_datetime("2019-01-01 00:00")}, "os"),
+            (
+                "to_stata",
+                {"time_stamp": pd.to_datetime("2019-01-01 00:00")},
+                "os",
+            ),
         ],
     )
     def test_write_fspath_all(self, writer_name, writer_kwargs, module):
@@ -474,7 +486,9 @@ class TestMMapWrapper:
             index=pd.Index([f"i-{i}" for i in range(30)]),
         )
         with tm.ensure_clean() as path:
-            with tm.assert_produces_warning(UnicodeWarning, match="byte order mark"):
+            with tm.assert_produces_warning(
+                UnicodeWarning, match="byte order mark"
+            ):
                 df.to_csv(path, compression=compression_, encoding=encoding)
 
             # reading should fail (otherwise we wouldn't need the warning)
@@ -505,8 +519,12 @@ def test_is_fsspec_url_chained():
     # GH#48978 Support chained fsspec URLs
     # See https://filesystem-spec.readthedocs.io/en/latest/features.html#url-chaining.
     assert icom.is_fsspec_url("filecache::s3://pandas/test.csv")
-    assert icom.is_fsspec_url("zip://test.csv::filecache::gcs://bucket/file.zip")
-    assert icom.is_fsspec_url("filecache::zip://test.csv::gcs://bucket/file.zip")
+    assert icom.is_fsspec_url(
+        "zip://test.csv::filecache::gcs://bucket/file.zip"
+    )
+    assert icom.is_fsspec_url(
+        "filecache::zip://test.csv::gcs://bucket/file.zip"
+    )
     assert icom.is_fsspec_url("filecache::dask::s3://pandas/test.csv")
     assert not icom.is_fsspec_url("filecache:s3://pandas/test.csv")
     assert not icom.is_fsspec_url("filecache:::s3://pandas/test.csv")
@@ -579,7 +597,14 @@ def test_encoding_errors(encoding_errors, format):
     bad_encoding = b"\xe4"
 
     if format == "csv":
-        content = b"," + bad_encoding + b"\n" + bad_encoding * 2 + b"," + bad_encoding
+        content = (
+            b","
+            + bad_encoding
+            + b"\n"
+            + bad_encoding * 2
+            + b","
+            + bad_encoding
+        )
         reader = partial(pd.read_csv, index_col=0)
     else:
         content = (
@@ -688,10 +713,15 @@ def test_pyarrow_read_csv_datetime_dtype():
     # GH 59904
     data = '"date"\n"20/12/2025"\n""\n"31/12/2020"'
     result = pd.read_csv(
-        StringIO(data), parse_dates=["date"], dayfirst=True, dtype_backend="pyarrow"
+        StringIO(data),
+        parse_dates=["date"],
+        dayfirst=True,
+        dtype_backend="pyarrow",
     )
 
-    expect_data = pd.to_datetime(["20/12/2025", pd.NaT, "31/12/2020"], dayfirst=True)
+    expect_data = pd.to_datetime(
+        ["20/12/2025", pd.NaT, "31/12/2020"], dayfirst=True
+    )
     expect = pd.DataFrame({"date": expect_data})
 
     tm.assert_frame_equal(expect, result)

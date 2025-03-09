@@ -118,7 +118,9 @@ class TestLoc:
     @pytest.mark.parametrize(
         "key", [[0, 1, 2], [0, 2, 10], [3, 6, 7], [(1, 3), (1, 4), (2, 5)]]
     )
-    def test_loc_getitem_label_list_with_missing(self, key, index, frame_or_series):
+    def test_loc_getitem_label_list_with_missing(
+        self, key, index, frame_or_series
+    ):
         if index is None:
             obj = frame_or_series()
         else:
@@ -161,12 +163,29 @@ class TestLoc:
                 1,
                 TypeError,
             ],
-            [slice(2, 8), [Index([2, 4, "null", 8], dtype=object)], 0, TypeError],
-            [slice(2, 8), [Index([2, 4, "null", 8], dtype=object)], 1, KeyError],
-            [slice(2, 4, 2), [Index([2, 4, "null", 8], dtype=object)], 0, TypeError],
+            [
+                slice(2, 8),
+                [Index([2, 4, "null", 8], dtype=object)],
+                0,
+                TypeError,
+            ],
+            [
+                slice(2, 8),
+                [Index([2, 4, "null", 8], dtype=object)],
+                1,
+                KeyError,
+            ],
+            [
+                slice(2, 4, 2),
+                [Index([2, 4, "null", 8], dtype=object)],
+                0,
+                TypeError,
+            ],
         ],
     )
-    def test_loc_getitem_label_slice(self, slc, indexes, axes, fails, frame_or_series):
+    def test_loc_getitem_label_slice(
+        self, slc, indexes, axes, fails, frame_or_series
+    ):
         # label slices (with ints)
 
         # real label slices
@@ -194,7 +213,9 @@ class TestLoc:
         )
         df.loc[1, "col1"] = np.arange(2)
         expected = DataFrame(
-            [[20, "a"], [0, "a"], [1, "a"]], columns=["col1", "col2"], index=[10, 1, 1]
+            [[20, "a"], [0, "a"], [1, "a"]],
+            columns=["col1", "col2"],
+            index=[10, 1, 1],
         )
         tm.assert_frame_equal(df, expected)
 
@@ -238,7 +259,11 @@ class TestLoc:
                 Series([1], name=False),
             ),
             (Series([1], index=Index([False])), False, [1]),
-            (DataFrame([[1]], index=Index([False])), False, Series([1], name=False)),
+            (
+                DataFrame([[1]], index=Index([False])),
+                False,
+                Series([1], name=False),
+            ),
         ],
     )
     def test_loc_getitem_single_boolean_arg(self, obj, key, exp):
@@ -262,22 +287,39 @@ class TestLocBaseIndependent:
     @pytest.mark.parametrize(
         "msg, key",
         [
-            (r"Period\('2019', 'Y-DEC'\), 'foo', 'bar'", (Period(2019), "foo", "bar")),
-            (r"Period\('2019', 'Y-DEC'\), 'y1', 'bar'", (Period(2019), "y1", "bar")),
-            (r"Period\('2019', 'Y-DEC'\), 'foo', 'z1'", (Period(2019), "foo", "z1")),
+            (
+                r"Period\('2019', 'Y-DEC'\), 'foo', 'bar'",
+                (Period(2019), "foo", "bar"),
+            ),
+            (
+                r"Period\('2019', 'Y-DEC'\), 'y1', 'bar'",
+                (Period(2019), "y1", "bar"),
+            ),
+            (
+                r"Period\('2019', 'Y-DEC'\), 'foo', 'z1'",
+                (Period(2019), "foo", "z1"),
+            ),
             (
                 r"Period\('2018', 'Y-DEC'\), Period\('2016', 'Y-DEC'\), 'bar'",
                 (Period(2018), Period(2016), "bar"),
             ),
-            (r"Period\('2018', 'Y-DEC'\), 'foo', 'y1'", (Period(2018), "foo", "y1")),
+            (
+                r"Period\('2018', 'Y-DEC'\), 'foo', 'y1'",
+                (Period(2018), "foo", "y1"),
+            ),
             (
                 r"Period\('2017', 'Y-DEC'\), 'foo', Period\('2015', 'Y-DEC'\)",
                 (Period(2017), "foo", Period(2015)),
             ),
-            (r"Period\('2017', 'Y-DEC'\), 'z1', 'bar'", (Period(2017), "z1", "bar")),
+            (
+                r"Period\('2017', 'Y-DEC'\), 'z1', 'bar'",
+                (Period(2017), "z1", "bar"),
+            ),
         ],
     )
-    def test_contains_raise_error_if_period_index_is_in_multi_index(self, msg, key):
+    def test_contains_raise_error_if_period_index_is_in_multi_index(
+        self, msg, key
+    ):
         # GH#20684
         """
         parse_datetime_string_with_reso return parameter if type not matched.
@@ -373,7 +415,9 @@ class TestLocBaseIndependent:
         # GH10503
 
         # assigning the same type should not change the type
-        df1 = DataFrame({"a": [0, 1, 1], "b": Series([100, 200, 300], dtype="uint32")})
+        df1 = DataFrame(
+            {"a": [0, 1, 1], "b": Series([100, 200, 300], dtype="uint32")}
+        )
         ix = df1["a"] == 1
         newb1 = df1.loc[ix, "b"] + 1
         df1.loc[ix, "b"] = newb1
@@ -419,11 +463,15 @@ class TestLocBaseIndependent:
         with pytest.raises(KeyError, match="not in index"):
             s[[0, 3]]
 
-    @pytest.mark.parametrize("index", [[True, False], [True, False, True, False]])
+    @pytest.mark.parametrize(
+        "index", [[True, False], [True, False, True, False]]
+    )
     def test_loc_getitem_bool_diff_len(self, index):
         # GH26658
         s = Series([1, 2, 3])
-        msg = f"Boolean index has wrong length: {len(index)} instead of {len(s)}"
+        msg = (
+            f"Boolean index has wrong length: {len(index)} instead of {len(s)}"
+        )
         with pytest.raises(IndexError, match=msg):
             s.loc[index]
 
@@ -508,7 +556,9 @@ class TestLocBaseIndependent:
 
         s.loc[[2]]
 
-        msg = "None of [RangeIndex(start=3, stop=4, step=1)] are in the [index]"
+        msg = (
+            "None of [RangeIndex(start=3, stop=4, step=1)] are in the [index]"
+        )
         with pytest.raises(KeyError, match=re.escape(msg)):
             s.loc[[3]]
 
@@ -566,7 +616,11 @@ class TestLocBaseIndependent:
 
     @pytest.mark.parametrize(
         "val",
-        [0, np.array(0, dtype=np.int64), np.array([0, 0, 0, 0, 0], dtype=np.int64)],
+        [
+            0,
+            np.array(0, dtype=np.int64),
+            np.array([0, 0, 0, 0, 0], dtype=np.int64),
+        ],
     )
     def test_loc_setitem_consistency(self, frame_for_consistency, val):
         # GH 6149
@@ -583,7 +637,9 @@ class TestLocBaseIndependent:
         with pytest.raises(TypeError, match="Invalid value"):
             df.loc[:, "date"] = "foo"
 
-    def test_loc_setitem_consistency_dt64_to_float(self, frame_for_consistency):
+    def test_loc_setitem_consistency_dt64_to_float(
+        self, frame_for_consistency
+    ):
         # GH 6149
         # coerce similarly for setitem and loc when rows have a null-slice
         df = frame_for_consistency.copy()
@@ -613,7 +669,9 @@ class TestLocBaseIndependent:
         expected["x"] = expected["x"].astype(np.int64)
         tm.assert_frame_equal(df, expected)
 
-    def test_loc_setitem_consistency_slice_column_len(self, using_infer_string):
+    def test_loc_setitem_consistency_slice_column_len(
+        self, using_infer_string
+    ):
         # .loc[:,column] setting with slice == len of the column
         # GH10408
         levels = [
@@ -621,7 +679,9 @@ class TestLocBaseIndependent:
             ["Site_1", "Site_1", "Site_2", "Site_2"],
             [3987227376, 3980680971, 3977723249, 3977723089],
         ]
-        mi = MultiIndex.from_arrays(levels, names=["Region", "Site", "RespondentID"])
+        mi = MultiIndex.from_arrays(
+            levels, names=["Region", "Site", "RespondentID"]
+        )
 
         clevels = [
             ["Respondent", "Respondent", "Respondent", "OtherCat", "OtherCat"],
@@ -669,7 +729,9 @@ class TestLocBaseIndependent:
                 :, ("Respondent", "Duration")
             ] / Timedelta(60_000_000_000)
 
-    @pytest.mark.parametrize("unit", ["Y", "M", "D", "h", "m", "s", "ms", "us"])
+    @pytest.mark.parametrize(
+        "unit", ["Y", "M", "D", "h", "m", "s", "ms", "us"]
+    )
     def test_loc_assign_non_ns_datetime(self, unit):
         # GH 27395, non-ns dtype assignment via .loc should work
         # and return the same result when using simple assignment
@@ -682,28 +744,57 @@ class TestLocBaseIndependent:
             }
         )
 
-        df.loc[:, unit] = df.loc[:, "timestamp"].values.astype(f"datetime64[{unit}]")
-        df["expected"] = df.loc[:, "timestamp"].values.astype(f"datetime64[{unit}]")
+        df.loc[:, unit] = df.loc[:, "timestamp"].values.astype(
+            f"datetime64[{unit}]"
+        )
+        df["expected"] = df.loc[:, "timestamp"].values.astype(
+            f"datetime64[{unit}]"
+        )
         expected = Series(df.loc[:, "expected"], name=unit)
         tm.assert_series_equal(df.loc[:, unit], expected)
 
     def test_loc_modify_datetime(self):
         # see gh-28837
         df = DataFrame.from_dict(
-            {"date": [1485264372711, 1485265925110, 1540215845888, 1540282121025]}
+            {
+                "date": [
+                    1485264372711,
+                    1485265925110,
+                    1540215845888,
+                    1540282121025,
+                ]
+            }
         )
 
-        df["date_dt"] = to_datetime(df["date"], unit="ms", cache=True).dt.as_unit("ms")
+        df["date_dt"] = to_datetime(
+            df["date"], unit="ms", cache=True
+        ).dt.as_unit("ms")
 
         df.loc[:, "date_dt_cp"] = df.loc[:, "date_dt"]
         df.loc[[2, 3], "date_dt_cp"] = df.loc[[2, 3], "date_dt"]
 
         expected = DataFrame(
             [
-                [1485264372711, "2017-01-24 13:26:12.711", "2017-01-24 13:26:12.711"],
-                [1485265925110, "2017-01-24 13:52:05.110", "2017-01-24 13:52:05.110"],
-                [1540215845888, "2018-10-22 13:44:05.888", "2018-10-22 13:44:05.888"],
-                [1540282121025, "2018-10-23 08:08:41.025", "2018-10-23 08:08:41.025"],
+                [
+                    1485264372711,
+                    "2017-01-24 13:26:12.711",
+                    "2017-01-24 13:26:12.711",
+                ],
+                [
+                    1485265925110,
+                    "2017-01-24 13:52:05.110",
+                    "2017-01-24 13:52:05.110",
+                ],
+                [
+                    1540215845888,
+                    "2018-10-22 13:44:05.888",
+                    "2018-10-22 13:44:05.888",
+                ],
+                [
+                    1540282121025,
+                    "2018-10-23 08:08:41.025",
+                    "2018-10-23 08:08:41.025",
+                ],
             ],
             columns=["date", "date_dt", "date_dt_cp"],
         )
@@ -743,7 +834,9 @@ class TestLocBaseIndependent:
         df.loc[slice(3, 0, -1), "A"] = np.array([1, 2, 3], dtype="int64")
         # pre-2.0 this setting swapped in a new array, now it is inplace
         #  consistent with non-split-path
-        expected = DataFrame({"A": [3.0, 2.0, 1.0], "B": "string"}, index=[1, 2, 3])
+        expected = DataFrame(
+            {"A": [3.0, 2.0, 1.0], "B": "string"}, index=[1, 2, 3]
+        )
         tm.assert_frame_equal(df, expected)
 
     def test_loc_setitem_empty_frame(self):
@@ -766,9 +859,9 @@ class TestLocBaseIndependent:
         #  is inplace, so that dtype is retained
         sera = Series(val1, index=keys1, dtype=np.float64)
         serb = Series(val2, index=keys2)
-        expected = DataFrame({"A": sera, "B": serb}, columns=Index(["A", "B"])).reindex(
-            index=index
-        )
+        expected = DataFrame(
+            {"A": sera, "B": serb}, columns=Index(["A", "B"])
+        ).reindex(index=index)
         tm.assert_frame_equal(df, expected)
 
     def test_loc_setitem_frame(self):
@@ -824,7 +917,10 @@ class TestLocBaseIndependent:
         rhs.index = df.index[0:2]
         df.loc[0:1] = rhs
         expected = DataFrame(
-            {"A": ["bar", "baz", "baz"], "B": Series([1, 2, 2], dtype=np.int64)}
+            {
+                "A": ["bar", "baz", "baz"],
+                "B": Series([1, 2, 2], dtype=np.int64),
+            }
         )
         tm.assert_frame_equal(df, expected)
 
@@ -863,7 +959,9 @@ class TestLocBaseIndependent:
         # elementwisely, not using "setter('A', ['Z'])".
 
         # Set object dtype to avoid upcast when setting 'Z'
-        df = DataFrame([[1, 2], [3, 4]], columns=["A", "B"]).astype({"A": object})
+        df = DataFrame([[1, 2], [3, 4]], columns=["A", "B"]).astype(
+            {"A": object}
+        )
         df.loc[0, indexer] = value
         result = df.loc[0, "A"]
 
@@ -884,7 +982,11 @@ class TestLocBaseIndependent:
                 (1, ["C", "D"]),
                 [7, 8],
                 DataFrame(
-                    [[1, 2, np.nan, np.nan], [3, 4, 7, 8], [5, 6, np.nan, np.nan]],
+                    [
+                        [1, 2, np.nan, np.nan],
+                        [3, 4, 7, 8],
+                        [5, 6, np.nan, np.nan],
+                    ],
                     columns=["A", "B", "C", "D"],
                 ),
             ),
@@ -892,7 +994,8 @@ class TestLocBaseIndependent:
                 (1, ["A", "B", "C"]),
                 np.array([7, 8, 9], dtype=np.int64),
                 DataFrame(
-                    [[1, 2, np.nan], [7, 8, 9], [5, 6, np.nan]], columns=["A", "B", "C"]
+                    [[1, 2, np.nan], [7, 8, 9], [5, 6, np.nan]],
+                    columns=["A", "B", "C"],
                 ),
             ),
             (
@@ -915,7 +1018,8 @@ class TestLocBaseIndependent:
                 (slice(None, None, None), ["A", "C"]),
                 DataFrame([[7, 8], [9, 10], [11, 12]], columns=["A", "C"]),
                 DataFrame(
-                    [[7, 2, 8], [9, 4, 10], [11, 6, 12]], columns=["A", "B", "C"]
+                    [[7, 2, 8], [9, 4, 10], [11, 6, 12]],
+                    columns=["A", "B", "C"],
                 ),
             ),
         ],
@@ -929,7 +1033,9 @@ class TestLocBaseIndependent:
 
     def test_loc_coercion(self):
         # GH#12411
-        df = DataFrame({"date": [Timestamp("20130101").tz_localize("UTC"), pd.NaT]})
+        df = DataFrame(
+            {"date": [Timestamp("20130101").tz_localize("UTC"), pd.NaT]}
+        )
         expected = df.dtypes
 
         result = df.iloc[[0]]
@@ -981,7 +1087,8 @@ class TestLocBaseIndependent:
 
         # these are going to raise because the we are non monotonic
         df = DataFrame(
-            {"A": [1, 2, 3, 4, 5, 6], "B": [3, 4, 5, 6, 7, 8]}, index=[0, 1, 0, 1, 2, 3]
+            {"A": [1, 2, 3, 4, 5, 6], "B": [3, 4, 5, 6, 7, 8]},
+            index=[0, 1, 0, 1, 2, 3],
         )
         msg = "'Cannot get left slice bound for non-unique label: 1'"
         with pytest.raises(KeyError, match=msg):
@@ -995,10 +1102,13 @@ class TestLocBaseIndependent:
 
         # monotonic are ok
         df = DataFrame(
-            {"A": [1, 2, 3, 4, 5, 6], "B": [3, 4, 5, 6, 7, 8]}, index=[0, 1, 0, 1, 2, 3]
+            {"A": [1, 2, 3, 4, 5, 6], "B": [3, 4, 5, 6, 7, 8]},
+            index=[0, 1, 0, 1, 2, 3],
         ).sort_index(axis=0)
         result = df.loc[1:]
-        expected = DataFrame({"A": [2, 4, 5, 6], "B": [4, 6, 7, 8]}, index=[1, 1, 2, 3])
+        expected = DataFrame(
+            {"A": [2, 4, 5, 6], "B": [4, 6, 7, 8]}, index=[1, 1, 2, 3]
+        )
         tm.assert_frame_equal(result, expected)
 
         result = df.loc[0:]
@@ -1019,11 +1129,17 @@ class TestLocBaseIndependent:
         df = pd.concat(
             [
                 DataFrame(
-                    np.random.default_rng(2).standard_normal((length, len(columns))),
+                    np.random.default_rng(2).standard_normal(
+                        (length, len(columns))
+                    ),
                     index=np.arange(length),
                     columns=columns,
                 ),
-                DataFrame(np.ones((l2, len(columns))), index=[0] * l2, columns=columns),
+                DataFrame(
+                    np.ones((l2, len(columns))),
+                    index=[0] * l2,
+                    columns=columns,
+                ),
             ]
         )
 
@@ -1062,15 +1178,24 @@ class TestLocBaseIndependent:
         )
         # vertical empty
         tm.assert_frame_equal(
-            df.loc[:, []], df.iloc[:, :0], check_index_type=True, check_column_type=True
+            df.loc[:, []],
+            df.iloc[:, :0],
+            check_index_type=True,
+            check_column_type=True,
         )
         # horizontal empty
         tm.assert_frame_equal(
-            df.loc[[], :], df.iloc[:0, :], check_index_type=True, check_column_type=True
+            df.loc[[], :],
+            df.iloc[:0, :],
+            check_index_type=True,
+            check_column_type=True,
         )
         # horizontal empty
         tm.assert_frame_equal(
-            df.loc[[]], df.iloc[:0, :], check_index_type=True, check_column_type=True
+            df.loc[[]],
+            df.iloc[:0, :],
+            check_index_type=True,
+            check_column_type=True,
         )
 
     def test_identity_slice_returns_new_object(self):
@@ -1083,7 +1208,9 @@ class TestLocBaseIndependent:
         assert original_df.loc[:, :] is not original_df
 
         # should be a shallow copy
-        assert np.shares_memory(original_df["a"]._values, sliced_df["a"]._values)
+        assert np.shares_memory(
+            original_df["a"]._values, sliced_df["a"]._values
+        )
 
         # Setting using .loc[:, "a"] sets inplace so alters both sliced and orig
         # depending on CoW
@@ -1219,10 +1346,14 @@ class TestLocBaseIndependent:
 
         tm.assert_series_equal(result, expected)
 
-    def test_loc_setitem_str_to_small_float_conversion_type(self, using_infer_string):
+    def test_loc_setitem_str_to_small_float_conversion_type(
+        self, using_infer_string
+    ):
         # GH#20388
 
-        col_data = [str(np.random.default_rng(2).random() * 1e-12) for _ in range(5)]
+        col_data = [
+            str(np.random.default_rng(2).random() * 1e-12) for _ in range(5)
+        ]
         result = DataFrame(col_data, columns=["A"])
         expected = DataFrame(col_data, columns=["A"])
         tm.assert_frame_equal(result, expected)
@@ -1234,7 +1365,9 @@ class TestLocBaseIndependent:
                 result.loc[result.index, "A"] = [float(x) for x in col_data]
         else:
             result.loc[result.index, "A"] = [float(x) for x in col_data]
-            expected = DataFrame(col_data, columns=["A"], dtype=float).astype(object)
+            expected = DataFrame(col_data, columns=["A"], dtype=float).astype(
+                object
+            )
             tm.assert_frame_equal(result, expected)
 
         # assigning the entire column using __setitem__ swaps in the new array
@@ -1265,8 +1398,12 @@ class TestLocBaseIndependent:
         expected.index = expected.index._with_freq(None)
         tm.assert_equal(result, expected)
 
-    @pytest.mark.parametrize("spmatrix_t", ["coo_matrix", "csc_matrix", "csr_matrix"])
-    @pytest.mark.parametrize("dtype", [np.complex128, np.float64, np.int64, bool])
+    @pytest.mark.parametrize(
+        "spmatrix_t", ["coo_matrix", "csc_matrix", "csr_matrix"]
+    )
+    @pytest.mark.parametrize(
+        "dtype", [np.complex128, np.float64, np.int64, bool]
+    )
     def test_loc_getitem_range_from_spmatrix(self, spmatrix_t, dtype):
         sp_sparse = pytest.importorskip("scipy.sparse")
 
@@ -1313,7 +1450,9 @@ class TestLocBaseIndependent:
 
     def test_loc_getitem_sparse_series(self):
         # GH34687
-        s = Series([1.0, 0.0, 0.0, 0.0, 0.0], dtype=SparseDtype("float64", 0.0))
+        s = Series(
+            [1.0, 0.0, 0.0, 0.0, 0.0], dtype=SparseDtype("float64", 0.0)
+        )
 
         result = s.loc[range(2)]
         expected = Series([1.0, 0.0], dtype=SparseDtype("float64", 0.0))
@@ -1326,7 +1465,9 @@ class TestLocBaseIndependent:
     @pytest.mark.parametrize("indexer", ["loc", "iloc"])
     def test_getitem_single_row_sparse_df(self, indexer):
         # GH#46406
-        df = DataFrame([[1.0, 0.0, 1.5], [0.0, 2.0, 0.0]], dtype=SparseDtype(float))
+        df = DataFrame(
+            [[1.0, 0.0, 1.5], [0.0, 2.0, 0.0]], dtype=SparseDtype(float)
+        )
         result = getattr(df, indexer)[0]
         expected = Series([1.0, 0.0, 1.5], dtype=SparseDtype(float), name=0)
         tm.assert_series_equal(result, expected)
@@ -1376,7 +1517,9 @@ class TestLocBaseIndependent:
             ([3, 5], [0, 1, 2, 20, 4, 20, 6, 7, 8, 9]),
         ],
     )
-    def test_loc_setitem_listlike_with_timedelta64index(self, indexer, expected):
+    def test_loc_setitem_listlike_with_timedelta64index(
+        self, indexer, expected
+    ):
         # GH#16637
         tdi = to_timedelta(range(10), unit="s")
         df = DataFrame({"x": range(10)}, dtype="int64", index=tdi)
@@ -1448,7 +1591,8 @@ class TestLocBaseIndependent:
     def test_loc_setitem_time_key(self):
         index = date_range("2012-01-01", "2012-01-05", freq="30min")
         df = DataFrame(
-            np.random.default_rng(2).standard_normal((len(index), 5)), index=index
+            np.random.default_rng(2).standard_normal((len(index), 5)),
+            index=index,
         )
         akey = time(12, 0, 0)
         bkey = slice(time(13, 0, 0), time(14, 0, 0))
@@ -1526,7 +1670,9 @@ class TestLocBaseIndependent:
         # GH#19977
         index = pd.interval_range(start=0, periods=3)
         df = DataFrame(
-            [[1, 2, 3], [4, 5, 6], [7, 8, 9]], index=index, columns=["A", "B", "C"]
+            [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+            index=index,
+            columns=["A", "B", "C"],
         )
 
         expected = 1
@@ -1537,10 +1683,14 @@ class TestLocBaseIndependent:
         # GH#19977
         index = pd.interval_range(start=0, periods=3, closed="both")
         df = DataFrame(
-            [[1, 2, 3], [4, 5, 6], [7, 8, 9]], index=index, columns=["A", "B", "C"]
+            [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+            index=index,
+            columns=["A", "B", "C"],
         )
 
-        index_exp = pd.interval_range(start=0, periods=2, freq=1, closed="both")
+        index_exp = pd.interval_range(
+            start=0, periods=2, freq=1, closed="both"
+        )
         expected = Series([1, 4], index=index_exp, name="A")
         result = df.loc[1, "A"]
         tm.assert_series_equal(result, expected)
@@ -1564,7 +1714,9 @@ class TestLocBaseIndependent:
         IndexType = namedtuple("IndexType", ["a", "b"])
         idx1 = IndexType("foo", "bar")
         idx2 = IndexType("baz", "bof")
-        index = Index([idx1, idx2], name="composite_index", tupleize_cols=False)
+        index = Index(
+            [idx1, idx2], name="composite_index", tupleize_cols=False
+        )
         df = DataFrame([(1, 2), (3, 4)], index=index, columns=["A", "B"])
 
         result = df.loc[IndexType("foo", "bar")]["A"]
@@ -1587,7 +1739,9 @@ class TestLocBaseIndependent:
     def test_loc_setitem_cast2(self):
         # GH#7704
         # dtype conversion on setting
-        df = DataFrame(np.random.default_rng(2).random((30, 3)), columns=tuple("ABC"))
+        df = DataFrame(
+            np.random.default_rng(2).random((30, 3)), columns=tuple("ABC")
+        )
         df["event"] = np.nan
         with pytest.raises(TypeError, match="Invalid value"):
             df.loc[10, "event"] = "foo"
@@ -1618,7 +1772,9 @@ class TestLocBaseIndependent:
         df = DataFrame({"a": [1, 1, 1, 1, 1], "b": ["a", "a", "a", "a", "a"]})
         df.loc[1:2, "a"] = Categorical([2, 2], categories=[1, 2])
 
-        expected = DataFrame({"a": [1, 2, 2, 1, 1], "b": ["a", "a", "a", "a", "a"]})
+        expected = DataFrame(
+            {"a": [1, 2, 2, 1, 1], "b": ["a", "a", "a", "a", "a"]}
+        )
         tm.assert_frame_equal(df, expected)
 
 
@@ -1639,8 +1795,12 @@ class TestLocWithEllipsis:
         result = indexer(obj)[...]
         tm.assert_equal(result, obj)
 
-    @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
-    def test_loc_iloc_getitem_leading_ellipses(self, series_with_simple_index, indexer):
+    @pytest.mark.filterwarnings(
+        r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+    )
+    def test_loc_iloc_getitem_leading_ellipses(
+        self, series_with_simple_index, indexer
+    ):
         obj = series_with_simple_index
         key = 0 if (indexer is tm.iloc or len(obj) == 0) else obj.index[0]
 
@@ -1710,7 +1870,9 @@ class TestLocWithMultiIndex:
             res = df.loc[:, keys]
             tm.assert_index_equal(res.columns, exp_index)
 
-    def test_loc_preserve_names(self, multiindex_year_month_day_dataframe_random_data):
+    def test_loc_preserve_names(
+        self, multiindex_year_month_day_dataframe_random_data
+    ):
         ymd = multiindex_year_month_day_dataframe_random_data
 
         result = ymd.loc[2000]
@@ -1765,7 +1927,7 @@ class TestLocWithMultiIndex:
         )
 
         result = Series([1, 1, 1, 1, 1, 1, 1, 1], index=index)
-        result.loc[("baz", "one") : ("foo", "two")] = 100
+        result.loc[("baz", "one"):("foo", "two")] = 100
 
         expected = Series([1, 1, 100, 100, 100, 100, 1, 1], index=index)
 
@@ -1818,7 +1980,9 @@ class TestLocWithMultiIndex:
         df = df.sort_index(level=0)
 
         expected = DataFrame(
-            [[1.0, 1], [2.0, 2], [5.0, 5]], columns=["C", "D"], index=mi.take([0, 1, 4])
+            [[1.0, 1], [2.0, 2], [5.0, 5]],
+            columns=["C", "D"],
+            index=mi.take([0, 1, 4]),
         )
 
         result = df.loc[("foo", "bar")]
@@ -1842,20 +2006,26 @@ class TestLocWithMultiIndex:
         # GH#47677
         srs = Series(
             [1, 2, 3],
-            dtype=CategoricalDtype(Index([1, 2, 3], dtype=any_numeric_ea_dtype)),
+            dtype=CategoricalDtype(
+                Index([1, 2, 3], dtype=any_numeric_ea_dtype)
+            ),
         )
         # enlarge
         srs.loc[3] = np.nan
         expected = Series(
             [1, 2, 3, np.nan],
-            dtype=CategoricalDtype(Index([1, 2, 3], dtype=any_numeric_ea_dtype)),
+            dtype=CategoricalDtype(
+                Index([1, 2, 3], dtype=any_numeric_ea_dtype)
+            ),
         )
         tm.assert_series_equal(srs, expected)
         # set into
         srs.loc[1] = np.nan
         expected = Series(
             [1, np.nan, 3, np.nan],
-            dtype=CategoricalDtype(Index([1, 2, 3], dtype=any_numeric_ea_dtype)),
+            dtype=CategoricalDtype(
+                Index([1, 2, 3], dtype=any_numeric_ea_dtype)
+            ),
         )
         tm.assert_series_equal(srs, expected)
 
@@ -1898,9 +2068,13 @@ class TestLocWithMultiIndex:
         tm.assert_index_equal(result, expected)
 
     @pytest.mark.parametrize("lt_value", [30, 10])
-    def test_loc_multiindex_levels_contain_values_not_in_index_anymore(self, lt_value):
+    def test_loc_multiindex_levels_contain_values_not_in_index_anymore(
+        self, lt_value
+    ):
         # GH#41170
-        df = DataFrame({"a": [12, 23, 34, 45]}, index=[list("aabb"), [0, 1, 2, 3]])
+        df = DataFrame(
+            {"a": [12, 23, 34, 45]}, index=[list("aabb"), [0, 1, 2, 3]]
+        )
         with pytest.raises(KeyError, match=r"\['b'\] not in index"):
             df.loc[df["a"] < lt_value, :].loc[["b"], :]
 
@@ -1968,9 +2142,13 @@ class TestLocSetitemWithExpansion:
         ser.loc["foo"] = 1
         tm.assert_series_equal(ser, Series([1], index=Index(["foo"])))
         ser.loc["bar"] = 3
-        tm.assert_series_equal(ser, Series([1, 3], index=Index(["foo", "bar"])))
+        tm.assert_series_equal(
+            ser, Series([1, 3], index=Index(["foo", "bar"]))
+        )
         ser.loc[3] = 4
-        tm.assert_series_equal(ser, Series([1, 3, 4], index=Index(["foo", "bar", 3])))
+        tm.assert_series_equal(
+            ser, Series([1, 3, 4], index=Index(["foo", "bar", 3]))
+        )
 
     def test_loc_setitem_incremental_with_dst(self):
         # GH#20724
@@ -2003,7 +2181,8 @@ class TestLocSetitemWithExpansion:
         expected = DataFrame(
             {"one": [100.0, 200.0]},
             index=Index(
-                [conv(dt1), conv(dt2)], dtype=None if using_infer_string else object
+                [conv(dt1), conv(dt2)],
+                dtype=None if using_infer_string else object,
             ),
             columns=Index(["one"]),
         )
@@ -2013,7 +2192,9 @@ class TestLocSetitemWithExpansion:
         # GH16360
         result = DataFrame({"A": [1]})
         result.loc[:, "B"] = Categorical(["b"], ordered=ordered)
-        expected = DataFrame({"A": [1], "B": Categorical(["b"], ordered=ordered)})
+        expected = DataFrame(
+            {"A": [1], "B": Categorical(["b"], ordered=ordered)}
+        )
         tm.assert_frame_equal(result, expected)
 
     def test_loc_setitem_with_expansion_and_existing_dst(self):
@@ -2042,14 +2223,20 @@ class TestLocSetitemWithExpansion:
         )
         df["new_col"] = ["new", "old"]
         df.time = df.set_index("time").index.tz_localize("UTC")
-        v = df[df.new_col == "new"].set_index("time").index.tz_convert("US/Pacific")
+        v = (
+            df[df.new_col == "new"]
+            .set_index("time")
+            .index.tz_convert("US/Pacific")
+        )
 
         # pre-2.0  trying to set a single element on a part of a different
         #  timezone converted to object; in 2.0 it retains dtype
         df2 = df.copy()
         df2.loc[df2.new_col == "new", "time"] = v
 
-        expected = Series([v[0].tz_convert("UTC"), df.loc[1, "time"]], name="time")
+        expected = Series(
+            [v[0].tz_convert("UTC"), df.loc[1, "time"]], name="time"
+        )
         tm.assert_series_equal(df2.time, expected)
 
         v = df.loc[df.new_col == "new", "time"] + Timedelta("1s").as_unit("s")
@@ -2146,7 +2333,9 @@ class TestLocSetitemWithExpansion:
 class TestLocCallable:
     def test_frame_loc_getitem_callable(self):
         # GH#11485
-        df = DataFrame({"A": [1, 2, 3, 4], "B": list("aabb"), "C": [1, 2, 3, 4]})
+        df = DataFrame(
+            {"A": [1, 2, 3, 4], "B": list("aabb"), "C": [1, 2, 3, 4]}
+        )
         # iloc cannot use boolean Series (see GH3635)
 
         # return bool indexer
@@ -2174,7 +2363,9 @@ class TestLocCallable:
 
     def test_frame_loc_getitem_callable_mixture(self):
         # GH#11485
-        df = DataFrame({"A": [1, 2, 3, 4], "B": list("aabb"), "C": [1, 2, 3, 4]})
+        df = DataFrame(
+            {"A": [1, 2, 3, 4], "B": list("aabb"), "C": [1, 2, 3, 4]}
+        )
 
         res = df.loc[lambda x: x.A > 2, ["A", "B"]]
         tm.assert_frame_equal(res, df.loc[df.A > 2, ["A", "B"]])
@@ -2187,7 +2378,9 @@ class TestLocCallable:
 
     def test_frame_loc_getitem_callable_labels(self):
         # GH#11485
-        df = DataFrame({"X": [1, 2, 3, 4], "Y": list("aabb")}, index=list("ABCD"))
+        df = DataFrame(
+            {"X": [1, 2, 3, 4], "Y": list("aabb")}, index=list("ABCD")
+        )
 
         # return label
         res = df.loc[lambda x: ["A", "C"]]
@@ -2305,12 +2498,16 @@ class TestPartialStringSlicing:
 
     def test_loc_getitem_str_timedeltaindex(self):
         # GH#16896
-        df = DataFrame({"x": range(3)}, index=to_timedelta(range(3), unit="days"))
+        df = DataFrame(
+            {"x": range(3)}, index=to_timedelta(range(3), unit="days")
+        )
         expected = df.iloc[0]
         sliced = df.loc["0 days"]
         tm.assert_series_equal(sliced, expected)
 
-    @pytest.mark.parametrize("indexer_end", [None, "2020-01-02 23:59:59.999999999"])
+    @pytest.mark.parametrize(
+        "indexer_end", [None, "2020-01-02 23:59:59.999999999"]
+    )
     def test_loc_getitem_partial_slice_non_monotonicity(
         self, tz_aware_fixture, indexer_end, frame_or_series
     ):
@@ -2368,7 +2565,9 @@ class TestLabelSlicing:
             tm.assert_frame_equal(result, df)
             result = df.loc[: datetime(2001, 1, 4, 10)]
             tm.assert_frame_equal(result, df)
-            result = df.loc[datetime(2001, 1, 1, 10) : datetime(2001, 1, 4, 10)]
+            result = df.loc[
+                datetime(2001, 1, 1, 10) : datetime(2001, 1, 4, 10)
+            ]
             tm.assert_frame_equal(result, df)
 
             result = df.loc[datetime(2001, 1, 1, 11) :]
@@ -2424,7 +2623,8 @@ class TestLabelSlicing:
     def test_loc_getitem_float_slice_floatindex(self, float_numpy_dtype):
         dtype = float_numpy_dtype
         ser = Series(
-            np.random.default_rng(2).random(10), index=np.arange(10, 20, dtype=dtype)
+            np.random.default_rng(2).random(10),
+            index=np.arange(10, 20, dtype=dtype),
         )
 
         assert len(ser.loc[12.0:]) == 8
@@ -2444,7 +2644,9 @@ class TestLabelSlicing:
             [None, np.timedelta64(4, "D"), slice(0, 5)],
         ],
     )
-    def test_loc_getitem_slice_label_td64obj(self, start, stop, expected_slice):
+    def test_loc_getitem_slice_label_td64obj(
+        self, start, stop, expected_slice
+    ):
         # GH#20393
         ser = Series(range(11), timedelta_range("0 days", "10 days"))
         result = ser.loc[slice(start, stop)]
@@ -2452,7 +2654,9 @@ class TestLabelSlicing:
         tm.assert_series_equal(result, expected)
 
     @pytest.mark.parametrize("start", ["2018", "2020"])
-    def test_loc_getitem_slice_unordered_dt_index(self, frame_or_series, start):
+    def test_loc_getitem_slice_unordered_dt_index(
+        self, frame_or_series, start
+    ):
         obj = frame_or_series(
             [1, 2, 3],
             index=[Timestamp("2016"), Timestamp("2019"), Timestamp("2017")],
@@ -2463,11 +2667,15 @@ class TestLabelSlicing:
             obj.loc[start:"2022"]
 
     @pytest.mark.parametrize("value", [1, 1.5])
-    def test_loc_getitem_slice_labels_int_in_object_index(self, frame_or_series, value):
+    def test_loc_getitem_slice_labels_int_in_object_index(
+        self, frame_or_series, value
+    ):
         # GH: 26491
         obj = frame_or_series(range(4), index=[value, "first", 2, "third"])
         result = obj.loc[value:"third"]
-        expected = frame_or_series(range(4), index=[value, "first", 2, "third"])
+        expected = frame_or_series(
+            range(4), index=[value, "first", 2, "third"]
+        )
         tm.assert_equal(result, expected)
 
     def test_loc_getitem_slice_columns_mixed_dtype(self):
@@ -2500,9 +2708,7 @@ class TestLocBooleanLabelsAndSlices:
 
     def test_loc_bool_slice_raises(self, index, frame_or_series):
         # GH20432
-        message = (
-            r"slice\(True, False, None\): boolean values can not be used in a slice"
-        )
+        message = r"slice\(True, False, None\): boolean values can not be used in a slice"
         obj = frame_or_series(index=index, dtype="object")
         with pytest.raises(TypeError, match=message):
             obj.loc[True:False]
@@ -2586,7 +2792,9 @@ class TestLocBooleanMask:
 
         values = expected.values.copy()
         values[mask.values, 1] = 0
-        expected = DataFrame(values, index=expected.index, columns=expected.columns)
+        expected = DataFrame(
+            values, index=expected.index, columns=expected.columns
+        )
         tm.assert_frame_equal(float_frame, expected)
 
     def test_loc_setitem_ndframe_values_alignment(self):
@@ -2601,12 +2809,16 @@ class TestLocBooleanMask:
 
         # same thing with Series RHS
         df = DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
-        df.loc[[False, False, True], ["a"]] = Series([10, 11, 12], index=[2, 1, 0])
+        df.loc[[False, False, True], ["a"]] = Series(
+            [10, 11, 12], index=[2, 1, 0]
+        )
         tm.assert_frame_equal(df, expected)
 
         # same thing but setting "a" instead of ["a"]
         df = DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
-        df.loc[[False, False, True], "a"] = Series([10, 11, 12], index=[2, 1, 0])
+        df.loc[[False, False, True], "a"] = Series(
+            [10, 11, 12], index=[2, 1, 0]
+        )
         tm.assert_frame_equal(df, expected)
 
         df = DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
@@ -2669,9 +2881,12 @@ class TestLocListlike:
     def test_loc_getitem_series_label_list_missing_values(self):
         # gh-11428
         key = np.array(
-            ["2001-01-04", "2001-01-02", "2001-01-04", "2001-01-14"], dtype="datetime64"
+            ["2001-01-04", "2001-01-02", "2001-01-04", "2001-01-14"],
+            dtype="datetime64",
         )
-        ser = Series([2, 5, 8, 11], date_range("2001-01-01", freq="D", periods=4))
+        ser = Series(
+            [2, 5, 8, 11], date_range("2001-01-01", freq="D", periods=4)
+        )
         with pytest.raises(KeyError, match="not in index"):
             ser.loc[key]
 
@@ -2710,7 +2925,9 @@ class TestLocListlike:
         if to_period:
             keys = [x.to_period("D") for x in keys]
         exp = Series(
-            [0.2, 0.2, 0.1], index=Index(keys, name="idx", dtype=idx.dtype), name="s"
+            [0.2, 0.2, 0.1],
+            index=Index(keys, name="idx", dtype=idx.dtype),
+            name="s",
         )
         result = ser.loc[keys]
         tm.assert_series_equal(result, exp, check_index_type=True)
@@ -2747,10 +2964,14 @@ class TestLocListlike:
         ([2011, 2012, "All"], [2011, "All"], [0, 2]),
     ],
 )
-def test_loc_getitem_label_list_integer_labels(columns, column_key, expected_columns):
+def test_loc_getitem_label_list_integer_labels(
+    columns, column_key, expected_columns
+):
     # gh-14836
     df = DataFrame(
-        np.random.default_rng(2).random((3, 3)), columns=columns, index=list("ABC")
+        np.random.default_rng(2).random((3, 3)),
+        columns=columns,
+        index=list("ABC"),
     )
     expected = df.iloc[:, expected_columns]
     result = df.loc[["A", "B", "C"], column_key]
@@ -2763,7 +2984,9 @@ def test_loc_setitem_float_intindex():
     rand_data = np.random.default_rng(2).standard_normal((8, 4))
     result = DataFrame(rand_data)
     result.loc[:, 0.5] = np.nan
-    expected_data = np.hstack((rand_data, np.array([np.nan] * 8).reshape(8, 1)))
+    expected_data = np.hstack(
+        (rand_data, np.array([np.nan] * 8).reshape(8, 1))
+    )
     expected = DataFrame(expected_data, columns=[0.0, 1.0, 2.0, 3.0, 0.5])
     tm.assert_frame_equal(result, expected)
 
@@ -2780,11 +3003,13 @@ def test_loc_axis_1_slice():
         index=tuple("ABCDEFGHIJ"),
         columns=MultiIndex.from_tuples(cols),
     )
-    result = df.loc(axis=1)[(2014, 9) : (2015, 8)]
+    result = df.loc(axis=1)[(2014, 9):(2015, 8)]
     expected = DataFrame(
         np.ones((10, 4)),
         index=tuple("ABCDEFGHIJ"),
-        columns=MultiIndex.from_tuples([(2014, 9), (2014, 10), (2015, 7), (2015, 8)]),
+        columns=MultiIndex.from_tuples(
+            [(2014, 9), (2014, 10), (2015, 7), (2015, 8)]
+        ),
     )
     tm.assert_frame_equal(result, expected)
 
@@ -2792,7 +3017,9 @@ def test_loc_axis_1_slice():
 def test_loc_set_dataframe_multiindex():
     # GH 14592
     expected = DataFrame(
-        "a", index=range(2), columns=MultiIndex.from_product([range(2), range(2)])
+        "a",
+        index=range(2),
+        columns=MultiIndex.from_product([range(2), range(2)]),
     )
     result = expected.copy()
     result.loc[0, [(0, 1)]] = result.loc[0, [(0, 1)]]
@@ -2811,7 +3038,9 @@ def test_loc_with_positional_slice_raises():
     # GH#31840
     ser = Series(range(4), index=["A", "B", "C", "D"])
 
-    with pytest.raises(TypeError, match="Slicing a positional slice with .loc"):
+    with pytest.raises(
+        TypeError, match="Slicing a positional slice with .loc"
+    ):
         ser.loc[:3] = 2
 
 
@@ -2831,14 +3060,18 @@ def test_loc_slice_disallows_positional():
         with pytest.raises(TypeError, match=msg):
             obj.loc[1:3]
 
-        with pytest.raises(TypeError, match="Slicing a positional slice with .loc"):
+        with pytest.raises(
+            TypeError, match="Slicing a positional slice with .loc"
+        ):
             # GH#31840 enforce incorrect behavior
             obj.loc[1:3] = 1
 
     with pytest.raises(TypeError, match=msg):
         df.loc[1:3, 1]
 
-    with pytest.raises(TypeError, match="Slicing a positional slice with .loc"):
+    with pytest.raises(
+        TypeError, match="Slicing a positional slice with .loc"
+    ):
         # GH#31840 enforce incorrect behavior
         df.loc[1:3, 1] = 2
 
@@ -2868,7 +3101,9 @@ def test_loc_datetimelike_mismatched_dtypes():
 def test_loc_with_period_index_indexer():
     # GH#4125
     idx = pd.period_range("2002-01", "2003-12", freq="M")
-    df = DataFrame(np.random.default_rng(2).standard_normal((24, 10)), index=idx)
+    df = DataFrame(
+        np.random.default_rng(2).standard_normal((24, 10)), index=idx
+    )
     tm.assert_frame_equal(df, df.loc[idx])
     tm.assert_frame_equal(df, df.loc[list(idx)])
     tm.assert_frame_equal(df, df.loc[list(idx)])
@@ -2951,7 +3186,10 @@ def test_loc_setitem_uint8_upcast(value):
     "fill_val,exp_dtype",
     [
         (Timestamp("2022-01-06"), "datetime64[ns]"),
-        (Timestamp("2022-01-07", tz="US/Eastern"), "datetime64[ns, US/Eastern]"),
+        (
+            Timestamp("2022-01-07", tz="US/Eastern"),
+            "datetime64[ns, US/Eastern]",
+        ),
     ],
 )
 def test_loc_setitem_using_datetimelike_str_as_index(fill_val, exp_dtype):
@@ -2975,8 +3213,12 @@ def test_loc_set_int_dtype():
     tm.assert_frame_equal(df, expected)
 
 
-@pytest.mark.filterwarnings(r"ignore:Period with BDay freq is deprecated:FutureWarning")
-@pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+@pytest.mark.filterwarnings(
+    r"ignore:Period with BDay freq is deprecated:FutureWarning"
+)
+@pytest.mark.filterwarnings(
+    r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+)
 def test_loc_periodindex_3_levels():
     # GH#24091
     p_index = PeriodIndex(
@@ -3024,7 +3266,9 @@ class TestLocSeries:
 
     def test_loc_getitem(self, string_series, datetime_series):
         inds = string_series.index[[3, 4, 7]]
-        tm.assert_series_equal(string_series.loc[inds], string_series.reindex(inds))
+        tm.assert_series_equal(
+            string_series.loc[inds], string_series.reindex(inds)
+        )
         tm.assert_series_equal(string_series.iloc[5::2], string_series[5::2])
 
         # slice with indices
@@ -3054,7 +3298,8 @@ class TestLocSeries:
 
     def test_loc_getitem_setitem_integer_slice_keyerrors(self):
         ser = Series(
-            np.random.default_rng(2).standard_normal(10), index=list(range(0, 20, 2))
+            np.random.default_rng(2).standard_normal(10),
+            index=list(range(0, 20, 2)),
         )
 
         # this is OK
@@ -3120,7 +3365,8 @@ class TestLocSeries:
     def test_loc_setitem_listlike_of_ints(self):
         # integer indexes, be careful
         ser = Series(
-            np.random.default_rng(2).standard_normal(10), index=list(range(0, 20, 2))
+            np.random.default_rng(2).standard_normal(10),
+            index=list(range(0, 20, 2)),
         )
         inds = [0, 4, 6]
         arr_inds = np.array([0, 4, 6])
@@ -3185,7 +3431,9 @@ class TestLocSeries:
         ser.iloc[0] = arr
         tm.assert_series_equal(ser, expected)
 
-    @pytest.mark.parametrize("indexer", [IndexSlice["A", :], ("A", slice(None))])
+    @pytest.mark.parametrize(
+        "indexer", [IndexSlice["A", :], ("A", slice(None))]
+    )
     def test_loc_series_getitem_too_many_dimensions(self, indexer):
         # GH#35349
         ser = Series(
@@ -3231,7 +3479,9 @@ class TestLocSeries:
         df = DataFrame({"A": ["abc", "def"], "B": ["ghi", "jkl"]}, dtype=dtype)
         df.loc[0, :] = {"A": "newA", "B": "newB"}
 
-        expected = DataFrame({"A": ["newA", "def"], "B": ["newB", "jkl"]}, dtype=dtype)
+        expected = DataFrame(
+            {"A": ["newA", "def"], "B": ["newB", "jkl"]}, dtype=dtype
+        )
 
         tm.assert_frame_equal(df, expected)
 
@@ -3241,7 +3491,9 @@ class TestLocSeries:
         result.loc[1] = {"time": Timedelta(6, unit="s"), "value": "foo"}
         result.loc[1] = {"time": Timedelta(6, unit="s"), "value": "foo"}
         expected = DataFrame(
-            [[Timedelta(6, unit="s"), "foo"]], columns=["time", "value"], index=[1]
+            [[Timedelta(6, unit="s"), "foo"]],
+            columns=["time", "value"],
+            index=[1],
         )
         tm.assert_frame_equal(result, expected)
 
@@ -3273,7 +3525,9 @@ class TestLocSeries:
         # GH 57027
         ids = list(range(11))
         index = Index(ids * 1000, dtype="Int64")
-        df = DataFrame({"val": np.arange(len(index), dtype=np.intp)}, index=index)
+        df = DataFrame(
+            {"val": np.arange(len(index), dtype=np.intp)}, index=index
+        )
         result = df.loc[ids]
         expected = DataFrame(
             {"val": index.argsort(kind="stable").astype(np.intp)},
@@ -3312,31 +3566,42 @@ class TestLocSeries:
                 DataFrame([[10, 10, 10], [20, 20, 20]], columns=list("ABC")),
             ],
             [
-                DataFrame([[1, 2, 3], [4, 5, 6], [7, 8, 9]], columns=list("ABC")),
+                DataFrame(
+                    [[1, 2, 3], [4, 5, 6], [7, 8, 9]], columns=list("ABC")
+                ),
                 [True, True, True],
                 ["A", "B", "C"],
                 DataFrame(
-                    [[10, 10, 10], [20, 20, 20], [30, 30, 30]], columns=list("ABC")
+                    [[10, 10, 10], [20, 20, 20], [30, 30, 30]],
+                    columns=list("ABC"),
                 ),
             ],
             [
-                DataFrame([[1, 2, 3], [4, 5, 6], [7, 8, 9]], columns=list("ABC")),
+                DataFrame(
+                    [[1, 2, 3], [4, 5, 6], [7, 8, 9]], columns=list("ABC")
+                ),
                 slice(0, 4),
                 ["A", "B", "C"],
                 DataFrame(
-                    [[10, 10, 10], [20, 20, 20], [30, 30, 30]], columns=list("ABC")
+                    [[10, 10, 10], [20, 20, 20], [30, 30, 30]],
+                    columns=list("ABC"),
                 ),
             ],
             [
-                DataFrame([[1, 2, 3], [4, 5, 6], [7, 8, 9]], columns=list("ABC")),
+                DataFrame(
+                    [[1, 2, 3], [4, 5, 6], [7, 8, 9]], columns=list("ABC")
+                ),
                 slice(None),
                 slice("A", "C"),
                 DataFrame(
-                    [[10, 10, 10], [20, 20, 20], [30, 30, 30]], columns=list("ABC")
+                    [[10, 10, 10], [20, 20, 20], [30, 30, 30]],
+                    columns=list("ABC"),
                 ),
             ],
             [
-                DataFrame([[1, 2, 3], [4, 5, 6], [7, 8, 9]], columns=list("ABC")),
+                DataFrame(
+                    [[1, 2, 3], [4, 5, 6], [7, 8, 9]], columns=list("ABC")
+                ),
                 slice(None),
                 Series(
                     {
@@ -3345,7 +3610,10 @@ class TestLocSeries:
                         "B": True,
                     }
                 ),
-                DataFrame([[10, 10, 3], [20, 20, 6], [30, 30, 9]], columns=list("ABC")),
+                DataFrame(
+                    [[10, 10, 3], [20, 20, 6], [30, 30, 9]],
+                    columns=list("ABC"),
+                ),
             ],
         ],
     )

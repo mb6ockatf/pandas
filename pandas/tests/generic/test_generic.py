@@ -297,7 +297,12 @@ class TestGeneric:
 
     @pytest.mark.parametrize(
         "func",
-        [copy, deepcopy, lambda x: x.copy(deep=False), lambda x: x.copy(deep=True)],
+        [
+            copy,
+            deepcopy,
+            lambda x: x.copy(deep=False),
+            lambda x: x.copy(deep=True),
+        ],
     )
     @pytest.mark.parametrize("shape", [0, 1, 2])
     def test_copy_and_deepcopy(self, frame_or_series, shape, func):
@@ -477,7 +482,9 @@ class TestNDFrame:
         for v in values:
             assert obj._get_axis_number(v) == box._get_axis_number(v)
             assert obj._get_axis_name(v) == box._get_axis_name(v)
-            assert obj._get_block_manager_axis(v) == box._get_block_manager_axis(v)
+            assert obj._get_block_manager_axis(
+                v
+            ) == box._get_block_manager_axis(v)
 
     def test_flags_identity(self, frame_or_series):
         obj = Series([1, 2])

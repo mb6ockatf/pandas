@@ -56,7 +56,16 @@ class TestDataFrame:
         df = DataFrame(
             {
                 "A": ["foo", "bar", "foo", "bar", "foo", "bar", "foo", "foo"],
-                "B": ["one", "one", "two", "three", "two", "two", "one", "three"],
+                "B": [
+                    "one",
+                    "one",
+                    "two",
+                    "three",
+                    "two",
+                    "two",
+                    "one",
+                    "three",
+                ],
                 "C": np.random.default_rng(2).standard_normal(8),
                 "D": np.random.default_rng(2).standard_normal(8),
             }
@@ -81,11 +90,19 @@ class TestDataFrame:
             for name in self._metadata:
                 if method == "merge":
                     left, right = other.left, other.right
-                    value = getattr(left, name, "") + "|" + getattr(right, name, "")
+                    value = (
+                        getattr(left, name, "")
+                        + "|"
+                        + getattr(right, name, "")
+                    )
                     object.__setattr__(self, name, value)
                 elif method == "concat":
                     value = "+".join(
-                        [getattr(o, name) for o in other.objs if getattr(o, name, None)]
+                        [
+                            getattr(o, name)
+                            for o in other.objs
+                            if getattr(o, name, None)
+                        ]
                     )
                     object.__setattr__(self, name, value)
                 else:
@@ -98,10 +115,12 @@ class TestDataFrame:
             m.setattr(DataFrame, "__finalize__", finalize)
 
             df1 = DataFrame(
-                np.random.default_rng(2).integers(0, 4, (3, 2)), columns=["a", "b"]
+                np.random.default_rng(2).integers(0, 4, (3, 2)),
+                columns=["a", "b"],
             )
             df2 = DataFrame(
-                np.random.default_rng(2).integers(0, 4, (3, 2)), columns=["c", "d"]
+                np.random.default_rng(2).integers(0, 4, (3, 2)),
+                columns=["c", "d"],
             )
             DataFrame._metadata = ["filename"]
             df1.filename = "fname1.csv"
@@ -113,7 +132,8 @@ class TestDataFrame:
             # concat
             # GH#6927
             df1 = DataFrame(
-                np.random.default_rng(2).integers(0, 4, (3, 2)), columns=list("ab")
+                np.random.default_rng(2).integers(0, 4, (3, 2)),
+                columns=list("ab"),
             )
             df1.filename = "foo"
 
@@ -149,7 +169,9 @@ class TestDataFrame2:
 
         msg = 'For argument "inplace" expected type bool, received type'
         with pytest.raises(ValueError, match=msg):
-            df.copy().rename_axis(mapper={"a": "x", "b": "y"}, axis=1, inplace=value)
+            df.copy().rename_axis(
+                mapper={"a": "x", "b": "y"}, axis=1, inplace=value
+            )
 
         with pytest.raises(ValueError, match=msg):
             df.copy().drop("a", axis=1, inplace=value)
@@ -172,7 +194,8 @@ class TestDataFrame2:
     def test_unexpected_keyword(self):
         # GH8597
         df = DataFrame(
-            np.random.default_rng(2).standard_normal((5, 2)), columns=["jim", "joe"]
+            np.random.default_rng(2).standard_normal((5, 2)),
+            columns=["jim", "joe"],
         )
         ca = pd.Categorical([0, 0, 2, 2, 3, np.nan])
         ts = df["joe"].copy()

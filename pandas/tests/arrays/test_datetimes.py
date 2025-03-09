@@ -114,7 +114,9 @@ class TestNonNano:
         assert res._creso == dta._creso
         assert res == dti.std().floor(unit)
 
-    @pytest.mark.filterwarnings("ignore:Converting to PeriodArray.*:UserWarning")
+    @pytest.mark.filterwarnings(
+        "ignore:Converting to PeriodArray.*:UserWarning"
+    )
     def test_to_period(self, dta_dti):
         dta, dti = dta_dti
         result = dta.to_period("D")
@@ -329,7 +331,9 @@ class TestDatetimeArray:
         dta = dti._data
         res = dta.astype("M8[s]")
         assert res.dtype == "M8[s]"
-        assert isinstance(res, pd.core.arrays.DatetimeArray)  # used to be ndarray
+        assert isinstance(
+            res, pd.core.arrays.DatetimeArray
+        )  # used to be ndarray
 
     def test_astype_non_nano_tzaware(self):
         dti = pd.date_range("2016-01-01", periods=3, tz="UTC")
@@ -357,9 +361,12 @@ class TestDatetimeArray:
         result = arr.astype(DatetimeTZDtype(tz="US/Central"), copy=False)
         assert result is arr
 
-    @pytest.mark.parametrize("dtype", ["datetime64[ns]", "datetime64[ns, UTC]"])
     @pytest.mark.parametrize(
-        "other", ["datetime64[ns]", "datetime64[ns, UTC]", "datetime64[ns, CET]"]
+        "dtype", ["datetime64[ns]", "datetime64[ns, UTC]"]
+    )
+    @pytest.mark.parametrize(
+        "other",
+        ["datetime64[ns]", "datetime64[ns, UTC]", "datetime64[ns, CET]"],
     )
     def test_astype_copies(self, dtype, other):
         # https://github.com/pandas-dev/pandas/pull/32490
@@ -383,7 +390,9 @@ class TestDatetimeArray:
             t[:] = pd.NaT
             tm.assert_series_equal(ser, orig)
 
-    @pytest.mark.parametrize("dtype", [int, np.int32, np.int64, "uint32", "uint64"])
+    @pytest.mark.parametrize(
+        "dtype", [int, np.int32, np.int64, "uint32", "uint64"]
+    )
     def test_astype_int(self, dtype):
         arr = DatetimeArray._from_sequence(
             [pd.Timestamp("2000"), pd.Timestamp("2001")], dtype="M8[ns]"
@@ -444,7 +453,9 @@ class TestDatetimeArray:
         arr = DatetimeArray._from_sequence(
             data, copy=False, dtype=DatetimeTZDtype(tz="US/Central")
         )
-        with pytest.raises(TypeError, match="Cannot compare tz-naive and tz-aware"):
+        with pytest.raises(
+            TypeError, match="Cannot compare tz-naive and tz-aware"
+        ):
             arr[0] = pd.Timestamp("2000")
 
         ts = pd.Timestamp("2000", tz="US/Eastern")
@@ -493,7 +504,9 @@ class TestDatetimeArray:
 
         arr[-2] = pd.NaT
         result = arr.value_counts(dropna=False)
-        expected = pd.Series([4, 2, 1], index=[dti[0], dti[1], pd.NaT], name="count")
+        expected = pd.Series(
+            [4, 2, 1], index=[dti[0], dti[1], pd.NaT], name="count"
+        )
         tm.assert_series_equal(result, expected)
 
     @pytest.mark.parametrize("method", ["pad", "backfill"])
@@ -583,7 +596,8 @@ class TestDatetimeArray:
     def test_array_interface(self):
         data = pd.date_range("2017", periods=2)._data
         expected = np.array(
-            ["2017-01-01T00:00:00", "2017-01-02T00:00:00"], dtype="datetime64[ns]"
+            ["2017-01-01T00:00:00", "2017-01-02T00:00:00"],
+            dtype="datetime64[ns]",
         )
 
         result = np.asarray(data)
@@ -591,7 +605,10 @@ class TestDatetimeArray:
 
         result = np.asarray(data, dtype=object)
         expected = np.array(
-            [pd.Timestamp("2017-01-01T00:00:00"), pd.Timestamp("2017-01-02T00:00:00")],
+            [
+                pd.Timestamp("2017-01-01T00:00:00"),
+                pd.Timestamp("2017-01-02T00:00:00"),
+            ],
             dtype=object,
         )
         tm.assert_numpy_array_equal(result, expected)
@@ -758,7 +775,18 @@ class TestDatetimeArray:
 
     @pytest.mark.parametrize(
         "freq",
-        ["2M", "2SM", "2sm", "2Q", "2Q-SEP", "1Y", "2Y-MAR", "2m", "2q-sep", "2y"],
+        [
+            "2M",
+            "2SM",
+            "2sm",
+            "2Q",
+            "2Q-SEP",
+            "1Y",
+            "2Y-MAR",
+            "2m",
+            "2q-sep",
+            "2y",
+        ],
     )
     def test_date_range_frequency_M_Q_Y_raises(self, freq):
         msg = f"Invalid frequency: {freq}"

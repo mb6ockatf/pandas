@@ -18,7 +18,9 @@ class TestABCClasses:
     categorical = pd.Categorical([1, 2, 3], categories=[2, 3, 1])
     categorical_df = pd.DataFrame({"values": [1, 2, 3]}, index=categorical)
     df = pd.DataFrame({"names": ["a", "b", "c"]}, index=multi_index)
-    sparse_array = pd.arrays.SparseArray(np.random.default_rng(2).standard_normal(10))
+    sparse_array = pd.arrays.SparseArray(
+        np.random.default_rng(2).standard_normal(10)
+    )
 
     datetime_array = datetime_index.array
     timedelta_array = timedelta_index.array
@@ -33,7 +35,10 @@ class TestABCClasses:
             "ABCPeriodArray",
             pd.arrays.PeriodArray([2000, 2001, 2002], dtype="period[D]"),
         ),
-        ("ABCNumpyExtensionArray", pd.arrays.NumpyExtensionArray(np.array([0, 1, 2]))),
+        (
+            "ABCNumpyExtensionArray",
+            pd.arrays.NumpyExtensionArray(np.array([0, 1, 2])),
+        ),
         ("ABCPeriodIndex", period_index),
         ("ABCCategoricalIndex", categorical_df.index),
         ("ABCSeries", pd.Series([1, 2, 3])),
@@ -61,7 +66,8 @@ class TestABCClasses:
             assert issubclass(type(inst), getattr(gt, abctype2))
 
             with pytest.raises(
-                TypeError, match=re.escape("issubclass() arg 1 must be a class")
+                TypeError,
+                match=re.escape("issubclass() arg 1 must be a class"),
             ):
                 issubclass(inst, getattr(gt, abctype2))
         else:
@@ -91,11 +97,14 @@ class TestABCClasses:
         else:
             assert not isinstance(inst, getattr(gt, parent))
 
-    @pytest.mark.parametrize("abctype", [e for e in gt.__dict__ if e.startswith("ABC")])
+    @pytest.mark.parametrize(
+        "abctype", [e for e in gt.__dict__ if e.startswith("ABC")]
+    )
     def test_abc_coverage(self, abctype):
         # GH 38588
         assert (
-            abctype in (e for e, _ in self.abc_pairs) or abctype in self.abc_subclasses
+            abctype in (e for e, _ in self.abc_pairs)
+            or abctype in self.abc_subclasses
         )
 
 
@@ -124,7 +133,9 @@ def test_setattr_warnings():
         #  this should not raise a warning
         df.two.not_an_index = [1, 2]
 
-    with tm.assert_produces_warning(UserWarning, match="doesn't allow columns"):
+    with tm.assert_produces_warning(
+        UserWarning, match="doesn't allow columns"
+    ):
         #  warn when setting column to nonexistent name
         df.four = df.two + 2
         assert df.four.sum() > df.two.sum()

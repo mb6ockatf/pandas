@@ -40,7 +40,9 @@ class TestCaching:
         # GH 5424
         cont = ["one", "two", "three", "four", "five", "six", "seven"]
 
-        df = DataFrame({"a": cont, "b": cont[3:] + cont[:3], "c": np.arange(7)})
+        df = DataFrame(
+            {"a": cont, "b": cont[3:] + cont[:3], "c": np.arange(7)}
+        )
 
         # ref the cache
         if do_ref:
@@ -58,7 +60,9 @@ class TestCaching:
         expected = DataFrame(
             {"A": [600, 600, 600]}, index=date_range("5/7/2014", "5/9/2014")
         )
-        out = DataFrame({"A": [0, 0, 0]}, index=date_range("5/7/2014", "5/9/2014"))
+        out = DataFrame(
+            {"A": [0, 0, 0]}, index=date_range("5/7/2014", "5/9/2014")
+        )
         df = DataFrame({"C": ["A", "A", "A"], "D": [100, 200, 300]})
 
         # loop through df to update out
@@ -72,7 +76,9 @@ class TestCaching:
 
         # try via a chain indexing
         # this actually works
-        out = DataFrame({"A": [0, 0, 0]}, index=date_range("5/7/2014", "5/9/2014"))
+        out = DataFrame(
+            {"A": [0, 0, 0]}, index=date_range("5/7/2014", "5/9/2014")
+        )
         out_original = out.copy()
         for ix, row in df.iterrows():
             v = out[row["C"]][six:eix] + row["D"]
@@ -82,7 +88,9 @@ class TestCaching:
         tm.assert_frame_equal(out, out_original)
         tm.assert_series_equal(out["A"], out_original["A"])
 
-        out = DataFrame({"A": [0, 0, 0]}, index=date_range("5/7/2014", "5/9/2014"))
+        out = DataFrame(
+            {"A": [0, 0, 0]}, index=date_range("5/7/2014", "5/9/2014")
+        )
         for ix, row in df.iterrows():
             out.loc[six:eix, row["C"]] += row["D"]
 
@@ -224,13 +232,17 @@ class TestChaining:
 
     @pytest.mark.arm_slow
     def test_detect_chained_assignment_str(self):
-        idxs = np.random.default_rng(2).integers(len(ascii_letters), size=(100, 2))
+        idxs = np.random.default_rng(2).integers(
+            len(ascii_letters), size=(100, 2)
+        )
         idxs.sort(axis=1)
         strings = [ascii_letters[x[0] : x[1]] for x in idxs]
 
         df = DataFrame(strings, columns=["letters"])
         indexer = df.letters.apply(lambda x: len(x) > 10)
-        df.loc[indexer, "letters"] = df.loc[indexer, "letters"].apply(str.lower)
+        df.loc[indexer, "letters"] = df.loc[indexer, "letters"].apply(
+            str.lower
+        )
 
     @pytest.mark.arm_slow
     def test_detect_chained_assignment_sorting(self):
@@ -292,7 +304,11 @@ class TestChaining:
     def test_setting_with_copy_bug(self):
         # operating on a copy
         df = DataFrame(
-            {"a": list(range(4)), "b": list("ab.."), "c": ["a", "b", np.nan, "d"]}
+            {
+                "a": list(range(4)),
+                "b": list("ab.."),
+                "c": ["a", "b", np.nan, "d"],
+            }
         )
         df_original = df.copy()
         mask = pd.isna(df.c)
@@ -303,7 +319,9 @@ class TestChaining:
     def test_setting_with_copy_bug_no_warning(self):
         # invalid warning as we are returning a new object
         # GH 8730
-        df1 = DataFrame({"x": Series(["a", "b", "c"]), "y": Series(["d", "e", "f"])})
+        df1 = DataFrame(
+            {"x": Series(["a", "b", "c"]), "y": Series(["d", "e", "f"])}
+        )
         df2 = df1[["x"]]
 
         # this should not raise

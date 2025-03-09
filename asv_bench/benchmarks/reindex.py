@@ -13,16 +13,24 @@ from pandas import (
 class Reindex:
     def setup(self):
         rng = date_range(start="1/1/1970", periods=10000, freq="1min")
-        self.df = DataFrame(np.random.rand(10000, 10), index=rng, columns=range(10))
+        self.df = DataFrame(
+            np.random.rand(10000, 10), index=rng, columns=range(10)
+        )
         self.df["foo"] = "bar"
         self.rng_subset = Index(rng[::2])
         self.df2 = DataFrame(
-            index=range(10000), data=np.random.rand(10000, 30), columns=range(30)
+            index=range(10000),
+            data=np.random.rand(10000, 30),
+            columns=range(30),
         )
         N = 5000
         K = 200
-        level1 = Index([f"i-{i}" for i in range(N)], dtype=object).values.repeat(K)
-        level2 = np.tile(Index([f"i-{i}" for i in range(K)], dtype=object).values, N)
+        level1 = Index(
+            [f"i-{i}" for i in range(N)], dtype=object
+        ).values.repeat(K)
+        level2 = np.tile(
+            Index([f"i-{i}" for i in range(K)], dtype=object).values, N
+        )
         index = MultiIndex.from_arrays([level1, level2])
         self.s = Series(np.random.randn(N * K), index=index)
         self.s_subset = self.s[::2]
@@ -74,8 +82,12 @@ class LevelAlign:
                 np.tile(np.tile(np.arange(100), 100), 10),
             ],
         )
-        self.df = DataFrame(np.random.randn(len(self.index), 4), index=self.index)
-        self.df_level = DataFrame(np.random.randn(100, 4), index=self.index.levels[1])
+        self.df = DataFrame(
+            np.random.randn(len(self.index), 4), index=self.index
+        )
+        self.df_level = DataFrame(
+            np.random.randn(100, 4), index=self.index.levels[1]
+        )
 
     def time_align_level(self):
         self.df.align(self.df_level, level=1, copy=False)
@@ -91,8 +103,12 @@ class DropDuplicates:
     def setup(self, inplace):
         N = 10000
         K = 10
-        key1 = Index([f"i-{i}" for i in range(N)], dtype=object).values.repeat(K)
-        key2 = Index([f"i-{i}" for i in range(N)], dtype=object).values.repeat(K)
+        key1 = Index([f"i-{i}" for i in range(N)], dtype=object).values.repeat(
+            K
+        )
+        key2 = Index([f"i-{i}" for i in range(N)], dtype=object).values.repeat(
+            K
+        )
         self.df = DataFrame(
             {"key1": key1, "key2": key2, "value": np.random.randn(N * K)}
         )
@@ -101,14 +117,18 @@ class DropDuplicates:
 
         self.s = Series(np.random.randint(0, 1000, size=10000))
         self.s_str = Series(
-            np.tile(Index([f"i-{i}" for i in range(1000)], dtype=object).values, 10)
+            np.tile(
+                Index([f"i-{i}" for i in range(1000)], dtype=object).values, 10
+            )
         )
 
         N = 1000000
         K = 10000
         key1 = np.random.randint(0, K, size=N)
         self.df_int = DataFrame({"key1": key1})
-        self.df_bool = DataFrame(np.random.randint(0, 2, size=(K, 10), dtype=bool))
+        self.df_bool = DataFrame(
+            np.random.randint(0, 2, size=(K, 10), dtype=bool)
+        )
 
     def time_frame_drop_dups(self, inplace):
         self.df.drop_duplicates(["key1", "key2"], inplace=inplace)

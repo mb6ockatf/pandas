@@ -132,7 +132,9 @@ how to fix this test.
         raise AssertionError(msg)
 
     # removed a public method?
-    all_categorized = reduction_kernels | transformation_kernels | groupby_other_methods
+    all_categorized = (
+        reduction_kernels | transformation_kernels | groupby_other_methods
+    )
     if names != all_categorized:
         msg = f"""
 Some methods which are supposed to be on the Grouper class

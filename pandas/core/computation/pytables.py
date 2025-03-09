@@ -60,7 +60,9 @@ class PyTablesScope(_scope.Scope):
         local_dict=None,
         queryables: dict[str, Any] | None = None,
     ) -> None:
-        super().__init__(level + 1, global_dict=global_dict, local_dict=local_dict)
+        super().__init__(
+            level + 1, global_dict=global_dict, local_dict=local_dict
+        )
         self.queryables = queryables or {}
 
 
@@ -74,7 +76,9 @@ class Term(ops.Term):
             klass = Constant
         return object.__new__(klass)
 
-    def __init__(self, name, env: PyTablesScope, side=None, encoding=None) -> None:
+    def __init__(
+        self, name, env: PyTablesScope, side=None, encoding=None
+    ) -> None:
         super().__init__(name, env, side=side, encoding=encoding)
 
     def _resolve_name(self):
@@ -98,7 +102,9 @@ class Term(ops.Term):
 
 
 class Constant(Term):
-    def __init__(self, name, env: PyTablesScope, side=None, encoding=None) -> None:
+    def __init__(
+        self, name, env: PyTablesScope, side=None, encoding=None
+    ) -> None:
         assert isinstance(env, PyTablesScope), type(env)
         super().__init__(name, env, side=side, encoding=encoding)
 
@@ -113,7 +119,9 @@ class BinOp(ops.BinOp):
     queryables: dict[str, Any]
     condition: str | None
 
-    def __init__(self, op: str, lhs, rhs, queryables: dict[str, Any], encoding) -> None:
+    def __init__(
+        self, op: str, lhs, rhs, queryables: dict[str, Any], encoding
+    ) -> None:
         super().__init__(op, lhs, rhs)
         self.queryables = queryables
         self.encoding = encoding
@@ -148,7 +156,11 @@ class BinOp(ops.BinOp):
                     return right
 
             return k(
-                self.op, left, right, queryables=self.queryables, encoding=self.encoding
+                self.op,
+                left,
+                right,
+                queryables=self.queryables,
+                encoding=self.encoding,
             ).evaluate()
 
         left, right = self.lhs, self.rhs
@@ -249,7 +261,9 @@ class BinOp(ops.BinOp):
                 # convert v to float to raise float's ValueError
                 float(conv_val)
             else:
-                conv_val = int(v_dec.to_integral_exact(rounding="ROUND_HALF_EVEN"))
+                conv_val = int(
+                    v_dec.to_integral_exact(rounding="ROUND_HALF_EVEN")
+                )
             return TermValue(conv_val, conv_val, kind)
         elif kind == "float":
             conv_val = float(conv_val)
@@ -288,7 +302,9 @@ class FilterBinOp(BinOp):
     def __repr__(self) -> str:
         if self.filter is None:
             return "Filter: Not Initialized"
-        return pprint_thing(f"[Filter : [{self.filter[0]}] -> [{self.filter[1]}]")
+        return pprint_thing(
+            f"[Filter : [{self.filter[0]}] -> [{self.filter[1]}]"
+        )
 
     def invert(self) -> Self:
         """invert the filter"""
@@ -397,7 +413,9 @@ class ConditionBinOp(BinOp):
 class JointConditionBinOp(ConditionBinOp):
     # error: Signature of "evaluate" incompatible with supertype "BinOp"
     def evaluate(self) -> Self:  # type: ignore[override]
-        self.condition = f"({self.lhs.condition} {self.op} {self.rhs.condition})"
+        self.condition = (
+            f"({self.lhs.condition} {self.op} {self.rhs.condition})"
+        )
         return self
 
 
@@ -410,7 +428,10 @@ class UnaryOp(ops.UnaryOp):
         operand = operand.prune(klass)
 
         if operand is not None and (
-            (issubclass(klass, ConditionBinOp) and operand.condition is not None)
+            (
+                issubclass(klass, ConditionBinOp)
+                and operand.condition is not None
+            )
             or (
                 not issubclass(klass, ConditionBinOp)
                 and issubclass(klass, FilterBinOp)
@@ -471,7 +492,9 @@ class PyTablesExprVisitor(BaseExprVisitor):
         try:
             return self.const_type(value[slobj], self.env)
         except TypeError as err:
-            raise ValueError(f"cannot subscript {value!r} with {slobj!r}") from err
+            raise ValueError(
+                f"cannot subscript {value!r} with {slobj!r}"
+            ) from err
 
     def visit_Attribute(self, node, **kwargs):
         attr = node.attr
@@ -662,7 +685,9 @@ def maybe_expression(s) -> bool:
     """loose checking if s is a pytables-acceptable expression"""
     if not isinstance(s, str):
         return False
-    operations = PyTablesExprVisitor.binary_ops + PyTablesExprVisitor.unary_ops + ("=",)
+    operations = (
+        PyTablesExprVisitor.binary_ops + PyTablesExprVisitor.unary_ops + ("=",)
+    )
 
     # make sure we have an op at least
     return any(op in s for op in operations)

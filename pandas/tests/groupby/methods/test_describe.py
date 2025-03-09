@@ -20,7 +20,8 @@ def test_apply_describe_bug(multiindex_dataframe_random_data):
 
 def test_series_describe_multikey():
     ts = Series(
-        np.arange(10, dtype=np.float64), index=date_range("2020-01-01", periods=10)
+        np.arange(10, dtype=np.float64),
+        index=date_range("2020-01-01", periods=10),
     )
     grouped = ts.groupby([lambda x: x.year, lambda x: x.month])
     result = grouped.describe()
@@ -31,7 +32,8 @@ def test_series_describe_multikey():
 
 def test_series_describe_single():
     ts = Series(
-        np.arange(10, dtype=np.float64), index=date_range("2020-01-01", periods=10)
+        np.arange(10, dtype=np.float64),
+        index=date_range("2020-01-01", periods=10),
     )
     grouped = ts.groupby(lambda x: x.month)
     result = grouped.apply(lambda x: x.describe())
@@ -100,9 +102,14 @@ def test_frame_describe_tupleindex():
     result = df.groupby(name).describe()
     expected = DataFrame(
         [[5.0, 3.0, 1.581139, 1.0, 2.0, 3.0, 4.0, 5.0]] * 3,
-        index=Index([(0, 0, 1), (0, 1, 0), (1, 0, 0)], tupleize_cols=False, name=name),
+        index=Index(
+            [(0, 0, 1), (0, 1, 0), (1, 0, 0)], tupleize_cols=False, name=name
+        ),
         columns=MultiIndex.from_arrays(
-            [["x"] * 8, ["count", "mean", "std", "min", "25%", "50%", "75%", "max"]]
+            [
+                ["x"] * 8,
+                ["count", "mean", "std", "min", "25%", "50%", "75%", "max"],
+            ]
         ),
     )
     tm.assert_frame_equal(result, expected)
@@ -182,7 +189,9 @@ def test_describe_with_duplicate_output_column_names(as_index, keys):
     expected.columns.names = [None, None]
     if len(keys) == 2:
         expected.index = MultiIndex(
-            levels=[[88, 99], [88, 99]], codes=[[0, 1], [0, 1]], names=["a1", "a2"]
+            levels=[[88, 99], [88, 99]],
+            codes=[[0, 1], [0, 1]],
+            names=["a1", "a2"],
         )
     else:
         expected.index = Index([88, 99], name="a1")
@@ -204,7 +213,9 @@ def test_describe_duplicate_columns():
 
     columns = ["count", "mean", "std", "min", "50%", "max"]
     frames = [
-        DataFrame([[1.0, val, np.nan, val, val, val]], index=[1], columns=columns)
+        DataFrame(
+            [[1.0, val, np.nan, val, val, val]], index=[1], columns=columns
+        )
         for val in (0.0, 2.0, 3.0)
     ]
     expected = pd.concat(frames, axis=1)
@@ -226,7 +237,10 @@ def test_describe_non_cython_paths():
     gb = df.groupby("A")
     expected_index = Index([1, 3], name="A")
     expected_col = MultiIndex(
-        levels=[["B"], ["count", "mean", "std", "min", "25%", "50%", "75%", "max"]],
+        levels=[
+            ["B"],
+            ["count", "mean", "std", "min", "25%", "50%", "75%", "max"],
+        ],
         codes=[[0] * 8, list(range(8))],
     )
     expected = DataFrame(
@@ -251,8 +265,16 @@ def test_describe_non_cython_paths():
     "kwargs",
     [
         {"percentiles": [0.10, 0.20, 0.30], "include": "all", "exclude": None},
-        {"percentiles": [0.10, 0.20, 0.30], "include": None, "exclude": ["int"]},
-        {"percentiles": [0.10, 0.20, 0.30], "include": ["int"], "exclude": None},
+        {
+            "percentiles": [0.10, 0.20, 0.30],
+            "include": None,
+            "exclude": ["int"],
+        },
+        {
+            "percentiles": [0.10, 0.20, 0.30],
+            "include": ["int"],
+            "exclude": None,
+        },
     ],
 )
 def test_groupby_empty_dataset(dtype, kwargs):
@@ -262,10 +284,14 @@ def test_groupby_empty_dataset(dtype, kwargs):
     df["C"] = df["C"].astype(float)
 
     result = df.iloc[:0].groupby("A").describe(**kwargs)
-    expected = df.groupby("A").describe(**kwargs).reset_index(drop=True).iloc[:0]
+    expected = (
+        df.groupby("A").describe(**kwargs).reset_index(drop=True).iloc[:0]
+    )
     tm.assert_frame_equal(result, expected)
 
     result = df.iloc[:0].groupby("A").B.describe(**kwargs)
-    expected = df.groupby("A").B.describe(**kwargs).reset_index(drop=True).iloc[:0]
+    expected = (
+        df.groupby("A").B.describe(**kwargs).reset_index(drop=True).iloc[:0]
+    )
     expected.index = Index([], dtype=df.columns.dtype)
     tm.assert_frame_equal(result, expected)

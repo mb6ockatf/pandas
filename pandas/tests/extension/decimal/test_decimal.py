@@ -84,11 +84,15 @@ class TestDecimalArray(base.ExtensionTests):
             expected = getattr(np.asarray(ser), op_name)()
             tm.assert_almost_equal(result, expected)
 
-    def test_reduce_series_numeric(self, data, all_numeric_reductions, skipna, request):
+    def test_reduce_series_numeric(
+        self, data, all_numeric_reductions, skipna, request
+    ):
         if all_numeric_reductions in ["kurt", "skew", "sem", "median"]:
             mark = pytest.mark.xfail(raises=NotImplementedError)
             request.applymarker(mark)
-        super().test_reduce_series_numeric(data, all_numeric_reductions, skipna)
+        super().test_reduce_series_numeric(
+            data, all_numeric_reductions, skipna
+        )
 
     def test_reduce_frame(self, data, all_numeric_reductions, skipna, request):
         op_name = all_numeric_reductions
@@ -205,7 +209,9 @@ class TestDecimalArray(base.ExtensionTests):
 
 def test_take_na_value_other_decimal():
     arr = DecimalArray([decimal.Decimal("1.0"), decimal.Decimal("2.0")])
-    result = arr.take([0, -1], allow_fill=True, fill_value=decimal.Decimal("-1.0"))
+    result = arr.take(
+        [0, -1], allow_fill=True, fill_value=decimal.Decimal("-1.0")
+    )
     expected = DecimalArray([decimal.Decimal("1.0"), decimal.Decimal("-1.0")])
     tm.assert_extension_array_equal(result, expected)
 
@@ -290,7 +296,9 @@ def test_combine_from_sequence_raises(monkeypatch):
     def construct_array_type(cls):
         return DecimalArrayWithoutFromSequence
 
-    monkeypatch.setattr(DecimalDtype, "construct_array_type", construct_array_type)
+    monkeypatch.setattr(
+        DecimalDtype, "construct_array_type", construct_array_type
+    )
 
     arr = cls([decimal.Decimal("1.0"), decimal.Decimal("2.0")])
     ser = pd.Series(arr)
@@ -385,7 +393,11 @@ def test_groupby_agg():
 
     data = make_data()[:5]
     df = pd.DataFrame(
-        {"id1": [0, 0, 0, 1, 1], "id2": [0, 1, 0, 1, 1], "decimals": DecimalArray(data)}
+        {
+            "id1": [0, 0, 0, 1, 1],
+            "id2": [0, 1, 0, 1, 1],
+            "decimals": DecimalArray(data),
+        }
     )
 
     # single key, selected column
@@ -402,11 +414,15 @@ def test_groupby_agg():
     )
     result = df.groupby(["id1", "id2"])["decimals"].agg(lambda x: x.iloc[0])
     tm.assert_series_equal(result, expected, check_names=False)
-    result = df["decimals"].groupby([df["id1"], df["id2"]]).agg(lambda x: x.iloc[0])
+    result = (
+        df["decimals"].groupby([df["id1"], df["id2"]]).agg(lambda x: x.iloc[0])
+    )
     tm.assert_series_equal(result, expected, check_names=False)
 
     # multiple columns
-    expected = pd.DataFrame({"id2": [0, 1], "decimals": to_decimal([data[0], data[3]])})
+    expected = pd.DataFrame(
+        {"id2": [0, 1], "decimals": to_decimal([data[0], data[3]])}
+    )
     result = df.groupby("id1").agg(lambda x: x.iloc[0])
     tm.assert_frame_equal(result, expected, check_names=False)
 
@@ -418,11 +434,15 @@ def test_groupby_agg_ea_method(monkeypatch):
     def DecimalArray__my_sum(self):
         return np.sum(np.array(self))
 
-    monkeypatch.setattr(DecimalArray, "my_sum", DecimalArray__my_sum, raising=False)
+    monkeypatch.setattr(
+        DecimalArray, "my_sum", DecimalArray__my_sum, raising=False
+    )
 
     data = make_data()[:5]
     df = pd.DataFrame({"id": [0, 0, 0, 1, 1], "decimals": DecimalArray(data)})
-    expected = pd.Series(to_decimal([data[0] + data[1] + data[2], data[3] + data[4]]))
+    expected = pd.Series(
+        to_decimal([data[0] + data[1] + data[2], data[3] + data[4]])
+    )
 
     result = df.groupby("id")["decimals"].agg(lambda x: x.values.my_sum())
     tm.assert_series_equal(result, expected, check_names=False)
@@ -440,7 +460,9 @@ def test_indexing_no_materialize(monkeypatch):
     def DecimalArray__array__(self, dtype=None):
         raise Exception("tried to convert a DecimalArray to a numpy array")
 
-    monkeypatch.setattr(DecimalArray, "__array__", DecimalArray__array__, raising=False)
+    monkeypatch.setattr(
+        DecimalArray, "__array__", DecimalArray__array__, raising=False
+    )
 
     data = make_data()
     s = pd.Series(DecimalArray(data))
@@ -468,7 +490,9 @@ def test_to_numpy_keyword():
 
 
 def test_array_copy_on_write():
-    df = pd.DataFrame({"a": [decimal.Decimal(2), decimal.Decimal(3)]}, dtype="object")
+    df = pd.DataFrame(
+        {"a": [decimal.Decimal(2), decimal.Decimal(3)]}, dtype="object"
+    )
     df2 = df.astype(DecimalDtype())
     df.iloc[0, 0] = 0
     expected = pd.DataFrame(

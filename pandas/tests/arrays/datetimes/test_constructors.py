@@ -45,7 +45,9 @@ class TestDatetimeArrayConstructor:
     def test_from_pandas_array(self):
         arr = pd.array(np.arange(5, dtype=np.int64)) * 3600 * 10**9
 
-        result = DatetimeArray._from_sequence(arr, dtype="M8[ns]")._with_freq("infer")
+        result = DatetimeArray._from_sequence(arr, dtype="M8[ns]")._with_freq(
+            "infer"
+        )
 
         expected = pd.date_range("1970-01-01", periods=5, freq="h")._data
         tm.assert_datetime_array_equal(result, expected)
@@ -100,9 +102,9 @@ class TestSequenceToDT64NS:
             arr = arr.T
 
         res = DatetimeArray._from_sequence(arr, dtype=dti.dtype)
-        expected = DatetimeArray._from_sequence(arr.ravel(), dtype=dti.dtype).reshape(
-            arr.shape
-        )
+        expected = DatetimeArray._from_sequence(
+            arr.ravel(), dtype=dti.dtype
+        ).reshape(arr.shape)
         tm.assert_datetime_array_equal(res, expected)
 
 
@@ -138,9 +140,9 @@ def test_from_arrow_with_different_units_and_timezones_with(
     dtype = DatetimeTZDtype(unit=pd_unit, tz=pd_tz)
 
     result = dtype.__from_arrow__(arr)
-    expected = DatetimeArray._from_sequence(data, dtype=f"M8[{pa_unit}, UTC]").astype(
-        dtype, copy=False
-    )
+    expected = DatetimeArray._from_sequence(
+        data, dtype=f"M8[{pa_unit}, UTC]"
+    ).astype(dtype, copy=False)
     tm.assert_extension_array_equal(result, expected)
 
     result = dtype.__from_arrow__(pa.chunked_array([arr]))
@@ -166,7 +168,8 @@ def test_from_arrow_from_empty(unit, tz):
 
     result = dtype.__from_arrow__(arr)
     expected = DatetimeArray._from_sequence(
-        np.array(data, dtype=f"datetime64[{unit}]"), dtype=np.dtype(f"M8[{unit}]")
+        np.array(data, dtype=f"datetime64[{unit}]"),
+        dtype=np.dtype(f"M8[{unit}]"),
     )
     expected = expected.tz_localize(tz=tz)
     tm.assert_extension_array_equal(result, expected)

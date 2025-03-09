@@ -41,7 +41,9 @@ class BaseAccessor:
 
 
 @delegate_names(
-    SparseArray, ["npoints", "density", "fill_value", "sp_values"], typ="property"
+    SparseArray,
+    ["npoints", "density", "fill_value", "sp_values"],
+    typ="property",
 )
 class SparseAccessor(BaseAccessor, PandasDelegate):
     """
@@ -461,7 +463,9 @@ class SparseFrameAccessor(BaseAccessor, PandasDelegate):
         >>> df.sparse.density
         0.5
         """
-        tmp = np.mean([column.array.density for _, column in self._parent.items()])
+        tmp = np.mean(
+            [column.array.density for _, column in self._parent.items()]
+        )
         return tmp
 
     @staticmethod

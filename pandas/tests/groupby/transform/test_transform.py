@@ -42,7 +42,9 @@ def test_transform():
     # make sure that we preserve the input order
 
     df = DataFrame(
-        np.arange(6, dtype="int64").reshape(3, 2), columns=["a", "b"], index=[0, 2, 1]
+        np.arange(6, dtype="int64").reshape(3, 2),
+        columns=["a", "b"],
+        index=[0, 2, 1],
     )
     key = [0, 0, 1]
     expected = (
@@ -52,7 +54,9 @@ def test_transform():
         .groupby(key)
         .mean()
     )
-    result = df.groupby(key).transform(lambda x: x - x.mean()).groupby(key).mean()
+    result = (
+        df.groupby(key).transform(lambda x: x - x.mean()).groupby(key).mean()
+    )
     tm.assert_frame_equal(result, expected)
 
     def demean(arr):
@@ -65,7 +69,9 @@ def test_transform():
     )
     key = ["one", "two", "one", "two", "one"]
     result = people.groupby(key).transform(demean).groupby(key).mean()
-    expected = people.groupby(key, group_keys=False).apply(demean).groupby(key).mean()
+    expected = (
+        people.groupby(key, group_keys=False).apply(demean).groupby(key).mean()
+    )
     tm.assert_frame_equal(result, expected)
 
     # GH 8430
@@ -94,7 +100,9 @@ def test_transform_fast():
 
     grp = df.groupby("id")["val"]
 
-    values = np.repeat(grp.mean().values, ensure_platform_int(grp.count().values))
+    values = np.repeat(
+        grp.mean().values, ensure_platform_int(grp.count().values)
+    )
     expected = Series(values, index=df.index, name="val")
 
     result = grp.transform(np.mean)
@@ -249,7 +257,9 @@ def test_transform_datetime_to_timedelta():
 def test_transform_datetime_to_numeric():
     # GH 10972
     # convert dt to float
-    df = DataFrame({"a": 1, "b": date_range("2015-01-01", periods=2, freq="D")})
+    df = DataFrame(
+        {"a": 1, "b": date_range("2015-01-01", periods=2, freq="D")}
+    )
     result = df.groupby("a").b.transform(
         lambda x: x.dt.dayofweek - x.dt.dayofweek.mean()
     )
@@ -258,7 +268,9 @@ def test_transform_datetime_to_numeric():
     tm.assert_series_equal(result, expected)
 
     # convert dt to int
-    df = DataFrame({"a": 1, "b": date_range("2015-01-01", periods=2, freq="D")})
+    df = DataFrame(
+        {"a": 1, "b": date_range("2015-01-01", periods=2, freq="D")}
+    )
     result = df.groupby("a").b.transform(
         lambda x: x.dt.dayofweek - x.dt.dayofweek.min()
     )
@@ -288,7 +300,9 @@ def test_transform_casting():
             "ID3": np.take(
                 ["a", "b", "c", "d", "e"], [0, 1, 2, 1, 3, 1, 1, 1, 4, 1, 1]
             ),
-            "DATETIME": pd.to_datetime([f"2014-10-08 {time}" for time in times]),
+            "DATETIME": pd.to_datetime(
+                [f"2014-10-08 {time}" for time in times]
+            ),
         },
         index=pd.RangeIndex(11, name="idx"),
     )
@@ -296,7 +310,9 @@ def test_transform_casting():
     result = df.groupby("ID3")["DATETIME"].transform(lambda x: x.diff())
     assert lib.is_np_dtype(result.dtype, "m")
 
-    result = df[["ID3", "DATETIME"]].groupby("ID3").transform(lambda x: x.diff())
+    result = (
+        df[["ID3", "DATETIME"]].groupby("ID3").transform(lambda x: x.diff())
+    )
     assert lib.is_np_dtype(result.DATETIME.dtype, "m")
 
 
@@ -400,7 +416,10 @@ def test_transform_function_aliases(df):
 def test_series_fast_transform_date():
     # GH 13191
     df = DataFrame(
-        {"grouping": [np.nan, 1, 1, 3], "d": date_range("2014-1-1", "2014-1-4")}
+        {
+            "grouping": [np.nan, 1, 1, 3],
+            "d": date_range("2014-1-1", "2014-1-4"),
+        }
     )
     result = df.groupby("grouping")["d"].transform("first")
     dates = [
@@ -511,7 +530,9 @@ def test_groupby_transform_with_nan_group():
     # GH 9941
     df = DataFrame({"a": range(10), "b": [1, 1, 2, 3, np.nan, 4, 4, 5, 5, 5]})
     result = df.groupby(df.b)["a"].transform(max)
-    expected = Series([1.0, 1.0, 2.0, 3.0, np.nan, 6.0, 6.0, 9.0, 9.0, 9.0], name="a")
+    expected = Series(
+        [1.0, 1.0, 2.0, 3.0, np.nan, 6.0, 6.0, 9.0, 9.0, 9.0], name="a"
+    )
     tm.assert_series_equal(result, expected)
 
 
@@ -562,8 +583,12 @@ def test_cython_transform_series(op, args, targop):
         # print(data.head())
         expected = data.groupby(labels).transform(targop)
 
-        tm.assert_series_equal(expected, data.groupby(labels).transform(op, *args))
-        tm.assert_series_equal(expected, getattr(data.groupby(labels), op)(*args))
+        tm.assert_series_equal(
+            expected, data.groupby(labels).transform(op, *args)
+        )
+        tm.assert_series_equal(
+            expected, getattr(data.groupby(labels), op)(*args)
+        )
 
 
 @pytest.mark.parametrize("op", ["cumprod", "cumsum"])
@@ -571,12 +596,20 @@ def test_cython_transform_series(op, args, targop):
     "input, exp",
     [
         # When everything is NaN
-        ({"key": ["b"] * 10, "value": np.nan}, Series([np.nan] * 10, name="value")),
+        (
+            {"key": ["b"] * 10, "value": np.nan},
+            Series([np.nan] * 10, name="value"),
+        ),
         # When there is a single NaN
         (
-            {"key": ["b"] * 10 + ["a"] * 2, "value": [3] * 3 + [np.nan] + [3] * 8},
             {
-                ("cumprod", False): [3.0, 9.0, 27.0] + [np.nan] * 7 + [3.0, 9.0],
+                "key": ["b"] * 10 + ["a"] * 2,
+                "value": [3] * 3 + [np.nan] + [3] * 8,
+            },
+            {
+                ("cumprod", False): [3.0, 9.0, 27.0]
+                + [np.nan] * 7
+                + [3.0, 9.0],
                 ("cumprod", True): [
                     3.0,
                     9.0,
@@ -665,7 +698,11 @@ def frame_mi(frame):
 @pytest.mark.parametrize(
     "gb_target",
     [
-        {"by": np.random.default_rng(2).integers(0, 50, size=10).astype(float)},
+        {
+            "by": np.random.default_rng(2)
+            .integers(0, 50, size=10)
+            .astype(float)
+        },
         {"level": 0},
         {"by": "string"},
         pytest.param({"by": "string_missing"}, marks=pytest.mark.xfail),
@@ -689,7 +726,9 @@ def test_cython_transform_frame(request, op, args, targop, df_fix, gb_target):
     if op == "shift":
         expected["string_missing"] = expected["string_missing"].fillna(np.nan)
         by = gb_target.get("by")
-        if not isinstance(by, (str, list)) or (by != "string" and "string" not in by):
+        if not isinstance(by, (str, list)) or (
+            by != "string" and "string" not in by
+        ):
             expected["string"] = expected["string"].fillna(np.nan)
 
     result = gb[expected.columns].transform(op, *args).sort_index(axis=1)
@@ -712,7 +751,11 @@ def test_cython_transform_frame(request, op, args, targop, df_fix, gb_target):
 @pytest.mark.parametrize(
     "gb_target",
     [
-        {"by": np.random.default_rng(2).integers(0, 50, size=10).astype(float)},
+        {
+            "by": np.random.default_rng(2)
+            .integers(0, 50, size=10)
+            .astype(float)
+        },
         {"level": 0},
         {"by": "string"},
         # TODO: create xfail condition given other params
@@ -782,7 +825,11 @@ def test_cython_transform_frame_column(
 def test_transform_numeric_ret(cols, expected, agg_func):
     # GH#19200 and GH#27469
     df = DataFrame(
-        {"a": date_range("2018-01-01", periods=3), "b": range(3), "c": range(7, 10)}
+        {
+            "a": date_range("2018-01-01", periods=3),
+            "b": range(3),
+            "c": range(7, 10),
+        }
     )
     result = df.groupby("b")[cols].transform(agg_func)
 
@@ -817,13 +864,21 @@ def test_transform_ffill():
             None,
             [np.nan, np.nan, "val1", "val1", "val1", "val2", "val2", "val2"],
         ),
-        ("ffill", 1, [np.nan, np.nan, "val1", "val1", np.nan, "val2", "val2", np.nan]),
+        (
+            "ffill",
+            1,
+            [np.nan, np.nan, "val1", "val1", np.nan, "val2", "val2", np.nan],
+        ),
         (
             "bfill",
             None,
             ["val1", "val1", "val1", "val2", "val2", "val2", np.nan, np.nan],
         ),
-        ("bfill", 1, [np.nan, "val1", "val1", np.nan, "val2", "val2", np.nan, np.nan]),
+        (
+            "bfill",
+            1,
+            [np.nan, "val1", "val1", np.nan, "val2", "val2", np.nan, np.nan],
+        ),
     ],
 )
 def test_group_fill_methods(
@@ -977,7 +1032,9 @@ def test_groupby_transform_rename():
         if isinstance(x, Series):
             return result
 
-        result = result.rename(columns={c: f"{c}_demeaned" for c in result.columns})
+        result = result.rename(
+            columns={c: f"{c}_demeaned" for c in result.columns}
+        )
 
         return result
 
@@ -996,7 +1053,9 @@ def test_groupby_transform_timezone_column(func):
     ts = pd.to_datetime("now", utc=True).tz_convert("Asia/Singapore")
     result = DataFrame({"end_time": [ts], "id": [1]})
     result["max_end_time"] = result.groupby("id").end_time.transform(func)
-    expected = DataFrame([[ts, 1, ts]], columns=["end_time", "id", "max_end_time"])
+    expected = DataFrame(
+        [[ts, 1, ts]], columns=["end_time", "id", "max_end_time"]
+    )
     tm.assert_frame_equal(result, expected)
 
 
@@ -1031,15 +1090,21 @@ def test_groupby_transform_dtype():
     expected1 = Series(["+1.35"], name="val")
     tm.assert_series_equal(result, expected1)
 
-    result = df.groupby("a")["val"].transform(lambda x: x.map(lambda y: f"+{y}"))
+    result = df.groupby("a")["val"].transform(
+        lambda x: x.map(lambda y: f"+{y}")
+    )
     tm.assert_series_equal(result, expected1)
 
-    result = df.groupby("a")["val"].transform(lambda x: x.map(lambda y: f"+({y})"))
+    result = df.groupby("a")["val"].transform(
+        lambda x: x.map(lambda y: f"+({y})")
+    )
     expected2 = Series(["+(1.35)"], name="val")
     tm.assert_series_equal(result, expected2)
 
     df["val"] = df["val"].astype(object)
-    result = df.groupby("a")["val"].transform(lambda x: x.map(lambda y: f"+{y}"))
+    result = df.groupby("a")["val"].transform(
+        lambda x: x.map(lambda y: f"+{y}")
+    )
     tm.assert_series_equal(result, expected1)
 
 
@@ -1050,7 +1115,9 @@ def test_transform_absent_categories(all_numeric_accumulations):
     x_cats = range(2)
     y = [1]
     df = DataFrame({"x": Categorical(x_vals, x_cats), "y": y})
-    result = getattr(df.y.groupby(df.x, observed=False), all_numeric_accumulations)()
+    result = getattr(
+        df.y.groupby(df.x, observed=False), all_numeric_accumulations
+    )()
     expected = df.y
     tm.assert_series_equal(result, expected)
 
@@ -1230,7 +1297,9 @@ def test_categorical_and_not_categorical_key(observed):
     )
 
     # DataFrame case
-    result = df_with_categorical.groupby(["A", "C"], observed=observed).transform("sum")
+    result = df_with_categorical.groupby(
+        ["A", "C"], observed=observed
+    ).transform("sum")
     expected = df_without_categorical.groupby(["A", "C"]).transform("sum")
     tm.assert_frame_equal(result, expected)
     expected_explicit = DataFrame({"B": [4, 2, 4]})
@@ -1301,7 +1370,9 @@ def test_null_group_str_reducer(request, dropna, reduction_func):
         request.applymarker(pytest.mark.xfail(reason=msg))
 
     index = [1, 2, 3, 4]  # test transform preserves non-standard index
-    df = DataFrame({"A": [1, 1, np.nan, np.nan], "B": [1, 2, 2, 3]}, index=index)
+    df = DataFrame(
+        {"A": [1, 1, np.nan, np.nan], "B": [1, 2, 2, 3]}, index=index
+    )
     gb = df.groupby("A", dropna=dropna)
 
     args = get_groupby_method_args(reduction_func, df)
@@ -1355,7 +1426,9 @@ def test_null_group_str_transformer(dropna, transformation_func):
         buffer.append(res)
     if dropna:
         dtype = object if transformation_func in ("any", "all") else None
-        buffer.append(DataFrame([[np.nan]], index=[3], dtype=dtype, columns=["B"]))
+        buffer.append(
+            DataFrame([[np.nan]], index=[3], dtype=dtype, columns=["B"])
+        )
     expected = concat(buffer)
 
     if transformation_func in ("cumcount", "ngroup"):
@@ -1441,7 +1514,9 @@ def test_null_group_str_transformer_series(dropna, transformation_func):
 )
 @pytest.mark.parametrize("keys", [["a1"], ["a1", "a2"]])
 @pytest.mark.parametrize("keys_in_index", [True, False])
-def test_transform_aligns(func, frame_or_series, expected_values, keys, keys_in_index):
+def test_transform_aligns(
+    func, frame_or_series, expected_values, keys, keys_in_index
+):
     # GH#45648 - transform should align with the input's index
     df = DataFrame({"a1": [1, 1, 3, 2, 2], "b": [5, 4, 3, 2, 1]})
     if "a2" in keys:
@@ -1486,14 +1561,18 @@ def test_as_index_no_change(keys, df, groupby_func):
 @pytest.mark.parametrize("numeric_only", [True, False])
 def test_idxmin_idxmax_transform_args(how, skipna, numeric_only):
     # GH#55268 - ensure *args are passed through when calling transform
-    df = DataFrame({"a": [1, 1, 1, 2], "b": [3.0, 4.0, np.nan, 6.0], "c": list("abcd")})
+    df = DataFrame(
+        {"a": [1, 1, 1, 2], "b": [3.0, 4.0, np.nan, 6.0], "c": list("abcd")}
+    )
     gb = df.groupby("a")
     if skipna:
         result = gb.transform(how, skipna, numeric_only)
         expected = gb.transform(how, skipna=skipna, numeric_only=numeric_only)
         tm.assert_frame_equal(result, expected)
     else:
-        msg = f"DataFrameGroupBy.{how} with skipna=False encountered an NA value"
+        msg = (
+            f"DataFrameGroupBy.{how} with skipna=False encountered an NA value"
+        )
         with pytest.raises(ValueError, match=msg):
             gb.transform(how, skipna, numeric_only)
 
@@ -1545,7 +1624,9 @@ def test_transform_sum_one_column_with_matching_labels_and_missing_labels():
 @pytest.mark.parametrize("dtype", ["int32", "float32"])
 def test_min_one_unobserved_category_no_type_coercion(dtype):
     # GH#58084
-    df = DataFrame({"A": Categorical([1, 1, 2], categories=[1, 2, 3]), "B": [3, 4, 5]})
+    df = DataFrame(
+        {"A": Categorical([1, 1, 2], categories=[1, 2, 3]), "B": [3, 4, 5]}
+    )
     df["B"] = df["B"].astype(dtype)
     gb = df.groupby("A", observed=False)
     result = gb.transform("min")
@@ -1583,7 +1664,9 @@ def test_min_one_dim_no_type_coercion():
     gb = df.groupby(categories, observed=False)
     result = gb.transform("min")
 
-    expected = DataFrame({"Y": [9435, -5465765, -5465765, 0, 9435]}, dtype="int32")
+    expected = DataFrame(
+        {"Y": [9435, -5465765, -5465765, 0, 9435]}, dtype="int32"
+    )
     tm.assert_frame_equal(expected, result)
 
 

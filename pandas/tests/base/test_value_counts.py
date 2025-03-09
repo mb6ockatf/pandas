@@ -20,19 +20,25 @@ import pandas._testing as tm
 from pandas.tests.base.common import allow_na_ops
 
 
-@pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+@pytest.mark.filterwarnings(
+    r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+)
 def test_value_counts(index_or_series_obj):
     obj = index_or_series_obj
     obj = np.repeat(obj, range(1, len(obj) + 1))
     result = obj.value_counts()
 
     counter = collections.Counter(obj)
-    expected = Series(dict(counter.most_common()), dtype=np.int64, name="count")
+    expected = Series(
+        dict(counter.most_common()), dtype=np.int64, name="count"
+    )
 
     if obj.dtype != np.float16:
         expected.index = expected.index.astype(obj.dtype)
     else:
-        with pytest.raises(NotImplementedError, match="float16 indexes are not "):
+        with pytest.raises(
+            NotImplementedError, match="float16 indexes are not "
+        ):
             expected.index.astype(obj.dtype)
         return
     if isinstance(expected.index, MultiIndex):
@@ -51,7 +57,9 @@ def test_value_counts(index_or_series_obj):
 
 
 @pytest.mark.parametrize("null_obj", [np.nan, None])
-@pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+@pytest.mark.filterwarnings(
+    r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+)
 def test_value_counts_null(null_obj, index_or_series_obj):
     orig = index_or_series_obj
     obj = orig.copy()
@@ -73,12 +81,16 @@ def test_value_counts_null(null_obj, index_or_series_obj):
     # because np.nan == np.nan is False, but None == None is True
     # np.nan would be duplicated, whereas None wouldn't
     counter = collections.Counter(obj.dropna())
-    expected = Series(dict(counter.most_common()), dtype=np.int64, name="count")
+    expected = Series(
+        dict(counter.most_common()), dtype=np.int64, name="count"
+    )
 
     if obj.dtype != np.float16:
         expected.index = expected.index.astype(obj.dtype)
     else:
-        with pytest.raises(NotImplementedError, match="float16 indexes are not "):
+        with pytest.raises(
+            NotImplementedError, match="float16 indexes are not "
+        ):
             expected.index.astype(obj.dtype)
         return
     expected.index.name = obj.name
@@ -121,7 +133,9 @@ def test_value_counts_inferred(index_or_series, using_infer_string):
     # don't sort, have to sort after the fact as not sorting is
     # platform-dep
     hist = s.value_counts(sort=False).sort_values()
-    expected = Series([3, 1, 4, 2], index=list("acbd"), name="count").sort_values()
+    expected = Series(
+        [3, 1, 4, 2], index=list("acbd"), name="count"
+    ).sort_values()
     tm.assert_series_equal(hist, expected)
 
     # sort ascending
@@ -166,17 +180,23 @@ def test_value_counts_bins(index_or_series, using_infer_string):
     # these return the same
     res4 = s1.value_counts(bins=4, dropna=True)
     intervals = IntervalIndex.from_breaks([0.997, 1.5, 2.0, 2.5, 3.0])
-    exp4 = Series([2, 1, 1, 0], index=intervals.take([0, 1, 3, 2]), name="count")
+    exp4 = Series(
+        [2, 1, 1, 0], index=intervals.take([0, 1, 3, 2]), name="count"
+    )
     tm.assert_series_equal(res4, exp4)
 
     res4 = s1.value_counts(bins=4, dropna=False)
     intervals = IntervalIndex.from_breaks([0.997, 1.5, 2.0, 2.5, 3.0])
-    exp4 = Series([2, 1, 1, 0], index=intervals.take([0, 1, 3, 2]), name="count")
+    exp4 = Series(
+        [2, 1, 1, 0], index=intervals.take([0, 1, 3, 2]), name="count"
+    )
     tm.assert_series_equal(res4, exp4)
 
     res4n = s1.value_counts(bins=4, normalize=True)
     exp4n = Series(
-        [0.5, 0.25, 0.25, 0], index=intervals.take([0, 1, 3, 2]), name="proportion"
+        [0.5, 0.25, 0.25, 0],
+        index=intervals.take([0, 1, 3, 2]),
+        name="proportion",
     )
     tm.assert_series_equal(res4n, exp4n)
 
@@ -203,7 +223,9 @@ def test_value_counts_bins(index_or_series, using_infer_string):
     if isinstance(s, Index):
         tm.assert_index_equal(s.unique(), Index([]), exact=False)
     else:
-        tm.assert_numpy_array_equal(s.unique(), np.array([]), check_dtype=False)
+        tm.assert_numpy_array_equal(
+            s.unique(), np.array([]), check_dtype=False
+        )
 
     assert s.nunique() == 0
 
@@ -215,7 +237,14 @@ def test_value_counts_datetime64(index_or_series, unit):
     # don't test names though
     df = pd.DataFrame(
         {
-            "person_id": ["xxyyzz", "xxyyzz", "xxyyzz", "xxyyww", "foofoo", "foofoo"],
+            "person_id": [
+                "xxyyzz",
+                "xxyyzz",
+                "xxyyzz",
+                "xxyyww",
+                "foofoo",
+                "foofoo",
+            ],
             "dt": pd.to_datetime(
                 [
                     "2010-01-01",
@@ -240,7 +269,11 @@ def test_value_counts_datetime64(index_or_series, unit):
 
     expected = array(
         np.array(
-            ["2010-01-01 00:00:00", "2009-01-01 00:00:00", "2008-09-09 00:00:00"],
+            [
+                "2010-01-01 00:00:00",
+                "2009-01-01 00:00:00",
+                "2008-09-09 00:00:00",
+            ],
             dtype=f"datetime64[{unit}]",
         )
     )
@@ -267,7 +300,9 @@ def test_value_counts_datetime64(index_or_series, unit):
     result = s.value_counts(dropna=False)
     expected_s = pd.concat(
         [
-            Series([4], index=DatetimeIndex([pd.NaT]).as_unit(unit), name="count"),
+            Series(
+                [4], index=DatetimeIndex([pd.NaT]).as_unit(unit), name="count"
+            ),
             expected_s,
         ]
     )
@@ -323,7 +358,9 @@ def test_value_counts_with_nan(dropna, index_or_series):
     obj = klass(values)
     res = obj.value_counts(dropna=dropna)
     if dropna is True:
-        expected = Series([1], index=Index([True], dtype=obj.dtype), name="count")
+        expected = Series(
+            [1], index=Index([True], dtype=obj.dtype), name="count"
+        )
     else:
         expected = Series([1, 1, 1], index=[True, pd.NA, np.nan], name="count")
     tm.assert_series_equal(res, expected)

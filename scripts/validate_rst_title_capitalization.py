@@ -11,6 +11,7 @@ As pre-commit hook (recommended):
 From the command-line:
     python scripts/validate_rst_title_capitalization.py <rst file>
 """
+
 from __future__ import annotations
 
 import argparse
@@ -161,9 +162,13 @@ CAPITALIZATION_EXCEPTIONS = {
     "VSCode",
 }
 
-CAP_EXCEPTIONS_DICT = {word.lower(): word for word in CAPITALIZATION_EXCEPTIONS}
+CAP_EXCEPTIONS_DICT = {
+    word.lower(): word for word in CAPITALIZATION_EXCEPTIONS
+}
 
-err_msg = "Heading capitalization formatted incorrectly. Please correctly capitalize"
+err_msg = (
+    "Heading capitalization formatted incorrectly. Please correctly capitalize"
+)
 
 symbols = ("*", "=", "-", "^", "~", "#", '"')
 
@@ -202,7 +207,9 @@ def correct_title_capitalization(title: str) -> str:
     for word in word_list:
         if word.lower() in CAP_EXCEPTIONS_DICT:
             correct_title = re.sub(
-                rf"\b{word}\b", CAP_EXCEPTIONS_DICT[word.lower()], correct_title
+                rf"\b{word}\b",
+                CAP_EXCEPTIONS_DICT[word.lower()],
+                correct_title,
             )
 
     return correct_title
@@ -274,7 +281,9 @@ def main(source_paths: list[str]) -> int:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Validate heading capitalization")
+    parser = argparse.ArgumentParser(
+        description="Validate heading capitalization"
+    )
 
     parser.add_argument(
         "paths", nargs="*", help="Source paths of file/directory to check."

@@ -67,7 +67,9 @@ class BaseParser:
         # should point to.
         kwargs = self.update_kwargs(kwargs)
         with tm.assert_produces_warning(
-            warn_type, match=warn_msg, raise_on_extra_warnings=raise_on_extra_warnings
+            warn_type,
+            match=warn_msg,
+            raise_on_extra_warnings=raise_on_extra_warnings,
         ):
             return read_table(*args, **kwargs)
 
@@ -123,7 +125,9 @@ _pyarrow_parsers_only = [
         _pyarrowParser,
         marks=[
             pytest.mark.single_cpu,
-            pytest.mark.skipif(not HAS_PYARROW, reason="pyarrow is not installed"),
+            pytest.mark.skipif(
+                not HAS_PYARROW, reason="pyarrow is not installed"
+            ),
         ],
     )
 ]
@@ -225,7 +229,9 @@ _encoding_seps = ["", "-", "_"]
 _encoding_prefixes = ["utf", "UTF"]
 
 _encoding_fmts = [
-    f"{prefix}{sep}{{0}}" for sep in _encoding_seps for prefix in _encoding_prefixes
+    f"{prefix}{sep}{{0}}"
+    for sep in _encoding_seps
+    for prefix in _encoding_prefixes
 ]
 
 

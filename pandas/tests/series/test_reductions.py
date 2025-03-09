@@ -86,7 +86,9 @@ def test_td64_summation_overflow():
 
     # mean
     result = (ser - ser.min()).mean()
-    expected = pd.Timedelta((pd.TimedeltaIndex(ser - ser.min()).asi8 / len(ser)).sum())
+    expected = pd.Timedelta(
+        (pd.TimedeltaIndex(ser - ser.min()).asi8 / len(ser)).sum()
+    )
 
     # the computation is converted to float so
     # might be some loss of precision
@@ -180,7 +182,9 @@ def test_mean_with_convertible_string_raises():
 def test_mean_dont_convert_j_to_complex():
     # GH#36703
     df = pd.DataFrame([{"db": "J", "numeric": 123}])
-    msg = r"Could not convert \['J'\] to numeric|does not support|Cannot perform"
+    msg = (
+        r"Could not convert \['J'\] to numeric|does not support|Cannot perform"
+    )
     with pytest.raises(TypeError, match=msg):
         df.mean()
 
@@ -190,7 +194,9 @@ def test_mean_dont_convert_j_to_complex():
     msg = "Could not convert string 'J' to numeric|does not support|Cannot perform"
     with pytest.raises(TypeError, match=msg):
         df["db"].mean()
-    msg = "Could not convert string 'J' to numeric|ufunc 'divide'|Cannot perform"
+    msg = (
+        "Could not convert string 'J' to numeric|ufunc 'divide'|Cannot perform"
+    )
     with pytest.raises(TypeError, match=msg):
         np.mean(df["db"].astype("string").array)
 
@@ -202,9 +208,7 @@ def test_median_with_convertible_string_raises():
     with pytest.raises(TypeError, match=msg):
         ser.median()
 
-    msg = (
-        r"Cannot convert \[\['1' '2' '3'\]\] to numeric|does not support|Cannot perform"
-    )
+    msg = r"Cannot convert \[\['1' '2' '3'\]\] to numeric|does not support|Cannot perform"
     df = ser.to_frame()
     with pytest.raises(TypeError, match=msg):
         df.median()

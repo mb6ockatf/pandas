@@ -162,11 +162,15 @@ class ParserBase:
 
         self._first_chunk = True
 
-        self.usecols, self.usecols_dtype = _validate_usecols_arg(kwds["usecols"])
+        self.usecols, self.usecols_dtype = _validate_usecols_arg(
+            kwds["usecols"]
+        )
 
         # Fallback to error to pass a sketchy test(test_override_set_noconvert_columns)
         # Normally, this arg would get pre-processed earlier on
-        self.on_bad_lines = kwds.get("on_bad_lines", self.BadLineHandleMethod.ERROR)
+        self.on_bad_lines = kwds.get(
+            "on_bad_lines", self.BadLineHandleMethod.ERROR
+        )
 
     def close(self) -> None:
         pass
@@ -193,7 +197,10 @@ class ParserBase:
         index_names: Sequence[Hashable] | None,
         passed_names: bool = False,
     ) -> tuple[
-        Sequence[Hashable], Sequence[Hashable] | None, Sequence[Hashable] | None, bool
+        Sequence[Hashable],
+        Sequence[Hashable] | None,
+        Sequence[Hashable] | None,
+        bool,
     ]:
         """
         Extract and return the names, index_names, col_names if the column
@@ -225,14 +232,20 @@ class ParserBase:
 
         # clean the index_names
         index_names = header.pop(-1)
-        index_names, _, _ = self._clean_index_names(index_names, self.index_col)
+        index_names, _, _ = self._clean_index_names(
+            index_names, self.index_col
+        )
 
         # extract the columns
         field_count = len(header[0])
 
         # check if header lengths are equal
-        if not all(len(header_iter) == field_count for header_iter in header[1:]):
-            raise ParserError("Header rows must have an equal number of columns.")
+        if not all(
+            len(header_iter) == field_count for header_iter in header[1:]
+        ):
+            raise ParserError(
+                "Header rows must have an equal number of columns."
+            )
 
         def extract(r):
             return tuple(r[i] for i in range(field_count) if i not in sic)
@@ -245,9 +258,14 @@ class ParserBase:
         # Clean the column names (if we have an index_col).
         if len(ic):
             col_names = [
-                r[ic[0]]
-                if ((r[ic[0]] is not None) and r[ic[0]] not in self.unnamed_cols)
-                else None
+                (
+                    r[ic[0]]
+                    if (
+                        (r[ic[0]] is not None)
+                        and r[ic[0]] not in self.unnamed_cols
+                    )
+                    else None
+                )
                 for r in header
             ]
         else:
@@ -334,7 +352,11 @@ class ParserBase:
             if self._should_parse_dates(i):
                 arr = date_converter(
                     arr,
-                    col=self.index_names[i] if self.index_names is not None else None,
+                    col=(
+                        self.index_names[i]
+                        if self.index_names is not None
+                        else None
+                    ),
                     dayfirst=self.dayfirst,
                     cache_dates=self.cache_dates,
                     date_format=self.date_format,
@@ -352,7 +374,10 @@ class ParserBase:
                 col_name = self.index_names[i]
                 if col_name is not None:
                     col_na_values, col_na_fvalues = get_na_values(
-                        col_name, self.na_values, self.na_fvalues, self.keep_default_na
+                        col_name,
+                        self.na_values,
+                        self.na_fvalues,
+                        self.keep_default_na,
                     )
                 else:
                     col_na_values, col_na_fvalues = set(), set()
@@ -364,14 +389,19 @@ class ParserBase:
                     cast_type = clean_dtypes.get(self.index_names[i], None)
 
                 if isinstance(converters, dict):
-                    index_converter = converters.get(self.index_names[i]) is not None
+                    index_converter = (
+                        converters.get(self.index_names[i]) is not None
+                    )
 
             try_num_bool = not (
                 (cast_type and is_string_dtype(cast_type)) or index_converter
             )
 
             arr, _ = self._infer_types(
-                arr, col_na_values | col_na_fvalues, cast_type is None, try_num_bool
+                arr,
+                col_na_values | col_na_fvalues,
+                cast_type is None,
+                try_num_bool,
             )
             if cast_type is not None:
                 # Don't perform RangeIndex inference
@@ -412,7 +442,10 @@ class ParserBase:
             # A set of integers will be converted to a list in
             # the correct order every single time.
             usecols = sorted(self.usecols)
-        elif callable(self.usecols) or self.usecols_dtype not in ("empty", None):
+        elif callable(self.usecols) or self.usecols_dtype not in (
+            "empty",
+            None,
+        ):
             # The names attribute should have the correct columns
             # in the proper order for indexing with parse_dates.
             usecols = col_indices
@@ -466,7 +499,9 @@ class ParserBase:
         na_count = 0
         if issubclass(values.dtype.type, (np.number, np.bool_)):
             # If our array has numeric dtype, we don't have to check for strings in isin
-            na_values = np.array([val for val in na_values if not isinstance(val, str)])
+            na_values = np.array(
+                [val for val in na_values if not isinstance(val, str)]
+            )
             mask = algorithms.isin(values, na_values)
             na_count = mask.astype("uint8", copy=False).sum()
             if na_count > 0:
@@ -502,7 +537,8 @@ class ParserBase:
 
                     if result_mask.all():
                         result = IntegerArray(
-                            np.ones(result_mask.shape, dtype=np.int64), result_mask
+                            np.ones(result_mask.shape, dtype=np.int64),
+                            result_mask,
                         )
                     elif is_integer_dtype(result):
                         result = IntegerArray(result, result_mask)
@@ -540,11 +576,15 @@ class ParserBase:
         if dtype_backend == "pyarrow":
             pa = import_optional_dependency("pyarrow")
             if isinstance(result, np.ndarray):
-                result = ArrowExtensionArray(pa.array(result, from_pandas=True))
+                result = ArrowExtensionArray(
+                    pa.array(result, from_pandas=True)
+                )
             elif isinstance(result, BaseMaskedArray):
                 if result._mask.all():
                     # We want an arrow null array here
-                    result = ArrowExtensionArray(pa.array([None] * len(result)))
+                    result = ArrowExtensionArray(
+                        pa.array([None] * len(result))
+                    )
                 else:
                     result = ArrowExtensionArray(
                         pa.array(result._data, mask=result._mask)
@@ -581,8 +621,11 @@ class ParserBase:
         for colspec in self.parse_dates:
             if isinstance(colspec, int) and colspec not in data:
                 colspec = names[colspec]
-            if (isinstance(self.index_col, list) and colspec in self.index_col) or (
-                isinstance(self.index_names, list) and colspec in self.index_names
+            if (
+                isinstance(self.index_col, list) and colspec in self.index_col
+            ) or (
+                isinstance(self.index_names, list)
+                and colspec in self.index_names
             ):
                 continue
             result = date_converter(
@@ -629,7 +672,9 @@ class ParserBase:
             )
 
     @final
-    def _validate_usecols_names(self, usecols: SequenceT, names: Sequence) -> SequenceT:
+    def _validate_usecols_names(
+        self, usecols: SequenceT, names: Sequence
+    ) -> SequenceT:
         """
         Validates that all usecols are present in a given
         list of names. If not, raise a ValueError that
@@ -661,7 +706,9 @@ class ParserBase:
         return usecols
 
     @final
-    def _clean_index_names(self, columns, index_col) -> tuple[list | None, list, list]:
+    def _clean_index_names(
+        self, columns, index_col
+    ) -> tuple[list | None, list, list]:
         if not is_index_col(index_col):
             return None, columns, index_col
 
@@ -718,7 +765,10 @@ class ParserBase:
             dtype = cast(dict, dtype)
             dtype_dict = defaultdict(
                 lambda: None,
-                {columns[k] if is_integer(k) else k: v for k, v in dtype.items()},
+                {
+                    columns[k] if is_integer(k) else k: v
+                    for k, v in dtype.items()
+                },
             )
 
         # Even though we have no data, the "index" of the empty DataFrame
@@ -736,7 +786,8 @@ class ParserBase:
         else:
             # TODO: We could return default_index(0) if dtype_dict[name] is None
             data = [
-                Index([], name=name, dtype=dtype_dict[name]) for name in index_names
+                Index([], name=name, dtype=dtype_dict[name])
+                for name in index_names
             ]
             if len(data) == 1:
                 index = data[0]
@@ -748,7 +799,8 @@ class ParserBase:
                 columns.pop(n - i)
 
         col_dict = {
-            col_name: Series([], dtype=dtype_dict[col_name]) for col_name in columns
+            col_name: Series([], dtype=dtype_dict[col_name])
+            for col_name in columns
         }
 
         return index, columns, col_dict
@@ -764,7 +816,9 @@ def date_converter(
     if date_col.dtype.kind in "Mm":
         return date_col
 
-    date_fmt = date_format.get(col) if isinstance(date_format, dict) else date_format
+    date_fmt = (
+        date_format.get(col) if isinstance(date_format, dict) else date_format
+    )
 
     str_objs = lib.ensure_string_array(np.asarray(date_col))
     try:
@@ -908,7 +962,9 @@ def validate_parse_dates_presence(
             unique_cols.add(columns[col])
     if missing:
         missing_cols = ", ".join(sorted(missing))
-        raise ValueError(f"Missing column provided to 'parse_dates': '{missing_cols}'")
+        raise ValueError(
+            f"Missing column provided to 'parse_dates': '{missing_cols}'"
+        )
     return unique_cols
 
 

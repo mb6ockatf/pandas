@@ -40,7 +40,9 @@ class BaseStringArrayMethods(abc.ABC):
 
     def _str_getitem(self, key):
         if isinstance(key, slice):
-            return self._str_slice(start=key.start, stop=key.stop, step=key.step)
+            return self._str_slice(
+                start=key.start, stop=key.stop, step=key.step
+            )
         else:
             return self._str_get(key)
 
@@ -59,7 +61,12 @@ class BaseStringArrayMethods(abc.ABC):
 
     @abc.abstractmethod
     def _str_contains(
-        self, pat, case: bool = True, flags: int = 0, na=None, regex: bool = True
+        self,
+        pat,
+        case: bool = True,
+        flags: int = 0,
+        na=None,
+        regex: bool = True,
     ):
         pass
 

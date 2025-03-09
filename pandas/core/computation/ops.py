@@ -212,7 +212,9 @@ class Op:
 
     op: str
 
-    def __init__(self, op: str, operands: Iterable[Term | Op], encoding=None) -> None:
+    def __init__(
+        self, op: str, operands: Iterable[Term | Op], encoding=None
+    ) -> None:
         self.op = _bool_op_map.get(op, op)
         self.operands = operands
         self.encoding = encoding
@@ -483,7 +485,12 @@ class BinOp(Op):
 
 
 UNARY_OPS_SYMS = ("+", "-", "~", "not")
-_unary_ops_funcs = (operator.pos, operator.neg, operator.invert, operator.invert)
+_unary_ops_funcs = (
+    operator.pos,
+    operator.neg,
+    operator.invert,
+    operator.invert,
+)
 _unary_ops_dict = dict(zip(UNARY_OPS_SYMS, _unary_ops_funcs))
 
 

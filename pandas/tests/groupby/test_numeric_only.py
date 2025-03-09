@@ -33,7 +33,9 @@ class TestNumericOnly:
                 "category_string": Series(list("abc")).astype("category"),
                 "category_int": [7, 8, 9],
                 "datetime": date_range("20130101", periods=3),
-                "datetimetz": date_range("20130101", periods=3, tz="US/Eastern"),
+                "datetimetz": date_range(
+                    "20130101", periods=3, tz="US/Eastern"
+                ),
                 "timedelta": pd.timedelta_range("1 s", periods=3, freq="s"),
             },
             columns=[
@@ -134,7 +136,9 @@ class TestNumericOnly:
         )
         if method == "cumsum":
             # cumsum loses string
-            expected_columns = Index(["int", "float", "category_int", "timedelta"])
+            expected_columns = Index(
+                ["int", "float", "category_int", "timedelta"]
+            )
 
         self._check(df, method, expected_columns, expected_columns_numeric)
 
@@ -149,7 +153,14 @@ class TestNumericOnly:
     def test_cummin_cummax(self, df, method):
         # like min, max, but don't include strings
         expected_columns = Index(
-            ["int", "float", "category_int", "datetime", "datetimetz", "timedelta"]
+            [
+                "int",
+                "float",
+                "category_int",
+                "datetime",
+                "datetimetz",
+                "timedelta",
+            ]
         )
 
         # GH#15561: numeric_only=False set by default like min/max
@@ -163,7 +174,9 @@ class TestNumericOnly:
         # object dtypes for transformations are not implemented in Cython and
         # have no Python fallback
         exception = (
-            (NotImplementedError, TypeError) if method.startswith("cum") else TypeError
+            (NotImplementedError, TypeError)
+            if method.startswith("cum")
+            else TypeError
         )
 
         if method in ("min", "max", "cummin", "cummax", "cumsum", "cumprod"):
@@ -172,7 +185,9 @@ class TestNumericOnly:
                 [
                     "Categorical is not ordered",
                     f"Cannot perform {method} with non-ordered Categorical",
-                    re.escape(f"agg function failed [how->{method},dtype->object]"),
+                    re.escape(
+                        f"agg function failed [how->{method},dtype->object]"
+                    ),
                     # cumsum/cummin/cummax/cumprod
                     "function is not implemented for this dtype",
                     f"dtype 'str' does not support operation '{method}'",
@@ -184,8 +199,12 @@ class TestNumericOnly:
             msg = "|".join(
                 [
                     "category type does not support sum operations",
-                    re.escape(f"agg function failed [how->{method},dtype->object]"),
-                    re.escape(f"agg function failed [how->{method},dtype->string]"),
+                    re.escape(
+                        f"agg function failed [how->{method},dtype->object]"
+                    ),
+                    re.escape(
+                        f"agg function failed [how->{method},dtype->string]"
+                    ),
                     f"dtype 'str' does not support operation '{method}'",
                 ]
             )
@@ -202,8 +221,12 @@ class TestNumericOnly:
                     "category type does not support",
                     "function is not implemented for this dtype",
                     f"Cannot perform {method} with non-ordered Categorical",
-                    re.escape(f"agg function failed [how->{method},dtype->object]"),
-                    re.escape(f"agg function failed [how->{method},dtype->string]"),
+                    re.escape(
+                        f"agg function failed [how->{method},dtype->object]"
+                    ),
+                    re.escape(
+                        f"agg function failed [how->{method},dtype->string]"
+                    ),
                     f"dtype 'str' does not support operation '{method}'",
                 ]
             )
@@ -256,10 +279,16 @@ def test_numeric_only(kernel, has_arg, numeric_only, keys):
     # GH#46072
     # drops_nuisance: Whether the op drops nuisance columns even when numeric_only=False
     # has_arg: Whether the op has a numeric_only arg
-    df = DataFrame({"a1": [1, 1], "a2": [2, 2], "a3": [5, 6], "b": 2 * [object]})
+    df = DataFrame(
+        {"a1": [1, 1], "a2": [2, 2], "a3": [5, 6], "b": 2 * [object]}
+    )
 
     args = get_groupby_method_args(kernel, df)
-    kwargs = {} if numeric_only is lib.no_default else {"numeric_only": numeric_only}
+    kwargs = (
+        {}
+        if numeric_only is lib.no_default
+        else {"numeric_only": numeric_only}
+    )
 
     gb = df.groupby(keys)
     method = getattr(gb, kernel)
@@ -291,7 +320,9 @@ def test_numeric_only(kernel, has_arg, numeric_only, keys):
 
         # object dtypes for transformations are not implemented in Cython and
         # have no Python fallback
-        exception = NotImplementedError if kernel.startswith("cum") else TypeError
+        exception = (
+            NotImplementedError if kernel.startswith("cum") else TypeError
+        )
 
         msg = "|".join(
             [
@@ -300,7 +331,9 @@ def test_numeric_only(kernel, has_arg, numeric_only, keys):
                 "must be a string or a real number",
                 "unsupported operand type",
                 "function is not implemented for this dtype",
-                re.escape(f"agg function failed [how->{kernel},dtype->object]"),
+                re.escape(
+                    f"agg function failed [how->{kernel},dtype->object]"
+                ),
             ]
         )
         if kernel == "quantile":
@@ -320,7 +353,8 @@ def test_numeric_only(kernel, has_arg, numeric_only, keys):
                 method(*args, **kwargs)
     elif not has_arg and numeric_only is not lib.no_default:
         with pytest.raises(
-            TypeError, match="got an unexpected keyword argument 'numeric_only'"
+            TypeError,
+            match="got an unexpected keyword argument 'numeric_only'",
         ):
             method(*args, **kwargs)
     else:

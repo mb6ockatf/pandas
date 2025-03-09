@@ -27,7 +27,9 @@ def cartesian_product_for_groupers(result, args, names, fill_value=np.nan):
         if isinstance(a, (CategoricalIndex, Categorical)):
             categories = a.categories
             a = Categorical.from_codes(
-                np.arange(len(categories)), categories=categories, ordered=a.ordered
+                np.arange(len(categories)),
+                categories=categories,
+                ordered=a.ordered,
             )
         return a
 
@@ -98,8 +100,12 @@ def test_basic():
 
 
 def test_basic_single_grouper():
-    cat1 = Categorical(["a", "a", "b", "b"], categories=["a", "b", "z"], ordered=True)
-    cat2 = Categorical(["c", "d", "c", "d"], categories=["c", "d", "y"], ordered=True)
+    cat1 = Categorical(
+        ["a", "a", "b", "b"], categories=["a", "b", "z"], ordered=True
+    )
+    cat2 = Categorical(
+        ["c", "d", "c", "d"], categories=["c", "d", "y"], ordered=True
+    )
     df = DataFrame({"A": cat1, "B": cat2, "values": [1, 2, 3, 4]})
 
     gb = df.groupby("A", observed=False)
@@ -145,7 +151,8 @@ def test_basic_monotonic():
     tm.assert_series_equal(result, df["a"])
 
     tm.assert_series_equal(
-        df.a.groupby(c, observed=False).transform(lambda xs: np.sum(xs)), df["a"]
+        df.a.groupby(c, observed=False).transform(lambda xs: np.sum(xs)),
+        df["a"],
     )
     result = df.groupby(c, observed=False).transform(sum)
     expected = df[["a"]]
@@ -165,7 +172,9 @@ def test_basic_monotonic():
     tm.assert_frame_equal(result5, df[["a"]])
 
     # Filter
-    tm.assert_series_equal(df.a.groupby(c, observed=False).filter(np.all), df["a"])
+    tm.assert_series_equal(
+        df.a.groupby(c, observed=False).filter(np.all), df["a"]
+    )
     tm.assert_frame_equal(df.groupby(c, observed=False).filter(np.all), df)
 
 
@@ -177,14 +186,16 @@ def test_basic_non_monotonic():
     tm.assert_series_equal(result, df["a"])
 
     tm.assert_series_equal(
-        df.a.groupby(c, observed=False).transform(lambda xs: np.sum(xs)), df["a"]
+        df.a.groupby(c, observed=False).transform(lambda xs: np.sum(xs)),
+        df["a"],
     )
     result = df.groupby(c, observed=False).transform(sum)
     expected = df[["a"]]
     tm.assert_frame_equal(result, expected)
 
     tm.assert_frame_equal(
-        df.groupby(c, observed=False).transform(lambda xs: np.sum(xs)), df[["a"]]
+        df.groupby(c, observed=False).transform(lambda xs: np.sum(xs)),
+        df[["a"]],
     )
 
 
@@ -211,7 +222,9 @@ def test_more_basic():
     result = data.groupby(cats, observed=False).mean()
 
     expected = data.groupby(np.asarray(cats), observed=False).mean()
-    exp_idx = CategoricalIndex(levels, categories=cats.categories, ordered=True)
+    exp_idx = CategoricalIndex(
+        levels, categories=cats.categories, ordered=True
+    )
     expected = expected.reindex(exp_idx)
 
     tm.assert_frame_equal(result, expected)
@@ -226,14 +239,18 @@ def test_more_basic():
     exp_cats = Categorical(
         ord_labels, ordered=True, categories=["foo", "bar", "baz", "qux"]
     )
-    expected = ord_data.groupby(exp_cats, sort=False, observed=False).describe()
+    expected = ord_data.groupby(
+        exp_cats, sort=False, observed=False
+    ).describe()
     tm.assert_frame_equal(desc_result, expected)
 
     # GH 10460
     expc = Categorical.from_codes(np.arange(4).repeat(8), levels, ordered=True)
     exp = CategoricalIndex(expc)
     tm.assert_index_equal(desc_result.stack().index.get_level_values(0), exp)
-    exp = Index(["count", "mean", "std", "min", "25%", "50%", "75%", "max"] * 4)
+    exp = Index(
+        ["count", "mean", "std", "min", "25%", "50%", "75%", "max"] * 4
+    )
     tm.assert_index_equal(desc_result.stack().index.get_level_values(1), exp)
 
 
@@ -273,7 +290,9 @@ def test_sorting_with_different_categoricals():
         }
     )
 
-    df.dose = Categorical(df.dose, categories=["low", "med", "high"], ordered=True)
+    df.dose = Categorical(
+        df.dose, categories=["low", "med", "high"], ordered=True
+    )
 
     result = df.groupby("group")["dose"].value_counts()
     result = result.sort_index(level=0, sort_remaining=True)
@@ -329,8 +348,12 @@ def test_observed(request, using_infer_string, observed):
         # TODO(infer_string) this fails with filling the string column with 0
         request.applymarker(pytest.mark.xfail(reason="TODO(infer_string)"))
 
-    cat1 = Categorical(["a", "a", "b", "b"], categories=["a", "b", "z"], ordered=True)
-    cat2 = Categorical(["c", "d", "c", "d"], categories=["c", "d", "y"], ordered=True)
+    cat1 = Categorical(
+        ["a", "a", "b", "b"], categories=["a", "b", "z"], ordered=True
+    )
+    cat2 = Categorical(
+        ["c", "d", "c", "d"], categories=["c", "d", "y"], ordered=True
+    )
     df = DataFrame({"A": cat1, "B": cat2, "values": [1, 2, 3, 4]})
     df["C"] = ["foo", "bar"] * 2
 
@@ -339,7 +362,9 @@ def test_observed(request, using_infer_string, observed):
     exp_index = MultiIndex.from_arrays(
         [cat1, cat2, ["foo", "bar"] * 2], names=["A", "B", "C"]
     )
-    expected = DataFrame({"values": Series([1, 2, 3, 4], index=exp_index)}).sort_index()
+    expected = DataFrame(
+        {"values": Series([1, 2, 3, 4], index=exp_index)}
+    ).sort_index()
     result = gb.sum()
     if not observed:
         expected = cartesian_product_for_groupers(
@@ -351,7 +376,8 @@ def test_observed(request, using_infer_string, observed):
     gb = df.groupby(["A", "B"], observed=observed)
     exp_index = MultiIndex.from_arrays([cat1, cat2], names=["A", "B"])
     expected = DataFrame(
-        {"values": [1, 2, 3, 4], "C": ["foo", "bar", "foo", "bar"]}, index=exp_index
+        {"values": [1, 2, 3, 4], "C": ["foo", "bar", "foo", "bar"]},
+        index=exp_index,
     )
     result = gb.sum()
     if not observed:
@@ -379,7 +405,9 @@ def test_observed_single_column(observed):
     exp_index = CategoricalIndex(
         list("ab"), name="cat", categories=list("abc"), ordered=True
     )
-    expected = DataFrame({"ints": [1.5, 1.5], "val": [20.0, 30]}, index=exp_index)
+    expected = DataFrame(
+        {"ints": [1.5, 1.5], "val": [20.0, 30]}, index=exp_index
+    )
     if not observed:
         index = CategoricalIndex(
             list("abc"), name="cat", categories=list("abc"), ordered=True
@@ -453,7 +481,8 @@ def test_observed_codes_remap(observed):
 
     idx = MultiIndex.from_arrays([values, [1, 2, 3, 4]], names=["cat", "C2"])
     expected = DataFrame(
-        {"C1": [3.0, 3.0, 4.0, 5.0], "C3": [10.0, 100.0, 200.0, 34.0]}, index=idx
+        {"C1": [3.0, 3.0, 4.0, 5.0], "C3": [10.0, 100.0, 200.0, 34.0]},
+        index=idx,
     )
     if not observed:
         expected = cartesian_product_for_groupers(
@@ -472,7 +501,9 @@ def test_observed_perf():
         {
             "cat": np.random.default_rng(2).integers(0, 255, size=30000),
             "int_id": np.random.default_rng(2).integers(0, 255, size=30000),
-            "other_id": np.random.default_rng(2).integers(0, 10000, size=30000),
+            "other_id": np.random.default_rng(2).integers(
+                0, 10000, size=30000
+            ),
             "foo": 0,
         }
     )
@@ -495,7 +526,10 @@ def test_observed_groups(observed):
 
     result = g.groups
     if observed:
-        expected = {"a": Index([0, 2], dtype="int64"), "c": Index([1], dtype="int64")}
+        expected = {
+            "a": Index([0, 2], dtype="int64"),
+            "c": Index([1], dtype="int64"),
+        }
     else:
         expected = {
             "a": Index([0, 2], dtype="int64"),
@@ -526,7 +560,9 @@ def test_observed_groups(observed):
     ],
 )
 @pytest.mark.parametrize("test_series", [True, False])
-def test_unobserved_in_index(keys, expected_values, expected_index_levels, test_series):
+def test_unobserved_in_index(
+    keys, expected_values, expected_index_levels, test_series
+):
     # GH#49354 - ensure unobserved cats occur when grouping by index levels
     df = DataFrame(
         {
@@ -628,7 +664,9 @@ def test_dataframe_categorical_ordered_observed_sort(ordered, observed, sort):
     df = DataFrame({"label": label, "val": val})
 
     # aggregate on the Categorical
-    result = df.groupby("label", observed=observed, sort=sort)["val"].aggregate("first")
+    result = df.groupby("label", observed=observed, sort=sort)[
+        "val"
+    ].aggregate("first")
 
     # If ordering works, we expect index labels equal to aggregation results,
     # except for 'observed=False': label 'missing' has aggregation None
@@ -673,14 +711,17 @@ def test_datetime():
     tm.assert_frame_equal(desc_result, expected)
     tm.assert_index_equal(desc_result.index, expected.index)
     tm.assert_index_equal(
-        desc_result.index.get_level_values(0), expected.index.get_level_values(0)
+        desc_result.index.get_level_values(0),
+        expected.index.get_level_values(0),
     )
 
     # GH 10460
     expc = Categorical.from_codes(np.arange(4).repeat(8), levels, ordered=True)
     exp = CategoricalIndex(expc)
     tm.assert_index_equal((desc_result.stack().index.get_level_values(0)), exp)
-    exp = Index(["count", "mean", "std", "min", "25%", "50%", "75%", "max"] * 4)
+    exp = Index(
+        ["count", "mean", "std", "min", "25%", "50%", "75%", "max"] * 4
+    )
     tm.assert_index_equal((desc_result.stack().index.get_level_values(1)), exp)
 
 
@@ -689,7 +730,9 @@ def test_categorical_index():
     levels = ["foo", "bar", "baz", "qux"]
     codes = s.integers(0, 4, size=20)
     cats = Categorical.from_codes(codes, levels, ordered=True)
-    df = DataFrame(np.repeat(np.arange(20), 4).reshape(-1, 4), columns=list("abcd"))
+    df = DataFrame(
+        np.repeat(np.arange(20), 4).reshape(-1, 4), columns=list("abcd")
+    )
     df["cats"] = cats
 
     # with a cat index
@@ -716,7 +759,9 @@ def test_describe_categorical_columns():
         categories=["foo", "bar", "baz", "qux"],
         ordered=True,
     )
-    df = DataFrame(np.random.default_rng(2).standard_normal((20, 4)), columns=cats)
+    df = DataFrame(
+        np.random.default_rng(2).standard_normal((20, 4)), columns=cats
+    )
     result = df.groupby([1, 2, 3, 4] * 5).describe()
 
     tm.assert_index_equal(result.stack().columns, cats)
@@ -730,7 +775,9 @@ def test_unstack_categorical():
     )
     df["medium"] = df["medium"].astype("category")
 
-    gcat = df.groupby(["artist", "medium"], observed=False)["a"].count().unstack()
+    gcat = (
+        df.groupby(["artist", "medium"], observed=False)["a"].count().unstack()
+    )
     result = gcat.describe()
 
     exp_columns = CategoricalIndex(["A", "B"], ordered=False, name="medium")
@@ -748,7 +795,9 @@ def test_bins_unequal_len():
     bins = pd.cut(series.dropna().values, 4)
 
     # len(bins) != len(series) here
-    with pytest.raises(ValueError, match="Grouper and axis must be same length"):
+    with pytest.raises(
+        ValueError, match="Grouper and axis must be same length"
+    ):
         series.groupby(bins).mean()
 
 
@@ -759,7 +808,10 @@ def test_bins_unequal_len():
         (Series(range(4)), {"A": [0, 3], "B": [1, 2]}),
         # Group a series with length equal to that of the grouper and index unequal to
         # that of the grouper.
-        (Series(range(4)).rename(lambda idx: idx + 1), {"A": [2], "B": [0, 1]}),
+        (
+            Series(range(4)).rename(lambda idx: idx + 1),
+            {"A": [2], "B": [0, 1]},
+        ),
         # GH44179: Group a series with length unequal to that of the grouper.
         (Series(range(7)), {"A": [0, 3], "B": [1, 2]}),
     ],
@@ -768,7 +820,9 @@ def test_categorical_series(series, data):
     # Group the given series by a series with categorical data type such that group A
     # takes indices 0 and 3 and group B indices 1 and 2, obtaining the values mapped in
     # the given data.
-    groupby = series.groupby(Series(list("ABBA"), dtype="category"), observed=False)
+    groupby = series.groupby(
+        Series(list("ABBA"), dtype="category"), observed=False
+    )
     result = groupby.aggregate(list)
     expected = Series(data, index=CategoricalIndex(data.keys()))
     tm.assert_series_equal(result, expected)
@@ -842,9 +896,15 @@ def test_preserve_categories():
     categories = list("abc")
 
     # ordered=True
-    df = DataFrame({"A": Categorical(list("ba"), categories=categories, ordered=True)})
-    sort_index = CategoricalIndex(categories, categories, ordered=True, name="A")
-    nosort_index = CategoricalIndex(list("bac"), categories, ordered=True, name="A")
+    df = DataFrame(
+        {"A": Categorical(list("ba"), categories=categories, ordered=True)}
+    )
+    sort_index = CategoricalIndex(
+        categories, categories, ordered=True, name="A"
+    )
+    nosort_index = CategoricalIndex(
+        list("bac"), categories, ordered=True, name="A"
+    )
     tm.assert_index_equal(
         df.groupby("A", sort=True, observed=False).first().index, sort_index
     )
@@ -857,11 +917,17 @@ def test_preserve_categories():
 def test_preserve_categories_ordered_false():
     # GH-13179
     categories = list("abc")
-    df = DataFrame({"A": Categorical(list("ba"), categories=categories, ordered=False)})
-    sort_index = CategoricalIndex(categories, categories, ordered=False, name="A")
+    df = DataFrame(
+        {"A": Categorical(list("ba"), categories=categories, ordered=False)}
+    )
+    sort_index = CategoricalIndex(
+        categories, categories, ordered=False, name="A"
+    )
     # GH#48749 - don't change order of categories
     # GH#42482 - don't sort result when sort=False, even when ordered=True
-    nosort_index = CategoricalIndex(list("bac"), list("abc"), ordered=False, name="A")
+    nosort_index = CategoricalIndex(
+        list("bac"), list("abc"), ordered=False, name="A"
+    )
     tm.assert_index_equal(
         df.groupby("A", sort=True, observed=False).first().index, sort_index
     )
@@ -877,8 +943,12 @@ def test_preserve_categorical_dtype(col):
         {
             "A": [1, 2, 1, 1, 2],
             "B": [10, 16, 22, 28, 34],
-            "C1": Categorical(list("abaab"), categories=list("bac"), ordered=False),
-            "C2": Categorical(list("abaab"), categories=list("bac"), ordered=True),
+            "C1": Categorical(
+                list("abaab"), categories=list("bac"), ordered=False
+            ),
+            "C2": Categorical(
+                list("abaab"), categories=list("bac"), ordered=True
+            ),
         }
     )
     # single grouper
@@ -886,11 +956,17 @@ def test_preserve_categorical_dtype(col):
         {
             "A": [2.0, 1.0, np.nan],
             "B": [25.0, 20.0, np.nan],
-            "C1": Categorical(list("bac"), categories=list("bac"), ordered=False),
-            "C2": Categorical(list("bac"), categories=list("bac"), ordered=True),
+            "C1": Categorical(
+                list("bac"), categories=list("bac"), ordered=False
+            ),
+            "C2": Categorical(
+                list("bac"), categories=list("bac"), ordered=True
+            ),
         }
     )
-    result1 = df.groupby(by=col, as_index=False, observed=False).mean(numeric_only=True)
+    result1 = df.groupby(by=col, as_index=False, observed=False).mean(
+        numeric_only=True
+    )
     result2 = (
         df.groupby(by=col, as_index=True, observed=False)
         .mean(numeric_only=True)
@@ -972,7 +1048,9 @@ def test_groupby_empty_with_category():
     # GH-9614
     # test fix for when group by on None resulted in
     # coercion of dtype categorical -> float
-    df = DataFrame({"A": [None] * 3, "B": Categorical(["train", "train", "test"])})
+    df = DataFrame(
+        {"A": [None] * 3, "B": Categorical(["train", "train", "test"])}
+    )
     result = df.groupby("A").first()["B"]
     expected = Series(
         Categorical([], categories=["test", "train"]),
@@ -1093,7 +1171,10 @@ def test_sort_datetimelike(sort, ordered):
 def test_empty_sum():
     # https://github.com/pandas-dev/pandas/issues/18678
     df = DataFrame(
-        {"A": Categorical(["a", "a", "b"], categories=["a", "b", "c"]), "B": [1, 2, 1]}
+        {
+            "A": Categorical(["a", "a", "b"], categories=["a", "b", "c"]),
+            "B": [1, 2, 1],
+        }
     )
     expected_idx = CategoricalIndex(["a", "b", "c"], name="A")
 
@@ -1121,7 +1202,10 @@ def test_empty_sum():
 def test_empty_prod():
     # https://github.com/pandas-dev/pandas/issues/18678
     df = DataFrame(
-        {"A": Categorical(["a", "a", "b"], categories=["a", "b", "c"]), "B": [1, 2, 1]}
+        {
+            "A": Categorical(["a", "a", "b"], categories=["a", "b", "c"]),
+            "B": [1, 2, 1],
+        }
     )
 
     expected_idx = CategoricalIndex(["a", "b", "c"], name="A")
@@ -1149,7 +1233,8 @@ def test_groupby_multiindex_categorical_datetime():
         {
             "key1": Categorical(list("abcbabcba")),
             "key2": Categorical(
-                list(pd.date_range("2018-06-01 00", freq="1min", periods=3)) * 3
+                list(pd.date_range("2018-06-01 00", freq="1min", periods=3))
+                * 3
             ),
             "values": np.arange(9),
         }
@@ -1159,11 +1244,15 @@ def test_groupby_multiindex_categorical_datetime():
     idx = MultiIndex.from_product(
         [
             Categorical(["a", "b", "c"]),
-            Categorical(pd.date_range("2018-06-01 00", freq="1min", periods=3)),
+            Categorical(
+                pd.date_range("2018-06-01 00", freq="1min", periods=3)
+            ),
         ],
         names=["key1", "key2"],
     )
-    expected = DataFrame({"values": [0, 4, 8, 3, 4, 5, 6, np.nan, 2]}, index=idx)
+    expected = DataFrame(
+        {"values": [0, 4, 8, 3, 4, 5, 6, np.nan, 2]}, index=idx
+    )
     tm.assert_frame_equal(result, expected)
 
 
@@ -1174,7 +1263,8 @@ def test_groupby_multiindex_categorical_datetime():
             True,
             Series(
                 index=MultiIndex.from_arrays(
-                    [Series([1, 1, 2], dtype="category"), [1, 2, 2]], names=["a", "b"]
+                    [Series([1, 1, 2], dtype="category"), [1, 2, 2]],
+                    names=["a", "b"],
                 ),
                 data=[1, 2, 3],
                 name="x",
@@ -1195,10 +1285,16 @@ def test_groupby_multiindex_categorical_datetime():
 def test_groupby_agg_observed_true_single_column(as_index, expected):
     # GH-23970
     df = DataFrame(
-        {"a": Series([1, 1, 2], dtype="category"), "b": [1, 2, 2], "x": [1, 2, 3]}
+        {
+            "a": Series([1, 1, 2], dtype="category"),
+            "b": [1, 2, 2],
+            "x": [1, 2, 3],
+        }
     )
 
-    result = df.groupby(["a", "b"], as_index=as_index, observed=True)["x"].sum()
+    result = df.groupby(["a", "b"], as_index=as_index, observed=True)[
+        "x"
+    ].sum()
 
     tm.assert_equal(result, expected)
 
@@ -1244,8 +1340,12 @@ def df_cat(df):
 def test_seriesgroupby_observed_true(df_cat, operation):
     # GH#24880
     # GH#49223 - order of results was wrong when grouping by index levels
-    lev_a = Index(["bar", "bar", "foo", "foo"], dtype=df_cat["A"].dtype, name="A")
-    lev_b = Index(["one", "three", "one", "two"], dtype=df_cat["B"].dtype, name="B")
+    lev_a = Index(
+        ["bar", "bar", "foo", "foo"], dtype=df_cat["A"].dtype, name="A"
+    )
+    lev_b = Index(
+        ["one", "three", "one", "two"], dtype=df_cat["B"].dtype, name="B"
+    )
     index = MultiIndex.from_arrays([lev_a, lev_b])
     expected = Series(data=[2, 4, 1, 3], index=index, name="C").sort_index()
 
@@ -1280,9 +1380,20 @@ def test_seriesgroupby_observed_false_or_none(df_cat, observed, operation):
             True,
             MultiIndex.from_arrays(
                 [
-                    Index(["bar"] * 4 + ["foo"] * 4, dtype="category", name="A"),
                     Index(
-                        ["one", "one", "three", "three", "one", "one", "two", "two"],
+                        ["bar"] * 4 + ["foo"] * 4, dtype="category", name="A"
+                    ),
+                    Index(
+                        [
+                            "one",
+                            "one",
+                            "three",
+                            "three",
+                            "one",
+                            "one",
+                            "two",
+                            "two",
+                        ],
                         dtype="category",
                         name="B",
                     ),
@@ -1336,7 +1447,10 @@ def test_groupby_categorical_series_dataframe_consistent(df_cat):
 def test_groupby_cat_preserves_structure(observed, ordered):
     # GH 28787
     df = DataFrame(
-        {"Name": Categorical(["Bob", "Greg"], ordered=ordered), "Item": [1, 2]},
+        {
+            "Name": Categorical(["Bob", "Greg"], ordered=ordered),
+            "Item": [1, 2],
+        },
         columns=["Name", "Item"],
     )
     expected = df.copy()
@@ -1354,7 +1468,9 @@ def test_get_nonexistent_category():
     # Accessing a Category that is not in the dataframe
     df = DataFrame({"var": ["a", "a", "b", "b"], "val": range(4)})
     with pytest.raises(KeyError, match="'vau'"):
-        df.groupby("var").apply(lambda rows: DataFrame({"val": [rows.iloc[-1]["vau"]]}))
+        df.groupby("var").apply(
+            lambda rows: DataFrame({"val": [rows.iloc[-1]["vau"]]})
+        )
 
 
 def test_series_groupby_on_2_categoricals_unobserved(reduction_func, observed):
@@ -1417,7 +1533,13 @@ def test_series_groupby_on_2_categoricals_unobserved_zeroes_or_nans(
             "value": [0.1] * 4,
         }
     )
-    unobserved = [tuple("AC"), tuple("BC"), tuple("CA"), tuple("CB"), tuple("CC")]
+    unobserved = [
+        tuple("AC"),
+        tuple("BC"),
+        tuple("CA"),
+        tuple("CB"),
+        tuple("CC"),
+    ]
     args = get_groupby_method_args(reduction_func, df)
 
     series_groupby = df.groupby(["cat_1", "cat_2"], observed=False)["value"]
@@ -1433,11 +1555,15 @@ def test_series_groupby_on_2_categoricals_unobserved_zeroes_or_nans(
 
     result = agg(*args)
 
-    missing_fillin = _results_for_groupbys_with_missing_categories[reduction_func]
+    missing_fillin = _results_for_groupbys_with_missing_categories[
+        reduction_func
+    ]
 
     for idx in unobserved:
         val = result.loc[idx]
-        assert (pd.isna(missing_fillin) and pd.isna(val)) or (val == missing_fillin)
+        assert (pd.isna(missing_fillin) and pd.isna(val)) or (
+            val == missing_fillin
+        )
 
     # If we expect unobserved values to be zero, we also expect the dtype to be int.
     # Except for .sum(). If the observed categories sum to dtype=float (i.e. their
@@ -1450,7 +1576,9 @@ def test_series_groupby_on_2_categoricals_unobserved_zeroes_or_nans(
             assert reduction_func in ["sum", "any"]
 
 
-def test_dataframe_groupby_on_2_categoricals_when_observed_is_true(reduction_func):
+def test_dataframe_groupby_on_2_categoricals_when_observed_is_true(
+    reduction_func,
+):
     # GH 23865
     # GH 27075
     # Ensure that df.groupby, when 'by' is two Categorical variables,
@@ -1535,11 +1663,17 @@ def test_dataframe_groupby_on_2_categoricals_when_observed_is_false(
 
 def test_series_groupby_categorical_aggregation_getitem():
     # GH 8870
-    d = {"foo": [10, 8, 4, 1], "bar": [10, 20, 30, 40], "baz": ["d", "c", "d", "c"]}
+    d = {
+        "foo": [10, 8, 4, 1],
+        "bar": [10, 20, 30, 40],
+        "baz": ["d", "c", "d", "c"],
+    }
     df = DataFrame(d)
     cat = pd.cut(df["foo"], np.linspace(0, 20, 5))
     df["range"] = cat
-    groups = df.groupby(["range", "baz"], as_index=True, sort=True, observed=False)
+    groups = df.groupby(
+        ["range", "baz"], as_index=True, sort=True, observed=False
+    )
     result = groups["foo"].agg("mean")
     expected = groups.agg("mean")["foo"]
     tm.assert_series_equal(result, expected)
@@ -1567,7 +1701,9 @@ def test_groupby_agg_categorical_columns(func, expected_values):
 
 
 def test_groupby_agg_non_numeric():
-    df = DataFrame({"A": Categorical(["a", "a", "b"], categories=["a", "b", "c"])})
+    df = DataFrame(
+        {"A": Categorical(["a", "a", "b"], categories=["a", "b", "c"])}
+    )
     expected = DataFrame({"A": [2, 1]}, index=np.array([1, 2]))
 
     result = df.groupby([1, 2, 1]).agg(Series.nunique)
@@ -1581,7 +1717,9 @@ def test_groupby_agg_non_numeric():
 def test_groupby_first_returned_categorical_instead_of_dataframe(func):
     # GH 28641: groupby drops index, when grouping over categorical column with
     # first/last. Renamed Categorical instead of DataFrame previously.
-    df = DataFrame({"A": [1997], "B": Series(["b"], dtype="category").cat.as_ordered()})
+    df = DataFrame(
+        {"A": [1997], "B": Series(["b"], dtype="category").cat.as_ordered()}
+    )
     df_grouped = df.groupby("A")["B"]
     result = getattr(df_grouped, func)()
 
@@ -1597,9 +1735,14 @@ def test_read_only_category_no_sort():
     cats = np.array([1, 2])
     cats.flags.writeable = False
     df = DataFrame(
-        {"a": [1, 3, 5, 7], "b": Categorical([1, 1, 2, 2], categories=Index(cats))}
+        {
+            "a": [1, 3, 5, 7],
+            "b": Categorical([1, 1, 2, 2], categories=Index(cats)),
+        }
     )
-    expected = DataFrame(data={"a": [2.0, 6.0]}, index=CategoricalIndex(cats, name="b"))
+    expected = DataFrame(
+        data={"a": [2.0, 6.0]}, index=CategoricalIndex(cats, name="b")
+    )
     result = df.groupby("b", sort=False, observed=False).mean()
     tm.assert_frame_equal(result, expected)
 
@@ -1837,7 +1980,10 @@ def test_groupby_categorical_observed_nunique():
     expected = Series(
         [1, 1],
         index=MultiIndex.from_arrays(
-            [CategoricalIndex([1, 2], name="a"), CategoricalIndex([1, 2], name="b")]
+            [
+                CategoricalIndex([1, 2], name="a"),
+                CategoricalIndex([1, 2], name="b"),
+            ]
         ),
         name="c",
     )
@@ -1848,7 +1994,8 @@ def test_groupby_categorical_aggregate_functions():
     # GH#37275
     dtype = pd.CategoricalDtype(categories=["small", "big"], ordered=True)
     df = DataFrame(
-        [[1, "small"], [1, "big"], [2, "small"]], columns=["grp", "description"]
+        [[1, "small"], [1, "big"], [2, "small"]],
+        columns=["grp", "description"],
     ).astype({"description": dtype})
 
     result = df.groupby("grp")["description"].max()
@@ -1865,7 +2012,9 @@ def test_groupby_categorical_aggregate_functions():
 def test_groupby_categorical_dropna(observed, dropna):
     # GH#48645 - dropna should have no impact on the result when there are no NA values
     cat = Categorical([1, 2], categories=[1, 2, 3])
-    df = DataFrame({"x": Categorical([1, 2], categories=[1, 2, 3]), "y": [3, 4]})
+    df = DataFrame(
+        {"x": Categorical([1, 2], categories=[1, 2, 3]), "y": [3, 4]}
+    )
     gb = df.groupby("x", observed=observed, dropna=dropna)
     result = gb.sum()
 
@@ -1885,14 +2034,20 @@ def test_category_order_reducer(
     request, as_index, sort, observed, reduction_func, index_kind, ordered
 ):
     # GH#48749
-    if reduction_func == "corrwith" and not as_index and index_kind != "single":
+    if (
+        reduction_func == "corrwith"
+        and not as_index
+        and index_kind != "single"
+    ):
         msg = "GH#49950 - corrwith with as_index=False may not have grouping column"
         request.applymarker(pytest.mark.xfail(reason=msg))
     elif index_kind != "range" and not as_index:
         pytest.skip(reason="Result doesn't have categories, nothing to test")
     df = DataFrame(
         {
-            "a": Categorical([2, 1, 2, 3], categories=[1, 4, 3, 2], ordered=ordered),
+            "a": Categorical(
+                [2, 1, 2, 3], categories=[1, 4, 3, 2], ordered=ordered
+            ),
             "b": range(4),
         }
     )
@@ -1943,7 +2098,9 @@ def test_category_order_transformer(
     # GH#48749
     df = DataFrame(
         {
-            "a": Categorical([2, 1, 2, 3], categories=[1, 4, 3, 2], ordered=ordered),
+            "a": Categorical(
+                [2, 1, 2, 3], categories=[1, 4, 3, 2], ordered=ordered
+            ),
             "b": range(4),
         }
     )
@@ -1975,7 +2132,9 @@ def test_category_order_head_tail(
     # GH#48749
     df = DataFrame(
         {
-            "a": Categorical([2, 1, 2, 3], categories=[1, 4, 3, 2], ordered=ordered),
+            "a": Categorical(
+                [2, 1, 2, 3], categories=[1, 4, 3, 2], ordered=ordered
+            ),
             "b": range(4),
         }
     )
@@ -2005,7 +2164,9 @@ def test_category_order_head_tail(
 @pytest.mark.parametrize("index_kind", ["range", "single", "multi"])
 @pytest.mark.parametrize("method", ["apply", "agg", "transform"])
 @pytest.mark.parametrize("ordered", [True, False])
-def test_category_order_apply(as_index, sort, observed, method, index_kind, ordered):
+def test_category_order_apply(
+    as_index, sort, observed, method, index_kind, ordered
+):
     # GH#48749
     if (method == "transform" and index_kind == "range") or (
         not as_index and index_kind != "range"
@@ -2013,7 +2174,9 @@ def test_category_order_apply(as_index, sort, observed, method, index_kind, orde
         pytest.skip("No categories in result, nothing to test")
     df = DataFrame(
         {
-            "a": Categorical([2, 1, 2, 3], categories=[1, 4, 3, 2], ordered=ordered),
+            "a": Categorical(
+                [2, 1, 2, 3], categories=[1, 4, 3, 2], ordered=ordered
+            ),
             "b": range(4),
         }
     )
@@ -2069,11 +2232,15 @@ def test_many_categories(as_index, sort, index_kind, ordered):
     if as_index:
         expected = DataFrame({"b": data})
         if index_kind == "multi":
-            expected.index = MultiIndex.from_frame(DataFrame({"a": index, "a2": index}))
+            expected.index = MultiIndex.from_frame(
+                DataFrame({"a": index, "a2": index})
+            )
         else:
             expected.index = index
     elif index_kind == "multi":
-        expected = DataFrame({"a": Series(index), "a2": Series(index), "b": data})
+        expected = DataFrame(
+            {"a": Series(index), "a2": Series(index), "b": data}
+        )
     else:
         expected = DataFrame({"a": Series(index), "b": data})
 
@@ -2082,7 +2249,9 @@ def test_many_categories(as_index, sort, index_kind, ordered):
 
 @pytest.mark.parametrize("test_series", [True, False])
 @pytest.mark.parametrize("keys", [["a1"], ["a1", "a2"]])
-def test_agg_list(request, as_index, observed, reduction_func, test_series, keys):
+def test_agg_list(
+    request, as_index, observed, reduction_func, test_series, keys
+):
     # GH#52760
     if test_series and reduction_func == "corrwith":
         assert not hasattr(SeriesGroupBy, "corrwith")
@@ -2100,7 +2269,11 @@ def test_agg_list(request, as_index, observed, reduction_func, test_series, keys
         gb = gb["b"]
     args = get_groupby_method_args(reduction_func, df)
 
-    if not observed and reduction_func in ["idxmin", "idxmax"] and keys == ["a1", "a2"]:
+    if (
+        not observed
+        and reduction_func in ["idxmin", "idxmax"]
+        and keys == ["a1", "a2"]
+    ):
         with pytest.raises(
             ValueError, match="empty group due to unobserved categories"
         ):
@@ -2114,7 +2287,8 @@ def test_agg_list(request, as_index, observed, reduction_func, test_series, keys
         expected = expected.to_frame(reduction_func)
     if not test_series:
         expected.columns = MultiIndex.from_tuples(
-            [(ind, "") for ind in expected.columns[:-1]] + [("b", reduction_func)]
+            [(ind, "") for ind in expected.columns[:-1]]
+            + [("b", reduction_func)]
         )
     elif not as_index:
         expected.columns = keys + [reduction_func]

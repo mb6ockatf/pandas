@@ -88,7 +88,9 @@ def test_26395(indexer_al):
     df["D"] = 0
 
     indexer_al(df)["C", "D"] = 2
-    expected = DataFrame({"D": [0, 0, 2]}, index=["A", "B", "C"], dtype=np.int64)
+    expected = DataFrame(
+        {"D": [0, 0, 2]}, index=["A", "B", "C"], dtype=np.int64
+    )
     tm.assert_frame_equal(df, expected)
 
     with pytest.raises(TypeError, match="Invalid value"):
@@ -142,7 +144,10 @@ def test_12499():
     df.loc[1] = [np.nan, NaT]
 
     expected = DataFrame(
-        {"one": [0, np.nan], "two": Series([ts, NaT], dtype="datetime64[ns, UTC]")}
+        {
+            "one": [0, np.nan],
+            "two": Series([ts, NaT], dtype="datetime64[ns, UTC]"),
+        }
     )
     tm.assert_frame_equal(df, expected)
 
@@ -155,7 +160,9 @@ def test_12499():
 def test_20476():
     mi = MultiIndex.from_product([["A", "B"], ["a", "b", "c"]])
     df = DataFrame(-1, index=range(3), columns=mi)
-    filler = DataFrame([[1, 2, 3.0]] * 3, index=range(3), columns=["a", "b", "c"])
+    filler = DataFrame(
+        [[1, 2, 3.0]] * 3, index=range(3), columns=["a", "b", "c"]
+    )
     df["A"] = filler
 
     expected = DataFrame(
@@ -170,7 +177,9 @@ def test_20476():
     )
     expected.columns = mi
     exp_dtypes = Series(
-        [np.dtype(np.int64)] * 2 + [np.dtype(np.float64)] + [np.dtype(np.int64)] * 3,
+        [np.dtype(np.int64)] * 2
+        + [np.dtype(np.float64)]
+        + [np.dtype(np.int64)] * 3,
         index=mi,
     )
     tm.assert_series_equal(df.dtypes, exp_dtypes)

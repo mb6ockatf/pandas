@@ -75,9 +75,7 @@ class TestTimedeltaRound:
         expected = Timedelta.max - Timedelta(854775807)
         assert result == expected
 
-        msg = (
-            r"Cannot round -106752 days \+00:12:43.145224193 to freq=s without overflow"
-        )
+        msg = r"Cannot round -106752 days \+00:12:43.145224193 to freq=s without overflow"
         with pytest.raises(OutOfBoundsTimedelta, match=msg):
             Timedelta.min.floor("s")
         with pytest.raises(OutOfBoundsTimedelta, match=msg):

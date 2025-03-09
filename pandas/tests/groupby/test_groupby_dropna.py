@@ -100,7 +100,11 @@ def test_groupby_dropna_multi_index_dataframe_nan_in_two_groups(
 @pytest.mark.parametrize(
     "dropna, idx, outputs",
     [
-        (True, ["A", "B"], {"b": [123.23, 13.0], "c": [123.0, 13.0], "d": [1.0, 13.0]}),
+        (
+            True,
+            ["A", "B"],
+            {"b": [123.23, 13.0], "c": [123.0, 13.0], "d": [1.0, 13.0]},
+        ),
         (
             False,
             ["A", "B", np.nan],
@@ -152,7 +156,11 @@ def test_groupby_dropna_series_level(dropna, idx, expected):
         (True, pd.Series([210.0, 350.0], index=["a", "b"], name="Max Speed")),
         (
             False,
-            pd.Series([210.0, 350.0, 20.0], index=["a", "b", np.nan], name="Max Speed"),
+            pd.Series(
+                [210.0, 350.0, 20.0],
+                index=["a", "b", np.nan],
+                name="Max Speed",
+            ),
         ),
     ],
 )
@@ -186,7 +194,9 @@ def test_groupby_dataframe_slice_then_transform(dropna, index):
     # GH35014 & GH35612
     expected_data = {"B": [2, 2, 1, np.nan if dropna else 1]}
 
-    df = pd.DataFrame({"A": [0, 0, 1, None], "B": [1, 2, 3, None]}, index=index)
+    df = pd.DataFrame(
+        {"A": [0, 0, 1, None], "B": [1, 2, 3, None]}, index=index
+    )
     gb = df.groupby("A", dropna=dropna)
 
     result = gb.transform(len)
@@ -253,9 +263,16 @@ def test_groupby_dropna_multi_index_dataframe_agg(dropna, tuples, outputs):
         (pd.Period("2020-01-01"), pd.Period("2020-02-01")),
     ],
 )
-@pytest.mark.parametrize("dropna, values", [(True, [12, 3]), (False, [12, 3, 6])])
+@pytest.mark.parametrize(
+    "dropna, values", [(True, [12, 3]), (False, [12, 3, 6])]
+)
 def test_groupby_dropna_datetime_like_data(
-    dropna, values, datetime1, datetime2, unique_nulls_fixture, unique_nulls_fixture2
+    dropna,
+    values,
+    datetime1,
+    datetime2,
+    unique_nulls_fixture,
+    unique_nulls_fixture2,
 ):
     # 3729
     df = pd.DataFrame(
@@ -278,7 +295,9 @@ def test_groupby_dropna_datetime_like_data(
         indexes = [datetime1, datetime2, np.nan]
 
     grouped = df.groupby("dt", dropna=dropna).agg({"values": "sum"})
-    expected = pd.DataFrame({"values": values}, index=pd.Index(indexes, name="dt"))
+    expected = pd.DataFrame(
+        {"values": values}, index=pd.Index(indexes, name="dt")
+    )
 
     tm.assert_frame_equal(grouped, expected)
 
@@ -318,7 +337,9 @@ def test_groupby_dropna_datetime_like_data(
         ),
     ],
 )
-def test_groupby_apply_with_dropna_for_multi_index(dropna, data, selected_data, levels):
+def test_groupby_apply_with_dropna_for_multi_index(
+    dropna, data, selected_data, levels
+):
     # GH 35889
 
     df = pd.DataFrame(data)
@@ -378,7 +399,9 @@ def test_groupby_nan_included():
         "g2": np.array([3], dtype=dtype),
         np.nan: np.array([1, 4], dtype=dtype),
     }
-    for result_values, expected_values in zip(result.values(), expected.values()):
+    for result_values, expected_values in zip(
+        result.values(), expected.values()
+    ):
         tm.assert_numpy_array_equal(result_values, expected_values)
     assert np.isnan(list(result.keys())[2])
     assert list(result.keys())[0:2] == ["g1", "g2"]
@@ -429,7 +452,10 @@ def test_no_sort_keep_na(sequence_index, dtype, test_series, as_index):
     # Convert sequence_index into a string sequence, e.g. 5 becomes "xxyz"
     # This sequence is used for the grouper.
     sequence = "".join(
-        [{0: "x", 1: "y", 2: "z"}[sequence_index // (3**k) % 3] for k in range(4)]
+        [
+            {0: "x", 1: "y", 2: "z"}[sequence_index // (3**k) % 3]
+            for k in range(4)
+        ]
     )
 
     # Unique values to use for grouper, depends on dtype
@@ -442,11 +468,15 @@ def test_no_sort_keep_na(sequence_index, dtype, test_series, as_index):
 
     df = pd.DataFrame(
         {
-            "key": pd.Series([uniques[label] for label in sequence], dtype=dtype),
+            "key": pd.Series(
+                [uniques[label] for label in sequence], dtype=dtype
+            ),
             "a": [0, 1, 2, 3],
         }
     )
-    gb = df.groupby("key", dropna=False, sort=False, as_index=as_index, observed=False)
+    gb = df.groupby(
+        "key", dropna=False, sort=False, as_index=as_index, observed=False
+    )
     if test_series:
         gb = gb["a"]
     result = gb.sum()
@@ -464,10 +494,13 @@ def test_no_sort_keep_na(sequence_index, dtype, test_series, as_index):
         )
     elif isinstance(dtype, str) and dtype.startswith("Sparse"):
         index = pd.Index(
-            pd.array([uniques[label] for label in summed], dtype=dtype), name="key"
+            pd.array([uniques[label] for label in summed], dtype=dtype),
+            name="key",
         )
     else:
-        index = pd.Index([uniques[label] for label in summed], dtype=dtype, name="key")
+        index = pd.Index(
+            [uniques[label] for label in summed], dtype=dtype, name="key"
+        )
     expected = pd.Series(summed.values(), index=index, name="a", dtype=None)
     if not test_series:
         expected = expected.to_frame()
@@ -499,9 +532,13 @@ def test_null_is_null_for_dtype(
 
 
 @pytest.mark.parametrize("index_kind", ["range", "single", "multi"])
-def test_categorical_reducers(reduction_func, observed, sort, as_index, index_kind):
+def test_categorical_reducers(
+    reduction_func, observed, sort, as_index, index_kind
+):
     # Ensure there is at least one null value by appending to the end
-    values = np.append(np.random.default_rng(2).choice([1, 2, None], size=19), None)
+    values = np.append(
+        np.random.default_rng(2).choice([1, 2, None], size=19), None
+    )
     df = pd.DataFrame(
         {"x": pd.Categorical(values, categories=[1, 2, 3]), "y": range(20)}
     )
@@ -540,7 +577,9 @@ def test_categorical_reducers(reduction_func, observed, sort, as_index, index_ki
             getattr(gb_keepna, reduction_func)(*args)
         return
 
-    gb_filled = df_filled.groupby(keys, observed=observed, sort=sort, as_index=True)
+    gb_filled = df_filled.groupby(
+        keys, observed=observed, sort=sort, as_index=True
+    )
     if reduction_func == "corrwith":
         warn = FutureWarning
         msg = "DataFrameGroupBy.corrwith is deprecated"
@@ -548,7 +587,9 @@ def test_categorical_reducers(reduction_func, observed, sort, as_index, index_ki
         warn = None
         msg = ""
     with tm.assert_produces_warning(warn, match=msg):
-        expected = getattr(gb_filled, reduction_func)(*args_filled).reset_index()
+        expected = getattr(gb_filled, reduction_func)(
+            *args_filled
+        ).reset_index()
     expected["x"] = expected["x"].cat.remove_categories([4])
     if index_kind == "multi":
         expected["x2"] = expected["x2"].cat.remove_categories([4])
@@ -585,9 +626,13 @@ def test_categorical_reducers(reduction_func, observed, sort, as_index, index_ki
     tm.assert_equal(result, expected)
 
 
-def test_categorical_transformers(transformation_func, observed, sort, as_index):
+def test_categorical_transformers(
+    transformation_func, observed, sort, as_index
+):
     # GH#36327
-    values = np.append(np.random.default_rng(2).choice([1, 2, None], size=19), None)
+    values = np.append(
+        np.random.default_rng(2).choice([1, 2, None], size=19), None
+    )
     df = pd.DataFrame(
         {"x": pd.Categorical(values, categories=[1, 2, 3]), "y": range(20)}
     )
@@ -608,7 +653,9 @@ def test_categorical_transformers(transformation_func, observed, sort, as_index)
             na_group = df.iloc[: null_group_values.index[0]]["x"].nunique()
         null_group_data = len(null_group_values) * [na_group]
     else:
-        null_group_data = getattr(null_group_values, transformation_func)(*args)
+        null_group_data = getattr(null_group_values, transformation_func)(
+            *args
+        )
     null_group_result = pd.DataFrame({"y": null_group_data})
 
     gb_keepna = df.groupby(
@@ -639,9 +686,14 @@ def test_categorical_head_tail(method, observed, sort, as_index):
     # GH#36327
     values = np.random.default_rng(2).choice([1, 2, None], 30)
     df = pd.DataFrame(
-        {"x": pd.Categorical(values, categories=[1, 2, 3]), "y": range(len(values))}
+        {
+            "x": pd.Categorical(values, categories=[1, 2, 3]),
+            "y": range(len(values)),
+        }
     )
-    gb = df.groupby("x", dropna=False, observed=observed, sort=sort, as_index=as_index)
+    gb = df.groupby(
+        "x", dropna=False, observed=observed, sort=sort, as_index=as_index
+    )
     result = getattr(gb, method)()
 
     if method == "tail":
@@ -664,7 +716,10 @@ def test_categorical_agg():
     # GH#36327
     values = np.random.default_rng(2).choice([1, 2, None], 30)
     df = pd.DataFrame(
-        {"x": pd.Categorical(values, categories=[1, 2, 3]), "y": range(len(values))}
+        {
+            "x": pd.Categorical(values, categories=[1, 2, 3]),
+            "y": range(len(values)),
+        }
     )
     gb = df.groupby("x", dropna=False, observed=False)
     result = gb.agg(lambda x: x.sum())
@@ -676,7 +731,10 @@ def test_categorical_transform():
     # GH#36327
     values = np.random.default_rng(2).choice([1, 2, None], 30)
     df = pd.DataFrame(
-        {"x": pd.Categorical(values, categories=[1, 2, 3]), "y": range(len(values))}
+        {
+            "x": pd.Categorical(values, categories=[1, 2, 3]),
+            "y": range(len(values)),
+        }
     )
     gb = df.groupby("x", dropna=False, observed=False)
     result = gb.transform(lambda x: x.sum())

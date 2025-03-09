@@ -67,17 +67,23 @@ def test_frame_equal_shape_mismatch(df1, df2, frame_or_series):
     [
         # Index
         (
-            DataFrame.from_records({"a": [1, 2], "c": ["l1", "l2"]}, index=["a"]),
-            DataFrame.from_records({"a": [1.0, 2.0], "c": ["l1", "l2"]}, index=["a"]),
+            DataFrame.from_records(
+                {"a": [1, 2], "c": ["l1", "l2"]}, index=["a"]
+            ),
+            DataFrame.from_records(
+                {"a": [1.0, 2.0], "c": ["l1", "l2"]}, index=["a"]
+            ),
             "DataFrame\\.index are different",
         ),
         # MultiIndex
         (
             DataFrame.from_records(
-                {"a": [1, 2], "b": [2.1, 1.5], "c": ["l1", "l2"]}, index=["a", "b"]
+                {"a": [1, 2], "b": [2.1, 1.5], "c": ["l1", "l2"]},
+                index=["a", "b"],
             ),
             DataFrame.from_records(
-                {"a": [1.0, 2.0], "b": [2.1, 1.5], "c": ["l1", "l2"]}, index=["a", "b"]
+                {"a": [1.0, 2.0], "b": [2.1, 1.5], "c": ["l1", "l2"]},
+                index=["a", "b"],
             ),
             "DataFrame\\.index level \\[0\\] are different",
         ),
@@ -110,7 +116,9 @@ def test_empty_dtypes(check_dtype):
 
 
 @pytest.mark.parametrize("check_like", [True, False])
-def test_frame_equal_index_mismatch(check_like, frame_or_series, using_infer_string):
+def test_frame_equal_index_mismatch(
+    check_like, frame_or_series, using_infer_string
+):
     if using_infer_string:
         dtype = "str"
     else:
@@ -132,7 +140,9 @@ At positional index 2, first diff: c != d"""
 
 
 @pytest.mark.parametrize("check_like", [True, False])
-def test_frame_equal_columns_mismatch(check_like, frame_or_series, using_infer_string):
+def test_frame_equal_columns_mismatch(
+    check_like, frame_or_series, using_infer_string
+):
     if using_infer_string:
         dtype = "str"
     else:
@@ -193,7 +203,9 @@ def test_frame_equal_block_mismatch(by_blocks_fixture, frame_or_series):
         ),
     ],
 )
-def test_frame_equal_unicode(df1, df2, msg, by_blocks_fixture, frame_or_series):
+def test_frame_equal_unicode(
+    df1, df2, msg, by_blocks_fixture, frame_or_series
+):
     # see gh-20503
     #
     # Test ensures that `tm.assert_frame_equals` raises the right exception
@@ -285,7 +297,9 @@ def test_allows_duplicate_labels():
 
 def test_assert_frame_equal_columns_mixed_dtype():
     # GH#39168
-    df = DataFrame([[0, 1, 2]], columns=["foo", "bar", 42], index=[1, "test", 2])
+    df = DataFrame(
+        [[0, 1, 2]], columns=["foo", "bar", 42], index=[1, "test", 2]
+    )
     tm.assert_frame_equal(df, df, check_like=True)
 
 
@@ -296,7 +310,9 @@ def test_frame_equal_extension_dtype(frame_or_series, any_numeric_ea_dtype):
 
 
 @pytest.mark.parametrize("indexer", [(0, 1), (1, 0)])
-def test_frame_equal_mixed_dtypes(frame_or_series, any_numeric_ea_dtype, indexer):
+def test_frame_equal_mixed_dtypes(
+    frame_or_series, any_numeric_ea_dtype, indexer
+):
     dtypes = (any_numeric_ea_dtype, "int64")
     obj1 = frame_or_series([1, 2], dtype=dtypes[indexer[0]])
     obj2 = frame_or_series([1, 2], dtype=dtypes[indexer[1]])
@@ -372,8 +388,12 @@ def test_assert_frame_equal_ea_column_definition_in_exception():
 
 def test_assert_frame_equal_ts_column():
     # GH#50323
-    df1 = DataFrame({"a": [pd.Timestamp("2019-12-31"), pd.Timestamp("2020-12-31")]})
-    df2 = DataFrame({"a": [pd.Timestamp("2020-12-31"), pd.Timestamp("2020-12-31")]})
+    df1 = DataFrame(
+        {"a": [pd.Timestamp("2019-12-31"), pd.Timestamp("2020-12-31")]}
+    )
+    df2 = DataFrame(
+        {"a": [pd.Timestamp("2020-12-31"), pd.Timestamp("2020-12-31")]}
+    )
 
     msg = r'DataFrame.iloc\[:, 0\] \(column name="a"\) values are different'
     with pytest.raises(AssertionError, match=msg):

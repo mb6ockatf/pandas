@@ -108,7 +108,10 @@ def _evaluate_numexpr(op, op_str, left_op, right_op):
         try:
             result = ne.evaluate(
                 f"left_value {op_str} right_value",
-                local_dict={"left_value": left_value, "right_value": right_value},
+                local_dict={
+                    "left_value": left_value,
+                    "right_value": right_value,
+                },
                 casting="safe",
             )
         except TypeError:
@@ -182,7 +185,11 @@ def _where_numexpr(cond, left_op, right_op):
     if _can_use_numexpr(None, "where", left_op, right_op, "where"):
         result = ne.evaluate(
             "where(cond_value, a_value, b_value)",
-            local_dict={"cond_value": cond, "a_value": left_op, "b_value": right_op},
+            local_dict={
+                "cond_value": cond,
+                "a_value": left_op,
+                "b_value": right_op,
+            },
             casting="safe",
         )
 

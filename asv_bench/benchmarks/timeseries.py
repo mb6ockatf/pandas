@@ -29,8 +29,12 @@ class DatetimeIndex:
             "dst": date_range(
                 start="10/29/2000 1:00:00", end="10/29/2000 1:59:59", freq="s"
             ),
-            "repeated": date_range(start="2000", periods=N // 10, freq="s").repeat(10),
-            "tz_aware": date_range(start="2000", periods=N, freq="s", tz="US/Eastern"),
+            "repeated": date_range(
+                start="2000", periods=N // 10, freq="s"
+            ).repeat(10),
+            "tz_aware": date_range(
+                start="2000", periods=N, freq="s", tz="US/Eastern"
+            ),
             "tz_local": date_range(
                 start="2000", periods=N, freq="s", tz=dateutil.tz.tzlocal()
             ),
@@ -74,11 +78,15 @@ class TzLocalize:
         dst_rng = date_range(
             start="10/29/2000 1:00:00", end="10/29/2000 1:59:59", freq="s"
         )
-        self.index = date_range(start="10/29/2000", end="10/29/2000 00:59:59", freq="s")
+        self.index = date_range(
+            start="10/29/2000", end="10/29/2000 00:59:59", freq="s"
+        )
         self.index = self.index.append(dst_rng)
         self.index = self.index.append(dst_rng)
         self.index = self.index.append(
-            date_range(start="10/29/2000 2:00:00", end="10/29/2000 3:00:00", freq="s")
+            date_range(
+                start="10/29/2000 2:00:00", end="10/29/2000 3:00:00", freq="s"
+            )
         )
 
     def time_infer_dst(self, tz):
@@ -163,8 +171,12 @@ class ResampleSeries:
 
     def setup(self, index, freq, method):
         indexes = {
-            "period": period_range(start="1/1/2000", end="1/1/2001", freq="min"),
-            "datetime": date_range(start="1/1/2000", end="1/1/2001", freq="min"),
+            "period": period_range(
+                start="1/1/2000", end="1/1/2001", freq="min"
+            ),
+            "datetime": date_range(
+                start="1/1/2000", end="1/1/2001", freq="min"
+            ),
         }
         idx = indexes[index]
         ts = Series(np.random.randn(len(idx)), index=idx)
@@ -178,7 +190,9 @@ class ResampleDatetetime64:
     # GH 7754
     def setup(self):
         rng3 = date_range(
-            start="2000-01-01 00:00:00", end="2000-01-01 10:00:00", freq="555000us"
+            start="2000-01-01 00:00:00",
+            end="2000-01-01 10:00:00",
+            freq="555000us",
         )
         self.dt_ts = Series(5, rng3, dtype="datetime64[ns]")
 
@@ -270,7 +284,9 @@ class DatetimeAccessor:
 
     def setup(self, tz):
         N = 100000
-        self.series = Series(date_range(start="1/1/2000", periods=N, freq="min", tz=tz))
+        self.series = Series(
+            date_range(start="1/1/2000", periods=N, freq="min", tz=tz)
+        )
 
     def time_dt_accessor(self, tz):
         self.series.dt

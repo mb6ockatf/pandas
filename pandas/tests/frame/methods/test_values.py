@@ -45,7 +45,8 @@ class TestDataFrameValues:
 
     def test_values_duplicates(self):
         df = DataFrame(
-            [[1, 2, "a", "b"], [1, 2, "a", "b"]], columns=["one", "one", "two", "two"]
+            [[1, 2, "a", "b"], [1, 2, "a", "b"]],
+            columns=["one", "one", "two", "two"],
         )
 
         result = df.values
@@ -66,7 +67,10 @@ class TestDataFrameValues:
         expected = series.astype("object")
 
         df = DataFrame(
-            {"a": series, "b": np.random.default_rng(2).standard_normal(len(series))}
+            {
+                "a": series,
+                "b": np.random.default_rng(2).standard_normal(len(series)),
+            }
         )
 
         result = df.values.squeeze()
@@ -225,7 +229,9 @@ class TestDataFrameValues:
 
 class TestPrivateValues:
     def test_private_values_dt64tz(self):
-        dta = date_range("2000", periods=4, tz="US/Central")._data.reshape(-1, 1)
+        dta = date_range("2000", periods=4, tz="US/Central")._data.reshape(
+            -1, 1
+        )
 
         df = DataFrame(dta, columns=["A"])
         tm.assert_equal(df._values, dta)
@@ -238,7 +244,9 @@ class TestPrivateValues:
         tm.assert_equal(df2._values, tda)
 
     def test_private_values_dt64tz_multicol(self):
-        dta = date_range("2000", periods=8, tz="US/Central")._data.reshape(-1, 2)
+        dta = date_range("2000", periods=8, tz="US/Central")._data.reshape(
+            -1, 2
+        )
 
         df = DataFrame(dta, columns=["A", "B"])
         tm.assert_equal(df._values, dta)

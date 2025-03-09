@@ -22,10 +22,13 @@ from pandas._testing._hypothesis import OPTIONAL_ONE_OF_ALL
 
 
 @pytest.fixture(params=["default", "float_string", "mixed_float", "mixed_int"])
-def where_frame(request, float_string_frame, mixed_float_frame, mixed_int_frame):
+def where_frame(
+    request, float_string_frame, mixed_float_frame, mixed_int_frame
+):
     if request.param == "default":
         return DataFrame(
-            np.random.default_rng(2).standard_normal((5, 3)), columns=["A", "B", "C"]
+            np.random.default_rng(2).standard_normal((5, 3)),
+            columns=["A", "B", "C"],
         )
     if request.param == "float_string":
         return float_string_frame
@@ -39,10 +42,13 @@ def _safe_add(df):
     # only add to the numeric items
     def is_ok(s):
         return (
-            issubclass(s.dtype.type, (np.integer, np.floating)) and s.dtype != "uint8"
+            issubclass(s.dtype.type, (np.integer, np.floating))
+            and s.dtype != "uint8"
         )
 
-    return DataFrame(dict((c, s + 1) if is_ok(s) else (c, s) for c, s in df.items()))
+    return DataFrame(
+        dict((c, s + 1) if is_ok(s) else (c, s) for c, s in df.items())
+    )
 
 
 class TestDataFrameIndexingWhere:
@@ -52,7 +58,9 @@ class TestDataFrameIndexingWhere:
             rs = df.where(cond, other1)
             rs2 = df.where(cond.values, other1)
             for k, v in rs.items():
-                exp = Series(np.where(cond[k], df[k], other1[k]), index=v.index)
+                exp = Series(
+                    np.where(cond[k], df[k], other1[k]), index=v.index
+                )
                 tm.assert_series_equal(v, exp, check_names=False)
             tm.assert_frame_equal(rs, rs2)
 
@@ -148,7 +156,9 @@ class TestDataFrameIndexingWhere:
 
         # integers are upcast, so don't check the dtypes
         cond = df > 0
-        check_dtypes = all(not issubclass(s.type, np.integer) for s in df.dtypes)
+        check_dtypes = all(
+            not issubclass(s.type, np.integer) for s in df.dtypes
+        )
         _check_align(df, cond, np.nan, check_dtypes=check_dtypes)
 
     # Ignore deprecation warning in Python 3.12 for inverting a bool
@@ -156,7 +166,8 @@ class TestDataFrameIndexingWhere:
     def test_where_invalid(self):
         # invalid conditions
         df = DataFrame(
-            np.random.default_rng(2).standard_normal((5, 3)), columns=["A", "B", "C"]
+            np.random.default_rng(2).standard_normal((5, 3)),
+            columns=["A", "B", "C"],
         )
         cond = df > 0
 
@@ -321,7 +332,8 @@ class TestDataFrameIndexingWhere:
     def test_where_bug(self):
         # see gh-2793
         df = DataFrame(
-            {"a": [1.0, 2.0, 3.0, 4.0], "b": [4.0, 3.0, 2.0, 1.0]}, dtype="float64"
+            {"a": [1.0, 2.0, 3.0, 4.0], "b": [4.0, 3.0, 2.0, 1.0]},
+            dtype="float64",
         )
         expected = DataFrame(
             {"a": [np.nan, np.nan, 3.0, 4.0], "b": [4.0, 3.0, np.nan, np.nan]},
@@ -461,7 +473,9 @@ class TestDataFrameIndexingWhere:
         result = df.where(pd.notna(df), df.mean(), axis="columns")
         tm.assert_frame_equal(result, expected)
 
-        return_value = df.where(pd.notna(df), df.mean(), inplace=True, axis="columns")
+        return_value = df.where(
+            pd.notna(df), df.mean(), inplace=True, axis="columns"
+        )
         assert return_value is None
         tm.assert_frame_equal(df, expected)
 
@@ -482,7 +496,9 @@ class TestDataFrameIndexingWhere:
 
     def test_where_complex(self):
         # GH 6345
-        expected = DataFrame([[1 + 1j, 2], [np.nan, 4 + 1j]], columns=["a", "b"])
+        expected = DataFrame(
+            [[1 + 1j, 2], [np.nan, 4 + 1j]], columns=["a", "b"]
+        )
         df = DataFrame([[1 + 1j, 2], [5 + 1j, 4 + 1j]], columns=["a", "b"])
         df[df.abs() >= 5] = np.nan
         tm.assert_frame_equal(df, expected)
@@ -622,20 +638,28 @@ class TestDataFrameIndexingWhere:
         result = (df + 2).where(lambda x: x > 8, lambda x: x + 10)
         exp = DataFrame([[13, 14, 15], [16, 17, 18], [9, 10, 11]])
         tm.assert_frame_equal(result, exp)
-        tm.assert_frame_equal(result, (df + 2).where((df + 2) > 8, (df + 2) + 10))
+        tm.assert_frame_equal(
+            result, (df + 2).where((df + 2) > 8, (df + 2) + 10)
+        )
 
     def test_where_tz_values(self, tz_naive_fixture, frame_or_series):
         obj1 = DataFrame(
-            DatetimeIndex(["20150101", "20150102", "20150103"], tz=tz_naive_fixture),
+            DatetimeIndex(
+                ["20150101", "20150102", "20150103"], tz=tz_naive_fixture
+            ),
             columns=["date"],
         )
         obj2 = DataFrame(
-            DatetimeIndex(["20150103", "20150104", "20150105"], tz=tz_naive_fixture),
+            DatetimeIndex(
+                ["20150103", "20150104", "20150105"], tz=tz_naive_fixture
+            ),
             columns=["date"],
         )
         mask = DataFrame([True, True, False], columns=["date"])
         exp = DataFrame(
-            DatetimeIndex(["20150101", "20150102", "20150105"], tz=tz_naive_fixture),
+            DatetimeIndex(
+                ["20150101", "20150102", "20150105"], tz=tz_naive_fixture
+            ),
             columns=["date"],
         )
         if frame_or_series is Series:
@@ -779,7 +803,9 @@ def test_where_int_downcasting_deprecated():
 
     res = df.where(mask, 2**17)
 
-    expected = DataFrame({0: arr[:, 0], 1: np.array([2**17] * 3, dtype=np.int32)})
+    expected = DataFrame(
+        {0: arr[:, 0], 1: np.array([2**17] * 3, dtype=np.int32)}
+    )
     tm.assert_frame_equal(res, expected)
 
 
@@ -803,7 +829,9 @@ def test_where_copies_with_noop(frame_or_series):
 def test_where_string_dtype(frame_or_series):
     # GH40824
     obj = frame_or_series(
-        ["a", "b", "c", "d"], index=["id1", "id2", "id3", "id4"], dtype=StringDtype()
+        ["a", "b", "c", "d"],
+        index=["id1", "id2", "id3", "id4"],
+        dtype=StringDtype(),
     )
     filtered_obj = frame_or_series(
         ["b", "c"], index=["id2", "id3"], dtype=StringDtype()
@@ -828,7 +856,11 @@ def test_where_string_dtype(frame_or_series):
 def test_where_bool_comparison():
     # GH 10336
     df_mask = DataFrame(
-        {"AAA": [True] * 4, "BBB": [False] * 4, "CCC": [True, False, True, False]}
+        {
+            "AAA": [True] * 4,
+            "BBB": [False] * 4,
+            "CCC": [True, False, True, False],
+        }
     )
     result = df_mask.where(df_mask == False)  # noqa: E712
     expected = DataFrame(
@@ -862,7 +894,9 @@ def test_where_duplicate_axes_mixed_dtypes():
     a = result.astype(object).where(mask)
     b = result.astype("f8").where(mask)
     c = result.T.where(mask.T).T
-    d = result.where(mask)  # used to fail with "cannot reindex from a duplicate axis"
+    d = result.where(
+        mask
+    )  # used to fail with "cannot reindex from a duplicate axis"
     tm.assert_frame_equal(a.astype("f8"), b.astype("f8"))
     tm.assert_frame_equal(b.astype("f8"), c.astype("f8"))
     tm.assert_frame_equal(c.astype("f8"), d.astype("f8"))
@@ -1029,7 +1063,9 @@ def test_where_int_overflow(replacement):
     # GH 31687
     df = DataFrame([[1.0, 2e25, "nine"], [np.nan, 0.1, None]])
     result = df.where(pd.notnull(df), replacement)
-    expected = DataFrame([[1.0, 2e25, "nine"], [replacement, 0.1, replacement]])
+    expected = DataFrame(
+        [[1.0, 2e25, "nine"], [replacement, 0.1, replacement]]
+    )
 
     tm.assert_frame_equal(result, expected)
 

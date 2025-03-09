@@ -137,7 +137,9 @@ def test_apply_box_dt64():
     ser = Series(vals, dtype="M8[ns]")
     assert ser.dtype == "datetime64[ns]"
     # boxed value must be Timestamp instance
-    res = ser.apply(lambda x: f"{type(x).__name__}_{x.day}_{x.tz}", by_row="compat")
+    res = ser.apply(
+        lambda x: f"{type(x).__name__}_{x.day}_{x.tz}", by_row="compat"
+    )
     exp = Series(["Timestamp_1_None", "Timestamp_2_None"])
     tm.assert_series_equal(res, exp)
 
@@ -149,7 +151,9 @@ def test_apply_box_dt64tz():
     ]
     ser = Series(vals, dtype="M8[ns, US/Eastern]")
     assert ser.dtype == "datetime64[ns, US/Eastern]"
-    res = ser.apply(lambda x: f"{type(x).__name__}_{x.day}_{x.tz}", by_row="compat")
+    res = ser.apply(
+        lambda x: f"{type(x).__name__}_{x.day}_{x.tz}", by_row="compat"
+    )
     exp = Series(["Timestamp_1_US/Eastern", "Timestamp_2_US/Eastern"])
     tm.assert_series_equal(res, exp)
 
@@ -166,16 +170,23 @@ def test_apply_box_td64():
 
 def test_apply_box_period():
     # period
-    vals = [pd.Period("2011-01-01", freq="M"), pd.Period("2011-01-02", freq="M")]
+    vals = [
+        pd.Period("2011-01-01", freq="M"),
+        pd.Period("2011-01-02", freq="M"),
+    ]
     ser = Series(vals)
     assert ser.dtype == "Period[M]"
-    res = ser.apply(lambda x: f"{type(x).__name__}_{x.freqstr}", by_row="compat")
+    res = ser.apply(
+        lambda x: f"{type(x).__name__}_{x.freqstr}", by_row="compat"
+    )
     exp = Series(["Period_M", "Period_M"])
     tm.assert_series_equal(res, exp)
 
 
 def test_apply_datetimetz(by_row):
-    values = date_range("2011-01-01", "2011-01-02", freq="h").tz_localize("Asia/Tokyo")
+    values = date_range("2011-01-01", "2011-01-02", freq="h").tz_localize(
+        "Asia/Tokyo"
+    )
     s = Series(values, name="XX")
 
     result = s.apply(lambda x: x + pd.offsets.Day(), by_row=by_row)
@@ -186,7 +197,9 @@ def test_apply_datetimetz(by_row):
     tm.assert_series_equal(result, exp)
 
     result = s.apply(lambda x: x.hour if by_row else x.dt.hour, by_row=by_row)
-    exp = Series(list(range(24)) + [0], name="XX", dtype="int64" if by_row else "int32")
+    exp = Series(
+        list(range(24)) + [0], name="XX", dtype="int64" if by_row else "int32"
+    )
     tm.assert_series_equal(result, exp)
 
     # not vectorized
@@ -202,7 +215,9 @@ def test_apply_datetimetz(by_row):
 
 
 def test_apply_categorical(by_row, using_infer_string):
-    values = pd.Categorical(list("ABBABCD"), categories=list("DCBA"), ordered=True)
+    values = pd.Categorical(
+        list("ABBABCD"), categories=list("DCBA"), ordered=True
+    )
     ser = Series(values, name="XX", index=list("abcdefg"))
 
     if not by_row:
@@ -216,7 +231,9 @@ def test_apply_categorical(by_row, using_infer_string):
 
     # should be categorical dtype when the number of categories are
     # the same
-    values = pd.Categorical(list("abbabcd"), categories=list("dcba"), ordered=True)
+    values = pd.Categorical(
+        list("abbabcd"), categories=list("dcba"), ordered=True
+    )
     exp = Series(values, name="XX", index=list("abcdefg"))
     tm.assert_series_equal(result, exp)
     tm.assert_categorical_equal(result.values, exp.values)
@@ -227,7 +244,9 @@ def test_apply_categorical(by_row, using_infer_string):
     assert result.dtype == object if not using_infer_string else "str"
 
 
-@pytest.mark.parametrize("series", [["1-1", "1-1", np.nan], ["1-1", "1-2", np.nan]])
+@pytest.mark.parametrize(
+    "series", [["1-1", "1-1", np.nan], ["1-1", "1-2", np.nan]]
+)
 def test_apply_categorical_with_nan_values(series, by_row):
     # GH 20714 bug fixed in: GH 24275
     s = Series(series, dtype="category")
@@ -237,7 +256,9 @@ def test_apply_categorical_with_nan_values(series, by_row):
             s.apply(lambda x: x.split("-")[0], by_row=by_row)
         return
     # NaN for cat dtype fixed in (GH 59966)
-    result = s.apply(lambda x: x.split("-")[0] if pd.notna(x) else False, by_row=by_row)
+    result = s.apply(
+        lambda x: x.split("-")[0] if pd.notna(x) else False, by_row=by_row
+    )
     result = result.astype(object)
     expected = Series(["1", "1", False], dtype="category")
     expected = expected.astype(object)
@@ -298,7 +319,9 @@ def test_transform(string_series, by_row):
         expected.columns = ["foo", "bar"]
         expected = expected.unstack().rename("series")
 
-        result = string_series.apply({"foo": np.sqrt, "bar": np.abs}, by_row=by_row)
+        result = string_series.apply(
+            {"foo": np.sqrt, "bar": np.abs}, by_row=by_row
+        )
         tm.assert_series_equal(result.reindex_like(expected), expected)
 
 
@@ -408,7 +431,9 @@ def test_with_nested_series(datetime_series, op_name):
         expected = DataFrame({"x": datetime_series, "x^2": datetime_series**2})
         tm.assert_frame_equal(result, expected)
     else:
-        expected = Series([datetime_series, datetime_series**2], index=["x", "x^2"])
+        expected = Series(
+            [datetime_series, datetime_series**2], index=["x", "x^2"]
+        )
         tm.assert_series_equal(result, expected)
 
 
@@ -443,7 +468,11 @@ def test_reduce(string_series):
 
 @pytest.mark.parametrize(
     "how, kwds",
-    [("agg", {}), ("apply", {"by_row": "compat"}), ("apply", {"by_row": False})],
+    [
+        ("agg", {}),
+        ("apply", {"by_row": "compat"}),
+        ("apply", {"by_row": False}),
+    ],
 )
 def test_non_callable_aggregates(how, kwds):
     # test agg using non-callable series attributes
@@ -460,14 +489,18 @@ def test_non_callable_aggregates(how, kwds):
     expected = Series({"size": 3.0, "count": 2.0, "mean": 1.5})
     tm.assert_series_equal(result, expected)
 
-    result = getattr(s, how)({"size": "size", "count": "count", "mean": "mean"}, **kwds)
+    result = getattr(s, how)(
+        {"size": "size", "count": "count", "mean": "mean"}, **kwds
+    )
     tm.assert_series_equal(result, expected)
 
 
 def test_series_apply_no_suffix_index(by_row):
     # GH36189
     s = Series([4] * 3)
-    result = s.apply(["sum", lambda x: x.sum(), lambda x: x.sum()], by_row=by_row)
+    result = s.apply(
+        ["sum", lambda x: x.sum(), lambda x: x.sum()], by_row=by_row
+    )
     expected = Series([12, 12, 12], index=["sum", "<lambda>", "<lambda>"])
 
     tm.assert_series_equal(result, expected)
@@ -503,7 +536,8 @@ def test_apply_series_on_date_time_index_aware_series(dti, exp, aware):
 
 
 @pytest.mark.parametrize(
-    "by_row, expected", [("compat", Series(np.ones(10), dtype="int64")), (False, 1)]
+    "by_row, expected",
+    [("compat", Series(np.ones(10), dtype="int64")), (False, 1)],
 )
 def test_apply_scalar_on_date_time_index_aware_series(by_row, expected):
     # GH 25959
@@ -541,11 +575,17 @@ def test_apply_to_timedelta(by_row):
 )
 @pytest.mark.parametrize(
     "how, kwargs",
-    [["agg", {}], ["apply", {"by_row": "compat"}], ["apply", {"by_row": False}]],
+    [
+        ["agg", {}],
+        ["apply", {"by_row": "compat"}],
+        ["apply", {"by_row": False}],
+    ],
 )
 def test_apply_listlike_reducer(string_series, ops, names, how, kwargs):
     # GH 39140
-    expected = Series({name: op(string_series) for name, op in zip(names, ops)})
+    expected = Series(
+        {name: op(string_series) for name, op in zip(names, ops)}
+    )
     expected.name = "series"
     result = getattr(string_series, how)(ops, **kwargs)
     tm.assert_series_equal(result, expected)
@@ -562,7 +602,11 @@ def test_apply_listlike_reducer(string_series, ops, names, how, kwargs):
 )
 @pytest.mark.parametrize(
     "how, kwargs",
-    [["agg", {}], ["apply", {"by_row": "compat"}], ["apply", {"by_row": False}]],
+    [
+        ["agg", {}],
+        ["apply", {"by_row": "compat"}],
+        ["apply", {"by_row": False}],
+    ],
 )
 def test_apply_dictlike_reducer(string_series, ops, how, kwargs, by_row):
     # GH 39140
@@ -616,7 +660,9 @@ def test_apply_listlike_lambda(ops, expected, by_row):
 def test_apply_dictlike_transformer(string_series, ops, by_row):
     # GH 39140
     with np.errstate(all="ignore"):
-        expected = concat({name: op(string_series) for name, op in ops.items()})
+        expected = concat(
+            {name: op(string_series) for name, op in ops.items()}
+        )
         expected.name = string_series.name
         result = string_series.apply(ops, by_row=by_row)
         tm.assert_series_equal(result, expected)
@@ -627,7 +673,9 @@ def test_apply_dictlike_transformer(string_series, ops, by_row):
     [
         (
             {"a": lambda x: x},
-            Series([1, 2, 3], index=MultiIndex.from_arrays([["a"] * 3, range(3)])),
+            Series(
+                [1, 2, 3], index=MultiIndex.from_arrays([["a"] * 3, range(3)])
+            ),
         ),
         ({"a": lambda x: x.sum()}, Series([6], index=["a"])),
     ],
@@ -642,7 +690,9 @@ def test_apply_dictlike_lambda(ops, by_row, expected):
 def test_apply_retains_column_name(by_row):
     # GH 16380
     df = DataFrame({"x": range(3)}, Index(range(3), name="x"))
-    result = df.x.apply(lambda x: Series(range(x + 1), Index(range(x + 1), name="y")))
+    result = df.x.apply(
+        lambda x: Series(range(x + 1), Index(range(x + 1), name="y"))
+    )
     expected = DataFrame(
         [[0.0, np.nan, np.nan], [0.0, 1.0, np.nan], [0.0, 1.0, 2.0]],
         columns=Index(range(3), name="y"),
@@ -663,5 +713,7 @@ def test_series_apply_unpack_nested_data():
     # GH#55189
     ser = Series([[1, 2, 3], [4, 5, 6, 7]])
     result = ser.apply(lambda x: Series(x))
-    expected = DataFrame({0: [1.0, 4.0], 1: [2.0, 5.0], 2: [3.0, 6.0], 3: [np.nan, 7]})
+    expected = DataFrame(
+        {0: [1.0, 4.0], 1: [2.0, 5.0], 2: [3.0, 6.0], 3: [np.nan, 7]}
+    )
     tm.assert_frame_equal(result, expected)

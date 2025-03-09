@@ -36,7 +36,9 @@ class TestGetStandardColors:
             (7, ["b", "g", "r", "y", "b", "g", "r"]),
         ],
     )
-    def test_default_colors_named_from_prop_cycle_string(self, num_colors, expected):
+    def test_default_colors_named_from_prop_cycle_string(
+        self, num_colors, expected
+    ):
         mpl_params = {
             "axes.prop_cycle": plt.cycler(color="bgry"),
         }
@@ -68,7 +70,9 @@ class TestGetStandardColors:
             ),
         ],
     )
-    def test_default_colors_named_undefined_prop_cycle(self, num_colors, expected_name):
+    def test_default_colors_named_undefined_prop_cycle(
+        self, num_colors, expected_name
+    ):
         with mpl.rc_context(rc={}):
             expected = [mpl.colors.to_hex(x) for x in expected_name]
             result = get_standard_colors(num_colors=num_colors)

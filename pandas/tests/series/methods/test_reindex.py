@@ -223,20 +223,24 @@ def test_reindex_categorical():
     s = Series(["a", "b", "c"], dtype="category")
     result = s.reindex(index)
     expected = Series(
-        Categorical(values=[np.nan, np.nan, np.nan], categories=["a", "b", "c"])
+        Categorical(
+            values=[np.nan, np.nan, np.nan], categories=["a", "b", "c"]
+        )
     )
     expected.index = index
     tm.assert_series_equal(result, expected)
 
     # partial reindexing
     expected = Series(
-        Categorical(values=["b", "c"], categories=["a", "b", "c"]), index=range(1, 3)
+        Categorical(values=["b", "c"], categories=["a", "b", "c"]),
+        index=range(1, 3),
     )
     result = s.reindex([1, 2])
     tm.assert_series_equal(result, expected)
 
     expected = Series(
-        Categorical(values=["c", np.nan], categories=["a", "b", "c"]), index=range(2, 4)
+        Categorical(values=["c", np.nan], categories=["a", "b", "c"]),
+        index=range(2, 4),
     )
     result = s.reindex([2, 3])
     tm.assert_series_equal(result, expected)
@@ -356,7 +360,9 @@ def test_reindex_empty_series_tz_dtype():
         ),
     ],
 )
-def test_reindex_periodindex_with_object(p_values, o_values, values, expected_values):
+def test_reindex_periodindex_with_object(
+    p_values, o_values, values, expected_values
+):
     # GH#28337
     period_index = PeriodIndex(p_values)
     object_index = Index(o_values)
@@ -370,7 +376,9 @@ def test_reindex_periodindex_with_object(p_values, o_values, values, expected_va
 def test_reindex_too_many_args():
     # GH 40980
     ser = Series([1, 2])
-    msg = r"reindex\(\) takes from 1 to 2 positional arguments but 3 were given"
+    msg = (
+        r"reindex\(\) takes from 1 to 2 positional arguments but 3 were given"
+    )
     with pytest.raises(TypeError, match=msg):
         ser.reindex([2, 3], False)
 
@@ -395,11 +403,14 @@ def test_reindex_no_posargs():
 def test_reindex_empty_with_level(values):
     # GH41170
     ser = Series(
-        range(len(values[0])), index=MultiIndex.from_arrays(values), dtype="object"
+        range(len(values[0])),
+        index=MultiIndex.from_arrays(values),
+        dtype="object",
     )
     result = ser.reindex(np.array(["b"]), level=0)
     expected = Series(
-        index=MultiIndex(levels=[["b"], values[1]], codes=[[], []]), dtype="object"
+        index=MultiIndex(levels=[["b"], values[1]], codes=[[], []]),
+        dtype="object",
     )
     tm.assert_series_equal(result, expected)
 

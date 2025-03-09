@@ -97,7 +97,9 @@ def test_same_ordering(datapath):
 
 @pytest.fixture(
     params=[
-        pytest.param("bs4", marks=[td.skip_if_no("bs4"), td.skip_if_no("html5lib")]),
+        pytest.param(
+            "bs4", marks=[td.skip_if_no("bs4"), td.skip_if_no("html5lib")]
+        ),
         pytest.param("lxml", marks=td.skip_if_no("lxml")),
     ],
 )
@@ -157,7 +159,9 @@ class TestReadHtml:
         )[0]
         tm.assert_frame_equal(res, df)
 
-    def test_dtype_backend(self, string_storage, dtype_backend, flavor_read_html):
+    def test_dtype_backend(
+        self, string_storage, dtype_backend, flavor_read_html
+    ):
         # GH#50286
         df = DataFrame(
             {
@@ -174,7 +178,9 @@ class TestReadHtml:
 
         out = df.to_html(index=False)
         with pd.option_context("mode.string_storage", string_storage):
-            result = flavor_read_html(StringIO(out), dtype_backend=dtype_backend)[0]
+            result = flavor_read_html(
+                StringIO(out), dtype_backend=dtype_backend
+            )[0]
 
         if dtype_backend == "pyarrow":
             pa = pytest.importorskip("pyarrow")
@@ -202,7 +208,9 @@ class TestReadHtml:
 
             expected = DataFrame(
                 {
-                    col: ArrowExtensionArray(pa.array(expected[col], from_pandas=True))
+                    col: ArrowExtensionArray(
+                        pa.array(expected[col], from_pandas=True)
+                    )
                     for col in expected.columns
                 }
             )
@@ -310,19 +318,27 @@ class TestReadHtml:
         assert_framelist_equal(df1, df2)
 
     def test_skiprows_slice_long(self, spam_data, flavor_read_html):
-        df1 = flavor_read_html(spam_data, match=".*Water.*", skiprows=slice(2, 5))
-        df2 = flavor_read_html(spam_data, match="Unit", skiprows=slice(4, 1, -1))
+        df1 = flavor_read_html(
+            spam_data, match=".*Water.*", skiprows=slice(2, 5)
+        )
+        df2 = flavor_read_html(
+            spam_data, match="Unit", skiprows=slice(4, 1, -1)
+        )
 
         assert_framelist_equal(df1, df2)
 
     def test_skiprows_ndarray(self, spam_data, flavor_read_html):
-        df1 = flavor_read_html(spam_data, match=".*Water.*", skiprows=np.arange(2))
+        df1 = flavor_read_html(
+            spam_data, match=".*Water.*", skiprows=np.arange(2)
+        )
         df2 = flavor_read_html(spam_data, match="Unit", skiprows=np.arange(2))
 
         assert_framelist_equal(df1, df2)
 
     def test_skiprows_invalid(self, spam_data, flavor_read_html):
-        with pytest.raises(TypeError, match=("is not a valid type for skipping rows")):
+        with pytest.raises(
+            TypeError, match=("is not a valid type for skipping rows")
+        ):
             flavor_read_html(spam_data, match=".*Water.*", skiprows="asdf")
 
     def test_index(self, spam_data, flavor_read_html):
@@ -331,12 +347,16 @@ class TestReadHtml:
         assert_framelist_equal(df1, df2)
 
     def test_header_and_index_no_types(self, spam_data, flavor_read_html):
-        df1 = flavor_read_html(spam_data, match=".*Water.*", header=1, index_col=0)
+        df1 = flavor_read_html(
+            spam_data, match=".*Water.*", header=1, index_col=0
+        )
         df2 = flavor_read_html(spam_data, match="Unit", header=1, index_col=0)
         assert_framelist_equal(df1, df2)
 
     def test_header_and_index_with_types(self, spam_data, flavor_read_html):
-        df1 = flavor_read_html(spam_data, match=".*Water.*", header=1, index_col=0)
+        df1 = flavor_read_html(
+            spam_data, match=".*Water.*", header=1, index_col=0
+        )
         df2 = flavor_read_html(spam_data, match="Unit", header=1, index_col=0)
         assert_framelist_equal(df1, df2)
 
@@ -378,8 +398,12 @@ class TestReadHtml:
     @pytest.mark.network
     @pytest.mark.single_cpu
     def test_bad_url_protocol(self, httpserver, flavor_read_html):
-        httpserver.serve_content("urlopen error unknown url type: git", code=404)
-        with pytest.raises(URLError, match="urlopen error unknown url type: git"):
+        httpserver.serve_content(
+            "urlopen error unknown url type: git", code=404
+        )
+        with pytest.raises(
+            URLError, match="urlopen error unknown url type: git"
+        ):
             flavor_read_html("git://github.com", match=".*Water.*")
 
     @pytest.mark.slow
@@ -387,14 +411,18 @@ class TestReadHtml:
     @pytest.mark.single_cpu
     def test_invalid_url(self, httpserver, flavor_read_html):
         httpserver.serve_content("Name or service not known", code=404)
-        with pytest.raises((URLError, ValueError), match="HTTP Error 404: NOT FOUND"):
+        with pytest.raises(
+            (URLError, ValueError), match="HTTP Error 404: NOT FOUND"
+        ):
             flavor_read_html(httpserver.url, match=".*Water.*")
 
     @pytest.mark.slow
     def test_file_url(self, banklist_data, flavor_read_html):
         url = banklist_data
         dfs = flavor_read_html(
-            file_path_to_url(os.path.abspath(url)), match="First", attrs={"id": "table"}
+            file_path_to_url(os.path.abspath(url)),
+            match="First",
+            attrs={"id": "table"},
         )
         assert isinstance(dfs, list)
         for df in dfs:
@@ -405,20 +433,28 @@ class TestReadHtml:
         url = banklist_data
         with pytest.raises(ValueError, match="No tables found"):
             flavor_read_html(
-                url, match="First Federal Bank of Florida", attrs={"id": "tasdfable"}
+                url,
+                match="First Federal Bank of Florida",
+                attrs={"id": "tasdfable"},
             )
 
     @pytest.mark.slow
     def test_multiindex_header(self, banklist_data, flavor_read_html):
         df = flavor_read_html(
-            banklist_data, match="Metcalf", attrs={"id": "table"}, header=[0, 1]
+            banklist_data,
+            match="Metcalf",
+            attrs={"id": "table"},
+            header=[0, 1],
         )[0]
         assert isinstance(df.columns, MultiIndex)
 
     @pytest.mark.slow
     def test_multiindex_index(self, banklist_data, flavor_read_html):
         df = flavor_read_html(
-            banklist_data, match="Metcalf", attrs={"id": "table"}, index_col=[0, 1]
+            banklist_data,
+            match="Metcalf",
+            attrs={"id": "table"},
+            index_col=[0, 1],
         )[0]
         assert isinstance(df.index, MultiIndex)
 
@@ -435,7 +471,9 @@ class TestReadHtml:
         assert isinstance(df.index, MultiIndex)
 
     @pytest.mark.slow
-    def test_multiindex_header_skiprows_tuples(self, banklist_data, flavor_read_html):
+    def test_multiindex_header_skiprows_tuples(
+        self, banklist_data, flavor_read_html
+    ):
         df = flavor_read_html(
             banklist_data,
             match="Metcalf",
@@ -457,7 +495,9 @@ class TestReadHtml:
         assert isinstance(df.columns, MultiIndex)
 
     @pytest.mark.slow
-    def test_multiindex_header_index_skiprows(self, banklist_data, flavor_read_html):
+    def test_multiindex_header_index_skiprows(
+        self, banklist_data, flavor_read_html
+    ):
         df = flavor_read_html(
             banklist_data,
             match="Metcalf",
@@ -544,7 +584,9 @@ class TestReadHtml:
 
     @pytest.mark.network
     @pytest.mark.single_cpu
-    def test_python_docs_table(self, python_docs, httpserver, flavor_read_html):
+    def test_python_docs_table(
+        self, python_docs, httpserver, flavor_read_html
+    ):
         httpserver.serve_content(content=python_docs)
         dfs = flavor_read_html(httpserver.url, match="Python")
         zz = [df.iloc[0, 0][0:4] for df in dfs]
@@ -697,7 +739,9 @@ class TestReadHtml:
         )
 
         data1 = data_template.format(footer="")
-        data2 = data_template.format(footer="<tr><td>footA</td><th>footB</th></tr>")
+        data2 = data_template.format(
+            footer="<tr><td>footA</td><th>footB</th></tr>"
+        )
 
         result1 = flavor_read_html(StringIO(data1))[0]
         result2 = flavor_read_html(StringIO(data2))[0]
@@ -740,7 +784,9 @@ class TestReadHtml:
             except AttributeError:
                 return x
 
-        df = flavor_read_html(banklist_data, match="Metcalf", attrs={"id": "table"})[0]
+        df = flavor_read_html(
+            banklist_data, match="Metcalf", attrs={"id": "table"}
+        )[0]
         ground_truth = read_csv(
             datapath("io", "data", "csv", "banklist.csv"),
             converters={"Updated Date": Timestamp, "Closing Date": Timestamp},
@@ -917,7 +963,8 @@ class TestReadHtml:
         )[0]
 
         expected = DataFrame(
-            data=[["A", "B", "B", "Z", "C"]], columns=["X", "X.1", "Y", "Z", "W"]
+            data=[["A", "B", "B", "Z", "C"]],
+            columns=["X", "X.1", "Y", "Z", "W"],
         )
 
         tm.assert_frame_equal(result, expected)
@@ -949,7 +996,8 @@ class TestReadHtml:
         )[0]
 
         expected = DataFrame(
-            data=[["A", "B", "B", "B", "D"]], columns=["A", "B", "B.1", "B.2", "C"]
+            data=[["A", "B", "B", "B", "D"]],
+            columns=["A", "B", "B.1", "B.2", "C"],
         )
 
         tm.assert_frame_equal(result, expected)
@@ -1054,7 +1102,9 @@ class TestReadHtml:
             )
         )[0]
 
-        columns = MultiIndex(levels=[["A", "B"], ["a", "b"]], codes=[[0, 1], [0, 1]])
+        columns = MultiIndex(
+            levels=[["A", "B"], ["a", "b"]], codes=[[0, 1], [0, 1]]
+        )
         expected = DataFrame(data=[[1, 2]], columns=columns)
 
         tm.assert_frame_equal(result, expected)
@@ -1068,7 +1118,9 @@ class TestReadHtml:
         str_df = df.to_html()
         res = flavor_read_html(StringIO(str_df), parse_dates=[1], index_col=0)
         tm.assert_frame_equal(expected, res[0])
-        res = flavor_read_html(StringIO(str_df), parse_dates=["date"], index_col=0)
+        res = flavor_read_html(
+            StringIO(str_df), parse_dates=["date"], index_col=0
+        )
         tm.assert_frame_equal(expected, res[0])
 
     def test_wikipedia_states_table(self, datapath, flavor_read_html):
@@ -1087,7 +1139,9 @@ class TestReadHtml:
         assert result.shape == (60, 11)
         assert "Unnamed" in result.columns[-1][1]
         assert result.columns.nlevels == 2
-        assert np.allclose(result.loc["Alaska", ("Total area[2]", "sq mi")], 665384.04)
+        assert np.allclose(
+            result.loc["Alaska", ("Total area[2]", "sq mi")], 665384.04
+        )
 
     def test_parser_error_on_empty_header_row(self, flavor_read_html):
         result = flavor_read_html(
@@ -1226,11 +1280,15 @@ class TestReadHtml:
                     </table>"""
 
         expected_df = DataFrame({"a": ["N/A", "NA"]})
-        html_df = flavor_read_html(StringIO(html_data), keep_default_na=False)[0]
+        html_df = flavor_read_html(StringIO(html_data), keep_default_na=False)[
+            0
+        ]
         tm.assert_frame_equal(expected_df, html_df)
 
         expected_df = DataFrame({"a": [np.nan, np.nan]})
-        html_df = flavor_read_html(StringIO(html_data), keep_default_na=True)[0]
+        html_df = flavor_read_html(StringIO(html_data), keep_default_na=True)[
+            0
+        ]
         tm.assert_frame_equal(expected_df, html_df)
 
     def test_preserve_empty_rows(self, flavor_read_html):
@@ -1255,7 +1313,9 @@ class TestReadHtml:
             )
         )[0]
 
-        expected = DataFrame(data=[["a", "b"], [np.nan, np.nan]], columns=["A", "B"])
+        expected = DataFrame(
+            data=[["a", "b"], [np.nan, np.nan]], columns=["A", "B"]
+        )
 
         tm.assert_frame_equal(result, expected)
 
@@ -1277,7 +1337,9 @@ class TestReadHtml:
             )
         )[0]
 
-        columns = MultiIndex(levels=[["A", "B"], ["a", "b"]], codes=[[0, 1], [0, 1]])
+        columns = MultiIndex(
+            levels=[["A", "B"], ["a", "b"]], codes=[[0, 1], [0, 1]]
+        )
         expected = DataFrame(data=[[1, 2]], columns=columns)
 
         tm.assert_frame_equal(result, expected)
@@ -1285,7 +1347,11 @@ class TestReadHtml:
     def test_multiple_header_rows(self, flavor_read_html):
         # Issue #13434
         expected_df = DataFrame(
-            data=[("Hillary", 68, "D"), ("Bernie", 74, "D"), ("Donald", 69, "R")]
+            data=[
+                ("Hillary", 68, "D"),
+                ("Bernie", 74, "D"),
+                ("Donald", 69, "R"),
+            ]
         )
         expected_df.columns = [
             ["Unnamed: 0_level_0", "Age", "Party"],
@@ -1305,11 +1371,15 @@ class TestReadHtml:
     def test_fallback_success(self, datapath, flavor_read_html):
         banklist_data = datapath("io", "data", "html", "banklist.html")
 
-        flavor_read_html(banklist_data, match=".*Water.*", flavor=["lxml", "html5lib"])
+        flavor_read_html(
+            banklist_data, match=".*Water.*", flavor=["lxml", "html5lib"]
+        )
 
     def test_to_html_timestamp(self):
         rng = date_range("2000-01-01", periods=10)
-        df = DataFrame(np.random.default_rng(2).standard_normal((10, 4)), index=rng)
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((10, 4)), index=rng
+        )
 
         result = df.to_html()
         assert "2000-01-01" in result
@@ -1340,7 +1410,9 @@ class TestReadHtml:
             (False, ["foo  bar  baz  qux"], DataFrame(["foo"])),
         ],
     )
-    def test_displayed_only(self, displayed_only, exp0, exp1, flavor_read_html):
+    def test_displayed_only(
+        self, displayed_only, exp0, exp1, flavor_read_html
+    ):
         # GH 20027
         data = """<html>
           <body>
@@ -1372,7 +1444,9 @@ class TestReadHtml:
             assert len(dfs) == 1  # Should not parse hidden table
 
     @pytest.mark.parametrize("displayed_only", [True, False])
-    def test_displayed_only_with_many_elements(self, displayed_only, flavor_read_html):
+    def test_displayed_only_with_many_elements(
+        self, displayed_only, flavor_read_html
+    ):
         html_table = """
         <table>
             <tr>
@@ -1389,9 +1463,9 @@ class TestReadHtml:
             </tr>
         </table>
         """
-        result = flavor_read_html(StringIO(html_table), displayed_only=displayed_only)[
-            0
-        ]
+        result = flavor_read_html(
+            StringIO(html_table), displayed_only=displayed_only
+        )[0]
         expected = DataFrame({"A": [1, 4], "B": [2, 5]})
         tm.assert_frame_equal(result, expected)
 
@@ -1444,7 +1518,9 @@ class TestReadHtml:
 
         assert flavor_read_html(bad)
 
-        with pytest.raises(ValueError, match="passed a non-rewindable file object"):
+        with pytest.raises(
+            ValueError, match="passed a non-rewindable file object"
+        ):
             flavor_read_html(bad)
 
     def test_parse_failure_rewinds(self, flavor_read_html):
@@ -1565,7 +1641,11 @@ class TestReadHtml:
                 ("FTP", None),
                 ("Linkless", "https://en.wiktionary.org/wiki/linkless"),
             ],
-            "body_ignore": ["Wikipedia", "SURROUNDING Debian TEXT", "Linkless"],
+            "body_ignore": [
+                "Wikipedia",
+                "SURROUNDING Debian TEXT",
+                "Linkless",
+            ],
             "body_extract": [
                 ("Wikipedia", "https://en.wikipedia.org/"),
                 ("SURROUNDING Debian TEXT", "ftp://ftp.us.debian.org/"),
@@ -1597,7 +1677,9 @@ class TestReadHtml:
         elif arg == "header":
             head_exp = gh_13141_expected["head_extract"]
 
-        result = flavor_read_html(StringIO(gh_13141_data), extract_links=arg)[0]
+        result = flavor_read_html(StringIO(gh_13141_data), extract_links=arg)[
+            0
+        ]
         expected = DataFrame([data_exp, foot_exp], columns=head_exp)
         expected = expected.fillna(np.nan)
         tm.assert_frame_equal(result, expected)
@@ -1655,5 +1737,7 @@ class TestReadHtml:
         </table>
         """
         result = flavor_read_html(StringIO(data))[0]
-        expected = DataFrame(data=[["A1", "B1"], ["A2", "B2"]], columns=["A", "B"])
+        expected = DataFrame(
+            data=[["A1", "B1"], ["A2", "B2"]], columns=["A", "B"]
+        )
         tm.assert_frame_equal(result, expected)

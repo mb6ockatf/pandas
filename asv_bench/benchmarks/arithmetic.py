@@ -143,7 +143,9 @@ class FrameWithFrameWide:
         # construct dataframe with 2 blocks
         arr1 = np.random.randn(n_rows, n_cols // 2).astype("f8")
         arr2 = np.random.randn(n_rows, n_cols // 2).astype("f4")
-        df = pd.concat([DataFrame(arr1), DataFrame(arr2)], axis=1, ignore_index=True)
+        df = pd.concat(
+            [DataFrame(arr1), DataFrame(arr2)], axis=1, ignore_index=True
+        )
         # should already be the case, but just to be sure
         df._consolidate_inplace()
 

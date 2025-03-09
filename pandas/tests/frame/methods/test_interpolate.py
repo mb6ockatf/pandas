@@ -158,7 +158,10 @@ class TestDataFrameInterpolate:
     def test_interp_various(self):
         pytest.importorskip("scipy")
         df = DataFrame(
-            {"A": [1, 2, np.nan, 4, 5, np.nan, 7], "C": [1, 2, 3, 5, 8, 13, 21]}
+            {
+                "A": [1, 2, np.nan, 4, 5, np.nan, 7],
+                "C": [1, 2, 3, 5, 8, 13, 21],
+            }
         )
         df = df.set_index("C")
         expected = df.copy()
@@ -197,7 +200,10 @@ class TestDataFrameInterpolate:
     def test_interp_alt_scipy(self):
         pytest.importorskip("scipy")
         df = DataFrame(
-            {"A": [1, 2, np.nan, 4, 5, np.nan, 7], "C": [1, 2, 3, 5, 8, 13, 21]}
+            {
+                "A": [1, 2, np.nan, 4, 5, np.nan, 7],
+                "C": [1, 2, 3, 5, 8, 13, 21],
+            }
         )
         result = df.interpolate(method="barycentric")
         expected = df.copy()
@@ -269,11 +275,15 @@ class TestDataFrameInterpolate:
         # TODO: assert something?
 
     @pytest.mark.parametrize(
-        "check_scipy", [False, pytest.param(True, marks=td.skip_if_no("scipy"))]
+        "check_scipy",
+        [False, pytest.param(True, marks=td.skip_if_no("scipy"))],
     )
     def test_interp_leading_nans(self, check_scipy):
         df = DataFrame(
-            {"A": [np.nan, np.nan, 0.5, 0.25, 0], "B": [np.nan, -3, -3.5, np.nan, -4]}
+            {
+                "A": [np.nan, np.nan, 0.5, 0.25, 0],
+                "B": [np.nan, -3, -3.5, np.nan, -4],
+            }
         )
         result = df.interpolate()
         expected = df.copy()
@@ -318,10 +328,16 @@ class TestDataFrameInterpolate:
     def test_interp_inplace_row(self):
         # GH 10395
         result = DataFrame(
-            {"a": [1.0, 2.0, 3.0, 4.0], "b": [np.nan, 2.0, 3.0, 4.0], "c": [3, 2, 2, 2]}
+            {
+                "a": [1.0, 2.0, 3.0, 4.0],
+                "b": [np.nan, 2.0, 3.0, 4.0],
+                "c": [3, 2, 2, 2],
+            }
         )
         expected = result.interpolate(method="linear", axis=1, inplace=False)
-        return_value = result.interpolate(method="linear", axis=1, inplace=True)
+        return_value = result.interpolate(
+            method="linear", axis=1, inplace=True
+        )
         assert return_value is None
         tm.assert_frame_equal(result, expected)
 
@@ -359,11 +375,15 @@ class TestDataFrameInterpolate:
         expected = DataFrame(index=idx, columns=idx, data=data)
 
         result = expected.interpolate(axis=0, method="time")
-        return_value = expected.interpolate(axis=0, method="time", inplace=True)
+        return_value = expected.interpolate(
+            axis=0, method="time", inplace=True
+        )
         assert return_value is None
         tm.assert_frame_equal(result, expected)
 
-    @pytest.mark.parametrize("axis_name, axis_number", [("index", 0), ("columns", 1)])
+    @pytest.mark.parametrize(
+        "axis_name, axis_number", [("index", 0), ("columns", 1)]
+    )
     def test_interp_string_axis(self, axis_name, axis_number):
         # https://github.com/pandas-dev/pandas/issues/25190
         x = np.linspace(0, 100, 1000)
@@ -431,12 +451,25 @@ class TestDataFrameInterpolate:
 
     @pytest.mark.parametrize(
         "dtype",
-        ["int64", "uint64", "int32", "int16", "int8", "uint32", "uint16", "uint8"],
+        [
+            "int64",
+            "uint64",
+            "int32",
+            "int16",
+            "int8",
+            "uint32",
+            "uint16",
+            "uint8",
+        ],
     )
     def test_interpolate_arrow(self, dtype):
         # GH#55347
         pytest.importorskip("pyarrow")
-        df = DataFrame({"a": [1, None, None, None, 3]}, dtype=dtype + "[pyarrow]")
+        df = DataFrame(
+            {"a": [1, None, None, None, 3]}, dtype=dtype + "[pyarrow]"
+        )
         result = df.interpolate(limit=2)
-        expected = DataFrame({"a": [1, 1.5, 2.0, None, 3]}, dtype="float64[pyarrow]")
+        expected = DataFrame(
+            {"a": [1, 1.5, 2.0, None, 3]}, dtype="float64[pyarrow]"
+        )
         tm.assert_frame_equal(result, expected)

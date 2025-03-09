@@ -115,9 +115,15 @@ class TestDataFrameDrop:
     def test_drop(self):
         simple = DataFrame({"A": [1, 2, 3, 4], "B": [0, 1, 2, 3]})
         tm.assert_frame_equal(simple.drop("A", axis=1), simple[["B"]])
-        tm.assert_frame_equal(simple.drop(["A", "B"], axis="columns"), simple[[]])
-        tm.assert_frame_equal(simple.drop([0, 1, 3], axis=0), simple.loc[[2], :])
-        tm.assert_frame_equal(simple.drop([0, 3], axis="index"), simple.loc[[1, 2], :])
+        tm.assert_frame_equal(
+            simple.drop(["A", "B"], axis="columns"), simple[[]]
+        )
+        tm.assert_frame_equal(
+            simple.drop([0, 1, 3], axis=0), simple.loc[[2], :]
+        )
+        tm.assert_frame_equal(
+            simple.drop([0, 3], axis="index"), simple.loc[[1, 2], :]
+        )
 
         with pytest.raises(KeyError, match=r"\[5\] not found in axis"):
             simple.drop(5)
@@ -129,7 +135,9 @@ class TestDataFrameDrop:
             simple.drop(["A", "C"], axis=1)
 
         # GH 42881
-        with pytest.raises(KeyError, match=r"\['C', 'D', 'F'\] not found in axis"):
+        with pytest.raises(
+            KeyError, match=r"\['C', 'D', 'F'\] not found in axis"
+        ):
             simple.drop(["C", "D", "F"], axis=1)
 
         # errors = 'ignore'
@@ -137,14 +145,17 @@ class TestDataFrameDrop:
         tm.assert_frame_equal(
             simple.drop([0, 5], errors="ignore"), simple.loc[[1, 2, 3], :]
         )
-        tm.assert_frame_equal(simple.drop("C", axis=1, errors="ignore"), simple)
+        tm.assert_frame_equal(
+            simple.drop("C", axis=1, errors="ignore"), simple
+        )
         tm.assert_frame_equal(
             simple.drop(["A", "C"], axis=1, errors="ignore"), simple[["B"]]
         )
 
         # non-unique - wheee!
         nu_df = DataFrame(
-            list(zip(range(3), range(-3, 1), list("abc"))), columns=["a", "a", "b"]
+            list(zip(range(3), range(-3, 1), list("abc"))),
+            columns=["a", "a", "b"],
         )
         tm.assert_frame_equal(nu_df.drop("a", axis=1), nu_df[["b"]])
         tm.assert_frame_equal(nu_df.drop("b", axis="columns"), nu_df["a"])
@@ -152,13 +163,16 @@ class TestDataFrameDrop:
 
         nu_df = nu_df.set_index(Index(["X", "Y", "X"]))
         nu_df.columns = list("abc")
-        tm.assert_frame_equal(nu_df.drop("X", axis="rows"), nu_df.loc[["Y"], :])
+        tm.assert_frame_equal(
+            nu_df.drop("X", axis="rows"), nu_df.loc[["Y"], :]
+        )
         tm.assert_frame_equal(nu_df.drop(["X", "Y"], axis=0), nu_df.loc[[], :])
 
         # inplace cache issue
         # GH#5628
         df = DataFrame(
-            np.random.default_rng(2).standard_normal((10, 3)), columns=list("abc")
+            np.random.default_rng(2).standard_normal((10, 3)),
+            columns=list("abc"),
         )
         expected = df[~(df.b > 0)]
         return_value = df.drop(labels=df[df.b > 0].index, inplace=True)
@@ -177,7 +191,8 @@ class TestDataFrameDrop:
 
         # define the non-lexsorted version
         not_lexsorted_df = DataFrame(
-            columns=["a", "b", "c", "d"], data=[[1, "b1", "c1", 3], [1, "b2", "c2", 4]]
+            columns=["a", "b", "c", "d"],
+            data=[[1, "b1", "c1", 3], [1, "b2", "c2", 4]],
         )
         not_lexsorted_df = not_lexsorted_df.pivot_table(
             index="a", columns=["b", "c"], values="d"
@@ -235,8 +250,12 @@ class TestDataFrameDrop:
         [
             DataFrame([[1, 2, 3], [1, 2, 3]], index=["a", "a"]),
             DataFrame([[1, 2, 3], [1, 2, 3]], index=["a", "b"]),
-            DataFrame([[1, 2, 3], [1, 2, 3]], index=["a", "b"]).set_index([0, 1]),
-            DataFrame([[1, 2, 3], [1, 2, 3]], index=["a", "a"]).set_index([0, 1]),
+            DataFrame([[1, 2, 3], [1, 2, 3]], index=["a", "b"]).set_index(
+                [0, 1]
+            ),
+            DataFrame([[1, 2, 3], [1, 2, 3]], index=["a", "a"]).set_index(
+                [0, 1]
+            ),
         ],
     )
     def test_raise_on_drop_duplicate_index(self, actual):
@@ -247,9 +266,13 @@ class TestDataFrameDrop:
             actual.drop("c", level=level, axis=0)
         with pytest.raises(KeyError, match=msg):
             actual.T.drop("c", level=level, axis=1)
-        expected_no_err = actual.drop("c", axis=0, level=level, errors="ignore")
+        expected_no_err = actual.drop(
+            "c", axis=0, level=level, errors="ignore"
+        )
         tm.assert_frame_equal(expected_no_err, actual)
-        expected_no_err = actual.T.drop("c", axis=1, level=level, errors="ignore")
+        expected_no_err = actual.T.drop(
+            "c", axis=1, level=level, errors="ignore"
+        )
         tm.assert_frame_equal(expected_no_err.T, actual)
 
     @pytest.mark.parametrize("index", [[1, 2, 3], [1, 1, 2]])
@@ -278,7 +301,9 @@ class TestDataFrameDrop:
             DatetimeIndex([]),
         ],
     )
-    def test_drop_empty_listlike_non_unique_datetime_index(self, empty_listlike):
+    def test_drop_empty_listlike_non_unique_datetime_index(
+        self, empty_listlike
+    ):
         # GH#27994
         data = {"column_a": [5, 10], "column_b": ["one", "two"]}
         index = [Timestamp("2021-01-01"), Timestamp("2021-01-01")]
@@ -298,7 +323,9 @@ class TestDataFrameDrop:
 
         tuples = sorted(zip(*arrays))
         index = MultiIndex.from_tuples(tuples)
-        df = DataFrame(np.random.default_rng(2).standard_normal((4, 6)), columns=index)
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((4, 6)), columns=index
+        )
 
         result = df.drop("a", axis=1)
         expected = df.drop([("a", "", "")], axis=1)
@@ -341,7 +368,8 @@ class TestDataFrameDrop:
             [2, 1],
             columns=["D"],
             index=MultiIndex.from_tuples(
-                [("one", 0.0, "b"), ("one", np.nan, "a")], names=["A", "B", "C"]
+                [("one", 0.0, "b"), ("one", np.nan, "a")],
+                names=["A", "B", "C"],
             ),
         )
         tm.assert_frame_equal(result, expected)
@@ -406,7 +434,9 @@ class TestDataFrameDrop:
                 "2016-03-23 17:00",
             ]
         )
-        df = DataFrame(np.arange(10).reshape(5, 2), columns=list("ab"), index=idx)
+        df = DataFrame(
+            np.arange(10).reshape(5, 2), columns=list("ab"), index=idx
+        )
         df["tstamp"] = idxdt
         df = df.set_index("tstamp", append=True)
         ts = Timestamp("201603231600")
@@ -425,7 +455,9 @@ class TestDataFrameDrop:
         result = data.drop(start)
         expected_start = Timestamp("2017-10-29 00:15:00", tz="Europe/Berlin")
         expected_idx = pd.date_range(expected_start, end, freq="15min")
-        expected = frame_or_series(data=[1] * len(expected_idx), index=expected_idx)
+        expected = frame_or_series(
+            data=[1] * len(expected_idx), index=expected_idx
+        )
         tm.assert_equal(result, expected)
 
     def test_drop_preserve_names(self):
@@ -433,7 +465,9 @@ class TestDataFrameDrop:
             [[0, 0, 0, 1, 1, 1], [1, 2, 3, 1, 2, 3]], names=["one", "two"]
         )
 
-        df = DataFrame(np.random.default_rng(2).standard_normal((6, 3)), index=index)
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((6, 3)), index=index
+        )
 
         result = df.drop([(0, 2)])
         assert result.index.names == ("one", "two")
@@ -474,7 +508,8 @@ class TestDataFrameDrop:
         df = DataFrame({"x": range(len(idx))}, index=idx)
         result = df.drop(index=[("a", "a")])
         expected = DataFrame(
-            {"x": [2, 3]}, index=MultiIndex.from_tuples([("b", "a"), ("b", "a")])
+            {"x": [2, 3]},
+            index=MultiIndex.from_tuples([("b", "a"), ("b", "a")]),
         )
         tm.assert_frame_equal(result, expected)
 
@@ -516,7 +551,9 @@ class TestDataFrameDrop:
     def test_drop_level_missing_label_multiindex(self):
         # GH 18561
         df = DataFrame(index=MultiIndex.from_product([range(3), range(3)]))
-        with pytest.raises(KeyError, match="labels \\[5\\] not found in level"):
+        with pytest.raises(
+            KeyError, match="labels \\[5\\] not found in level"
+        ):
             df.drop(5, level=0)
 
     @pytest.mark.parametrize("idx, level", [(["a", "b"], 0), (["a"], None)])
@@ -538,5 +575,7 @@ class TestDataFrameDrop:
             index=[Timestamp("2000-01-03"), Timestamp("2000-01-04")],
         )
         result = df.drop("2000-01-03", axis=0)
-        expected = DataFrame({"a": [2], "b": [2]}, index=[Timestamp("2000-01-04")])
+        expected = DataFrame(
+            {"a": [2], "b": [2]}, index=[Timestamp("2000-01-04")]
+        )
         tm.assert_frame_equal(result, expected)

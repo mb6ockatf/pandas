@@ -30,7 +30,10 @@ class TestDataFrameUnaryOperators:
         "df, expected",
         [
             (np.array([1, 2], dtype=object), np.array([-1, -2], dtype=object)),
-            ([Decimal("1.0"), Decimal("2.0")], [Decimal("-1.0"), Decimal("-2.0")]),
+            (
+                [Decimal("1.0"), Decimal("2.0")],
+                [Decimal("-1.0"), Decimal("-2.0")],
+            ),
         ],
     )
     def test_neg_object(self, df, expected):

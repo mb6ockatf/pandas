@@ -22,24 +22,40 @@ class TestDataFrameUpdate:
         tm.assert_frame_equal(df1, expected)
 
         # test 2
-        df1 = DataFrame({"A": [1.0, None, 3], "B": date_range("2000", periods=3)})
+        df1 = DataFrame(
+            {"A": [1.0, None, 3], "B": date_range("2000", periods=3)}
+        )
         df2 = DataFrame({"A": [None, 2, 3]})
-        expected = DataFrame({"A": [1.0, 2, 3], "B": date_range("2000", periods=3)})
+        expected = DataFrame(
+            {"A": [1.0, 2, 3], "B": date_range("2000", periods=3)}
+        )
         df1.update(df2, overwrite=False)
 
         tm.assert_frame_equal(df1, expected)
 
     def test_update(self):
         df = DataFrame(
-            [[1.5, np.nan, 3.0], [1.5, np.nan, 3.0], [1.5, np.nan, 3], [1.5, np.nan, 3]]
+            [
+                [1.5, np.nan, 3.0],
+                [1.5, np.nan, 3.0],
+                [1.5, np.nan, 3],
+                [1.5, np.nan, 3],
+            ]
         )
 
-        other = DataFrame([[3.6, 2.0, np.nan], [np.nan, np.nan, 7]], index=[1, 3])
+        other = DataFrame(
+            [[3.6, 2.0, np.nan], [np.nan, np.nan, 7]], index=[1, 3]
+        )
 
         df.update(other)
 
         expected = DataFrame(
-            [[1.5, np.nan, 3], [3.6, 2, 3], [1.5, np.nan, 3], [1.5, np.nan, 7.0]]
+            [
+                [1.5, np.nan, 3],
+                [3.6, 2, 3],
+                [1.5, np.nan, 3],
+                [1.5, np.nan, 7.0],
+            ]
         )
         tm.assert_frame_equal(df, expected)
 
@@ -61,29 +77,53 @@ class TestDataFrameUpdate:
 
     def test_update_nooverwrite(self):
         df = DataFrame(
-            [[1.5, np.nan, 3.0], [1.5, np.nan, 3.0], [1.5, np.nan, 3], [1.5, np.nan, 3]]
+            [
+                [1.5, np.nan, 3.0],
+                [1.5, np.nan, 3.0],
+                [1.5, np.nan, 3],
+                [1.5, np.nan, 3],
+            ]
         )
 
-        other = DataFrame([[3.6, 2.0, np.nan], [np.nan, np.nan, 7]], index=[1, 3])
+        other = DataFrame(
+            [[3.6, 2.0, np.nan], [np.nan, np.nan, 7]], index=[1, 3]
+        )
 
         df.update(other, overwrite=False)
 
         expected = DataFrame(
-            [[1.5, np.nan, 3], [1.5, 2, 3], [1.5, np.nan, 3], [1.5, np.nan, 3.0]]
+            [
+                [1.5, np.nan, 3],
+                [1.5, 2, 3],
+                [1.5, np.nan, 3],
+                [1.5, np.nan, 3.0],
+            ]
         )
         tm.assert_frame_equal(df, expected)
 
     def test_update_filtered(self):
         df = DataFrame(
-            [[1.5, np.nan, 3.0], [1.5, np.nan, 3.0], [1.5, np.nan, 3], [1.5, np.nan, 3]]
+            [
+                [1.5, np.nan, 3.0],
+                [1.5, np.nan, 3.0],
+                [1.5, np.nan, 3],
+                [1.5, np.nan, 3],
+            ]
         )
 
-        other = DataFrame([[3.6, 2.0, np.nan], [np.nan, np.nan, 7]], index=[1, 3])
+        other = DataFrame(
+            [[3.6, 2.0, np.nan], [np.nan, np.nan, 7]], index=[1, 3]
+        )
 
         df.update(other, filter_func=lambda x: x > 2)
 
         expected = DataFrame(
-            [[1.5, np.nan, 3], [1.5, np.nan, 3], [1.5, np.nan, 3], [1.5, np.nan, 7.0]]
+            [
+                [1.5, np.nan, 3],
+                [1.5, np.nan, 3],
+                [1.5, np.nan, 3],
+                [1.5, np.nan, 7.0],
+            ]
         )
         tm.assert_frame_equal(df, expected)
 
@@ -91,8 +131,16 @@ class TestDataFrameUpdate:
         "bad_kwarg, exception, msg",
         [
             # errors must be 'ignore' or 'raise'
-            ({"errors": "something"}, ValueError, "The parameter errors must.*"),
-            ({"join": "inner"}, NotImplementedError, "Only left join is supported"),
+            (
+                {"errors": "something"},
+                ValueError,
+                "The parameter errors must.*",
+            ),
+            (
+                {"join": "inner"},
+                NotImplementedError,
+                "Only left join is supported",
+            ),
         ],
     )
     def test_update_raise_bad_parameter(self, bad_kwarg, exception, msg):
@@ -102,10 +150,17 @@ class TestDataFrameUpdate:
 
     def test_update_raise_on_overlap(self):
         df = DataFrame(
-            [[1.5, 1, 3.0], [1.5, np.nan, 3.0], [1.5, np.nan, 3], [1.5, np.nan, 3]]
+            [
+                [1.5, 1, 3.0],
+                [1.5, np.nan, 3.0],
+                [1.5, np.nan, 3],
+                [1.5, np.nan, 3],
+            ]
         )
 
-        other = DataFrame([[2.0, np.nan], [np.nan, 7]], index=[1, 3], columns=[1, 2])
+        other = DataFrame(
+            [[2.0, np.nan], [np.nan, 7]], index=[1, 3], columns=[1, 2]
+        )
         with pytest.raises(ValueError, match="Data overlaps"):
             df.update(other, errors="raise")
 
@@ -168,7 +223,9 @@ class TestDataFrameUpdate:
 
     def test_update_dt_column_with_NaT_create_column(self):
         # GH#16713
-        df = DataFrame({"A": [1, None], "B": [pd.NaT, pd.to_datetime("2016-01-01")]})
+        df = DataFrame(
+            {"A": [1, None], "B": [pd.NaT, pd.to_datetime("2016-01-01")]}
+        )
         df2 = DataFrame({"A": [2, 3]})
         df.update(df2, overwrite=False)
         expected = DataFrame(
@@ -202,7 +259,9 @@ class TestDataFrameUpdate:
         # GH#55509
         df = DataFrame({"a": [value_df] * 2}, index=[1, 2], dtype=dtype)
         other = DataFrame({"a": [value_other]}, index=[1], dtype=dtype)
-        expected = DataFrame({"a": [value_other, value_df]}, index=[1, 2], dtype=dtype)
+        expected = DataFrame(
+            {"a": [value_other, value_df]}, index=[1, 2], dtype=dtype
+        )
         df.update(other)
         tm.assert_frame_equal(df, expected)
 
@@ -222,8 +281,12 @@ class TestDataFrameUpdate:
 
     def test_update_on_duplicate_frame_unique_argument_index(self):
         # GH#55509
-        df = DataFrame({"a": [1, 1, 1]}, index=[1, 1, 2], dtype=np.dtype("intc"))
+        df = DataFrame(
+            {"a": [1, 1, 1]}, index=[1, 1, 2], dtype=np.dtype("intc")
+        )
         other = DataFrame({"a": [2, 3]}, index=[1, 2], dtype=np.dtype("intc"))
-        expected = DataFrame({"a": [2, 2, 3]}, index=[1, 1, 2], dtype=np.dtype("intc"))
+        expected = DataFrame(
+            {"a": [2, 2, 3]}, index=[1, 1, 2], dtype=np.dtype("intc")
+        )
         df.update(other)
         tm.assert_frame_equal(df, expected)

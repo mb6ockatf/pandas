@@ -86,7 +86,9 @@ def _remove_whitespace(s: str, regex: Pattern = _RE_WHITESPACE) -> str:
     return regex.sub(" ", s.strip())
 
 
-def _get_skiprows(skiprows: int | Sequence[int] | slice | None) -> int | Sequence[int]:
+def _get_skiprows(
+    skiprows: int | Sequence[int] | slice | None,
+) -> int | Sequence[int]:
     """
     Get an iterator given an integer, slice or container.
 
@@ -112,7 +114,9 @@ def _get_skiprows(skiprows: int | Sequence[int] | slice | None) -> int | Sequenc
         return cast("int | Sequence[int]", skiprows)
     elif skiprows is None:
         return 0
-    raise TypeError(f"{type(skiprows).__name__} is not a valid type for skipping rows")
+    raise TypeError(
+        f"{type(skiprows).__name__} is not a valid type for skipping rows"
+    )
 
 
 def _read(
@@ -454,7 +458,9 @@ class _HtmlFrameParser:
             while body_rows and row_is_all_th(body_rows[0]):
                 header_rows.append(body_rows.pop(0))
 
-        header, rem = self._expand_colspan_rowspan(header_rows, section="header")
+        header, rem = self._expand_colspan_rowspan(
+            header_rows, section="header"
+        )
         body, rem = self._expand_colspan_rowspan(
             body_rows,
             section="body",
@@ -519,7 +525,9 @@ class _HtmlFrameParser:
                     prev_i, prev_text, prev_rowspan = remainder.pop(0)
                     texts.append(prev_text)
                     if prev_rowspan > 1:
-                        next_remainder.append((prev_i, prev_text, prev_rowspan - 1))
+                        next_remainder.append(
+                            (prev_i, prev_text, prev_rowspan - 1)
+                        )
                     index += 1
 
                 # Append the text from this <td>, colspan times
@@ -540,7 +548,9 @@ class _HtmlFrameParser:
             for prev_i, prev_text, prev_rowspan in remainder:
                 texts.append(prev_text)
                 if prev_rowspan > 1:
-                    next_remainder.append((prev_i, prev_text, prev_rowspan - 1))
+                    next_remainder.append(
+                        (prev_i, prev_text, prev_rowspan - 1)
+                    )
 
             all_texts.append(texts)
             remainder = next_remainder
@@ -554,7 +564,9 @@ class _HtmlFrameParser:
                 for prev_i, prev_text, prev_rowspan in remainder:
                     texts.append(prev_text)
                     if prev_rowspan > 1:
-                        next_remainder.append((prev_i, prev_text, prev_rowspan - 1))
+                        next_remainder.append(
+                            (prev_i, prev_text, prev_rowspan - 1)
+                        )
                 all_texts.append(texts)
                 remainder = next_remainder
 
@@ -617,14 +629,21 @@ class _BeautifulSoupHtml5LibFrameParser(_HtmlFrameParser):
                 for elem in table.find_all("style"):
                     elem.decompose()
 
-                for elem in table.find_all(style=re.compile(r"display:\s*none")):
+                for elem in table.find_all(
+                    style=re.compile(r"display:\s*none")
+                ):
                     elem.decompose()
 
-            if table not in unique_tables and table.find(string=match) is not None:
+            if (
+                table not in unique_tables
+                and table.find(string=match) is not None
+            ):
                 result.append(table)
             unique_tables.add(table)
         if not result:
-            raise ValueError(f"No tables found matching pattern {match.pattern!r}")
+            raise ValueError(
+                f"No tables found matching pattern {match.pattern!r}"
+            )
         return result
 
     def _href_getter(self, obj) -> str | None:
@@ -669,7 +688,9 @@ class _BeautifulSoupHtml5LibFrameParser(_HtmlFrameParser):
             udoc = bdoc
             from_encoding = self.encoding
 
-        soup = BeautifulSoup(udoc, features="html5lib", from_encoding=from_encoding)
+        soup = BeautifulSoup(
+            udoc, features="html5lib", from_encoding=from_encoding
+        )
 
         for br in soup.find_all("br"):
             br.replace_with("\n" + br.text)
@@ -757,7 +778,9 @@ class _LxmlFrameParser(_HtmlFrameParser):
                 for elem in table.xpath(".//style"):
                     elem.drop_tree()
                 for elem in table.xpath(".//*[@style]"):
-                    if "display:none" in elem.attrib.get("style", "").replace(" ", ""):
+                    if "display:none" in elem.attrib.get("style", "").replace(
+                        " ", ""
+                    ):
                         elem.drop_tree()
         if not tables:
             raise ValueError(f"No tables found matching regex {pattern!r}")
@@ -791,7 +814,9 @@ class _LxmlFrameParser(_HtmlFrameParser):
         parser = HTMLParser(recover=True, encoding=self.encoding)
 
         if is_url(self.io):
-            with get_handle(self.io, "r", storage_options=self.storage_options) as f:
+            with get_handle(
+                self.io, "r", storage_options=self.storage_options
+            ) as f:
                 r = parse(f.handle, parser=parser)
         else:
             # try to parse the input in the simplest way
@@ -866,7 +891,11 @@ def _data_to_frame(**kwargs):
                 header = 0
             else:
                 # ignore all-empty-text rows
-                header = [i for i, row in enumerate(head) if any(text for text in row)]
+                header = [
+                    i
+                    for i, row in enumerate(head)
+                    if any(text for text in row)
+                ]
 
     if foot:
         body += foot
@@ -1014,7 +1043,10 @@ def _parse(
                 df.columns, MultiIndex
             ):
                 df.columns = Index(
-                    ((col[0], None if isna(col[1]) else col[1]) for col in df.columns),
+                    (
+                        (col[0], None if isna(col[1]) else col[1])
+                        for col in df.columns
+                    ),
                     tupleize_cols=False,
                 )
 

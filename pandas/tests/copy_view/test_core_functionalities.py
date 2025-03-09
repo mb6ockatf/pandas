@@ -53,7 +53,9 @@ def test_setitem_with_view_invalidated_does_not_copy(request):
     # all the new blocks are referencing view and each other. When view
     # goes out of scope, they don't share data with any other block,
     # so we should not trigger a copy
-    mark = pytest.mark.xfail(reason="blk.delete does not track references correctly")
+    mark = pytest.mark.xfail(
+        reason="blk.delete does not track references correctly"
+    )
     request.applymarker(mark)
     assert np.shares_memory(arr, get_array(df, "a"))
 
@@ -72,7 +74,8 @@ def test_out_of_scope():
 
 def test_delete():
     df = DataFrame(
-        np.random.default_rng(2).standard_normal((4, 3)), columns=["a", "b", "c"]
+        np.random.default_rng(2).standard_normal((4, 3)),
+        columns=["a", "b", "c"],
     )
     del df["b"]
     assert not df._mgr.blocks[0].refs.has_reference()
@@ -84,7 +87,8 @@ def test_delete():
 
 def test_delete_reference():
     df = DataFrame(
-        np.random.default_rng(2).standard_normal((4, 3)), columns=["a", "b", "c"]
+        np.random.default_rng(2).standard_normal((4, 3)),
+        columns=["a", "b", "c"],
     )
     x = df[:]
     del df["b"]

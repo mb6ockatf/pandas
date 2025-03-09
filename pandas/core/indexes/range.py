@@ -186,7 +186,9 @@ class RangeIndex(Index):
         return cls._simple_new(rng, name=name)
 
     @classmethod
-    def from_range(cls, data: range, name=None, dtype: Dtype | None = None) -> Self:
+    def from_range(
+        cls, data: range, name=None, dtype: Dtype | None = None
+    ) -> Self:
         """
         Create :class:`pandas.RangeIndex` from a ``range`` object.
 
@@ -301,7 +303,9 @@ class RangeIndex(Index):
             attrs.append(("name", ibase.default_pprint(self._name)))
         return attrs
 
-    def _format_with_header(self, *, header: list[str], na_rep: str) -> list[str]:
+    def _format_with_header(
+        self, *, header: list[str], na_rep: str
+    ) -> list[str]:
         # Equivalent to Index implementation, but faster
         if not len(self._range):
             return header
@@ -568,18 +572,24 @@ class RangeIndex(Index):
         no_steps = len(self) - 1
         if no_steps == -1:
             return np.nan
-        elif (meth == "min" and self.step > 0) or (meth == "max" and self.step < 0):
+        elif (meth == "min" and self.step > 0) or (
+            meth == "max" and self.step < 0
+        ):
             return self.start
 
         return self.start + self.step * no_steps
 
-    def min(self, axis=None, skipna: bool = True, *args, **kwargs) -> int | float:
+    def min(
+        self, axis=None, skipna: bool = True, *args, **kwargs
+    ) -> int | float:
         """The minimum value of the RangeIndex"""
         nv.validate_minmax_axis(axis)
         nv.validate_min(args, kwargs)
         return self._minmax("min")
 
-    def max(self, axis=None, skipna: bool = True, *args, **kwargs) -> int | float:
+    def max(
+        self, axis=None, skipna: bool = True, *args, **kwargs
+    ) -> int | float:
         """The maximum value of the RangeIndex"""
         nv.validate_minmax_axis(axis)
         nv.validate_max(args, kwargs)
@@ -767,7 +777,9 @@ class RangeIndex(Index):
 
         # calculate parameters for the RangeIndex describing the
         # intersection disregarding the lower bounds
-        tmp_start = first.start + (second.start - first.start) * first.step // gcd * s
+        tmp_start = (
+            first.start + (second.start - first.start) * first.step // gcd * s
+        )
         new_step = first.step * second.step // gcd
 
         # adjust index to limiting interval
@@ -829,7 +841,9 @@ class RangeIndex(Index):
         """
         if isinstance(other, RangeIndex):
             if sort in (None, True) or (
-                sort is False and self.step > 0 and self._range_in_self(other._range)
+                sort is False
+                and self.step > 0
+                and self._range_in_self(other._range)
             ):
                 # GH 47557: Can still return a RangeIndex
                 # if other range in self and sort=False
@@ -863,7 +877,9 @@ class RangeIndex(Index):
                     ):
                         # e.g. range(0, 10, 2) and range(1, 11, 2)
                         #  but not range(0, 20, 4) and range(1, 21, 4) GH#44019
-                        return type(self)(start_r, end_r + step_s / 2, step_s / 2)
+                        return type(self)(
+                            start_r, end_r + step_s / 2, step_s / 2
+                        )
 
                 elif step_o % step_s == 0:
                     if (
@@ -921,14 +937,20 @@ class RangeIndex(Index):
             else:
                 return super()._difference(other, sort=sort)
 
-        elif len(overlap) == 2 and overlap[0] == first[0] and overlap[-1] == first[-1]:
+        elif (
+            len(overlap) == 2
+            and overlap[0] == first[0]
+            and overlap[-1] == first[-1]
+        ):
             # e.g. range(-8, 20, 7) and range(13, -9, -3)
             return self[1:-1]
 
         if overlap.step == first.step:
             if overlap[0] == first.start:
                 # The difference is everything after the intersection
-                new_rng = range(overlap[-1] + first.step, first.stop, first.step)
+                new_rng = range(
+                    overlap[-1] + first.step, first.stop, first.step
+                )
             elif overlap[-1] == first[-1]:
                 # The difference is everything before the intersection
                 new_rng = range(first.start, overlap[0], first.step)
@@ -947,11 +969,17 @@ class RangeIndex(Index):
             assert len(self) > 1
 
             if overlap.step == first.step * 2:
-                if overlap[0] == first[0] and overlap[-1] in (first[-1], first[-2]):
+                if overlap[0] == first[0] and overlap[-1] in (
+                    first[-1],
+                    first[-2],
+                ):
                     # e.g. range(1, 10, 1) and range(1, 10, 2)
                     new_rng = first[1::2]
 
-                elif overlap[0] == first[1] and overlap[-1] in (first[-1], first[-2]):
+                elif overlap[0] == first[1] and overlap[-1] in (
+                    first[-1],
+                    first[-2],
+                ):
                     # e.g. range(1, 10, 1) and range(2, 10, 2)
                     new_rng = first[::2]
 
@@ -985,14 +1013,18 @@ class RangeIndex(Index):
 
     def _join_empty(
         self, other: Index, how: JoinHow, sort: bool
-    ) -> tuple[Index, npt.NDArray[np.intp] | None, npt.NDArray[np.intp] | None]:
+    ) -> tuple[
+        Index, npt.NDArray[np.intp] | None, npt.NDArray[np.intp] | None
+    ]:
         if not isinstance(other, RangeIndex) and other.dtype.kind == "i":
             other = self._shallow_copy(other._values, name=other.name)
         return super()._join_empty(other, how=how, sort=sort)
 
     def _join_monotonic(
         self, other: Index, how: JoinHow = "left"
-    ) -> tuple[Index, npt.NDArray[np.intp] | None, npt.NDArray[np.intp] | None]:
+    ) -> tuple[
+        Index, npt.NDArray[np.intp] | None, npt.NDArray[np.intp] | None
+    ]:
         # This currently only gets called for the monotonic increasing case
         if not isinstance(other, type(self)):
             maybe_ri = self._shallow_copy(other._values, name=other.name)
@@ -1041,7 +1073,9 @@ class RangeIndex(Index):
                 return self[::2]
 
         elif lib.is_list_like(loc):
-            slc = lib.maybe_indices_to_slice(np.asarray(loc, dtype=np.intp), len(self))
+            slc = lib.maybe_indices_to_slice(
+                np.asarray(loc, dtype=np.intp), len(self)
+            )
 
             if isinstance(slc, slice):
                 # defer to RangeIndex._difference, which is optimized to return
@@ -1124,10 +1158,13 @@ class RangeIndex(Index):
                 if rng.start == start:
                     if all_same_index:
                         values = np.tile(
-                            non_empty_indexes[0]._values, len(non_empty_indexes)
+                            non_empty_indexes[0]._values,
+                            len(non_empty_indexes),
                         )
                     else:
-                        values = np.concatenate([x._values for x in rng_indexes])
+                        values = np.concatenate(
+                            [x._values for x in rng_indexes]
+                        )
                     result = self._constructor(values)
                     return result.rename(name)
 
@@ -1216,7 +1253,9 @@ class RangeIndex(Index):
     @unpack_zerodim_and_defer("__floordiv__")
     def __floordiv__(self, other):
         if is_integer(other) and other != 0:
-            if len(self) == 0 or (self.start % other == 0 and self.step % other == 0):
+            if len(self) == 0 or (
+                self.start % other == 0 and self.step % other == 0
+            ):
                 start = self.start // other
                 step = self.step // other
                 stop = start + len(self) * step
@@ -1270,7 +1309,9 @@ class RangeIndex(Index):
         """
         if decimals >= 0:
             return self.copy()
-        elif self.start % 10**-decimals == 0 and self.step % 10**-decimals == 0:
+        elif (
+            self.start % 10**-decimals == 0 and self.step % 10**-decimals == 0
+        ):
             # e.g. RangeIndex(10, 30, 10).round(-1) doesn't need rounding
             return self.copy()
         else:
@@ -1438,8 +1479,8 @@ class RangeIndex(Index):
                 dropna=dropna,
             )
         name = "proportion" if normalize else "count"
-        data: npt.NDArray[np.floating] | npt.NDArray[np.signedinteger] = np.ones(
-            len(self), dtype=np.int64
+        data: npt.NDArray[np.floating] | npt.NDArray[np.signedinteger] = (
+            np.ones(len(self), dtype=np.int64)
         )
         if normalize:
             data = data / len(self)

@@ -253,7 +253,9 @@ class OpsMixin:
 # Helpers to implement __array_ufunc__
 
 
-def array_ufunc(self, ufunc: np.ufunc, method: str, *inputs: Any, **kwargs: Any):
+def array_ufunc(
+    self, ufunc: np.ufunc, method: str, *inputs: Any, **kwargs: Any
+):
     """
     Compatibility with numpy ufuncs.
 
@@ -273,7 +275,9 @@ def array_ufunc(self, ufunc: np.ufunc, method: str, *inputs: Any, **kwargs: Any)
     kwargs = _standardize_out_kwarg(**kwargs)
 
     # for binary ops, use our custom dunder methods
-    result = maybe_dispatch_ufunc_to_dunder_op(self, ufunc, method, *inputs, **kwargs)
+    result = maybe_dispatch_ufunc_to_dunder_op(
+        self, ufunc, method, *inputs, **kwargs
+    )
     if result is not NotImplemented:
         return result
 
@@ -368,12 +372,16 @@ def array_ufunc(self, ufunc: np.ufunc, method: str, *inputs: Any, **kwargs: Any)
 
     if "out" in kwargs:
         # e.g. test_multiindex_get_loc
-        result = dispatch_ufunc_with_out(self, ufunc, method, *inputs, **kwargs)
+        result = dispatch_ufunc_with_out(
+            self, ufunc, method, *inputs, **kwargs
+        )
         return reconstruct(result)
 
     if method == "reduce":
         # e.g. test.series.test_ufunc.test_reduce
-        result = dispatch_reduction_ufunc(self, ufunc, method, *inputs, **kwargs)
+        result = dispatch_reduction_ufunc(
+            self, ufunc, method, *inputs, **kwargs
+        )
         if result is not NotImplemented:
             return result
 
@@ -408,7 +416,9 @@ def array_ufunc(self, ufunc: np.ufunc, method: str, *inputs: Any, **kwargs: Any)
         else:
             # otherwise specific ufunc methods (eg np.<ufunc>.accumulate(..))
             # Those can have an axis keyword and thus can't be called block-by-block
-            result = default_array_ufunc(inputs[0], ufunc, method, *inputs, **kwargs)  # pyright: ignore[reportGeneralTypeIssues]
+            result = default_array_ufunc(
+                inputs[0], ufunc, method, *inputs, **kwargs
+            )  # pyright: ignore[reportGeneralTypeIssues]
             # e.g. np.negative (only one reached), with "where" and "out" in kwargs
 
     result = reconstruct(result)
@@ -430,7 +440,9 @@ def _standardize_out_kwarg(**kwargs) -> dict:
     return kwargs
 
 
-def dispatch_ufunc_with_out(self, ufunc: np.ufunc, method: str, *inputs, **kwargs):
+def dispatch_ufunc_with_out(
+    self, ufunc: np.ufunc, method: str, *inputs, **kwargs
+):
     """
     If we have an `out` keyword, then call the ufunc without `out` and then
     set the result into the given `out`.
@@ -492,7 +504,9 @@ def default_array_ufunc(self, ufunc: np.ufunc, method: str, *inputs, **kwargs):
     return getattr(ufunc, method)(*new_inputs, **kwargs)
 
 
-def dispatch_reduction_ufunc(self, ufunc: np.ufunc, method: str, *inputs, **kwargs):
+def dispatch_reduction_ufunc(
+    self, ufunc: np.ufunc, method: str, *inputs, **kwargs
+):
     """
     Dispatch ufunc reductions to self's reduction methods.
     """

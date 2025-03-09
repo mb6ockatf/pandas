@@ -30,9 +30,15 @@ class TestSeriesConcat:
 
         result = concat(pieces, keys=[0, 1, 2])
         expected = ts.copy()
-        exp_codes = [np.repeat([0, 1, 2], [len(x) for x in pieces]), np.arange(len(ts))]
+        exp_codes = [
+            np.repeat([0, 1, 2], [len(x) for x in pieces]),
+            np.arange(len(ts)),
+        ]
         exp_index = MultiIndex(
-            levels=[[0, 1, 2], DatetimeIndex(ts.index.to_numpy(dtype="M8[ns]"))],
+            levels=[
+                [0, 1, 2],
+                DatetimeIndex(ts.index.to_numpy(dtype="M8[ns]")),
+            ],
             codes=exp_codes,
         )
         expected.index = exp_index
@@ -49,7 +55,8 @@ class TestSeriesConcat:
 
     def test_concat_series_axis1(self):
         ts = Series(
-            np.arange(10, dtype=np.float64), index=date_range("2020-01-01", periods=10)
+            np.arange(10, dtype=np.float64),
+            index=date_range("2020-01-01", periods=10),
         )
 
         pieces = [ts[:-2], ts[2:], ts[2:-2]]
@@ -78,7 +85,9 @@ class TestSeriesConcat:
     def test_concat_series_axis1_with_reindex(self, sort):
         # must reindex, #2603
         s = Series(
-            np.random.default_rng(2).standard_normal(3), index=["c", "a", "b"], name="A"
+            np.random.default_rng(2).standard_normal(3),
+            index=["c", "a", "b"],
+            name="A",
         )
         s2 = Series(
             np.random.default_rng(2).standard_normal(4),
@@ -101,10 +110,14 @@ class TestSeriesConcat:
         )
         tm.assert_frame_equal(result, expected)
 
-        result = concat([s, s2], axis=1, keys=[("a", 1), ("b", 2)], names=["A", "B"])
+        result = concat(
+            [s, s2], axis=1, keys=[("a", 1), ("b", 2)], names=["A", "B"]
+        )
         expected = DataFrame(
             [[1, 4], [2, 5], [3, 6]],
-            columns=MultiIndex.from_tuples([("a", 1), ("b", 2)], names=["A", "B"]),
+            columns=MultiIndex.from_tuples(
+                [("a", 1), ("b", 2)], names=["A", "B"]
+            ),
         )
         tm.assert_frame_equal(result, expected)
 
@@ -142,7 +155,9 @@ class TestSeriesConcat:
         unnamed_series1 = Series([1, 2])
         unnamed_series2 = Series([4, 5])
 
-        result = concat([named_series, unnamed_series1, unnamed_series2], axis=1)
+        result = concat(
+            [named_series, unnamed_series1, unnamed_series2], axis=1
+        )
         expected = DataFrame(
             {"foo": [1, 2], 0: [1, 2], 1: [4, 5]}, columns=["foo", 0, 1]
         )
@@ -160,7 +175,9 @@ class TestSeriesConcat:
         tm.assert_frame_equal(result, expected)
 
         result = concat(
-            [named_series, unnamed_series1, unnamed_series2], axis=1, ignore_index=True
+            [named_series, unnamed_series1, unnamed_series2],
+            axis=1,
+            ignore_index=True,
         )
         expected = DataFrame({0: [1, 2], 1: [1, 2], 2: [4, 5]})
         tm.assert_frame_equal(result, expected)

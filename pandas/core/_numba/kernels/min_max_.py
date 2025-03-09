@@ -52,10 +52,14 @@ def sliding_min_max(
                 ai = np.inf
             # Discard previous entries if we find new min or max
             if is_max:
-                while Q and ((ai >= values[Q[-1]]) or values[Q[-1]] != values[Q[-1]]):
+                while Q and (
+                    (ai >= values[Q[-1]]) or values[Q[-1]] != values[Q[-1]]
+                ):
                     Q.pop()
             else:
-                while Q and ((ai <= values[Q[-1]]) or values[Q[-1]] != values[Q[-1]]):
+                while Q and (
+                    (ai <= values[Q[-1]]) or values[Q[-1]] != values[Q[-1]]
+                ):
                     Q.pop()
             Q.append(k)
             W.append(k)
@@ -98,7 +102,9 @@ def grouped_min_max(
     for i in range(N):
         lab = labels[i]
         val = values[i]
-        if lab < 0 or (not skipna and nobs[lab] >= 1 and np.isnan(output[lab])):
+        if lab < 0 or (
+            not skipna and nobs[lab] >= 1 and np.isnan(output[lab])
+        ):
             continue
 
         if values.dtype.kind == "i" or not np.isnan(val):

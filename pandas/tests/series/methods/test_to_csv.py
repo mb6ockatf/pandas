@@ -58,7 +58,9 @@ class TestSeriesToCSV:
             outfile.write("1998-01-01|1.0\n1999-01-01|2.0")
 
         series = self.read_csv(path, sep="|", parse_dates=True)
-        check_series = Series({datetime(1998, 1, 1): 1.0, datetime(1999, 1, 1): 2.0})
+        check_series = Series(
+            {datetime(1998, 1, 1): 1.0, datetime(1999, 1, 1): 2.0}
+        )
         check_series.index = check_series.index.as_unit("s")
         tm.assert_series_equal(check_series, series)
 
@@ -115,21 +117,29 @@ class TestSeriesToCSV:
         "s,encoding",
         [
             (
-                Series([0.123456, 0.234567, 0.567567], index=["A", "B", "C"], name="X"),
+                Series(
+                    [0.123456, 0.234567, 0.567567],
+                    index=["A", "B", "C"],
+                    name="X",
+                ),
                 None,
             ),
             # GH 21241, 21118
             (Series(["abc", "def", "ghi"], name="X"), "ascii"),
             (Series(["123", "你好", "世界"], name="中文"), "gb2312"),
             (
-                Series(["123", "Γειά σου", "Κόσμε"], name="Ελληνικά"),  # noqa: RUF001
+                Series(
+                    ["123", "Γειά σου", "Κόσμε"], name="Ελληνικά"
+                ),  # noqa: RUF001
                 "cp737",
             ),
         ],
     )
     def test_to_csv_compression(self, s, encoding, compression, temp_file):
         filename = temp_file
-        s.to_csv(filename, compression=compression, encoding=encoding, header=True)
+        s.to_csv(
+            filename, compression=compression, encoding=encoding, header=True
+        )
         # test the round trip - to_csv -> read_csv
         result = pd.read_csv(
             filename,
@@ -161,7 +171,9 @@ class TestSeriesToCSV:
         with tm.decompress_file(filename, compression) as fh:
             tm.assert_series_equal(
                 s,
-                pd.read_csv(fh, index_col=0, encoding=encoding).squeeze("columns"),
+                pd.read_csv(fh, index_col=0, encoding=encoding).squeeze(
+                    "columns"
+                ),
             )
 
     def test_to_csv_interval_index(self, using_infer_string, temp_file):

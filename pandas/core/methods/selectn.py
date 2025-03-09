@@ -192,7 +192,9 @@ class SelectNFrame(SelectN[DataFrame]):
     nordered : DataFrame
     """
 
-    def __init__(self, obj: DataFrame, n: int, keep: str, columns: IndexLabel) -> None:
+    def __init__(
+        self, obj: DataFrame, n: int, keep: str, columns: IndexLabel
+    ) -> None:
         super().__init__(obj, n, keep)
         if not is_list_like(columns) or isinstance(columns, tuple):
             columns = [columns]
@@ -277,4 +279,6 @@ class SelectNFrame(SelectN[DataFrame]):
 
         ascending = method == "nsmallest"
 
-        return frame.sort_values(columns, ascending=ascending, kind="mergesort")
+        return frame.sort_values(
+            columns, ascending=ascending, kind="mergesort"
+        )

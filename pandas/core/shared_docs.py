@@ -2,7 +2,9 @@ from __future__ import annotations
 
 _shared_docs: dict[str, str] = {}
 
-_shared_docs["aggregate"] = """
+_shared_docs[
+    "aggregate"
+] = """
 Aggregate using one or more operations over the specified axis.
 
 Parameters
@@ -53,7 +55,9 @@ A passed user-defined-function will be passed a Series for evaluation.
 If ``func`` defines an index relabeling, ``axis`` must be ``0`` or ``index``.
 {examples}"""
 
-_shared_docs["compare"] = """
+_shared_docs[
+    "compare"
+] = """
 Compare to another {klass} and show the differences.
 
 Parameters
@@ -83,7 +87,9 @@ result_names : tuple, default ('self', 'other')
     .. versionadded:: 1.5.0
 """
 
-_shared_docs["groupby"] = """
+_shared_docs[
+    "groupby"
+] = """
 Group %(klass)s using a mapper or by a Series of columns.
 
 A groupby operation involves some combination of splitting the
@@ -188,7 +194,9 @@ any NA values will be collapsed to a single group, regardless of how
 they compare. See the user guide linked above for more details.
 """
 
-_shared_docs["transform"] = """
+_shared_docs[
+    "transform"
+] = """
 Call ``func`` on self producing a {klass} with the same axis shape as self.
 
 Parameters
@@ -313,7 +321,9 @@ Name: Data, dtype: int64
 6  2    n    4
 """
 
-_shared_docs["storage_options"] = """storage_options : dict, optional
+_shared_docs[
+    "storage_options"
+] = """storage_options : dict, optional
     Extra options that make sense for a particular storage connection, e.g.
     host, port, username, password, etc. For HTTP(S) URLs the key-value pairs
     are forwarded to ``urllib.request.Request`` as header options. For other
@@ -323,7 +333,9 @@ _shared_docs["storage_options"] = """storage_options : dict, optional
     <https://pandas.pydata.org/docs/user_guide/io.html?
     highlight=storage_options#reading-writing-remote-files>`_."""
 
-_shared_docs["compression_options"] = """compression : str or dict, default 'infer'
+_shared_docs[
+    "compression_options"
+] = """compression : str or dict, default 'infer'
     For on-the-fly compression of the output data. If 'infer' and '%s' is
     path-like, then detect compression from the following extensions: '.gz',
     '.bz2', '.zip', '.xz', '.zst', '.tar', '.tar.gz', '.tar.xz' or '.tar.bz2'
@@ -342,7 +354,9 @@ _shared_docs["compression_options"] = """compression : str or dict, default 'inf
     .. versionadded:: 1.5.0
         Added support for `.tar` files."""
 
-_shared_docs["decompression_options"] = """compression : str or dict, default 'infer'
+_shared_docs[
+    "decompression_options"
+] = """compression : str or dict, default 'infer'
     For on-the-fly decompression of on-disk data. If 'infer' and '%s' is
     path-like, then detect compression from the following extensions: '.gz',
     '.bz2', '.zip', '.xz', '.zst', '.tar', '.tar.gz', '.tar.xz' or '.tar.bz2'
@@ -362,7 +376,9 @@ _shared_docs["decompression_options"] = """compression : str or dict, default 'i
     .. versionadded:: 1.5.0
         Added support for `.tar` files."""
 
-_shared_docs["replace"] = """
+_shared_docs[
+    "replace"
+] = """
     Replace values given in `to_replace` with `value`.
 
     Values of the {klass} are replaced with other values dynamically.

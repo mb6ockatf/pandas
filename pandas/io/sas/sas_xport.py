@@ -32,18 +32,10 @@ if TYPE_CHECKING:
         FilePath,
         ReadBuffer,
     )
-_correct_line1 = (
-    "HEADER RECORD*******LIBRARY HEADER RECORD!!!!!!!000000000000000000000000000000  "
-)
-_correct_header1 = (
-    "HEADER RECORD*******MEMBER  HEADER RECORD!!!!!!!000000000000000001600000000"
-)
-_correct_header2 = (
-    "HEADER RECORD*******DSCRPTR HEADER RECORD!!!!!!!000000000000000000000000000000  "
-)
-_correct_obs_header = (
-    "HEADER RECORD*******OBS     HEADER RECORD!!!!!!!000000000000000000000000000000  "
-)
+_correct_line1 = "HEADER RECORD*******LIBRARY HEADER RECORD!!!!!!!000000000000000000000000000000  "
+_correct_header1 = "HEADER RECORD*******MEMBER  HEADER RECORD!!!!!!!000000000000000001600000000"
+_correct_header2 = "HEADER RECORD*******DSCRPTR HEADER RECORD!!!!!!!000000000000000000000000000000  "
+_correct_obs_header = "HEADER RECORD*******OBS     HEADER RECORD!!!!!!!000000000000000000000000000000  "
 _fieldkeys = [
     "ntype",
     "nhfun",
@@ -300,7 +292,13 @@ class XportReader(SASReader):
             raise ValueError("Header record is not an XPORT file.")
 
         line2 = self._get_row()
-        fif = [["prefix", 24], ["version", 8], ["OS", 8], ["_", 24], ["created", 16]]
+        fif = [
+            ["prefix", 24],
+            ["version", 8],
+            ["OS", 8],
+            ["_", 24],
+            ["created", 16],
+        ]
         file_info = _split_line(line2, fif)
         if file_info["prefix"] != "SAS     SAS     SASLIB":
             raise ValueError("Header record has invalid prefix.")
@@ -358,7 +356,9 @@ class XportReader(SASReader):
             # to match struct pattern below
             fieldbytes = fieldbytes.ljust(140)
 
-            fieldstruct = struct.unpack(">hhhh8s40s8shhh2s8shhl52s", fieldbytes)
+            fieldstruct = struct.unpack(
+                ">hhhh8s40s8shhh2s8shhl52s", fieldbytes
+            )
             field = dict(zip(_fieldkeys, fieldstruct))
             del field["_"]
             field["ntype"] = types[field["ntype"]]
@@ -408,7 +408,9 @@ class XportReader(SASReader):
         Side effect: returns file position to record_start.
         """
         self.filepath_or_buffer.seek(0, 2)
-        total_records_length = self.filepath_or_buffer.tell() - self.record_start
+        total_records_length = (
+            self.filepath_or_buffer.tell() - self.record_start
+        )
 
         if total_records_length % 80 != 0:
             warnings.warn(
@@ -482,7 +484,9 @@ class XportReader(SASReader):
             vec = data["s" + str(j)]
             ntype = self.fields[j]["ntype"]
             if ntype == "numeric":
-                vec = _handle_truncated_float_vec(vec, self.fields[j]["field_length"])
+                vec = _handle_truncated_float_vec(
+                    vec, self.fields[j]["field_length"]
+                )
                 miss = self._missing_double(vec)
                 v = _parse_float_vec(vec)
                 v[miss] = np.nan
@@ -496,7 +500,9 @@ class XportReader(SASReader):
         df = pd.DataFrame(df_data)
 
         if self._index is None:
-            df.index = pd.Index(range(self._lines_read, self._lines_read + read_lines))
+            df.index = pd.Index(
+                range(self._lines_read, self._lines_read + read_lines)
+            )
         else:
             df = df.set_index(self._index)
 

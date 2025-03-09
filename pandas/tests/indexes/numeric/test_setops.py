@@ -27,7 +27,9 @@ class TestSetOps:
         index = Index(np.arange(5, dtype=dtype), dtype=dtype)
         assert index.dtype == dtype
 
-        other = Index([datetime.now() + timedelta(i) for i in range(4)], dtype=object)
+        other = Index(
+            [datetime.now() + timedelta(i) for i in range(4)], dtype=object
+        )
         result = index.union(other)
         expected = Index(np.concatenate((index, other)))
         tm.assert_index_equal(result, expected)
@@ -103,12 +105,16 @@ class TestSetOps:
         )
         other = Index([2**63, 2**63 + 5, 2**63 + 10, 2**63 + 15, 2**63 + 20])
         result = index_large.intersection(other)
-        expected = Index(np.sort(np.intersect1d(index_large.values, other.values)))
+        expected = Index(
+            np.sort(np.intersect1d(index_large.values, other.values))
+        )
         tm.assert_index_equal(result, expected)
 
         result = other.intersection(index_large)
         expected = Index(
-            np.sort(np.asarray(np.intersect1d(index_large.values, other.values)))
+            np.sort(
+                np.asarray(np.intersect1d(index_large.values, other.values))
+            )
         )
         tm.assert_index_equal(result, expected)
 

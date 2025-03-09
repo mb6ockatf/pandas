@@ -64,7 +64,8 @@ class TestSeriesFillNA:
 
     def test_fillna(self):
         ts = Series(
-            [0.0, 1.0, 2.0, 3.0, 4.0], index=date_range("2020-01-01", periods=5)
+            [0.0, 1.0, 2.0, 3.0, 4.0],
+            index=date_range("2020-01-01", periods=5),
         )
 
         tm.assert_series_equal(ts, ts.ffill())
@@ -145,10 +146,14 @@ class TestSeriesFillNA:
         )
         tm.assert_series_equal(result, expected)
 
-        result = ser.where([True, False], Timestamp("20130101", tz="US/Eastern"))
+        result = ser.where(
+            [True, False], Timestamp("20130101", tz="US/Eastern")
+        )
         tm.assert_series_equal(result, expected)
 
-        result = ser.where([True, False], Timestamp("20130101", tz="US/Eastern"))
+        result = ser.where(
+            [True, False], Timestamp("20130101", tz="US/Eastern")
+        )
         tm.assert_series_equal(result, expected)
 
         # with a non-datetime
@@ -340,7 +345,9 @@ class TestSeriesFillNA:
     )
     def test_timedelta64_fillna_mismatched_reso_no_rounding(self, scalar):
         # GH#56410
-        tdi = date_range("2016-01-01", periods=3, unit="s") - Timestamp("1970-01-01")
+        tdi = date_range("2016-01-01", periods=3, unit="s") - Timestamp(
+            "1970-01-01"
+        )
         item = Timestamp("2016-02-03 04:05:06.789") - Timestamp("1970-01-01")
         vec = timedelta_range(item, periods=3, unit="ms")
 
@@ -445,7 +452,10 @@ class TestSeriesFillNA:
         tm.assert_series_equal(isna(ser), null_loc)
 
         result = ser.fillna(
-            {1: Timestamp("2011-01-02 10:00"), 3: Timestamp("2011-01-04 10:00")}
+            {
+                1: Timestamp("2011-01-02 10:00"),
+                3: Timestamp("2011-01-04 10:00"),
+            }
         )
         expected = Series(
             [
@@ -493,7 +503,9 @@ class TestSeriesFillNA:
         tm.assert_series_equal(expected, result)
         tm.assert_series_equal(isna(ser), null_loc)
 
-        result = ser.fillna(Timestamp("2011-01-02 10:00", tz=tz).to_pydatetime())
+        result = ser.fillna(
+            Timestamp("2011-01-02 10:00", tz=tz).to_pydatetime()
+        )
         idx = DatetimeIndex(
             [
                 "2011-01-01 10:00",
@@ -615,7 +627,9 @@ class TestSeriesFillNA:
         ser = Series([Period("2011-01", freq="M"), Period("NaT", freq="M")])
 
         res = ser.fillna(Period("2012-01", freq="M"))
-        exp = Series([Period("2011-01", freq="M"), Period("2012-01", freq="M")])
+        exp = Series(
+            [Period("2011-01", freq="M"), Period("2012-01", freq="M")]
+        )
         tm.assert_series_equal(res, exp)
         assert res.dtype == "Period[M]"
 
@@ -655,12 +669,18 @@ class TestSeriesFillNA:
 
         result = ser.fillna(val)
         expected = Series(
-            [Timestamp("2010-01-01"), Timestamp("1975-04-05"), Timestamp("2000-01-01")]
+            [
+                Timestamp("2010-01-01"),
+                Timestamp("1975-04-05"),
+                Timestamp("2000-01-01"),
+            ]
         )
         tm.assert_series_equal(result, expected)
 
     def test_fillna_numeric_inplace(self):
-        x = Series([np.nan, 1.0, np.nan, 3.0, np.nan], ["z", "a", "b", "c", "d"])
+        x = Series(
+            [np.nan, 1.0, np.nan, 3.0, np.nan], ["z", "a", "b", "c", "d"]
+        )
         y = x.copy()
 
         return_value = y.fillna(value=0, inplace=True)
@@ -701,17 +721,22 @@ class TestSeriesFillNA:
             (["b", "d", "a", "d", "a"], ["a", "d", "b", "d", "a"]),
             (
                 Categorical(
-                    ["b", "d", "a", "d", "a"], categories=["b", "c", "d", "e", "a"]
+                    ["b", "d", "a", "d", "a"],
+                    categories=["b", "c", "d", "e", "a"],
                 ),
                 ["a", "d", "b", "d", "a"],
             ),
         ],
     )
-    def test_fillna_categorical_with_new_categories(self, fill_value, expected_output):
+    def test_fillna_categorical_with_new_categories(
+        self, fill_value, expected_output
+    ):
         # GH#26215
         data = ["a", np.nan, "b", np.nan, np.nan]
         ser = Series(Categorical(data, categories=["a", "b", "c", "d", "e"]))
-        exp = Series(Categorical(expected_output, categories=["a", "b", "c", "d", "e"]))
+        exp = Series(
+            Categorical(expected_output, categories=["a", "b", "c", "d", "e"])
+        )
         fill_value = Series(fill_value)
         result = ser.fillna(fill_value)
         tm.assert_series_equal(result, exp)
@@ -848,7 +873,9 @@ class TestSeriesFillNA:
 
 class TestFillnaPad:
     def test_fillna_bug(self):
-        ser = Series([np.nan, 1.0, np.nan, 3.0, np.nan], ["z", "a", "b", "c", "d"])
+        ser = Series(
+            [np.nan, 1.0, np.nan, 3.0, np.nan], ["z", "a", "b", "c", "d"]
+        )
         filled = ser.ffill()
         expected = Series([np.nan, 1.0, 1.0, 3.0, 3.0], ser.index)
         tm.assert_series_equal(filled, expected)
@@ -865,14 +892,18 @@ class TestFillnaPad:
 
     def test_pad_nan(self):
         x = Series(
-            [np.nan, 1.0, np.nan, 3.0, np.nan], ["z", "a", "b", "c", "d"], dtype=float
+            [np.nan, 1.0, np.nan, 3.0, np.nan],
+            ["z", "a", "b", "c", "d"],
+            dtype=float,
         )
 
         return_value = x.ffill(inplace=True)
         assert return_value is None
 
         expected = Series(
-            [np.nan, 1.0, 1.0, 3.0, 3.0], ["z", "a", "b", "c", "d"], dtype=float
+            [np.nan, 1.0, 1.0, 3.0, 3.0],
+            ["z", "a", "b", "c", "d"],
+            dtype=float,
         )
         tm.assert_series_equal(x[1:], expected[1:])
         assert np.isnan(x.iloc[0]), np.isnan(expected.iloc[0])
@@ -921,7 +952,11 @@ class TestFillnaPad:
         # GH#14872
 
         data = Series(
-            [NaT, NaT, datetime(2016, 12, 12, 22, 24, 6, 100001, tzinfo=timezone.utc)]
+            [
+                NaT,
+                NaT,
+                datetime(2016, 12, 12, 22, 24, 6, 100001, tzinfo=timezone.utc),
+            ]
         )
 
         filled = data.bfill()

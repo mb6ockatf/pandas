@@ -488,7 +488,9 @@ def _groupby_and_merge(
             except KeyError:
                 # key doesn't exist in left
                 lcols = lhs.columns.tolist()
-                cols = lcols + [r for r in right.columns if r not in set(lcols)]
+                cols = lcols + [
+                    r for r in right.columns if r not in set(lcols)
+                ]
                 merged = lhs.reindex(columns=cols)
                 merged.index = range(len(merged))
                 pieces.append(merged)
@@ -640,7 +642,9 @@ def merge_ordered(
         check = set(left_by).difference(left.columns)
         if len(check) != 0:
             raise KeyError(f"{check} not found in left columns")
-        result, _ = _groupby_and_merge(left_by, left, right, lambda x, y: _merger(x, y))
+        result, _ = _groupby_and_merge(
+            left_by, left, right, lambda x, y: _merger(x, y)
+        )
     elif right_by is not None:
         if isinstance(right_by, str):
             right_by = [right_by]
@@ -1003,7 +1007,9 @@ class _MergeOperation:
             )
             raise MergeError(msg)
 
-        self.left_on, self.right_on = self._validate_left_right_on(left_on, right_on)
+        self.left_on, self.right_on = self._validate_left_right_on(
+            left_on, right_on
+        )
 
         (
             self.left_join_keys,
@@ -1019,7 +1025,9 @@ class _MergeOperation:
         if right_drop:
             self.right = self.right._drop_labels_or_levels(right_drop)
 
-        self._maybe_require_matching_dtypes(self.left_join_keys, self.right_join_keys)
+        self._maybe_require_matching_dtypes(
+            self.left_join_keys, self.right_join_keys
+        )
         self._validate_tolerance(self.left_join_keys)
 
         # validate the merge keys dtypes. We may need to coerce
@@ -1091,7 +1099,9 @@ class _MergeOperation:
             self.left._info_axis, self.right._info_axis, self.suffixes
         )
 
-        if left_indexer is not None and not is_range_indexer(left_indexer, len(left)):
+        if left_indexer is not None and not is_range_indexer(
+            left_indexer, len(left)
+        ):
             # Pinning the index here (and in the right code just below) is not
             #  necessary, but makes the `.take` more performant if we have e.g.
             #  a MultiIndex for left.index.
@@ -1129,11 +1139,15 @@ class _MergeOperation:
 
     def get_result(self) -> DataFrame:
         if self.indicator:
-            self.left, self.right = self._indicator_pre_merge(self.left, self.right)
+            self.left, self.right = self._indicator_pre_merge(
+                self.left, self.right
+            )
 
         join_index, left_indexer, right_indexer = self._get_join_info()
 
-        result = self._reindex_and_concat(join_index, left_indexer, right_indexer)
+        result = self._reindex_and_concat(
+            join_index, left_indexer, right_indexer
+        )
         result = result.__finalize__(self, method=self._merge_type)
 
         if self.indicator:
@@ -1198,7 +1212,9 @@ class _MergeOperation:
             self._indicator_name
         ].cat.rename_categories(["left_only", "right_only", "both"])
 
-        result = result.drop(labels=["_left_indicator", "_right_indicator"], axis=1)
+        result = result.drop(
+            labels=["_left_indicator", "_right_indicator"], axis=1
+        )
         return result
 
     @final
@@ -1307,7 +1323,9 @@ class _MergeOperation:
                     # TODO: can we pin down take_left's type earlier?
                     take_left = extract_array(take_left, extract_numpy=True)
                     lfill = na_value_for_dtype(take_left.dtype)
-                    lvals = algos.take_nd(take_left, left_indexer, fill_value=lfill)
+                    lvals = algos.take_nd(
+                        take_left, left_indexer, fill_value=lfill
+                    )
 
                 if take_right is None:
                     rvals = result[name]._values
@@ -1317,7 +1335,9 @@ class _MergeOperation:
                     # TODO: can we pin down take_right's type earlier?
                     taker = extract_array(take_right, extract_numpy=True)
                     rfill = na_value_for_dtype(taker.dtype)
-                    rvals = algos.take_nd(taker, right_indexer, fill_value=rfill)
+                    rvals = algos.take_nd(
+                        taker, right_indexer, fill_value=rfill
+                    )
 
                 # if we have an all missing left_indexer
                 # make sure to just use the right values or vice-versa
@@ -1350,9 +1370,11 @@ class _MergeOperation:
                     if isinstance(result.index, MultiIndex):
                         key_col.name = name
                         idx_list = [
-                            result.index.get_level_values(level_name)
-                            if level_name != name
-                            else key_col
+                            (
+                                result.index.get_level_values(level_name)
+                                if level_name != name
+                                else key_col
+                            )
                             for level_name in result.index.names
                         ]
 
@@ -1369,13 +1391,18 @@ class _MergeOperation:
         # make mypy happy
         assert self.how != "asof"
         return get_join_indexers(
-            self.left_join_keys, self.right_join_keys, sort=self.sort, how=self.how
+            self.left_join_keys,
+            self.right_join_keys,
+            sort=self.sort,
+            how=self.how,
         )
 
     @final
     def _get_join_info(
         self,
-    ) -> tuple[Index, npt.NDArray[np.intp] | None, npt.NDArray[np.intp] | None]:
+    ) -> tuple[
+        Index, npt.NDArray[np.intp] | None, npt.NDArray[np.intp] | None
+    ]:
         left_ax = self.left.index
         right_ax = self.right.index
 
@@ -1466,7 +1493,9 @@ class _MergeOperation:
         -------
         Index
         """
-        if self.how in (how, "outer") and not isinstance(other_index, MultiIndex):
+        if self.how in (how, "outer") and not isinstance(
+            other_index, MultiIndex
+        ):
             # if final index requires values in other_index but not target
             # index, indexer may hold missing (-1) values, causing Index.take
             # to take the final value in target index. So, we set the last
@@ -1486,7 +1515,9 @@ class _MergeOperation:
         join_index: Index,
         left_indexer: npt.NDArray[np.intp] | None,
         right_indexer: npt.NDArray[np.intp] | None,
-    ) -> tuple[Index, npt.NDArray[np.intp] | None, npt.NDArray[np.intp] | None]:
+    ) -> tuple[
+        Index, npt.NDArray[np.intp] | None, npt.NDArray[np.intp] | None
+    ]:
         """
         Handle anti join by returning the correct join index and indexers
 
@@ -1575,7 +1606,9 @@ class _MergeOperation:
                         #  the latter of which will raise
                         rk = cast(Hashable, rk)
                         if rk is not None:
-                            right_keys.append(right._get_label_or_level_values(rk))
+                            right_keys.append(
+                                right._get_label_or_level_values(rk)
+                            )
                             join_names.append(rk)
                         else:
                             # work-around for merge_asof(right_index=True)
@@ -1587,11 +1620,15 @@ class _MergeOperation:
                         #  the latter of which will raise
                         rk = cast(Hashable, rk)
                         if rk is not None:
-                            right_keys.append(right._get_label_or_level_values(rk))
+                            right_keys.append(
+                                right._get_label_or_level_values(rk)
+                            )
                         else:
                             # work-around for merge_asof(right_index=True)
                             right_keys.append(right.index._values)
-                        if lk is not None and lk == rk:  # FIXME: what about other NAs?
+                        if (
+                            lk is not None and lk == rk
+                        ):  # FIXME: what about other NAs?
                             right_drop.append(rk)
                     else:
                         rk = cast(ArrayLike, rk)
@@ -1672,12 +1709,12 @@ class _MergeOperation:
 
             lk_is_cat = isinstance(lk.dtype, CategoricalDtype)
             rk_is_cat = isinstance(rk.dtype, CategoricalDtype)
-            lk_is_object_or_string = is_object_dtype(lk.dtype) or is_string_dtype(
+            lk_is_object_or_string = is_object_dtype(
                 lk.dtype
-            )
-            rk_is_object_or_string = is_object_dtype(rk.dtype) or is_string_dtype(
+            ) or is_string_dtype(lk.dtype)
+            rk_is_object_or_string = is_object_dtype(
                 rk.dtype
-            )
+            ) or is_string_dtype(rk.dtype)
 
             # if either left or right is a categorical
             # then the must match exactly in categories & ordered
@@ -1789,21 +1826,30 @@ class _MergeOperation:
                 string_types = ["string", "unicode", "mixed", "bytes", "empty"]
 
                 # inferred bool
-                if inferred_left in bool_types and inferred_right in bool_types:
+                if (
+                    inferred_left in bool_types
+                    and inferred_right in bool_types
+                ):
                     pass
 
                 # unless we are merging non-string-like with string-like
                 elif (
-                    inferred_left in string_types and inferred_right not in string_types
+                    inferred_left in string_types
+                    and inferred_right not in string_types
                 ) or (
-                    inferred_right in string_types and inferred_left not in string_types
+                    inferred_right in string_types
+                    and inferred_left not in string_types
                 ):
                     raise ValueError(msg)
 
             # datetimelikes must match exactly
-            elif needs_i8_conversion(lk.dtype) and not needs_i8_conversion(rk.dtype):
+            elif needs_i8_conversion(lk.dtype) and not needs_i8_conversion(
+                rk.dtype
+            ):
                 raise ValueError(msg)
-            elif not needs_i8_conversion(lk.dtype) and needs_i8_conversion(rk.dtype):
+            elif not needs_i8_conversion(lk.dtype) and needs_i8_conversion(
+                rk.dtype
+            ):
                 raise ValueError(msg)
             elif isinstance(lk.dtype, DatetimeTZDtype) and not isinstance(
                 rk.dtype, DatetimeTZDtype
@@ -1836,11 +1882,19 @@ class _MergeOperation:
             # columns, and end up trying to merge
             # incompatible dtypes. See GH 16900.
             if name in self.left.columns:
-                typ = cast(Categorical, lk).categories.dtype if lk_is_cat else object
+                typ = (
+                    cast(Categorical, lk).categories.dtype
+                    if lk_is_cat
+                    else object
+                )
                 self.left = self.left.copy()
                 self.left[name] = self.left[name].astype(typ)
             if name in self.right.columns:
-                typ = cast(Categorical, rk).categories.dtype if rk_is_cat else object
+                typ = (
+                    cast(Categorical, rk).categories.dtype
+                    if rk_is_cat
+                    else object
+                )
                 self.right = self.right.copy()
                 self.right[name] = self.right[name].astype(typ)
 
@@ -1873,7 +1927,9 @@ class _MergeOperation:
                     not left_cols.join(common_cols, how="inner").is_unique
                     or not right_cols.join(common_cols, how="inner").is_unique
                 ):
-                    raise MergeError(f"Data columns not unique: {common_cols!r}")
+                    raise MergeError(
+                        f"Data columns not unique: {common_cols!r}"
+                    )
                 left_on = right_on = common_cols
         elif self.on is not None:
             if left_on is not None or right_on is not None:
@@ -1933,7 +1989,9 @@ class _MergeOperation:
         if self.right_index:
             right_unique = self.orig_right.index.is_unique
         else:
-            right_unique = MultiIndex.from_arrays(self.right_join_keys).is_unique
+            right_unique = MultiIndex.from_arrays(
+                self.right_join_keys
+            ).is_unique
 
         # Check data integrity
         if validate in ["one_to_one", "1:1"]:
@@ -2004,9 +2062,9 @@ def get_join_indexers(
     np.ndarray[np.intp] or None
         Indexer into the right_keys.
     """
-    assert len(left_keys) == len(right_keys), (
-        "left_keys and right_keys must be the same length"
-    )
+    assert len(left_keys) == len(
+        right_keys
+    ), "left_keys and right_keys must be the same length"
 
     # fast-path for empty left/right
     left_n = len(left_keys[0])
@@ -2047,7 +2105,9 @@ def get_join_indexers(
         and right.is_monotonic_increasing
         and (left.is_unique or right.is_unique)
     ):
-        _, lidx, ridx = left.join(right, how=how, return_indexers=True, sort=sort)
+        _, lidx, ridx = left.join(
+            right, how=how, return_indexers=True, sort=sort
+        )
     else:
         lidx, ridx = get_join_indexers_non_unique(
             left._values, right._values, sort, how
@@ -2379,7 +2439,9 @@ class _AsOfMerge(_OrderedMerge):
                 self.right_by = [self.right_by]
 
             if len(self.left_by) != len(self.right_by):
-                raise MergeError("left_by and right_by must be the same length")
+                raise MergeError(
+                    "left_by and right_by must be the same length"
+                )
 
             left_on = self.left_by + list(left_on)
             right_on = self.right_by + list(right_on)
@@ -2391,7 +2453,9 @@ class _AsOfMerge(_OrderedMerge):
     ) -> None:
         # TODO: why do we do this for AsOfMerge but not the others?
 
-        def _check_dtype_match(left: ArrayLike, right: ArrayLike, i: int) -> None:
+        def _check_dtype_match(
+            left: ArrayLike, right: ArrayLike, i: int
+        ) -> None:
             if left.dtype != right.dtype:
                 if isinstance(left.dtype, CategoricalDtype) and isinstance(
                     right.dtype, CategoricalDtype
@@ -2474,7 +2538,9 @@ class _AsOfMerge(_OrderedMerge):
         # we require sortedness and non-null values in the join keys
         if not Index(values).is_monotonic_increasing:
             if isna(values).any():
-                raise ValueError(f"Merge keys contain null values on {side} side")
+                raise ValueError(
+                    f"Merge keys contain null values on {side} side"
+                )
             raise ValueError(f"{side} keys must be sorted")
 
         if isinstance(values, ArrowExtensionArray):
@@ -2494,15 +2560,21 @@ class _AsOfMerge(_OrderedMerge):
         # expected "ndarray[Any, Any]")
         return values  # type: ignore[return-value]
 
-    def _get_join_indexers(self) -> tuple[npt.NDArray[np.intp], npt.NDArray[np.intp]]:
+    def _get_join_indexers(
+        self,
+    ) -> tuple[npt.NDArray[np.intp], npt.NDArray[np.intp]]:
         """return the join indexers"""
 
         # values to compare
         left_values = (
-            self.left.index._values if self.left_index else self.left_join_keys[-1]
+            self.left.index._values
+            if self.left_index
+            else self.left_join_keys[-1]
         )
         right_values = (
-            self.right.index._values if self.right_index else self.right_join_keys[-1]
+            self.right.index._values
+            if self.right_index
+            else self.right_join_keys[-1]
         )
 
         # _maybe_require_matching_dtypes already checked for dtype matching
@@ -2664,7 +2736,10 @@ def _get_no_sort_one_missing_indexer(
 
 
 def _left_join_on_index(
-    left_ax: Index, right_ax: Index, join_keys: list[ArrayLike], sort: bool = False
+    left_ax: Index,
+    right_ax: Index,
+    join_keys: list[ArrayLike],
+    sort: bool = False,
 ) -> tuple[Index, npt.NDArray[np.intp] | None, npt.NDArray[np.intp]]:
     if isinstance(right_ax, MultiIndex):
         lkey, rkey = _get_multiindex_indexer(join_keys, right_ax, sort=sort)
@@ -2752,7 +2827,8 @@ def _factorize_keys(
     # TODO: if either is a RangeIndex, we can likely factorize more efficiently?
 
     if (
-        isinstance(lk.dtype, DatetimeTZDtype) and isinstance(rk.dtype, DatetimeTZDtype)
+        isinstance(lk.dtype, DatetimeTZDtype)
+        and isinstance(rk.dtype, DatetimeTZDtype)
     ) or (lib.is_np_dtype(lk.dtype, "M") and lib.is_np_dtype(rk.dtype, "M")):
         # Extract the ndarray (UTC-localized) values
         # Note: we dont need the dtypes to match, as these can still be compared
@@ -2775,7 +2851,9 @@ def _factorize_keys(
         rk = ensure_int64(rk.codes)
 
     elif isinstance(lk, ExtensionArray) and lk.dtype == rk.dtype:
-        if (isinstance(lk.dtype, ArrowDtype) and is_string_dtype(lk.dtype)) or (
+        if (
+            isinstance(lk.dtype, ArrowDtype) and is_string_dtype(lk.dtype)
+        ) or (
             isinstance(lk.dtype, StringDtype) and lk.dtype.storage == "pyarrow"
         ):
             import pyarrow as pa
@@ -2862,7 +2940,9 @@ def _factorize_keys(
         lk_data, rk_data = lk, rk  # type: ignore[assignment]
         lk_mask, rk_mask = None, None
 
-    hash_join_available = how == "inner" and not sort and lk.dtype.kind in "iufb"
+    hash_join_available = (
+        how == "inner" and not sort and lk.dtype.kind in "iufb"
+    )
     if hash_join_available:
         rlab = rizer.factorize(rk_data, mask=rk_mask)
         if rizer.get_count() == len(rlab):
@@ -2937,7 +3017,9 @@ def _convert_arrays_and_get_rizer_klass(
 
 
 def _sort_labels(
-    uniques: np.ndarray, left: npt.NDArray[np.intp], right: npt.NDArray[np.intp]
+    uniques: np.ndarray,
+    left: npt.NDArray[np.intp],
+    right: npt.NDArray[np.intp],
 ) -> tuple[npt.NDArray[np.intp], npt.NDArray[np.intp]]:
     llength = len(left)
     labels = np.concatenate([left, right])
@@ -3019,7 +3101,9 @@ def _items_overlap_with_suffix(
     If corresponding suffix is empty, the entry is simply converted to string.
 
     """
-    if not is_list_like(suffixes, allow_sets=False) or isinstance(suffixes, dict):
+    if not is_list_like(suffixes, allow_sets=False) or isinstance(
+        suffixes, dict
+    ):
         raise TypeError(
             f"Passing 'suffixes' as a {type(suffixes)}, is not supported. "
             "Provide 'suffixes' as a tuple instead."
@@ -3032,7 +3116,9 @@ def _items_overlap_with_suffix(
     lsuffix, rsuffix = suffixes
 
     if not lsuffix and not rsuffix:
-        raise ValueError(f"columns overlap but no suffix specified: {to_rename}")
+        raise ValueError(
+            f"columns overlap but no suffix specified: {to_rename}"
+        )
 
     def renamer(x, suffix: str | None):
         """
@@ -3066,7 +3152,9 @@ def _items_overlap_with_suffix(
         # columns in origin should not warn
         dups = llabels[(llabels.duplicated()) & (~left.duplicated())].tolist()
     if not rlabels.is_unique:
-        dups.extend(rlabels[(rlabels.duplicated()) & (~right.duplicated())].tolist())
+        dups.extend(
+            rlabels[(rlabels.duplicated()) & (~right.duplicated())].tolist()
+        )
     if dups:
         raise MergeError(
             f"Passing 'suffixes' which cause duplicate columns {set(dups)} is "

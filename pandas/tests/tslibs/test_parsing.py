@@ -68,7 +68,9 @@ def test_parse_datetime_string_with_reso():
 
 def test_parse_datetime_string_with_reso_nanosecond_reso():
     # GH#46811
-    parsed, reso = parse_datetime_string_with_reso("2022-04-20 09:19:19.123456789")
+    parsed, reso = parse_datetime_string_with_reso(
+        "2022-04-20 09:19:19.123456789"
+    )
     assert reso == "nanosecond"
 
 
@@ -134,7 +136,9 @@ def test_does_not_convert_mixed_integer(date_string, expected):
         (
             "2013Q1",
             {"freq": "INVLD-L-DEC-SAT"},
-            ("Unable to retrieve month information from given freq: INVLD-L-DEC-SAT"),
+            (
+                "Unable to retrieve month information from given freq: INVLD-L-DEC-SAT"
+            ),
         ),
     ],
 )
@@ -174,7 +178,10 @@ def test_parsers_quarter_invalid(date_str):
 
 @pytest.mark.parametrize(
     "date_str,expected",
-    [("201101", datetime(2011, 1, 1, 0, 0)), ("200005", datetime(2000, 5, 1, 0, 0))],
+    [
+        ("201101", datetime(2011, 1, 1, 0, 0)),
+        ("200005", datetime(2000, 5, 1, 0, 0)),
+    ],
 )
 def test_parsers_month_freq(date_str, expected):
     result, _ = parsing.parse_datetime_string_with_reso(date_str, freq="ME")
@@ -236,7 +243,9 @@ def test_guess_datetime_format_with_parseable_formats(string, fmt):
     assert result == fmt
 
 
-@pytest.mark.parametrize("dayfirst,expected", [(True, "%d/%m/%Y"), (False, "%m/%d/%Y")])
+@pytest.mark.parametrize(
+    "dayfirst,expected", [(True, "%d/%m/%Y"), (False, "%m/%d/%Y")]
+)
 def test_guess_datetime_format_with_dayfirst(dayfirst, expected):
     ambiguous_string = "01/01/2011"
     result = parsing.guess_datetime_format(ambiguous_string, dayfirst=dayfirst)
@@ -319,7 +328,9 @@ def test_guess_datetime_format_no_padding(string, fmt, dayfirst, warning):
 
 def test_try_parse_dates():
     arr = np.array(["5/1/2000", "6/1/2000", "7/1/2000"], dtype=object)
-    result = parsing.try_parse_dates(arr, parser=lambda x: du_parse(x, dayfirst=True))
+    result = parsing.try_parse_dates(
+        arr, parser=lambda x: du_parse(x, dayfirst=True)
+    )
 
     expected = np.array([du_parse(d, dayfirst=True) for d in arr])
     tm.assert_numpy_array_equal(result, expected)
@@ -393,7 +404,15 @@ def _helper_hypothesis_delimited_date(call, date_string, **kwargs):
 @pytest.mark.parametrize("dayfirst", [True, False])
 @pytest.mark.parametrize(
     "date_format",
-    ["%d %m %Y", "%m %d %Y", "%m %Y", "%Y %m %d", "%y %m %d", "%Y%m%d", "%y%m%d"],
+    [
+        "%d %m %Y",
+        "%m %d %Y",
+        "%m %Y",
+        "%Y %m %d",
+        "%y %m %d",
+        "%Y%m%d",
+        "%y%m%d",
+    ],
 )
 def test_hypothesis_delimited_date(
     request, date_format, dayfirst, delimiter, test_datetime

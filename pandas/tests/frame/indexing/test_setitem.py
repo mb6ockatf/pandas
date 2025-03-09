@@ -48,7 +48,9 @@ class TestDataFrameSetItem:
         df = DataFrame({"a": [1]}, index=index)
         df["b"] = 2
         df[mystring("c")] = 3
-        expected = DataFrame({"a": [1], "b": [2], mystring("c"): [3]}, index=index)
+        expected = DataFrame(
+            {"a": [1], "b": [2], mystring("c"): [3]}, index=index
+        )
         tm.assert_equal(df, expected)
 
     @pytest.mark.parametrize(
@@ -104,7 +106,9 @@ class TestDataFrameSetItem:
         new_col = np.random.default_rng(2).standard_normal(N)
         for i in range(K):
             df[i] = new_col
-        expected = DataFrame(np.repeat(new_col, K).reshape(N, K), index=range(N))
+        expected = DataFrame(
+            np.repeat(new_col, K).reshape(N, K), index=range(N)
+        )
         tm.assert_frame_equal(df, expected)
 
     def test_setitem_different_dtype(self):
@@ -139,7 +143,9 @@ class TestDataFrameSetItem:
         df["y"] = df["a"].astype("int32")
         result = df.dtypes
         expected = Series(
-            [np.dtype("float64")] * 4 + [np.dtype("float32")] * 2 + [np.dtype("int32")],
+            [np.dtype("float64")] * 4
+            + [np.dtype("float32")] * 2
+            + [np.dtype("int32")],
             index=["foo", "c", "bar", "b", "a", "x", "y"],
         )
         tm.assert_series_equal(result, expected)
@@ -183,7 +189,9 @@ class TestDataFrameSetItem:
         df["now"] = Timestamp("20130101", tz="UTC")
 
         expected = DataFrame(
-            [[Timestamp("20130101", tz="UTC")]] * 3, index=range(3), columns=["now"]
+            [[Timestamp("20130101", tz="UTC")]] * 3,
+            index=range(3),
+            columns=["now"],
         )
         tm.assert_frame_equal(df, expected)
 
@@ -266,7 +274,9 @@ class TestDataFrameSetItem:
     )
     def test_setitem_extension_types(self, obj, dtype):
         # GH: 34832
-        expected = DataFrame({"idx": [1, 2, 3], "obj": Series([obj] * 3, dtype=dtype)})
+        expected = DataFrame(
+            {"idx": [1, 2, 3], "obj": Series([obj] * 3, dtype=dtype)}
+        )
 
         df = DataFrame({"idx": [1, 2, 3]})
         df["obj"] = obj
@@ -295,7 +305,9 @@ class TestDataFrameSetItem:
         data_ns = np.array([1, "nat"], dtype="datetime64[ns]")
         result = Series(data_ns).to_frame()
         result["new"] = data_ns
-        expected = DataFrame({0: [1, None], "new": [1, None]}, dtype="datetime64[ns]")
+        expected = DataFrame(
+            {0: [1, None], "new": [1, None]}, dtype="datetime64[ns]"
+        )
         tm.assert_frame_equal(result, expected)
 
         # OutOfBoundsDatetime error shouldn't occur; as of 2.0 we preserve "M8[s]"
@@ -370,12 +382,16 @@ class TestDataFrameSetItem:
         df2.iloc[1, 1] = NaT
         df2.iloc[1, 2] = NaT
         result = df2["B"]
-        tm.assert_series_equal(notna(result), Series([True, False, True], name="B"))
+        tm.assert_series_equal(
+            notna(result), Series([True, False, True], name="B")
+        )
         tm.assert_series_equal(df2.dtypes, df.dtypes)
 
     def test_setitem_periodindex(self):
         rng = period_range("1/1/2000", periods=5, name="index")
-        df = DataFrame(np.random.default_rng(2).standard_normal((5, 3)), index=rng)
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((5, 3)), index=rng
+        )
 
         df["Index"] = rng
         rs = Index(df["Index"])
@@ -411,7 +427,19 @@ class TestDataFrameSetItem:
         rng = period_range("2016-01-01", periods=9, freq="D", name="A")
         result = DataFrame(rng)
         expected = DataFrame(
-            {"A": ["NaT", "NaT", "NaT", "NaT", "NaT", "NaT", "NaT", "NaT", "NaT"]},
+            {
+                "A": [
+                    "NaT",
+                    "NaT",
+                    "NaT",
+                    "NaT",
+                    "NaT",
+                    "NaT",
+                    "NaT",
+                    "NaT",
+                    "NaT",
+                ]
+            },
             dtype="period[D]",
         )
         result.iloc[:] = rng._na_value
@@ -421,7 +449,9 @@ class TestDataFrameSetItem:
     def test_setitem_bool_with_numeric_index(self, dtype):
         # GH#36319
         cols = Index([1, 2, 3], dtype=dtype)
-        df = DataFrame(np.random.default_rng(2).standard_normal((3, 3)), columns=cols)
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((3, 3)), columns=cols
+        )
 
         df[False] = ["a", "b", "c"]
 
@@ -468,11 +498,15 @@ class TestDataFrameSetItem:
         # GH#39510
         cols = ["A", "B", "C"] * 2
         df = DataFrame(index=range(3), columns=cols)
-        with pytest.raises(ValueError, match="Columns must be same length as key"):
+        with pytest.raises(
+            ValueError, match="Columns must be same length as key"
+        ):
             df[["A"]] = (0, 3, 5)
 
         df2 = df.iloc[:, :3]  # unique columns
-        with pytest.raises(ValueError, match="Columns must be same length as key"):
+        with pytest.raises(
+            ValueError, match="Columns must be same length as key"
+        ):
             df2[["A"]] = (0, 3, 5)
 
     @pytest.mark.parametrize("cols", [["a", "b", "c"], ["a", "a", "a"]])
@@ -586,11 +620,17 @@ class TestDataFrameSetItem:
     def test_setitem_multi_index(self):
         # GH#7655, test that assigning to a sub-frame of a frame
         # with multi-index columns aligns both rows and columns
-        it = ["jim", "joe", "jolie"], ["first", "last"], ["left", "center", "right"]
+        it = (
+            ["jim", "joe", "jolie"],
+            ["first", "last"],
+            ["left", "center", "right"],
+        )
 
         cols = MultiIndex.from_product(it)
         index = date_range("20141006", periods=20)
-        vals = np.random.default_rng(2).integers(1, 1000, (len(index), len(cols)))
+        vals = np.random.default_rng(2).integers(
+            1, 1000, (len(index), len(cols))
+        )
         df = DataFrame(vals, columns=cols, index=index)
 
         i, j = df.index.values.copy(), it[-1][:]
@@ -629,7 +669,9 @@ class TestDataFrameSetItem:
             (
                 ["A", "B", "C"],
                 np.array([7, 8, 9], dtype=np.int64),
-                DataFrame([[7, 8, 9], [7, 8, 9], [7, 8, 9]], columns=["A", "B", "C"]),
+                DataFrame(
+                    [[7, 8, 9], [7, 8, 9], [7, 8, 9]], columns=["A", "B", "C"]
+                ),
             ),
             (
                 ["B", "C", "D"],
@@ -641,7 +683,9 @@ class TestDataFrameSetItem:
             ),
             (
                 ["C", "A", "D"],
-                np.array([[7, 8, 9], [10, 11, 12], [13, 14, 15]], dtype=np.int64),
+                np.array(
+                    [[7, 8, 9], [10, 11, 12], [13, 14, 15]], dtype=np.int64
+                ),
                 DataFrame(
                     [[8, 2, 7, 9], [11, 4, 10, 12], [14, 6, 13, 15]],
                     columns=["A", "B", "C", "D"],
@@ -651,7 +695,8 @@ class TestDataFrameSetItem:
                 ["A", "C"],
                 DataFrame([[7, 8], [9, 10], [11, 12]], columns=["A", "C"]),
                 DataFrame(
-                    [[7, 2, 8], [9, 4, 10], [11, 6, 12]], columns=["A", "B", "C"]
+                    [[7, 2, 8], [9, 4, 10], [11, 6, 12]],
+                    columns=["A", "B", "C"],
                 ),
             ),
         ],
@@ -694,7 +739,9 @@ class TestDataFrameSetItem:
         df["c"] = Series(name="c", index=index, dtype="S64")
         df["d"] = Series(name="d", index=index, dtype=np.uint8)
         result = df.dtypes
-        expected = Series([np.uint32, object, object, np.uint8], index=list("abcd"))
+        expected = Series(
+            [np.uint32, object, object, np.uint8], index=list("abcd")
+        )
         tm.assert_series_equal(result, expected)
 
     def test_boolean_mask_nullable_int64(self):
@@ -721,7 +768,8 @@ class TestDataFrameSetItem:
         # GH#42376
         # for use-case df["x"] = sparse.random((10, 10)).mean(axis=1)
         expected = DataFrame(
-            {"np-array": np.ones(10), "np-matrix": np.ones(10)}, index=np.arange(10)
+            {"np-array": np.ones(10), "np-matrix": np.ones(10)},
+            index=np.arange(10),
         )
 
         a = np.ones((10, 1))
@@ -745,7 +793,13 @@ class TestDataFrameSetItem:
         df.loc[:, "c"] = {0: 5, 1: 6}
         df.loc[:, "e"] = {1: 5}
         expected = DataFrame(
-            {"a": [200, 100], "b": [3, 4], **vals, "c": [5, 6], "e": [np.nan, 5]}
+            {
+                "a": [200, 100],
+                "b": [3, 4],
+                **vals,
+                "c": [5, 6],
+                "e": [np.nan, 5],
+            }
         )
         tm.assert_frame_equal(df, expected)
 
@@ -778,7 +832,9 @@ class TestDataFrameSetItem:
         df = DataFrame({"a": [1, 2]})
         with pd.option_context("future.infer_string", True):
             df["b"] = Index(["a", "b"], dtype=object)
-        expected = DataFrame({"a": [1, 2], "b": Series(["a", "b"], dtype=object)})
+        expected = DataFrame(
+            {"a": [1, 2], "b": Series(["a", "b"], dtype=object)}
+        )
         tm.assert_frame_equal(df, expected)
 
     def test_setitem_frame_midx_columns(self):
@@ -832,7 +888,9 @@ class TestSetitemTZAwareValues:
 
     def test_setitem_dt64series(self, idx, expected):
         # convert to utc
-        df = DataFrame(np.random.default_rng(2).standard_normal((2, 1)), columns=["A"])
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((2, 1)), columns=["A"]
+        )
         df["B"] = idx
         df["B"] = idx.to_series(index=[0, 1]).dt.tz_convert(None)
 
@@ -842,7 +900,9 @@ class TestSetitemTZAwareValues:
 
     def test_setitem_datetimeindex(self, idx, expected):
         # setting a DataFrame column with a tzaware DTI retains the dtype
-        df = DataFrame(np.random.default_rng(2).standard_normal((2, 1)), columns=["A"])
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((2, 1)), columns=["A"]
+        )
 
         # assign to frame
         df["B"] = idx
@@ -851,7 +911,9 @@ class TestSetitemTZAwareValues:
 
     def test_setitem_object_array_of_tzaware_datetimes(self, idx, expected):
         # setting a DataFrame column with a tzaware DTI retains the dtype
-        df = DataFrame(np.random.default_rng(2).standard_normal((2, 1)), columns=["A"])
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((2, 1)), columns=["A"]
+        )
 
         # object array of datetimes with a tz
         df["B"] = idx.to_pydatetime()
@@ -881,7 +943,9 @@ class TestDataFrameSetItemWithExpansion:
         # GH#39010
         df = DataFrame([[1, 2], [3, 4]])
         df["0 - Name"] = [5, 6]
-        expected = DataFrame([[1, 2, 5], [3, 4, 6]], columns=[0, 1, "0 - Name"])
+        expected = DataFrame(
+            [[1, 2, 5], [3, 4, 6]], columns=[0, 1, "0 - Name"]
+        )
         tm.assert_frame_equal(df, expected)
 
     def test_setitem_empty_df_duplicate_columns(self):
@@ -898,11 +962,14 @@ class TestDataFrameSetItemWithExpansion:
         df = DataFrame(
             {
                 "value": np.array(
-                    np.random.default_rng(2).integers(0, 10000, 100), dtype="int32"
+                    np.random.default_rng(2).integers(0, 10000, 100),
+                    dtype="int32",
                 )
             }
         )
-        labels = Categorical([f"{i} - {i + 499}" for i in range(0, 10000, 500)])
+        labels = Categorical(
+            [f"{i} - {i + 499}" for i in range(0, 10000, 500)]
+        )
 
         df = df.sort_values(by=["value"], ascending=True)
         ser = cut(df.value, range(0, 10500, 500), right=False, labels=labels)
@@ -912,7 +979,10 @@ class TestDataFrameSetItemWithExpansion:
         df["D"] = cat
         result = df.dtypes
         expected = Series(
-            [np.dtype("int32"), CategoricalDtype(categories=labels, ordered=False)],
+            [
+                np.dtype("int32"),
+                CategoricalDtype(categories=labels, ordered=False),
+            ],
             index=["value", "D"],
         )
         tm.assert_series_equal(result, expected)
@@ -996,7 +1066,13 @@ class TestDataFrameSetItemWithExpansion:
             "c": "23",
         }
         expected = DataFrame(
-            [[pd.Timedelta("0 days 00:00:05"), pd.Timedelta("0 days 00:01:12"), "23"]],
+            [
+                [
+                    pd.Timedelta("0 days 00:00:05"),
+                    pd.Timedelta("0 days 00:01:12"),
+                    "23",
+                ]
+            ],
             index=Index([0]),
             columns=(["a", "b", "c"]),
         )
@@ -1019,7 +1095,9 @@ class TestDataFrameSetItemSlicing:
         # GH#40440
         df = DataFrame([[1, 3, 5]] + [[2, 4, 6]] * n, columns=["a", "b", "c"])
         indexer_si(df)[1:] = box([10, 11, 12])
-        expected = DataFrame([[1, 3, 5]] + [[10, 11, 12]] * n, columns=["a", "b", "c"])
+        expected = DataFrame(
+            [[1, 3, 5]] + [[10, 11, 12]] * n, columns=["a", "b", "c"]
+        )
         tm.assert_frame_equal(df, expected)
 
     @pytest.mark.parametrize("box", [Series, np.array, list, pd.array])
@@ -1028,15 +1106,20 @@ class TestDataFrameSetItemSlicing:
         # GH#40440
         df = DataFrame([[1, 3, 5]] + [[2, 4, 6]] * n, columns=["a", "b", "c"])
         df.iloc[list(range(1, n + 1))] = box([10, 11, 12])
-        expected = DataFrame([[1, 3, 5]] + [[10, 11, 12]] * n, columns=["a", "b", "c"])
+        expected = DataFrame(
+            [[1, 3, 5]] + [[10, 11, 12]] * n, columns=["a", "b", "c"]
+        )
         tm.assert_frame_equal(df, expected)
 
     @pytest.mark.parametrize("box", [Series, np.array, list, pd.array])
     @pytest.mark.parametrize("n", [1, 2, 3])
-    def test_setitem_slice_broadcasting_rhs_mixed_dtypes(self, n, box, indexer_si):
+    def test_setitem_slice_broadcasting_rhs_mixed_dtypes(
+        self, n, box, indexer_si
+    ):
         # GH#40440
         df = DataFrame(
-            [[1, 3, 5], ["x", "y", "z"]] + [[2, 4, 6]] * n, columns=["a", "b", "c"]
+            [[1, 3, 5], ["x", "y", "z"]] + [[2, 4, 6]] * n,
+            columns=["a", "b", "c"],
         )
         indexer_si(df)[1:] = box([10, 11, 12])
         expected = DataFrame(
@@ -1072,7 +1155,10 @@ class TestDataFrameSetItemCallable:
 class TestDataFrameSetItemBooleanMask:
     @pytest.mark.parametrize(
         "mask_type",
-        [lambda df: df > np.abs(df) / 2, lambda df: (df > np.abs(df) / 2).values],
+        [
+            lambda df: df > np.abs(df) / 2,
+            lambda df: (df > np.abs(df) / 2).values,
+        ],
         ids=["dataframe", "array"],
     )
     def test_setitem_boolean_mask(self, mask_type, float_frame):
@@ -1089,7 +1175,9 @@ class TestDataFrameSetItemBooleanMask:
         expected = DataFrame(expected, index=df.index, columns=df.columns)
         tm.assert_frame_equal(result, expected)
 
-    @pytest.mark.xfail(reason="Currently empty indexers are treated as all False")
+    @pytest.mark.xfail(
+        reason="Currently empty indexers are treated as all False"
+    )
     @pytest.mark.parametrize("box", [list, np.array, Series])
     def test_setitem_loc_empty_indexer_raises_with_non_empty_value(self, box):
         # GH#37672
@@ -1098,7 +1186,9 @@ class TestDataFrameSetItemBooleanMask:
             indexer = box([], dtype="object")
         else:
             indexer = box([])
-        msg = "Must have equal len keys and value when setting with an iterable"
+        msg = (
+            "Must have equal len keys and value when setting with an iterable"
+        )
         with pytest.raises(ValueError, match=msg):
             df.loc[indexer, ["b"]] = [1]
 
@@ -1127,10 +1217,14 @@ class TestDataFrameSetItemBooleanMask:
     def test_setitem_mask_categorical(self):
         # assign multiple rows (mixed values) (-> array) -> exp_multi_row
         # changed multiple rows
-        cats2 = Categorical(["a", "a", "b", "b", "a", "a", "a"], categories=["a", "b"])
+        cats2 = Categorical(
+            ["a", "a", "b", "b", "a", "a", "a"], categories=["a", "b"]
+        )
         idx2 = Index(["h", "i", "j", "k", "l", "m", "n"])
         values2 = [1, 1, 2, 2, 1, 1, 1]
-        exp_multi_row = DataFrame({"cats": cats2, "values": values2}, index=idx2)
+        exp_multi_row = DataFrame(
+            {"cats": cats2, "values": values2}, index=idx2
+        )
 
         catsf = Categorical(
             ["a", "a", "c", "c", "a", "a", "a"], categories=["a", "b", "c"]
@@ -1140,7 +1234,9 @@ class TestDataFrameSetItemBooleanMask:
         df = DataFrame({"cats": catsf, "values": valuesf}, index=idxf)
 
         exp_fancy = exp_multi_row.copy()
-        exp_fancy["cats"] = exp_fancy["cats"].cat.set_categories(["a", "b", "c"])
+        exp_fancy["cats"] = exp_fancy["cats"].cat.set_categories(
+            ["a", "b", "c"]
+        )
 
         mask = df["cats"] == "c"
         df[mask] = ["b", 2]
@@ -1148,7 +1244,9 @@ class TestDataFrameSetItemBooleanMask:
         tm.assert_frame_equal(df, exp_fancy)
 
     @pytest.mark.parametrize("dtype", ["float", "int64"])
-    @pytest.mark.parametrize("kwargs", [{}, {"index": [1]}, {"columns": ["A"]}])
+    @pytest.mark.parametrize(
+        "kwargs", [{}, {"index": [1]}, {"columns": ["A"]}]
+    )
     def test_setitem_empty_frame_with_boolean(self, dtype, kwargs):
         # see GH#10126
         kwargs["dtype"] = dtype
@@ -1165,15 +1263,20 @@ class TestDataFrameSetItemBooleanMask:
             index=idx,
             columns=cols,
             data=np.array(
-                [[0.0, 0.5, 1.0], [1.5, 2.0, 2.5], [3.0, 3.5, 4.0]], dtype=float
+                [[0.0, 0.5, 1.0], [1.5, 2.0, 2.5], [3.0, 3.5, 4.0]],
+                dtype=float,
             ),
         )
-        df2 = DataFrame(index=idx, columns=cols, data=np.ones((len(idx), len(cols))))
+        df2 = DataFrame(
+            index=idx, columns=cols, data=np.ones((len(idx), len(cols)))
+        )
 
         expected = DataFrame(
             index=idx,
             columns=cols,
-            data=np.array([[0.0, 0.5, 1.0], [1.5, 2.0, -1], [-1, -1, -1]], dtype=float),
+            data=np.array(
+                [[0.0, 0.5, 1.0], [1.5, 2.0, -1], [-1, -1, -1]], dtype=float
+            ),
         )
 
         df1[df1 > 2.0 * df2] = -1
@@ -1220,7 +1323,8 @@ class TestDataFrameSetitemCopyViewSemantics:
         #  we needed to ensure _item_cache was cleared.
 
         df = DataFrame(
-            {"x": [1.1, 2.1, 3.1, 4.1], "y": [5.1, 6.1, 7.1, 8.1]}, index=[0, 1, 2, 3]
+            {"x": [1.1, 2.1, 3.1, 4.1], "y": [5.1, 6.1, 7.1, 8.1]},
+            index=[0, 1, 2, 3],
         )
         df.insert(2, "z", np.nan)
         if consolidate:
@@ -1261,7 +1365,9 @@ class TestDataFrameSetitemCopyViewSemantics:
         tm.assert_frame_equal(df, expected)
         tm.assert_frame_equal(df_view, df_copy)
 
-    @pytest.mark.parametrize("value", [1.0, np.array([[1.0], [1.0]]), [[1.0], [1.0]]])
+    @pytest.mark.parametrize(
+        "value", [1.0, np.array([[1.0], [1.0]]), [[1.0], [1.0]]]
+    )
     def test_setitem_listlike_key_scalar_value_not_inplace(self, value):
         # GH#39510
         cols = ["A", "B"]
@@ -1309,7 +1415,9 @@ class TestDataFrameSetitemCopyViewSemantics:
         # https://github.com/pandas-dev/pandas/issues/47172
 
         labels = [f"c{i}" for i in range(10)]
-        df = DataFrame({col: np.zeros(len(labels)) for col in labels}, index=labels)
+        df = DataFrame(
+            {col: np.zeros(len(labels)) for col in labels}, index=labels
+        )
         values = df._mgr.blocks[0].values
 
         with tm.raises_chained_assignment_error():
@@ -1325,7 +1433,9 @@ class TestDataFrameSetitemCopyViewSemantics:
         df["col2"] = Series([1, 2, 3], dtype="category")
 
         expected_types = Series(
-            ["int64", "category", "category"], index=[0, "col1", "col2"], dtype=object
+            ["int64", "category", "category"],
+            index=[0, "col1", "col2"],
+            dtype=object,
         )
         tm.assert_series_equal(df.dtypes, expected_types)
 
@@ -1340,7 +1450,9 @@ class TestDataFrameSetitemCopyViewSemantics:
 
     def test_setitem_frame_dup_cols_dtype(self):
         # GH#53143
-        df = DataFrame([[1, 2, 3, 4], [4, 5, 6, 7]], columns=["a", "b", "a", "c"])
+        df = DataFrame(
+            [[1, 2, 3, 4], [4, 5, 6, 7]], columns=["a", "b", "a", "c"]
+        )
         rhs = DataFrame([[0, 1.5], [2, 2.5]], columns=["a", "a"])
         df["a"] = rhs
         expected = DataFrame(
@@ -1351,7 +1463,9 @@ class TestDataFrameSetitemCopyViewSemantics:
         df = DataFrame([[1, 2, 3], [4, 5, 6]], columns=["a", "a", "b"])
         rhs = DataFrame([[0, 1.5], [2, 2.5]], columns=["a", "a"])
         df["a"] = rhs
-        expected = DataFrame([[0, 1.5, 3], [2, 2.5, 6]], columns=["a", "a", "b"])
+        expected = DataFrame(
+            [[0, 1.5, 3], [2, 2.5, 6]], columns=["a", "a", "b"]
+        )
         tm.assert_frame_equal(df, expected)
 
     def test_frame_setitem_empty_dataframe(self):

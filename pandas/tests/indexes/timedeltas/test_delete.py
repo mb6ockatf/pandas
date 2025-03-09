@@ -10,8 +10,12 @@ class TestTimedeltaIndexDelete:
         idx = timedelta_range(start="1 Days", periods=5, freq="D", name="idx")
 
         # preserve freq
-        expected_0 = timedelta_range(start="2 Days", periods=4, freq="D", name="idx")
-        expected_4 = timedelta_range(start="1 Days", periods=4, freq="D", name="idx")
+        expected_0 = timedelta_range(
+            start="2 Days", periods=4, freq="D", name="idx"
+        )
+        expected_4 = timedelta_range(
+            start="1 Days", periods=4, freq="D", name="idx"
+        )
 
         # reset freq to None
         expected_1 = TimedeltaIndex(
@@ -39,12 +43,18 @@ class TestTimedeltaIndexDelete:
         idx = timedelta_range(start="1 days", periods=10, freq="D", name="idx")
 
         # preserve freq
-        expected_0_2 = timedelta_range(start="4 days", periods=7, freq="D", name="idx")
-        expected_7_9 = timedelta_range(start="1 days", periods=7, freq="D", name="idx")
+        expected_0_2 = timedelta_range(
+            start="4 days", periods=7, freq="D", name="idx"
+        )
+        expected_7_9 = timedelta_range(
+            start="1 days", periods=7, freq="D", name="idx"
+        )
 
         # reset freq to None
         expected_3_5 = TimedeltaIndex(
-            ["1 D", "2 D", "3 D", "7 D", "8 D", "9 D", "10D"], freq=None, name="idx"
+            ["1 D", "2 D", "3 D", "7 D", "8 D", "9 D", "10D"],
+            freq=None,
+            name="idx",
         )
 
         cases = {

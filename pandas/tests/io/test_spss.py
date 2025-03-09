@@ -90,7 +90,14 @@ def test_spss_umlauts(datapath):
 
     df = pd.read_spss(fname, convert_categoricals=True)
     expected = pd.DataFrame(
-        {"var1": ["the ä umlaut", "the ü umlaut", "the ä umlaut", "the ö umlaut"]}
+        {
+            "var1": [
+                "the ä umlaut",
+                "the ü umlaut",
+                "the ä umlaut",
+                "the ö umlaut",
+            ]
+        }
     )
     expected["var1"] = pd.Categorical(expected["var1"])
     tm.assert_frame_equal(df, expected)
@@ -113,7 +120,9 @@ def test_spss_umlauts_dtype_backend(datapath, dtype_backend):
     # Licence at LICENSES/HAVEN_LICENSE, LICENSES/HAVEN_MIT
     fname = datapath("io", "data", "spss", "umlauts.sav")
 
-    df = pd.read_spss(fname, convert_categoricals=False, dtype_backend=dtype_backend)
+    df = pd.read_spss(
+        fname, convert_categoricals=False, dtype_backend=dtype_backend
+    )
     expected = pd.DataFrame({"var1": [1.0, 2.0, 1.0, 3.0]}, dtype="Int64")
 
     if dtype_backend == "pyarrow":
@@ -123,7 +132,9 @@ def test_spss_umlauts_dtype_backend(datapath, dtype_backend):
 
         expected = pd.DataFrame(
             {
-                col: ArrowExtensionArray(pa.array(expected[col], from_pandas=True))
+                col: ArrowExtensionArray(
+                    pa.array(expected[col], from_pandas=True)
+                )
                 for col in expected.columns
             }
         )

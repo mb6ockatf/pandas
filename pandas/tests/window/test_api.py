@@ -30,10 +30,14 @@ def test_getitem(step):
 
     # technically this is allowed
     r = frame.rolling(window=5, step=step)[1, 3]
-    tm.assert_index_equal(r._selected_obj.columns, frame[::step].columns[[1, 3]])
+    tm.assert_index_equal(
+        r._selected_obj.columns, frame[::step].columns[[1, 3]]
+    )
 
     r = frame.rolling(window=5, step=step)[[1, 3]]
-    tm.assert_index_equal(r._selected_obj.columns, frame[::step].columns[[1, 3]])
+    tm.assert_index_equal(
+        r._selected_obj.columns, frame[::step].columns[[1, 3]]
+    )
 
 
 def test_select_bad_cols():
@@ -89,7 +93,9 @@ def test_agg(step):
 
     result = r.aggregate([np.mean, lambda x: np.std(x, ddof=1)])
     expected = concat([a_mean, a_std, b_mean, b_std], axis=1)
-    expected.columns = MultiIndex.from_product([["A", "B"], ["mean", "<lambda>"]])
+    expected.columns = MultiIndex.from_product(
+        [["A", "B"], ["mean", "<lambda>"]]
+    )
     tm.assert_frame_equal(result, expected)
 
     result = r.aggregate({"A": np.mean, "B": lambda x: np.std(x, ddof=1)})
@@ -114,7 +120,10 @@ def test_agg(step):
 
     with pytest.raises(SpecificationError, match=msg):
         r.aggregate(
-            {"A": {"mean": "mean", "sum": "sum"}, "B": {"mean2": "mean", "sum2": "sum"}}
+            {
+                "A": {"mean": "mean", "sum": "sum"},
+                "B": {"mean2": "mean", "sum2": "sum"},
+            }
         )
 
     result = r.aggregate({"A": ["mean", "std"], "B": ["mean", "std"]})
@@ -162,7 +171,9 @@ def test_agg_nested_dicts():
 
     msg = "nested renamer is not supported"
     with pytest.raises(SpecificationError, match=msg):
-        r.aggregate({"r1": {"A": ["mean", "sum"]}, "r2": {"B": ["mean", "sum"]}})
+        r.aggregate(
+            {"r1": {"A": ["mean", "sum"]}, "r2": {"B": ["mean", "sum"]}}
+        )
 
     expected = concat(
         [r["A"].mean(), r["A"].std(), r["B"].mean(), r["B"].std()], axis=1
@@ -171,7 +182,9 @@ def test_agg_nested_dicts():
         [("ra", "mean"), ("ra", "std"), ("rb", "mean"), ("rb", "std")]
     )
     with pytest.raises(SpecificationError, match=msg):
-        r[["A", "B"]].agg({"A": {"ra": ["mean", "std"]}, "B": {"rb": ["mean", "std"]}})
+        r[["A", "B"]].agg(
+            {"A": {"ra": ["mean", "std"]}, "B": {"rb": ["mean", "std"]}}
+        )
 
     with pytest.raises(SpecificationError, match=msg):
         r.agg({"A": {"ra": ["mean", "std"]}, "B": {"rb": ["mean", "std"]}})
@@ -224,7 +237,11 @@ def test_count_nonnumeric_types(step):
         "dt_nat",
         "periods_nat",
     ]
-    dt_nat_col = [Timestamp("20170101"), Timestamp("20170203"), Timestamp(None)]
+    dt_nat_col = [
+        Timestamp("20170101"),
+        Timestamp("20170203"),
+        Timestamp(None),
+    ]
 
     df = DataFrame(
         {

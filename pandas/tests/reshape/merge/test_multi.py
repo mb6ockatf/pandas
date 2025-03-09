@@ -22,8 +22,30 @@ from pandas.core.reshape.merge import merge
 def left():
     """left dataframe (not multi-indexed) for multi-index join tests"""
     # a little relevant example with NAs
-    key1 = ["bar", "bar", "bar", "foo", "foo", "baz", "baz", "qux", "qux", "snap"]
-    key2 = ["two", "one", "three", "one", "two", "one", "two", "two", "three", "one"]
+    key1 = [
+        "bar",
+        "bar",
+        "bar",
+        "foo",
+        "foo",
+        "baz",
+        "baz",
+        "qux",
+        "qux",
+        "snap",
+    ]
+    key2 = [
+        "two",
+        "one",
+        "three",
+        "one",
+        "two",
+        "one",
+        "two",
+        "two",
+        "three",
+        "one",
+    ]
 
     data = np.random.default_rng(2).standard_normal(len(key1))
     return DataFrame({"key1": key1, "key2": key2, "data": data})
@@ -75,15 +97,17 @@ def on_cols_multi():
 class TestMergeMulti:
     def test_merge_on_multikey(self, left, right, join_type):
         on_cols = ["key1", "key2"]
-        result = left.join(right, on=on_cols, how=join_type).reset_index(drop=True)
+        result = left.join(right, on=on_cols, how=join_type).reset_index(
+            drop=True
+        )
 
         expected = merge(left, right.reset_index(), on=on_cols, how=join_type)
 
         tm.assert_frame_equal(result, expected)
 
-        result = left.join(right, on=on_cols, how=join_type, sort=True).reset_index(
-            drop=True
-        )
+        result = left.join(
+            right, on=on_cols, how=join_type, sort=True
+        ).reset_index(drop=True)
 
         expected = merge(
             left, right.reset_index(), on=on_cols, how=join_type, sort=True
@@ -92,7 +116,8 @@ class TestMergeMulti:
         tm.assert_frame_equal(result, expected)
 
     @pytest.mark.parametrize(
-        "infer_string", [False, pytest.param(True, marks=td.skip_if_no("pyarrow"))]
+        "infer_string",
+        [False, pytest.param(True, marks=td.skip_if_no("pyarrow"))],
     )
     def test_left_join_multi_index(self, sort, infer_string):
         with option_context("future.infer_string", infer_string):
@@ -101,7 +126,11 @@ class TestMergeMulti:
             def bind_cols(df):
                 iord = lambda a: 0 if a != a else ord(a)
                 f = lambda ts: ts.map(iord) - ord("a")
-                return f(df["1st"]) + f(df["3rd"]) * 1e2 + df["2nd"].fillna(0) * 10
+                return (
+                    f(df["1st"])
+                    + f(df["3rd"]) * 1e2
+                    + df["2nd"].fillna(0) * 10
+                )
 
             def run_asserts(left, right, sort):
                 res = left.join(right, on=icols, how="left", sort=sort)
@@ -110,28 +139,37 @@ class TestMergeMulti:
                 assert not res["4th"].isna().any()
                 assert not res["5th"].isna().any()
 
-                tm.assert_series_equal(res["4th"], -res["5th"], check_names=False)
+                tm.assert_series_equal(
+                    res["4th"], -res["5th"], check_names=False
+                )
                 result = bind_cols(res.iloc[:, :-2])
                 tm.assert_series_equal(res["4th"], result, check_names=False)
                 assert result.name is None
 
                 if sort:
-                    tm.assert_frame_equal(res, res.sort_values(icols, kind="mergesort"))
+                    tm.assert_frame_equal(
+                        res, res.sort_values(icols, kind="mergesort")
+                    )
 
-                out = merge(left, right.reset_index(), on=icols, sort=sort, how="left")
+                out = merge(
+                    left, right.reset_index(), on=icols, sort=sort, how="left"
+                )
 
                 res.index = RangeIndex(len(res))
                 tm.assert_frame_equal(out, res)
 
             lc = list(map(chr, np.arange(ord("a"), ord("z") + 1)))
             left = DataFrame(
-                np.random.default_rng(2).choice(lc, (50, 2)), columns=["1st", "3rd"]
+                np.random.default_rng(2).choice(lc, (50, 2)),
+                columns=["1st", "3rd"],
             )
             # Explicit cast to float to avoid implicit cast when setting nan
             left.insert(
                 1,
                 "2nd",
-                np.random.default_rng(2).integers(0, 10, len(left)).astype("float"),
+                np.random.default_rng(2)
+                .integers(0, 10, len(left))
+                .astype("float"),
             )
             right = left.sample(frac=1, random_state=np.random.default_rng(2))
 
@@ -174,10 +212,14 @@ class TestMergeMulti:
         # GH29522
         s = Series(
             range(6),
-            MultiIndex.from_product([["A", "B"], [1, 2, 3]], names=["lev1", "lev2"]),
+            MultiIndex.from_product(
+                [["A", "B"], [1, 2, 3]], names=["lev1", "lev2"]
+            ),
             name="Amount",
         )
-        df = DataFrame({"lev1": list("AAABBB"), "lev2": [1, 2, 3, 1, 2, 3], "col": 0})
+        df = DataFrame(
+            {"lev1": list("AAABBB"), "lev2": [1, 2, 3, 1, 2, 3], "col": 0}
+        )
         result = merge(df, s.reset_index(), on=["lev1", "lev2"])
         expected = DataFrame(
             {
@@ -331,9 +373,13 @@ class TestMergeMulti:
 
         tm.assert_frame_equal(result, expected)
 
-        result = left.join(right, on=["cola", "colb", "colc"], how="left", sort=True)
+        result = left.join(
+            right, on=["cola", "colb", "colc"], how="left", sort=True
+        )
 
-        expected = expected.sort_values(["cola", "colb", "colc"], kind="mergesort")
+        expected = expected.sort_values(
+            ["cola", "colb", "colc"], kind="mergesort"
+        )
 
         tm.assert_frame_equal(result, expected)
 
@@ -447,7 +493,9 @@ class TestMergeMulti:
     def test_merge_datetime_index(self, klass):
         # see gh-19038
         df = DataFrame(
-            [1, 2, 3], ["2016-01-01", "2017-01-01", "2018-01-01"], columns=["a"]
+            [1, 2, 3],
+            ["2016-01-01", "2017-01-01", "2018-01-01"],
+            columns=["a"],
         )
         df.index = pd.to_datetime(df.index)
         on_vector = df.index.year
@@ -461,7 +509,9 @@ class TestMergeMulti:
         result = df.merge(df, on=["a", on_vector], how="inner")
         tm.assert_frame_equal(result, expected)
 
-        expected = DataFrame({"key_0": exp_years, "a_x": [1, 2, 3], "a_y": [1, 2, 3]})
+        expected = DataFrame(
+            {"key_0": exp_years, "a_x": [1, 2, 3], "a_y": [1, 2, 3]}
+        )
 
         result = df.merge(df, on=[df.index.year], how="inner")
         tm.assert_frame_equal(result, expected)
@@ -475,13 +525,17 @@ class TestMergeMulti:
                 "data": [1.5, 1.5],
             },
             index=MultiIndex.from_tuples(
-                [[Timestamp("1950-01-01"), "A"], [Timestamp("1950-01-02"), "B"]],
+                [
+                    [Timestamp("1950-01-01"), "A"],
+                    [Timestamp("1950-01-02"), "B"],
+                ],
                 names=["date", "panel"],
             ),
         )
 
         right = DataFrame(
-            index=MultiIndex.from_tuples([], names=["date", "panel"]), columns=["state"]
+            index=MultiIndex.from_tuples([], names=["date", "panel"]),
+            columns=["state"],
         )
 
         expected_index = MultiIndex.from_tuples(
@@ -507,7 +561,9 @@ class TestMergeMulti:
                 },
                 index=expected_index,
             )
-            results_merge = right.merge(left, how="right", on=["date", "panel"])
+            results_merge = right.merge(
+                left, how="right", on=["date", "panel"]
+            )
             results_join = right.join(left, how="right")
 
         tm.assert_frame_equal(results_merge, expected)
@@ -602,7 +658,9 @@ class TestMergeMulti:
         result = household.join(portfolio, how="inner")
         tm.assert_frame_equal(result, expected)
 
-    def test_join_multi_levels_merge_equivalence(self, portfolio, household, expected):
+    def test_join_multi_levels_merge_equivalence(
+        self, portfolio, household, expected
+    ):
         portfolio = portfolio.copy()
         household = household.copy()
 
@@ -652,7 +710,9 @@ class TestMergeMulti:
         portfolio2 = portfolio.copy()
         portfolio2.index.set_names(["household_id", "foo"])
 
-        with pytest.raises(ValueError, match="columns overlap but no suffix specified"):
+        with pytest.raises(
+            ValueError, match="columns overlap but no suffix specified"
+        ):
             portfolio2.join(portfolio, how="inner")
 
     def test_join_multi_levels2(self):
@@ -813,7 +873,9 @@ class TestMergeMulti:
 
 
 class TestJoinMultiMulti:
-    def test_join_multi_multi(self, left_multi, right_multi, join_type, on_cols_multi):
+    def test_join_multi_multi(
+        self, left_multi, right_multi, join_type, on_cols_multi
+    ):
         left_names = left_multi.index.names
         right_names = right_multi.index.names
         if join_type == "right":
@@ -866,7 +928,9 @@ class TestJoinMultiMulti:
     def test_merge_datetime_index(self, box):
         # see gh-19038
         df = DataFrame(
-            [1, 2, 3], ["2016-01-01", "2017-01-01", "2018-01-01"], columns=["a"]
+            [1, 2, 3],
+            ["2016-01-01", "2017-01-01", "2018-01-01"],
+            columns=["a"],
         )
         df.index = pd.to_datetime(df.index)
         on_vector = df.index.year
@@ -880,7 +944,9 @@ class TestJoinMultiMulti:
         result = df.merge(df, on=["a", on_vector], how="inner")
         tm.assert_frame_equal(result, expected)
 
-        expected = DataFrame({"key_0": exp_years, "a_x": [1, 2, 3], "a_y": [1, 2, 3]})
+        expected = DataFrame(
+            {"key_0": exp_years, "a_x": [1, 2, 3], "a_y": [1, 2, 3]}
+        )
 
         result = df.merge(df, on=[df.index.year], how="inner")
         tm.assert_frame_equal(result, expected)
@@ -891,11 +957,13 @@ class TestJoinMultiMulti:
         )
 
         left = DataFrame(
-            {"A": ["A0", "A1", "A2"], "B": ["B0", "B1", "B2"]}, index=index_left
+            {"A": ["A0", "A1", "A2"], "B": ["B0", "B1", "B2"]},
+            index=index_left,
         )
 
         index_right = MultiIndex.from_tuples(
-            [("K0", "Y0"), ("K1", "Y1"), ("K2", "Y2"), ("K2", "Y3")], names=["key", "Y"]
+            [("K0", "Y0"), ("K1", "Y1"), ("K2", "Y2"), ("K2", "Y3")],
+            names=["key", "Y"],
         )
 
         right = DataFrame(
@@ -915,7 +983,9 @@ class TestJoinMultiMulti:
         # GH 28956
 
         midx1 = MultiIndex.from_product([[1, 2], [3, 4]], names=["a", "b"])
-        midx3 = MultiIndex.from_tuples([(4, 1), (3, 2), (3, 1)], names=["b", "a"])
+        midx3 = MultiIndex.from_tuples(
+            [(4, 1), (3, 2), (3, 1)], names=["b", "a"]
+        )
 
         left = DataFrame(index=midx1, data={"x": [10, 20, 30, 40]})
         right = DataFrame(index=midx3, data={"y": ["foo", "bar", "fing"]})

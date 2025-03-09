@@ -95,13 +95,18 @@ def concatenate_managers(
             #  JoinUnit.is_na behavior is deprecated.
             #  (update 2024-04-13 that deprecation has been enforced)
             if (
-                all(_is_homogeneous_mgr(mgr, first_dtype) for mgr, _ in mgrs_indexers)
+                all(
+                    _is_homogeneous_mgr(mgr, first_dtype)
+                    for mgr, _ in mgrs_indexers
+                )
                 and len(mgrs_indexers) > 1
             ):
                 # Fastpath!
                 # Length restriction is just to avoid having to worry about 'copy'
                 shape = tuple(len(x) for x in axes)
-                nb = _concat_homogeneous_fastpath(mgrs_indexers, shape, first_dtype)
+                nb = _concat_homogeneous_fastpath(
+                    mgrs_indexers, shape, first_dtype
+                )
                 return BlockManager((nb,), axes)
 
     mgrs = _maybe_reindex_columns_na_proxy(axes, mgrs_indexers, needs_copy)
@@ -319,7 +324,10 @@ class JoinUnit:
 
         if blk.dtype == object:
             values = blk.values
-            return all(is_valid_na_for_dtype(x, dtype) for x in values.ravel(order="K"))
+            return all(
+                is_valid_na_for_dtype(x, dtype)
+                for x in values.ravel(order="K")
+            )
 
         na_value = blk.fill_value
         if na_value is NaT and blk.dtype != dtype:
@@ -344,7 +352,9 @@ class JoinUnit:
             return True
         return False
 
-    def get_reindexed_values(self, empty_dtype: DtypeObj, upcasted_na) -> ArrayLike:
+    def get_reindexed_values(
+        self, empty_dtype: DtypeObj, upcasted_na
+    ) -> ArrayLike:
         values: ArrayLike
 
         if upcasted_na is None and self.block.dtype.kind != "V":
@@ -370,7 +380,9 @@ class JoinUnit:
             return self.block.values
 
 
-def _concatenate_join_units(join_units: list[JoinUnit], copy: bool) -> ArrayLike:
+def _concatenate_join_units(
+    join_units: list[JoinUnit], copy: bool
+) -> ArrayLike:
     """
     Concatenate values from several join units along axis=1.
     """
@@ -380,7 +392,9 @@ def _concatenate_join_units(join_units: list[JoinUnit], copy: bool) -> ArrayLike
     upcasted_na = _dtype_to_na_value(empty_dtype, has_none_blocks)
 
     to_concat = [
-        ju.get_reindexed_values(empty_dtype=empty_dtype, upcasted_na=upcasted_na)
+        ju.get_reindexed_values(
+            empty_dtype=empty_dtype, upcasted_na=upcasted_na
+        )
         for ju in join_units
     ]
 

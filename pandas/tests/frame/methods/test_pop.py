@@ -21,12 +21,16 @@ class TestDataFramePop:
         assert float_frame.columns.name == "baz"
 
         # gh-10912: inplace ops cause caching issue
-        a = DataFrame([[1, 2, 3], [4, 5, 6]], columns=["A", "B", "C"], index=["X", "Y"])
+        a = DataFrame(
+            [[1, 2, 3], [4, 5, 6]], columns=["A", "B", "C"], index=["X", "Y"]
+        )
         b = a.pop("B")
         b += 1
 
         # original frame
-        expected = DataFrame([[1, 3], [4, 6]], columns=["A", "C"], index=["X", "Y"])
+        expected = DataFrame(
+            [[1, 3], [4, 6]], columns=["A", "C"], index=["X", "Y"]
+        )
         tm.assert_frame_equal(a, expected)
 
         # result
@@ -54,7 +58,9 @@ class TestDataFramePop:
 
         tuples = sorted(zip(*arrays))
         index = MultiIndex.from_tuples(tuples)
-        df = DataFrame(np.random.default_rng(2).standard_normal((4, 6)), columns=index)
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((4, 6)), columns=index
+        )
 
         df1 = df.copy()
         df2 = df.copy()

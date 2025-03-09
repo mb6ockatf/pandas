@@ -26,12 +26,16 @@ class TestTake:
 
         # fill_value
         result = idx.take(np.array([1, 0, -1]), fill_value=True)
-        expected = CategoricalIndex([2, 1, np.nan], categories=[1, 2, 3], name="xxx")
+        expected = CategoricalIndex(
+            [2, 1, np.nan], categories=[1, 2, 3], name="xxx"
+        )
         tm.assert_index_equal(result, expected)
         tm.assert_categorical_equal(result.values, expected.values)
 
         # allow_fill=False
-        result = idx.take(np.array([1, 0, -1]), allow_fill=False, fill_value=True)
+        result = idx.take(
+            np.array([1, 0, -1]), allow_fill=False, fill_value=True
+        )
         expected = CategoricalIndex([2, 1, 3], name="xxx")
         tm.assert_index_equal(result, expected)
         tm.assert_categorical_equal(result.values, expected.values)
@@ -50,22 +54,25 @@ class TestTake:
         # fill_value
         result = idx.take(np.array([1, 0, -1]), fill_value=True)
         expected = CategoricalIndex(
-            ["B", "C", np.nan], categories=list("ABC"), ordered=True, name="xxx"
+            ["B", "C", np.nan],
+            categories=list("ABC"),
+            ordered=True,
+            name="xxx",
         )
         tm.assert_index_equal(result, expected)
         tm.assert_categorical_equal(result.values, expected.values)
 
         # allow_fill=False
-        result = idx.take(np.array([1, 0, -1]), allow_fill=False, fill_value=True)
+        result = idx.take(
+            np.array([1, 0, -1]), allow_fill=False, fill_value=True
+        )
         expected = CategoricalIndex(
             list("BCA"), categories=list("ABC"), ordered=True, name="xxx"
         )
         tm.assert_index_equal(result, expected)
         tm.assert_categorical_equal(result.values, expected.values)
 
-        msg = (
-            "When allow_fill=True and fill_value is not None, all indices must be >= -1"
-        )
+        msg = "When allow_fill=True and fill_value is not None, all indices must be >= -1"
         with pytest.raises(ValueError, match=msg):
             idx.take(np.array([1, 0, -2]), fill_value=True)
         with pytest.raises(ValueError, match=msg):
@@ -77,7 +84,9 @@ class TestTake:
 
     def test_take_fill_value_datetime(self):
         # datetime category
-        idx = pd.DatetimeIndex(["2011-01-01", "2011-02-01", "2011-03-01"], name="xxx")
+        idx = pd.DatetimeIndex(
+            ["2011-01-01", "2011-02-01", "2011-03-01"], name="xxx"
+        )
         idx = CategoricalIndex(idx)
         result = idx.take(np.array([1, 0, -1]))
         expected = pd.DatetimeIndex(
@@ -88,22 +97,24 @@ class TestTake:
 
         # fill_value
         result = idx.take(np.array([1, 0, -1]), fill_value=True)
-        expected = pd.DatetimeIndex(["2011-02-01", "2011-01-01", "NaT"], name="xxx")
+        expected = pd.DatetimeIndex(
+            ["2011-02-01", "2011-01-01", "NaT"], name="xxx"
+        )
         exp_cats = pd.DatetimeIndex(["2011-01-01", "2011-02-01", "2011-03-01"])
         expected = CategoricalIndex(expected, categories=exp_cats)
         tm.assert_index_equal(result, expected)
 
         # allow_fill=False
-        result = idx.take(np.array([1, 0, -1]), allow_fill=False, fill_value=True)
+        result = idx.take(
+            np.array([1, 0, -1]), allow_fill=False, fill_value=True
+        )
         expected = pd.DatetimeIndex(
             ["2011-02-01", "2011-01-01", "2011-03-01"], name="xxx"
         )
         expected = CategoricalIndex(expected)
         tm.assert_index_equal(result, expected)
 
-        msg = (
-            "When allow_fill=True and fill_value is not None, all indices must be >= -1"
-        )
+        msg = "When allow_fill=True and fill_value is not None, all indices must be >= -1"
         with pytest.raises(ValueError, match=msg):
             idx.take(np.array([1, 0, -2]), fill_value=True)
         with pytest.raises(ValueError, match=msg):
@@ -216,13 +227,17 @@ class TestGetIndexer:
             idx.get_indexer(idx, method="invalid")
 
     def test_get_indexer_requires_unique(self):
-        ci = CategoricalIndex(list("aabbca"), categories=list("cab"), ordered=False)
+        ci = CategoricalIndex(
+            list("aabbca"), categories=list("cab"), ordered=False
+        )
         oidx = Index(np.array(ci))
 
         msg = "Reindexing only valid with uniquely valued Index objects"
 
         for n in [1, 2, 5, len(ci)]:
-            finder = oidx[np.random.default_rng(2).integers(0, len(ci), size=n)]
+            finder = oidx[
+                np.random.default_rng(2).integers(0, len(ci), size=n)
+            ]
 
             with pytest.raises(InvalidIndexError, match=msg):
                 ci.get_indexer(finder)
@@ -267,11 +282,19 @@ class TestGetIndexer:
 
     def test_get_indexer_array(self):
         arr = np.array(
-            [Timestamp("1999-12-31 00:00:00"), Timestamp("2000-12-31 00:00:00")],
+            [
+                Timestamp("1999-12-31 00:00:00"),
+                Timestamp("2000-12-31 00:00:00"),
+            ],
             dtype=object,
         )
-        cats = [Timestamp("1999-12-31 00:00:00"), Timestamp("2000-12-31 00:00:00")]
-        ci = CategoricalIndex(cats, categories=cats, ordered=False, dtype="category")
+        cats = [
+            Timestamp("1999-12-31 00:00:00"),
+            Timestamp("2000-12-31 00:00:00"),
+        ]
+        ci = CategoricalIndex(
+            cats, categories=cats, ordered=False, dtype="category"
+        )
         result = ci.get_indexer(arr)
         expected = np.array([0, 1], dtype="intp")
         tm.assert_numpy_array_equal(result, expected)
@@ -279,7 +302,9 @@ class TestGetIndexer:
     def test_get_indexer_same_categories_same_order(self):
         ci = CategoricalIndex(["a", "b"], categories=["a", "b"])
 
-        result = ci.get_indexer(CategoricalIndex(["b", "b"], categories=["a", "b"]))
+        result = ci.get_indexer(
+            CategoricalIndex(["b", "b"], categories=["a", "b"])
+        )
         expected = np.array([1, 1], dtype="intp")
         tm.assert_numpy_array_equal(result, expected)
 
@@ -287,7 +312,9 @@ class TestGetIndexer:
         # https://github.com/pandas-dev/pandas/issues/19551
         ci = CategoricalIndex(["a", "b"], categories=["a", "b"])
 
-        result = ci.get_indexer(CategoricalIndex(["b", "b"], categories=["b", "a"]))
+        result = ci.get_indexer(
+            CategoricalIndex(["b", "b"], categories=["b", "a"])
+        )
         expected = np.array([1, 1], dtype="intp")
         tm.assert_numpy_array_equal(result, expected)
 
@@ -308,14 +335,18 @@ class TestWhere:
     def test_where(self, listlike_box):
         klass = listlike_box
 
-        i = CategoricalIndex(list("aabbca"), categories=list("cab"), ordered=False)
+        i = CategoricalIndex(
+            list("aabbca"), categories=list("cab"), ordered=False
+        )
         cond = [True] * len(i)
         expected = i
         result = i.where(klass(cond))
         tm.assert_index_equal(result, expected)
 
         cond = [False] + [True] * (len(i) - 1)
-        expected = CategoricalIndex([np.nan] + i[1:].tolist(), categories=i.categories)
+        expected = CategoricalIndex(
+            [np.nan] + i[1:].tolist(), categories=i.categories
+        )
         result = i.where(klass(cond))
         tm.assert_index_equal(result, expected)
 
@@ -335,7 +366,9 @@ class TestWhere:
 
 class TestContains:
     def test_contains(self):
-        ci = CategoricalIndex(list("aabbca"), categories=list("cabdef"), ordered=False)
+        ci = CategoricalIndex(
+            list("aabbca"), categories=list("cabdef"), ordered=False
+        )
 
         assert "a" in ci
         assert "z" not in ci
@@ -347,7 +380,9 @@ class TestContains:
         assert 1 not in ci
 
     def test_contains_nan(self):
-        ci = CategoricalIndex(list("aabbca") + [np.nan], categories=list("cabdef"))
+        ci = CategoricalIndex(
+            list("aabbca") + [np.nan], categories=list("cabdef")
+        )
         assert np.nan in ci
 
     @pytest.mark.parametrize("unwrap", [True, False])

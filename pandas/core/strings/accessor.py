@@ -77,7 +77,10 @@ _cpython_optimized_encoders = (
     "mbcs",
     "ascii",
 )
-_cpython_optimized_decoders = _cpython_optimized_encoders + ("utf-16", "utf-32")
+_cpython_optimized_decoders = _cpython_optimized_encoders + (
+    "utf-16",
+    "utf-32",
+)
 
 
 def forbid_nonstring_types(
@@ -126,9 +129,13 @@ def forbid_nonstring_types(
     # deal with None
     forbidden = [] if forbidden is None else forbidden
 
-    allowed_types = {"string", "empty", "bytes", "mixed", "mixed-integer"} - set(
-        forbidden
-    )
+    allowed_types = {
+        "string",
+        "empty",
+        "bytes",
+        "mixed",
+        "mixed-integer",
+    } - set(forbidden)
 
     def _forbid_nonstring_types(func: F) -> F:
         func_name = func.__name__ if name is None else name
@@ -216,7 +223,9 @@ class StringMethods(NoNewAttributesMixin):
             self._name = data.name
 
         # ._values.categories works for both Series/Index
-        self._parent = data._values.categories if self._is_categorical else data
+        self._parent = (
+            data._values.categories if self._is_categorical else data
+        )
         # save orig to blow up categoricals to the right type
         self._orig = data
         self._freeze()
@@ -329,7 +338,9 @@ class StringMethods(NoNewAttributesMixin):
                             )
                         )
                     else:
-                        all_null = np.full(max_len, fill_value=None, dtype=object)
+                        all_null = np.full(
+                            max_len, fill_value=None, dtype=object
+                        )
                         values = result.to_numpy()
                         new_values = []
                         for row in values:
@@ -338,7 +349,9 @@ class StringMethods(NoNewAttributesMixin):
                                 row = np.append(row, nulls)
                             new_values.append(row)
                         pa_type = result._pa_array.type
-                        result = ArrowExtensionArray(pa.array(new_values, type=pa_type))
+                        result = ArrowExtensionArray(
+                            pa.array(new_values, type=pa_type)
+                        )
                 if name is None:
                     name = range(max_len)
                 result = (
@@ -451,7 +464,11 @@ class StringMethods(NoNewAttributesMixin):
         )
 
         # self._orig is either Series or Index
-        idx = self._orig if isinstance(self._orig, ABCIndex) else self._orig.index
+        idx = (
+            self._orig
+            if isinstance(self._orig, ABCIndex)
+            else self._orig.index
+        )
 
         # Generally speaking, all objects without an index inherit the index
         # `idx` of the calling Series/Index - i.e. must have matching length.
@@ -467,7 +484,9 @@ class StringMethods(NoNewAttributesMixin):
             return [others[x] for x in others]
         elif is_list_like(others, allow_sets=False):
             try:
-                others = list(others)  # ensure iterators do not get read twice etc
+                others = list(
+                    others
+                )  # ensure iterators do not get read twice etc
             except TypeError:
                 # e.g. ser.str, raise below
                 pass
@@ -480,7 +499,9 @@ class StringMethods(NoNewAttributesMixin):
                     for x in others
                 ):
                     los: list[Series] = []
-                    while others:  # iterate through list and append each element
+                    while (
+                        others
+                    ):  # iterate through list and append each element
                         los = los + self._get_series_list(others.pop(0))
                     return los
                 # ... or just strings
@@ -663,7 +684,9 @@ class StringMethods(NoNewAttributesMixin):
         try:
             # turn anything in "others" into lists of Series
             others = self._get_series_list(others)
-        except ValueError as err:  # do not catch TypeError raised by _get_series_list
+        except (
+            ValueError
+        ) as err:  # do not catch TypeError raised by _get_series_list
             raise ValueError(
                 "If `others` contains arrays or lists (or other "
                 "list-likes without an index), these must all be "
@@ -694,11 +717,14 @@ class StringMethods(NoNewAttributesMixin):
             np.putmask(result, union_mask, np.nan)
 
             not_masked = ~union_mask
-            result[not_masked] = cat_safe([x[not_masked] for x in all_cols], sep)
+            result[not_masked] = cat_safe(
+                [x[not_masked] for x in all_cols], sep
+            )
         elif na_rep is not None and union_mask.any():
             # fill NaNs with na_rep in case there are actually any NaNs
             all_cols = [
-                np.where(nm, na_rep, col) for nm, col in zip(na_masks, all_cols)
+                np.where(nm, na_rep, col)
+                for nm, col in zip(na_masks, all_cols)
             ]
             result = cat_safe(all_cols, sep)
         else:
@@ -719,12 +745,18 @@ class StringMethods(NoNewAttributesMixin):
             out = Index(result, dtype=dtype, name=self._orig.name)
         else:  # Series
             res_ser = Series(
-                result, dtype=dtype, index=data.index, name=self._orig.name, copy=False
+                result,
+                dtype=dtype,
+                index=data.index,
+                name=self._orig.name,
+                copy=False,
             )
             out = res_ser.__finalize__(self._orig, method="str_cat")
         return out
 
-    _shared_docs["str_split"] = r"""
+    _shared_docs[
+        "str_split"
+    ] = r"""
     Split strings around given separator/delimiter.
 
     Splits the string in the Series/Index from the %(side)s,
@@ -961,7 +993,9 @@ class StringMethods(NoNewAttributesMixin):
             result, expand=expand, returns_string=expand, dtype=dtype
         )
 
-    _shared_docs["str_partition"] = """
+    _shared_docs[
+        "str_partition"
+    ] = """
     Split the string at the %(side)s occurrence of `sep`.
 
     This method splits the string at the %(side)s occurrence of `sep`,
@@ -1376,7 +1410,9 @@ class StringMethods(NoNewAttributesMixin):
         return self._wrap_result(result, fill_value=na, returns_string=False)
 
     @forbid_nonstring_types(["bytes"])
-    def match(self, pat: str, case: bool = True, flags: int = 0, na=lib.no_default):
+    def match(
+        self, pat: str, case: bool = True, flags: int = 0, na=lib.no_default
+    ):
         """
         Determine if each string starts with a match of a regular expression.
 
@@ -1422,11 +1458,15 @@ class StringMethods(NoNewAttributesMixin):
         2   False
         dtype: bool
         """
-        result = self._data.array._str_match(pat, case=case, flags=flags, na=na)
+        result = self._data.array._str_match(
+            pat, case=case, flags=flags, na=na
+        )
         return self._wrap_result(result, fill_value=na, returns_string=False)
 
     @forbid_nonstring_types(["bytes"])
-    def fullmatch(self, pat, case: bool = True, flags: int = 0, na=lib.no_default):
+    def fullmatch(
+        self, pat, case: bool = True, flags: int = 0, na=lib.no_default
+    ):
         """
         Determine if each string entirely matches a regular expression.
 
@@ -1471,7 +1511,9 @@ class StringMethods(NoNewAttributesMixin):
         2    True
         dtype: bool
         """
-        result = self._data.array._str_fullmatch(pat, case=case, flags=flags, na=na)
+        result = self._data.array._str_fullmatch(
+            pat, case=case, flags=flags, na=na
+        )
         return self._wrap_result(result, fill_value=na, returns_string=False)
 
     @forbid_nonstring_types(["bytes"])
@@ -1626,7 +1668,9 @@ class StringMethods(NoNewAttributesMixin):
             raise ValueError("repl cannot be used when pat is a dictionary")
 
         # Check whether repl is valid (GH 13438, GH 15055)
-        if not isinstance(pat, dict) and not (isinstance(repl, str) or callable(repl)):
+        if not isinstance(pat, dict) and not (
+            isinstance(repl, str) or callable(repl)
+        ):
             raise TypeError("repl must be a string or callable")
 
         is_compiled_re = is_re(pat)
@@ -1641,7 +1685,9 @@ class StringMethods(NoNewAttributesMixin):
                 "Cannot use a compiled regex as replacement pattern with regex=False"
             )
         elif callable(repl):
-            raise ValueError("Cannot use a callable replacement when regex=False")
+            raise ValueError(
+                "Cannot use a callable replacement when regex=False"
+            )
 
         if case is None:
             case = True
@@ -1786,7 +1832,9 @@ class StringMethods(NoNewAttributesMixin):
         dtype: object
         """
         if not isinstance(fillchar, str):
-            msg = f"fillchar must be a character, not {type(fillchar).__name__}"
+            msg = (
+                f"fillchar must be a character, not {type(fillchar).__name__}"
+            )
             raise TypeError(msg)
 
         if len(fillchar) != 1:
@@ -1799,7 +1847,9 @@ class StringMethods(NoNewAttributesMixin):
         result = self._data.array._str_pad(width, side=side, fillchar=fillchar)
         return self._wrap_result(result)
 
-    _shared_docs["str_pad"] = """
+    _shared_docs[
+        "str_pad"
+    ] = """
     Pad %(side)s side of strings in the Series/Index.
 
     Equivalent to :meth:`str.%(method)s`.
@@ -1858,7 +1908,10 @@ class StringMethods(NoNewAttributesMixin):
     dtype: object
     """
 
-    @Appender(_shared_docs["str_pad"] % {"side": "left and right", "method": "center"})
+    @Appender(
+        _shared_docs["str_pad"]
+        % {"side": "left and right", "method": "center"}
+    )
     @forbid_nonstring_types(["bytes"])
     def center(self, width: int, fillchar: str = " "):
         return self.pad(width, side="both", fillchar=fillchar)
@@ -2104,7 +2157,10 @@ class StringMethods(NoNewAttributesMixin):
         return self._wrap_result(result)
 
     def decode(
-        self, encoding, errors: str = "strict", dtype: str | DtypeObj | None = None
+        self,
+        encoding,
+        errors: str = "strict",
+        dtype: str | DtypeObj | None = None,
     ):
         """
         Decode character string in the Series/Index using indicated encoding.
@@ -2197,7 +2253,9 @@ class StringMethods(NoNewAttributesMixin):
         result = self._data.array._str_encode(encoding, errors)
         return self._wrap_result(result, returns_string=False)
 
-    _shared_docs["str_strip"] = r"""
+    _shared_docs[
+        "str_strip"
+    ] = r"""
     Remove %(position)s characters.
 
     Strip whitespaces (including newlines) or a set of specified characters
@@ -2303,7 +2361,9 @@ class StringMethods(NoNewAttributesMixin):
         result = self._data.array._str_rstrip(to_strip)
         return self._wrap_result(result)
 
-    _shared_docs["str_removefix"] = r"""
+    _shared_docs[
+        "str_removefix"
+    ] = r"""
     Remove a %(side)s from an object series.
 
     If the %(side)s is not present, the original string will be returned.
@@ -2350,7 +2410,8 @@ class StringMethods(NoNewAttributesMixin):
     """
 
     @Appender(
-        _shared_docs["str_removefix"] % {"side": "prefix", "other_side": "suffix"}
+        _shared_docs["str_removefix"]
+        % {"side": "prefix", "other_side": "suffix"}
     )
     @forbid_nonstring_types(["bytes"])
     def removeprefix(self, prefix: str):
@@ -2358,7 +2419,8 @@ class StringMethods(NoNewAttributesMixin):
         return self._wrap_result(result)
 
     @Appender(
-        _shared_docs["str_removefix"] % {"side": "suffix", "other_side": "prefix"}
+        _shared_docs["str_removefix"]
+        % {"side": "suffix", "other_side": "prefix"}
     )
     @forbid_nonstring_types(["bytes"])
     def removesuffix(self, suffix: str):
@@ -2541,8 +2603,12 @@ class StringMethods(NoNewAttributesMixin):
         """
         from pandas.core.frame import DataFrame
 
-        if dtype is not None and not (is_numeric_dtype(dtype) or is_bool_dtype(dtype)):
-            raise ValueError("Only numeric or boolean dtypes are supported for 'dtype'")
+        if dtype is not None and not (
+            is_numeric_dtype(dtype) or is_bool_dtype(dtype)
+        ):
+            raise ValueError(
+                "Only numeric or boolean dtypes are supported for 'dtype'"
+            )
         # we need to cast to Series of strings as only that has all
         # methods available for making the dummies...
         result, name = self._data.array._str_get_dummies(sep, dtype)
@@ -2671,7 +2737,9 @@ class StringMethods(NoNewAttributesMixin):
 
     @forbid_nonstring_types(["bytes"])
     def startswith(
-        self, pat: str | tuple[str, ...], na: Scalar | lib.NoDefault = lib.no_default
+        self,
+        pat: str | tuple[str, ...],
+        na: Scalar | lib.NoDefault = lib.no_default,
     ) -> Series | Index:
         """
         Test if the start of each string element matches a pattern.
@@ -2742,7 +2810,9 @@ class StringMethods(NoNewAttributesMixin):
 
     @forbid_nonstring_types(["bytes"])
     def endswith(
-        self, pat: str | tuple[str, ...], na: Scalar | lib.NoDefault = lib.no_default
+        self,
+        pat: str | tuple[str, ...],
+        na: Scalar | lib.NoDefault = lib.no_default,
     ) -> Series | Index:
         """
         Test if the end of each string element matches a pattern.
@@ -2997,7 +3067,11 @@ class StringMethods(NoNewAttributesMixin):
         if regex.groups == 0:
             raise ValueError("pattern contains no capture groups")
 
-        if not expand and regex.groups > 1 and isinstance(self._data, ABCIndex):
+        if (
+            not expand
+            and regex.groups > 1
+            and isinstance(self._data, ABCIndex)
+        ):
             raise ValueError("only one regex group is supported with Index")
 
         obj = self._data
@@ -3024,12 +3098,17 @@ class StringMethods(NoNewAttributesMixin):
                     result_index = None
 
                 result = DataFrame(
-                    result_list, columns=columns, index=result_index, dtype=result_dtype
+                    result_list,
+                    columns=columns,
+                    index=result_index,
+                    dtype=result_dtype,
                 )
 
         else:
             name = _get_single_group_name(regex)
-            result = self._data.array._str_extract(pat, flags=flags, expand=returns_df)
+            result = self._data.array._str_extract(
+                pat, flags=flags, expand=returns_df
+            )
         return self._wrap_result(result, name=name, dtype=result_dtype)
 
     @forbid_nonstring_types(["bytes"])
@@ -3110,7 +3189,9 @@ class StringMethods(NoNewAttributesMixin):
         # TODO: dispatch
         return str_extractall(self._orig, pat, flags)
 
-    _shared_docs["find"] = """
+    _shared_docs[
+        "find"
+    ] = """
     Return %(side)s indexes in each strings in the Series/Index.
 
     Each of returned indexes corresponds to the position where the
@@ -3232,7 +3313,9 @@ class StringMethods(NoNewAttributesMixin):
         result = self._data.array._str_normalize(form)
         return self._wrap_result(result)
 
-    _shared_docs["index"] = """
+    _shared_docs[
+        "index"
+    ] = """
     Return %(side)s indexes in each string in Series/Index.
 
     Each of the returned indexes corresponds to the position where the
@@ -3363,7 +3446,9 @@ class StringMethods(NoNewAttributesMixin):
         result = self._data.array._str_len()
         return self._wrap_result(result, returns_string=False)
 
-    _shared_docs["casemethods"] = """
+    _shared_docs[
+        "casemethods"
+    ] = """
     Convert strings in the Series/Index to %(type)s.
     %(version)s
     Equivalent to :meth:`str.%(method)s`.
@@ -3438,9 +3523,21 @@ class StringMethods(NoNewAttributesMixin):
     #     isupper istitle isascii
     # _doc_args holds dict of strings to use in substituting casemethod docs
     _doc_args: dict[str, dict[str, str]] = {}
-    _doc_args["lower"] = {"type": "lowercase", "method": "lower", "version": ""}
-    _doc_args["upper"] = {"type": "uppercase", "method": "upper", "version": ""}
-    _doc_args["title"] = {"type": "titlecase", "method": "title", "version": ""}
+    _doc_args["lower"] = {
+        "type": "lowercase",
+        "method": "lower",
+        "version": "",
+    }
+    _doc_args["upper"] = {
+        "type": "uppercase",
+        "method": "upper",
+        "version": "",
+    }
+    _doc_args["title"] = {
+        "type": "titlecase",
+        "method": "title",
+        "version": "",
+    }
     _doc_args["capitalize"] = {
         "type": "be capitalized",
         "method": "capitalize",
@@ -3493,7 +3590,9 @@ class StringMethods(NoNewAttributesMixin):
         result = self._data.array._str_casefold()
         return self._wrap_result(result)
 
-    _shared_docs["ismethods"] = """
+    _shared_docs[
+        "ismethods"
+    ] = """
     Check whether all characters in each string are %(type)s.
 
     This is equivalent to running the Python string method
@@ -3506,7 +3605,9 @@ class StringMethods(NoNewAttributesMixin):
         Series or Index of boolean values with the same length as the original
         Series/Index.
     """
-    _shared_docs["isalpha"] = """
+    _shared_docs[
+        "isalpha"
+    ] = """
     See Also
     --------
     Series.str.isnumeric : Check whether all characters are numeric.
@@ -3530,7 +3631,9 @@ class StringMethods(NoNewAttributesMixin):
     3    False
     dtype: bool
     """
-    _shared_docs["isnumeric"] = """
+    _shared_docs[
+        "isnumeric"
+    ] = """
     See Also
     --------
     Series.str.isalpha : Check whether all characters are alphabetic.
@@ -3574,7 +3677,9 @@ class StringMethods(NoNewAttributesMixin):
     2    False
     dtype: bool
     """
-    _shared_docs["isalnum"] = """
+    _shared_docs[
+        "isalnum"
+    ] = """
     See Also
     --------
     Series.str.isalpha : Check whether all characters are alphabetic.
@@ -3607,7 +3712,9 @@ class StringMethods(NoNewAttributesMixin):
     2    False
     dtype: bool
     """
-    _shared_docs["isdecimal"] = """
+    _shared_docs[
+        "isdecimal"
+    ] = """
     See Also
     --------
     Series.str.isalpha : Check whether all characters are alphabetic.
@@ -3633,7 +3740,9 @@ class StringMethods(NoNewAttributesMixin):
     3    False
     dtype: bool
     """
-    _shared_docs["isdigit"] = """
+    _shared_docs[
+        "isdigit"
+    ] = """
     See Also
     --------
     Series.str.isalpha : Check whether all characters are alphabetic.
@@ -3660,7 +3769,9 @@ class StringMethods(NoNewAttributesMixin):
     dtype: bool
     """
 
-    _shared_docs["isspace"] = """
+    _shared_docs[
+        "isspace"
+    ] = """
     See Also
     --------
     Series.str.isalpha : Check whether all characters are alphabetic.
@@ -3683,7 +3794,9 @@ class StringMethods(NoNewAttributesMixin):
     2    False
     dtype: bool
     """
-    _shared_docs["islower"] = """
+    _shared_docs[
+        "islower"
+    ] = """
     See Also
     --------
     Series.str.isalpha : Check whether all characters are alphabetic.
@@ -3708,7 +3821,9 @@ class StringMethods(NoNewAttributesMixin):
     dtype: bool
     """
 
-    _shared_docs["isupper"] = """
+    _shared_docs[
+        "isupper"
+    ] = """
     See Also
     --------
     Series.str.isalpha : Check whether all characters are alphabetic.
@@ -3732,7 +3847,9 @@ class StringMethods(NoNewAttributesMixin):
     3    False
     dtype: bool
     """
-    _shared_docs["istitle"] = """
+    _shared_docs[
+        "istitle"
+    ] = """
     See Also
     --------
     Series.str.isalpha : Check whether all characters are alphabetic.
@@ -3760,7 +3877,9 @@ class StringMethods(NoNewAttributesMixin):
     3    False
     dtype: bool
     """
-    _shared_docs["isascii"] = """
+    _shared_docs[
+        "isascii"
+    ] = """
     See Also
     --------
     Series.str.isalpha : Check whether all characters are alphabetic.
@@ -3980,14 +4099,18 @@ def str_extractall(arr, pat, flags: int = 0) -> DataFrame:
             for match_i, match_tuple in enumerate(regex.findall(subject)):
                 if isinstance(match_tuple, str):
                     match_tuple = (match_tuple,)
-                na_tuple = [np.nan if group == "" else group for group in match_tuple]
+                na_tuple = [
+                    np.nan if group == "" else group for group in match_tuple
+                ]
                 match_list.append(na_tuple)
                 result_key = tuple(subject_key + (match_i,))
                 index_list.append(result_key)
 
     from pandas import MultiIndex
 
-    index = MultiIndex.from_tuples(index_list, names=arr.index.names + ["match"])
+    index = MultiIndex.from_tuples(
+        index_list, names=arr.index.names + ["match"]
+    )
     dtype = _result_dtype(arr)
 
     result = arr._constructor_expanddim(

@@ -81,7 +81,9 @@ def test_1000_sep(all_parsers):
     expected = DataFrame({"A": [1, 10], "B": [2334, 13], "C": [5, 10.0]})
 
     if parser.engine == "pyarrow":
-        msg = "The 'thousands' option is not supported with the 'pyarrow' engine"
+        msg = (
+            "The 'thousands' option is not supported with the 'pyarrow' engine"
+        )
         with pytest.raises(ValueError, match=msg):
             parser.read_csv(StringIO(data), sep="|", thousands=",")
         return
@@ -114,7 +116,9 @@ b,3,4
 c,4,5
 """
     parser = all_parsers
-    expected = DataFrame({"A": ["a", "b", "c"], "B": [1, 3, 4], "C": [2, 4, 5]})
+    expected = DataFrame(
+        {"A": ["a", "b", "c"], "B": [1, 3, 4], "C": [2, 4, 5]}
+    )
     result = parser.read_csv(StringIO(data))
     tm.assert_frame_equal(result, expected)
 
@@ -135,10 +139,14 @@ def test_read_csv_low_memory_no_rows_with_index(all_parsers):
     if parser.engine == "pyarrow":
         msg = "The 'nrows' option is not supported with the 'pyarrow' engine"
         with pytest.raises(ValueError, match=msg):
-            parser.read_csv(StringIO(data), low_memory=True, index_col=0, nrows=0)
+            parser.read_csv(
+                StringIO(data), low_memory=True, index_col=0, nrows=0
+            )
         return
 
-    result = parser.read_csv(StringIO(data), low_memory=True, index_col=0, nrows=0)
+    result = parser.read_csv(
+        StringIO(data), low_memory=True, index_col=0, nrows=0
+    )
     expected = DataFrame(columns=["A", "B", "C"])
     tm.assert_frame_equal(result, expected)
 
@@ -344,7 +352,10 @@ def test_escapechar(all_parsers):
         StringIO(data), escapechar="\\", quotechar='"', encoding="utf-8"
     )
 
-    assert result["SEARCH_TERM"][2] == 'SLAGBORD, "Bergslagen", IKEA:s 1700-tals series'
+    assert (
+        result["SEARCH_TERM"][2]
+        == 'SLAGBORD, "Bergslagen", IKEA:s 1700-tals series'
+    )
 
     tm.assert_index_equal(result.columns, Index(["SEARCH_TERM", "ACTUAL_URL"]))
 
@@ -451,7 +462,9 @@ def test_trailing_spaces(all_parsers, kwargs, expected_data):
     parser = all_parsers
 
     if parser.engine == "pyarrow":
-        with pytest.raises(ValueError, match="the 'pyarrow' engine does not support"):
+        with pytest.raises(
+            ValueError, match="the 'pyarrow' engine does not support"
+        ):
             parser.read_csv(StringIO(data.replace(",", "  ")), **kwargs)
         return
     expected = DataFrame(expected_data)
@@ -463,7 +476,9 @@ def test_read_filepath_or_buffer(all_parsers):
     # see gh-43366
     parser = all_parsers
 
-    with pytest.raises(TypeError, match="Expected file path name or file-like"):
+    with pytest.raises(
+        TypeError, match="Expected file path name or file-like"
+    ):
         parser.read_csv(filepath_or_buffer=b"input")
 
 
@@ -494,7 +509,11 @@ b\n"""
     "sep,skip_blank_lines,exp_data",
     [
         (",", True, [[1.0, 2.0, 4.0], [5.0, np.nan, 10.0], [-70.0, 0.4, 1.0]]),
-        (r"\s+", True, [[1.0, 2.0, 4.0], [5.0, np.nan, 10.0], [-70.0, 0.4, 1.0]]),
+        (
+            r"\s+",
+            True,
+            [[1.0, 2.0, 4.0], [5.0, np.nan, 10.0], [-70.0, 0.4, 1.0]],
+        ),
         (
             ",",
             False,
@@ -532,7 +551,9 @@ A,B,C
                 )
             return
 
-    result = parser.read_csv(StringIO(data), sep=sep, skip_blank_lines=skip_blank_lines)
+    result = parser.read_csv(
+        StringIO(data), sep=sep, skip_blank_lines=skip_blank_lines
+    )
     expected = DataFrame(exp_data, columns=["A", "B", "C"])
     tm.assert_frame_equal(result, expected)
 
@@ -548,7 +569,9 @@ A,B,C
 \t    1,2.,4.
 5.,NaN,10.0
 """
-    expected = DataFrame([[1, 2.0, 4.0], [5.0, np.nan, 10.0]], columns=["A", "B", "C"])
+    expected = DataFrame(
+        [[1, 2.0, 4.0], [5.0, np.nan, 10.0]], columns=["A", "B", "C"]
+    )
     result = parser.read_csv(StringIO(data))
     tm.assert_frame_equal(result, expected)
 
@@ -570,7 +593,9 @@ c   1   2   3   4
         ),
         (
             "    a b c\n1 2 3 \n4 5  6\n 7 8 9",
-            DataFrame([[1, 2, 3], [4, 5, 6], [7, 8, 9]], columns=["a", "b", "c"]),
+            DataFrame(
+                [[1, 2, 3], [4, 5, 6], [7, 8, 9]], columns=["a", "b", "c"]
+            ),
         ),
     ],
 )
@@ -597,7 +622,9 @@ def test_sub_character(all_parsers, csv_dir_path):
     tm.assert_frame_equal(result, expected)
 
 
-@pytest.mark.parametrize("filename", ["sé-es-vé.csv", "ru-sй.csv", "中文文件名.csv"])
+@pytest.mark.parametrize(
+    "filename", ["sé-es-vé.csv", "ru-sй.csv", "中文文件名.csv"]
+)
 def test_filename_with_special_chars(all_parsers, filename):
     # see gh-15086.
     parser = all_parsers
@@ -696,7 +723,9 @@ def test_blank_lines_between_header_and_data_rows(all_parsers, nrows):
             )
         return
 
-    df = parser.read_csv(StringIO(csv), header=3, nrows=nrows, skip_blank_lines=False)
+    df = parser.read_csv(
+        StringIO(csv), header=3, nrows=nrows, skip_blank_lines=False
+    )
     tm.assert_frame_equal(df, ref[:nrows])
 
 
@@ -725,7 +754,9 @@ def test_read_csv_names_not_accepting_sets(all_parsers):
     1,2,3
     4,5,6\n"""
     parser = all_parsers
-    with pytest.raises(ValueError, match="Names should be an ordered collection."):
+    with pytest.raises(
+        ValueError, match="Names should be an ordered collection."
+    ):
         parser.read_csv(StringIO(data), names=set("QAZ"))
 
 
@@ -767,7 +798,9 @@ def test_dict_keys_as_names(all_parsers):
     tm.assert_frame_equal(result, expected)
 
 
-@pytest.mark.xfail(using_string_dtype() and HAS_PYARROW, reason="TODO(infer_string)")
+@pytest.mark.xfail(
+    using_string_dtype() and HAS_PYARROW, reason="TODO(infer_string)"
+)
 @xfail_pyarrow  # UnicodeDecodeError: 'utf-8' codec can't decode byte 0xed in position 0
 def test_encoding_surrogatepass(all_parsers):
     # GH39017
@@ -781,9 +814,13 @@ def test_encoding_surrogatepass(all_parsers):
         Path(path).write_bytes(
             content * 2 + b"," + content + b"\n" + content * 2 + b"," + content
         )
-        df = parser.read_csv(path, encoding_errors="surrogatepass", index_col=0)
+        df = parser.read_csv(
+            path, encoding_errors="surrogatepass", index_col=0
+        )
         tm.assert_frame_equal(df, expected)
-        with pytest.raises(UnicodeDecodeError, match="'utf-8' codec can't decode byte"):
+        with pytest.raises(
+            UnicodeDecodeError, match="'utf-8' codec can't decode byte"
+        ):
             parser.read_csv(path)
 
 

@@ -38,7 +38,9 @@ class TestDataFrameToDict:
         expected_records_mixed = [{"A": tsmp, "B": 1}, {"A": tsmp, "B": 2}]
 
         assert test_data.to_dict(orient="records") == expected_records
-        assert test_data_mixed.to_dict(orient="records") == expected_records_mixed
+        assert (
+            test_data_mixed.to_dict(orient="records") == expected_records_mixed
+        )
 
         expected_series = {
             "A": Series([tsmp, tsmp], name="A"),
@@ -49,7 +51,9 @@ class TestDataFrameToDict:
             "B": Series([1, 2], name="B"),
         }
 
-        tm.assert_dict_equal(test_data.to_dict(orient="series"), expected_series)
+        tm.assert_dict_equal(
+            test_data.to_dict(orient="series"), expected_series
+        )
         tm.assert_dict_equal(
             test_data_mixed.to_dict(orient="series"), expected_series_mixed
         )
@@ -95,7 +99,10 @@ class TestDataFrameToDict:
     def test_to_dict(self, mapping):
         # orient= should only take the listed options
         # see GH#32515
-        test_data = {"A": {"1": 1, "2": 2}, "B": {"1": "1", "2": "2", "3": "3"}}
+        test_data = {
+            "A": {"1": 1, "2": 2},
+            "B": {"1": "1", "2": "2", "3": "3"},
+        }
 
         # GH#16122
         recons_data = DataFrame(test_data).to_dict(into=mapping)
@@ -168,7 +175,9 @@ class TestDataFrameToDict:
         # GH#16927: When converting to a dict, if a column has a non-unique name
         # it will be dropped, throwing a warning.
         df = DataFrame([[1, 2, 3]], columns=["a", "a", "b"])
-        with tm.assert_produces_warning(UserWarning, match="columns will be omitted"):
+        with tm.assert_produces_warning(
+            UserWarning, match="columns will be omitted"
+        ):
             df.to_dict()
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
@@ -195,7 +204,10 @@ class TestDataFrameToDict:
             ("dict", lambda d, col, idx: d[col][idx]),
             ("records", lambda d, col, idx: d[idx][col]),
             ("list", lambda d, col, idx: d[col][idx]),
-            ("split", lambda d, col, idx: d["data"][idx][d["columns"].index(col)]),
+            (
+                "split",
+                lambda d, col, idx: d["data"][idx][d["columns"].index(col)],
+            ),
             ("index", lambda d, col, idx: d[idx][col]),
         ],
     )
@@ -218,8 +230,16 @@ class TestDataFrameToDict:
 
         result = df.to_dict(orient="records")
         expected = [
-            {"d": Timestamp("2017-11-18 21:53:00.219225+0000", tz=timezone.utc)},
-            {"d": Timestamp("2017-11-18 22:06:30.061810+0000", tz=timezone.utc)},
+            {
+                "d": Timestamp(
+                    "2017-11-18 21:53:00.219225+0000", tz=timezone.utc
+                )
+            },
+            {
+                "d": Timestamp(
+                    "2017-11-18 22:06:30.061810+0000", tz=timezone.utc
+                )
+            },
         ]
         tm.assert_dict_equal(result[0], expected[0])
         tm.assert_dict_equal(result[1], expected[1])
@@ -319,7 +339,9 @@ class TestDataFrameToDict:
             [np.datetime64("2005-02-25"), Timestamp],
         ),
     )
-    def test_to_dict_scalar_constructor_orient_dtype(self, data, expected_dtype):
+    def test_to_dict_scalar_constructor_orient_dtype(
+        self, data, expected_dtype
+    ):
         # GH22620 & GH21256
 
         df = DataFrame({"a": data}, index=[0])
@@ -341,7 +363,9 @@ class TestDataFrameToDict:
             Index(["aa", "bb"]),
             Index(["aa", "bb"], name="cc"),
             MultiIndex.from_tuples([("a", "b"), ("a", "c")]),
-            MultiIndex.from_tuples([("a", "b"), ("a", "c")], names=["n1", "n2"]),
+            MultiIndex.from_tuples(
+                [("a", "b"), ("a", "c")], names=["n1", "n2"]
+            ),
         ],
     )
     @pytest.mark.parametrize(
@@ -360,7 +384,9 @@ class TestDataFrameToDict:
             columns=columns,
             index=index,
         )
-        roundtrip = DataFrame.from_dict(df.to_dict(orient="tight"), orient="tight")
+        roundtrip = DataFrame.from_dict(
+            df.to_dict(orient="tight"), orient="tight"
+        )
 
         tm.assert_frame_equal(df, roundtrip)
 
@@ -451,10 +477,14 @@ class TestDataFrameToDict:
             assert value == data[key][i]
             assert type(value) is expected_types[key][i]
 
-    @pytest.mark.parametrize("orient", ["dict", "list", "series", "records", "index"])
+    @pytest.mark.parametrize(
+        "orient", ["dict", "list", "series", "records", "index"]
+    )
     def test_to_dict_index_false_error(self, orient):
         # GH#46398
-        df = DataFrame({"col1": [1, 2], "col2": [3, 4]}, index=["row1", "row2"])
+        df = DataFrame(
+            {"col1": [1, 2], "col2": [3, 4]}, index=["row1", "row2"]
+        )
         msg = "'index=False' is only valid when 'orient' is 'split' or 'tight'"
         with pytest.raises(ValueError, match=msg):
             df.to_dict(orient=orient, index=False)
@@ -475,7 +505,9 @@ class TestDataFrameToDict:
     )
     def test_to_dict_index_false(self, orient, expected):
         # GH#46398
-        df = DataFrame({"col1": [1, 2], "col2": [3, 4]}, index=["row1", "row2"])
+        df = DataFrame(
+            {"col1": [1, 2], "col2": [3, 4]}, index=["row1", "row2"]
+        )
         result = df.to_dict(orient=orient, index=False)
         tm.assert_dict_equal(result, expected)
 
@@ -484,7 +516,10 @@ class TestDataFrameToDict:
         [
             ("dict", {"a": {0: 1, 1: None}}),
             ("list", {"a": [1, None]}),
-            ("split", {"index": [0, 1], "columns": ["a"], "data": [[1], [None]]}),
+            (
+                "split",
+                {"index": [0, 1], "columns": ["a"], "data": [[1], [None]]},
+            ),
             (
                 "tight",
                 {
@@ -531,7 +566,8 @@ class TestDataFrameToDict:
 
 
 @pytest.mark.parametrize(
-    "val", [Timestamp(2020, 1, 1), Timedelta(1), Period("2020"), Interval(1, 2)]
+    "val",
+    [Timestamp(2020, 1, 1), Timedelta(1), Period("2020"), Interval(1, 2)],
 )
 def test_to_dict_list_pd_scalars(val):
     # GH 54824

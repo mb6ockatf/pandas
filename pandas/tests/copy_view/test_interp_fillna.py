@@ -50,7 +50,8 @@ def test_interp_fill_functions(func):
 
 @pytest.mark.parametrize("func", ["ffill", "bfill"])
 @pytest.mark.parametrize(
-    "vals", [[1, np.nan, 2], [Timestamp("2019-12-31"), NaT, Timestamp("2020-12-31")]]
+    "vals",
+    [[1, np.nan, 2], [Timestamp("2019-12-31"), NaT, Timestamp("2020-12-31")]],
 )
 def test_interpolate_triggers_copy(vals, func):
     df = DataFrame({"a": vals})
@@ -62,7 +63,8 @@ def test_interpolate_triggers_copy(vals, func):
 
 
 @pytest.mark.parametrize(
-    "vals", [[1, np.nan, 2], [Timestamp("2019-12-31"), NaT, Timestamp("2020-12-31")]]
+    "vals",
+    [[1, np.nan, 2], [Timestamp("2019-12-31"), NaT, Timestamp("2020-12-31")]],
 )
 def test_interpolate_inplace_no_reference_no_copy(vals):
     df = DataFrame({"a": vals})
@@ -75,7 +77,8 @@ def test_interpolate_inplace_no_reference_no_copy(vals):
 
 
 @pytest.mark.parametrize(
-    "vals", [[1, np.nan, 2], [Timestamp("2019-12-31"), NaT, Timestamp("2020-12-31")]]
+    "vals",
+    [[1, np.nan, 2], [Timestamp("2019-12-31"), NaT, Timestamp("2020-12-31")]],
 )
 def test_interpolate_inplace_with_refs(vals):
     df = DataFrame({"a": [1, np.nan, 2]})
@@ -209,7 +212,9 @@ def test_fillna_inplace_reference():
 def test_fillna_interval_inplace_reference():
     # Set dtype explicitly to avoid implicit cast when setting nan
     ser = Series(
-        interval_range(start=0, end=5), name="a", dtype="interval[float64, right]"
+        interval_range(start=0, end=5),
+        name="a",
+        dtype="interval[float64, right]",
     )
     ser.iloc[1] = np.nan
 
@@ -243,7 +248,9 @@ def test_fillna_series_empty_arg_inplace():
 
 
 def test_fillna_ea_noop_shares_memory(any_numeric_ea_and_arrow_dtype):
-    df = DataFrame({"a": [1, NA, 3], "b": 1}, dtype=any_numeric_ea_and_arrow_dtype)
+    df = DataFrame(
+        {"a": [1, NA, 3], "b": 1}, dtype=any_numeric_ea_and_arrow_dtype
+    )
     df_orig = df.copy()
     df2 = df.fillna(100)
 
@@ -261,7 +268,9 @@ def test_fillna_ea_noop_shares_memory(any_numeric_ea_and_arrow_dtype):
 
 
 def test_fillna_inplace_ea_noop_shares_memory(any_numeric_ea_and_arrow_dtype):
-    df = DataFrame({"a": [1, NA, 3], "b": 1}, dtype=any_numeric_ea_and_arrow_dtype)
+    df = DataFrame(
+        {"a": [1, NA, 3], "b": 1}, dtype=any_numeric_ea_and_arrow_dtype
+    )
     df_orig = df.copy()
     view = df[:]
     df.fillna(100, inplace=True)

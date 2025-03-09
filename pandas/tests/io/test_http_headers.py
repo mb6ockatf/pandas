@@ -106,7 +106,9 @@ def stata_responder(df):
             marks=[
                 td.skip_if_no("fastparquet"),
                 td.skip_if_no("fsspec"),
-                pytest.mark.xfail(using_string_dtype(), reason="TODO(infer_string"),
+                pytest.mark.xfail(
+                    using_string_dtype(), reason="TODO(infer_string"
+                ),
             ],
         ),
         (pickle_respnder, pd.read_pickle),
@@ -171,4 +173,6 @@ def test_to_parquet_to_disk_with_storage_options(engine):
         "storage_options passed with buffer, or non-supported URL"
     )
     with pytest.raises(ValueError, match=msg):
-        true_df.to_parquet("/tmp/junk.parquet", storage_options=headers, engine=engine)
+        true_df.to_parquet(
+            "/tmp/junk.parquet", storage_options=headers, engine=engine
+        )

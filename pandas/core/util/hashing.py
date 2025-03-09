@@ -123,7 +123,9 @@ def hash_pandas_object(
         hash_key = _default_hash_key
 
     if isinstance(obj, ABCMultiIndex):
-        return Series(hash_tuples(obj, encoding, hash_key), dtype="uint64", copy=False)
+        return Series(
+            hash_tuples(obj, encoding, hash_key), dtype="uint64", copy=False
+        )
 
     elif isinstance(obj, ABCIndex):
         h = hash_array(obj._values, encoding, hash_key, categorize).astype(
@@ -224,7 +226,9 @@ def hash_tuples(
 
     # hash the list-of-ndarrays
     hashes = (
-        cat._hash_pandas_object(encoding=encoding, hash_key=hash_key, categorize=False)
+        cat._hash_pandas_object(
+            encoding=encoding, hash_key=hash_key, categorize=False
+        )
         for cat in cat_vals
     )
     h = combine_hash_arrays(hashes, len(cat_vals))
@@ -324,7 +328,9 @@ def _hash_ndarray(
             )
 
             codes, categories = factorize(vals, sort=False)
-            dtype = CategoricalDtype(categories=Index(categories), ordered=False)
+            dtype = CategoricalDtype(
+                categories=Index(categories), ordered=False
+            )
             cat = Categorical._simple_new(codes, dtype)
             return cat._hash_pandas_object(
                 encoding=encoding, hash_key=hash_key, categorize=False

@@ -66,7 +66,9 @@ def test_no_track_times(tmp_path, setup_path):
     def checksum(filename, hash_factory=hashlib.md5, chunk_num_blocks=128):
         h = hash_factory()
         with open(filename, "rb") as f:
-            for chunk in iter(lambda: f.read(chunk_num_blocks * h.block_size), b""):
+            for chunk in iter(
+                lambda: f.read(chunk_num_blocks * h.block_size), b""
+            ):
                 h.update(chunk)
         return h.digest()
 
@@ -86,14 +88,22 @@ def test_no_track_times(tmp_path, setup_path):
 
         return checksum(path)
 
-    checksum_0_tt_false = create_h5_and_return_checksum(tmp_path, track_times=False)
-    checksum_0_tt_true = create_h5_and_return_checksum(tmp_path, track_times=True)
+    checksum_0_tt_false = create_h5_and_return_checksum(
+        tmp_path, track_times=False
+    )
+    checksum_0_tt_true = create_h5_and_return_checksum(
+        tmp_path, track_times=True
+    )
 
     # sleep is necessary to create h5 with different creation time
     time.sleep(1)
 
-    checksum_1_tt_false = create_h5_and_return_checksum(tmp_path, track_times=False)
-    checksum_1_tt_true = create_h5_and_return_checksum(tmp_path, track_times=True)
+    checksum_1_tt_false = create_h5_and_return_checksum(
+        tmp_path, track_times=False
+    )
+    checksum_1_tt_true = create_h5_and_return_checksum(
+        tmp_path, track_times=True
+    )
 
     # checksums are the same if track_time = False
     assert checksum_0_tt_false == checksum_1_tt_false
@@ -113,7 +123,8 @@ def test_repr(setup_path, performance_warning, using_infer_string):
         repr(store)
         store.info()
         store["a"] = Series(
-            np.arange(10, dtype=np.float64), index=date_range("2020-01-01", periods=10)
+            np.arange(10, dtype=np.float64),
+            index=date_range("2020-01-01", periods=10),
         )
         store["b"] = Series(
             range(10), dtype="float64", index=[f"i_{i}" for i in range(10)]
@@ -172,7 +183,8 @@ def test_repr(setup_path, performance_warning, using_infer_string):
 def test_contains(setup_path):
     with ensure_clean_store(setup_path) as store:
         store["a"] = Series(
-            np.arange(10, dtype=np.float64), index=date_range("2020-01-01", periods=10)
+            np.arange(10, dtype=np.float64),
+            index=date_range("2020-01-01", periods=10),
         )
         store["b"] = DataFrame(
             1.1 * np.arange(120).reshape((30, 4)),
@@ -207,7 +219,8 @@ def test_contains(setup_path):
 def test_versioning(setup_path):
     with ensure_clean_store(setup_path) as store:
         store["a"] = Series(
-            np.arange(10, dtype=np.float64), index=date_range("2020-01-01", periods=10)
+            np.arange(10, dtype=np.float64),
+            index=date_range("2020-01-01", periods=10),
         )
         store["b"] = DataFrame(
             1.1 * np.arange(120).reshape((30, 4)),
@@ -304,7 +317,8 @@ def test_walk(where, expected):
 def test_getattr(setup_path):
     with ensure_clean_store(setup_path) as store:
         s = Series(
-            np.arange(10, dtype=np.float64), index=date_range("2020-01-01", periods=10)
+            np.arange(10, dtype=np.float64),
+            index=date_range("2020-01-01", periods=10),
         )
         store["a"] = s
 
@@ -421,7 +435,9 @@ def test_create_table_index(setup_path):
         assert col("f", "string2").is_indexed is True
 
         # specify index=columns
-        store.append("f2", df, index=["string"], data_columns=["string", "string2"])
+        store.append(
+            "f2", df, index=["string"], data_columns=["string", "string2"]
+        )
         assert col("f2", "index").is_indexed is False
         assert col("f2", "string").is_indexed is True
         assert col("f2", "string2").is_indexed is False
@@ -524,7 +540,9 @@ def test_calendar_roundtrip_issue(setup_path):
     mydt = dt.datetime(2013, 4, 30)
     dts = date_range(mydt, periods=5, freq=bday_egypt)
 
-    s = Series(dts.weekday, dts).map(Series("Mon Tue Wed Thu Fri Sat Sun".split()))
+    s = Series(dts.weekday, dts).map(
+        Series("Mon Tue Wed Thu Fri Sat Sun".split())
+    )
 
     with ensure_clean_store(setup_path) as store:
         store.put("fixed", s)
@@ -539,7 +557,8 @@ def test_calendar_roundtrip_issue(setup_path):
 def test_remove(setup_path):
     with ensure_clean_store(setup_path) as store:
         ts = Series(
-            np.arange(10, dtype=np.float64), index=date_range("2020-01-01", periods=10)
+            np.arange(10, dtype=np.float64),
+            index=date_range("2020-01-01", periods=10),
         )
         df = DataFrame(
             1.1 * np.arange(120).reshape((30, 4)),
@@ -620,7 +639,9 @@ def test_store_index_name(setup_path):
 
 @pytest.mark.parametrize("tz", [None, "US/Pacific"])
 @pytest.mark.parametrize("table_format", ["table", "fixed"])
-def test_store_index_name_numpy_str(tmp_path, table_format, setup_path, unit, tz):
+def test_store_index_name_numpy_str(
+    tmp_path, table_format, setup_path, unit, tz
+):
     # GH #13492
     idx = (
         DatetimeIndex(
@@ -673,7 +694,8 @@ def test_overwrite_node(setup_path):
             index=date_range("2000-01-01", periods=10, freq="B"),
         )
         ts = Series(
-            np.arange(10, dtype=np.float64), index=date_range("2020-01-01", periods=10)
+            np.arange(10, dtype=np.float64),
+            index=date_range("2020-01-01", periods=10),
         )
         store["a"] = ts
 
@@ -1019,7 +1041,9 @@ def test_duplicate_column_name(tmp_path, setup_path):
 def test_preserve_timedeltaindex_type(setup_path):
     # GH9635
     df = DataFrame(np.random.default_rng(2).normal(size=(10, 5)))
-    df.index = timedelta_range(start="0s", periods=10, freq="1s", name="example")
+    df.index = timedelta_range(
+        start="0s", periods=10, freq="1s", name="example"
+    )
 
     with ensure_clean_store(setup_path) as store:
         store["df"] = df
@@ -1054,7 +1078,9 @@ def test_columns_multiindex_modified(tmp_path, setup_path):
     assert cols2load_original == cols2load
 
 
-@pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+@pytest.mark.filterwarnings(
+    r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+)
 @pytest.mark.parametrize(
     "columns",
     [
@@ -1065,9 +1091,13 @@ def test_columns_multiindex_modified(tmp_path, setup_path):
         period_range("2020-01-01", periods=2, freq="D"),
     ],
 )
-def test_to_hdf_with_object_column_names_should_fail(tmp_path, setup_path, columns):
+def test_to_hdf_with_object_column_names_should_fail(
+    tmp_path, setup_path, columns
+):
     # GH9057
-    df = DataFrame(np.random.default_rng(2).standard_normal((10, 2)), columns=columns)
+    df = DataFrame(
+        np.random.default_rng(2).standard_normal((10, 2)), columns=columns
+    )
     path = tmp_path / setup_path
     msg = "cannot have non-object label DataIndexableCol"
     with pytest.raises(ValueError, match=msg):
@@ -1075,7 +1105,9 @@ def test_to_hdf_with_object_column_names_should_fail(tmp_path, setup_path, colum
 
 
 @pytest.mark.parametrize("dtype", [None, "category"])
-def test_to_hdf_with_object_column_names_should_run(tmp_path, setup_path, dtype):
+def test_to_hdf_with_object_column_names_should_run(
+    tmp_path, setup_path, dtype
+):
     # GH9057
     df = DataFrame(
         np.random.default_rng(2).standard_normal((10, 2)),

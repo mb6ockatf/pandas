@@ -34,7 +34,9 @@ def test_array_op(dtype, opname, exp):
     tm.assert_extension_array_equal(result, expected)
 
 
-@pytest.mark.parametrize("zero, negative", [(0, False), (0.0, False), (-0.0, True)])
+@pytest.mark.parametrize(
+    "zero, negative", [(0, False), (0.0, False), (-0.0, True)]
+)
 def test_divide_by_zero(dtype, zero, negative):
     # TODO pending NA/NaN discussion
     # https://github.com/pandas-dev/pandas/issues/32265/
@@ -88,7 +90,8 @@ def test_pow_scalar(dtype):
 
     result = np.nan**a
     expected = FloatingArray(
-        np.array([1, np.nan, np.nan, np.nan], dtype=dtype.numpy_dtype), mask=a._mask
+        np.array([1, np.nan, np.nan, np.nan], dtype=dtype.numpy_dtype),
+        mask=a._mask,
     )
     tm.assert_extension_array_equal(result, expected)
 

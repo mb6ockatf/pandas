@@ -138,9 +138,13 @@ class TestDatetimeIndex:
         msg = f"Invalid frequency: {freq}"
 
         with pytest.raises(ValueError, match=msg):
-            date_range(dt.datetime(2022, 12, 11), dt.datetime(2022, 12, 13), freq=freq)
+            date_range(
+                dt.datetime(2022, 12, 11), dt.datetime(2022, 12, 13), freq=freq
+            )
 
-    @pytest.mark.parametrize("freq", ["2BM", "1bm", "2BQ", "1BQ-MAR", "2BY-JUN", "1by"])
+    @pytest.mark.parametrize(
+        "freq", ["2BM", "1bm", "2BQ", "1BQ-MAR", "2BY-JUN", "1by"]
+    )
     def test_BM_BQ_BY_raises(self, freq):
         msg = f"Invalid frequency: {freq}"
 

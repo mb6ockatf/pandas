@@ -111,7 +111,9 @@ def test_list_getitem_slice_invalid():
         ):
             ser.list[1:None:0]
     else:
-        with pytest.raises(pa.lib.ArrowInvalid, match=re.escape("`step` must be >= 1")):
+        with pytest.raises(
+            pa.lib.ArrowInvalid, match=re.escape("`step` must be >= 1")
+        ):
             ser.list[1:None:0]
 
 
@@ -147,7 +149,9 @@ def test_list_getitem_invalid_index(list_dtype):
         ser.list[-1]
     with pytest.raises(pa.lib.ArrowInvalid, match="Index 5 is out of bounds"):
         ser.list[5]
-    with pytest.raises(ValueError, match="key must be an int or slice, got str"):
+    with pytest.raises(
+        ValueError, match="key must be an int or slice, got str"
+    ):
         ser.list["abc"]
 
 
@@ -156,5 +160,7 @@ def test_list_accessor_not_iterable():
         [[1, 2, 3], [4, None], None],
         dtype=ArrowDtype(pa.list_(pa.int64())),
     )
-    with pytest.raises(TypeError, match="'ListAccessor' object is not iterable"):
+    with pytest.raises(
+        TypeError, match="'ListAccessor' object is not iterable"
+    ):
         iter(ser.list)

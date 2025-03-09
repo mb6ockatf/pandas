@@ -29,7 +29,9 @@ def ensure_list_vars(arg_vars, variable: str, columns) -> list:
     if arg_vars is not None:
         if not is_list_like(arg_vars):
             return [arg_vars]
-        elif isinstance(columns, MultiIndex) and not isinstance(arg_vars, list):
+        elif isinstance(columns, MultiIndex) and not isinstance(
+            arg_vars, list
+        ):
             raise ValueError(
                 f"{variable} must be a list of tuples when columns are a MultiIndex"
             )
@@ -214,10 +216,16 @@ def melt(
             if len(frame.columns.names) == len(set(frame.columns.names)):
                 var_name = frame.columns.names
             else:
-                var_name = [f"variable_{i}" for i in range(len(frame.columns.names))]
+                var_name = [
+                    f"variable_{i}" for i in range(len(frame.columns.names))
+                ]
         else:
             var_name = [
-                frame.columns.name if frame.columns.name is not None else "variable"
+                (
+                    frame.columns.name
+                    if frame.columns.name is not None
+                    else "variable"
+                )
             ]
     elif is_list_like(var_name):
         if isinstance(frame.columns, MultiIndex):
@@ -242,10 +250,14 @@ def melt(
         if not isinstance(id_data.dtype, np.dtype):
             # i.e. ExtensionDtype
             if num_cols_adjusted > 0:
-                mdata[col] = concat([id_data] * num_cols_adjusted, ignore_index=True)
+                mdata[col] = concat(
+                    [id_data] * num_cols_adjusted, ignore_index=True
+                )
             else:
                 # We can't concat empty list. (GH 46044)
-                mdata[col] = type(id_data)([], name=id_data.name, dtype=id_data.dtype)
+                mdata[col] = type(id_data)(
+                    [], name=id_data.name, dtype=id_data.dtype
+                )
         else:
             mdata[col] = np.tile(id_data._values, num_cols_adjusted)
 
@@ -255,7 +267,8 @@ def melt(
         not isinstance(dt, np.dtype) and dt._supports_2d for dt in frame.dtypes
     ):
         mdata[value_name] = concat(
-            [frame.iloc[:, i] for i in range(frame.shape[1])], ignore_index=True
+            [frame.iloc[:, i] for i in range(frame.shape[1])],
+            ignore_index=True,
         ).values
     else:
         mdata[value_name] = frame._values.ravel("F")

@@ -27,7 +27,9 @@ from pandas import (
         ),
         # multi-extension
         (
-            DataFrame({"A": Categorical(["a", "b"]), "B": Categorical(["a", "b"])}),
+            DataFrame(
+                {"A": Categorical(["a", "b"]), "B": Categorical(["a", "b"])}
+            ),
             True,
         ),
         # differ types
@@ -44,7 +46,9 @@ from pandas import (
         ),
         # multi-extension differ
         (
-            DataFrame({"A": Categorical(["a", "b"]), "B": Categorical(["b", "c"])}),
+            DataFrame(
+                {"A": Categorical(["a", "b"]), "B": Categorical(["b", "c"])}
+            ),
             False,
         ),
     ],

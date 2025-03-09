@@ -114,13 +114,19 @@ class Flags:
 
     def __setitem__(self, key: str, value) -> None:
         if key not in self._keys:
-            raise ValueError(f"Unknown flag {key}. Must be one of {self._keys}")
+            raise ValueError(
+                f"Unknown flag {key}. Must be one of {self._keys}"
+            )
         setattr(self, key, value)
 
     def __repr__(self) -> str:
-        return f"<Flags(allows_duplicate_labels={self.allows_duplicate_labels})>"
+        return (
+            f"<Flags(allows_duplicate_labels={self.allows_duplicate_labels})>"
+        )
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, type(self)):
-            return self.allows_duplicate_labels == other.allows_duplicate_labels
+            return (
+                self.allows_duplicate_labels == other.allows_duplicate_labels
+            )
         return False

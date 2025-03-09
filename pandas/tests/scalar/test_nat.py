@@ -205,7 +205,9 @@ def test_missing_public_nat_methods(klass, expected):
     nat_names = dir(NaT)
     klass_names = dir(klass)
 
-    missing = [x for x in klass_names if x not in nat_names and not x.startswith("_")]
+    missing = [
+        x for x in klass_names if x not in nat_names and not x.startswith("_")
+    ]
     missing.sort()
 
     assert missing == expected
@@ -232,7 +234,9 @@ def _get_overlap_public_nat_methods(klass, as_tuple=False):
     overlap = [
         x
         for x in nat_names
-        if x in klass_names and not x.startswith("_") and callable(getattr(klass, x))
+        if x in klass_names
+        and not x.startswith("_")
+        and callable(getattr(klass, x))
     ]
 
     # Timestamp takes precedence over Timedelta in terms of overlap.
@@ -361,7 +365,10 @@ _ops = {
         (Timestamp("2014-01-01"), "timestamp"),
         (Timestamp("2014-01-01", tz="UTC"), "timestamp"),
         (Timestamp("2014-01-01", tz="US/Eastern"), "timestamp"),
-        (datetime(2014, 1, 1).astimezone(zoneinfo.ZoneInfo("Asia/Tokyo")), "timestamp"),
+        (
+            datetime(2014, 1, 1).astimezone(zoneinfo.ZoneInfo("Asia/Tokyo")),
+            "timestamp",
+        ),
     ],
 )
 def test_nat_arithmetic_scalar(op_name, value, val_type):
@@ -394,7 +401,9 @@ def test_nat_arithmetic_scalar(op_name, value, val_type):
             and isinstance(value, Timedelta)
         ):
             typs = "(Timedelta|NaTType)"
-            msg = rf"unsupported operand type\(s\) for \*: '{typs}' and '{typs}'"
+            msg = (
+                rf"unsupported operand type\(s\) for \*: '{typs}' and '{typs}'"
+            )
         elif val_type == "str":
             # un-specific check here because the message comes from str
             #  and varies by method
@@ -422,7 +431,8 @@ def test_nat_arithmetic_scalar(op_name, value, val_type):
 
 
 @pytest.mark.parametrize(
-    "val,expected", [(np.nan, NaT), (NaT, np.nan), (np.timedelta64("NaT"), np.nan)]
+    "val,expected",
+    [(np.nan, NaT), (NaT, np.nan), (np.timedelta64("NaT"), np.nan)],
 )
 def test_nat_rfloordiv_timedelta(val, expected):
     # see gh-#18846
@@ -434,7 +444,12 @@ def test_nat_rfloordiv_timedelta(val, expected):
 
 @pytest.mark.parametrize(
     "op_name",
-    ["left_plus_right", "right_plus_left", "left_minus_right", "right_minus_left"],
+    [
+        "left_plus_right",
+        "right_plus_left",
+        "left_minus_right",
+        "right_minus_left",
+    ],
 )
 @pytest.mark.parametrize(
     "value",
@@ -443,9 +458,12 @@ def test_nat_rfloordiv_timedelta(val, expected):
         DatetimeIndex(
             ["2011-01-01", "2011-01-02"], dtype="M8[ns, US/Eastern]", name="x"
         ),
-        DatetimeArray._from_sequence(["2011-01-01", "2011-01-02"], dtype="M8[ns]"),
         DatetimeArray._from_sequence(
-            ["2011-01-01", "2011-01-02"], dtype=DatetimeTZDtype(tz="US/Pacific")
+            ["2011-01-01", "2011-01-02"], dtype="M8[ns]"
+        ),
+        DatetimeArray._from_sequence(
+            ["2011-01-01", "2011-01-02"],
+            dtype=DatetimeTZDtype(tz="US/Pacific"),
         ),
         TimedeltaIndex(["1 day", "2 day"], name="x"),
     ],
@@ -471,9 +489,16 @@ def test_nat_arithmetic_index(op_name, value):
 
 @pytest.mark.parametrize(
     "op_name",
-    ["left_plus_right", "right_plus_left", "left_minus_right", "right_minus_left"],
+    [
+        "left_plus_right",
+        "right_plus_left",
+        "left_minus_right",
+        "right_minus_left",
+    ],
 )
-@pytest.mark.parametrize("box", [TimedeltaIndex, Series, TimedeltaArray._from_sequence])
+@pytest.mark.parametrize(
+    "box", [TimedeltaIndex, Series, TimedeltaArray._from_sequence]
+)
 def test_nat_arithmetic_td64_vector(op_name, box):
     # see gh-19124
     vec = box(["1 day", "2 day"], dtype="timedelta64[ns]")
@@ -570,7 +595,9 @@ def test_nat_comparisons(compare_operators_no_eq_ne, other):
     assert op(other, NaT) is False
 
 
-@pytest.mark.parametrize("other", [np.timedelta64(0, "ns"), np.datetime64("now", "ns")])
+@pytest.mark.parametrize(
+    "other", [np.timedelta64(0, "ns"), np.datetime64("now", "ns")]
+)
 def test_nat_comparisons_numpy(other):
     # Once numpy#17017 is fixed and the xfailed cases in test_nat_comparisons
     #  pass, this test can be removed
@@ -582,10 +609,17 @@ def test_nat_comparisons_numpy(other):
     assert not NaT >= other
 
 
-@pytest.mark.parametrize("other_and_type", [("foo", "str"), (2, "int"), (2.0, "float")])
+@pytest.mark.parametrize(
+    "other_and_type", [("foo", "str"), (2, "int"), (2.0, "float")]
+)
 @pytest.mark.parametrize(
     "symbol_and_op",
-    [("<=", operator.le), ("<", operator.lt), (">=", operator.ge), (">", operator.gt)],
+    [
+        ("<=", operator.le),
+        ("<", operator.lt),
+        (">=", operator.ge),
+        (">", operator.gt),
+    ],
 )
 def test_nat_comparisons_invalid(other_and_type, symbol_and_op):
     # GH#35585

@@ -13,7 +13,9 @@ import pandas._testing as tm
 
 
 class TestMultiLevel:
-    def test_reindex_level(self, multiindex_year_month_day_dataframe_random_data):
+    def test_reindex_level(
+        self, multiindex_year_month_day_dataframe_random_data
+    ):
         # axis=0
         ymd = multiindex_year_month_day_dataframe_random_data
 
@@ -93,11 +95,13 @@ class TestMultiLevel:
 
     def test_alignment(self):
         x = Series(
-            data=[1, 2, 3], index=MultiIndex.from_tuples([("A", 1), ("A", 2), ("B", 3)])
+            data=[1, 2, 3],
+            index=MultiIndex.from_tuples([("A", 1), ("A", 2), ("B", 3)]),
         )
 
         y = Series(
-            data=[4, 5, 6], index=MultiIndex.from_tuples([("Z", 1), ("Z", 2), ("B", 3)])
+            data=[4, 5, 6],
+            index=MultiIndex.from_tuples([("Z", 1), ("Z", 2), ("B", 3)]),
         )
 
         res = x - y
@@ -111,7 +115,9 @@ class TestMultiLevel:
         exp = x.reindex(exp_index) - y.reindex(exp_index)
         tm.assert_series_equal(res, exp)
 
-    def test_groupby_multilevel(self, multiindex_year_month_day_dataframe_random_data):
+    def test_groupby_multilevel(
+        self, multiindex_year_month_day_dataframe_random_data
+    ):
         ymd = multiindex_year_month_day_dataframe_random_data
 
         result = ymd.groupby(level=[0, 1]).mean()
@@ -132,19 +138,28 @@ class TestMultiLevel:
             [("foo", "one"), ("foo", "two"), ("bar", "one"), ("bar", "two")]
         )
         df = DataFrame(
-            np.random.default_rng(2).standard_normal((4, 4)), index=index, columns=index
+            np.random.default_rng(2).standard_normal((4, 4)),
+            index=index,
+            columns=index,
         )
         df["Totals", ""] = df.sum(axis=1)
         df = df._consolidate()
 
     def test_level_with_tuples(self):
         index = MultiIndex(
-            levels=[[("foo", "bar", 0), ("foo", "baz", 0), ("foo", "qux", 0)], [0, 1]],
+            levels=[
+                [("foo", "bar", 0), ("foo", "baz", 0), ("foo", "qux", 0)],
+                [0, 1],
+            ],
             codes=[[0, 0, 1, 1, 2, 2], [0, 1, 0, 1, 0, 1]],
         )
 
-        series = Series(np.random.default_rng(2).standard_normal(6), index=index)
-        frame = DataFrame(np.random.default_rng(2).standard_normal((6, 4)), index=index)
+        series = Series(
+            np.random.default_rng(2).standard_normal(6), index=index
+        )
+        frame = DataFrame(
+            np.random.default_rng(2).standard_normal((6, 4)), index=index
+        )
 
         result = series[("foo", "bar", 0)]
         result2 = series.loc[("foo", "bar", 0)]
@@ -168,8 +183,12 @@ class TestMultiLevel:
             codes=[[0, 0, 1, 1, 2, 2], [0, 1, 0, 1, 0, 1]],
         )
 
-        series = Series(np.random.default_rng(2).standard_normal(6), index=index)
-        frame = DataFrame(np.random.default_rng(2).standard_normal((6, 4)), index=index)
+        series = Series(
+            np.random.default_rng(2).standard_normal(6), index=index
+        )
+        frame = DataFrame(
+            np.random.default_rng(2).standard_normal((6, 4)), index=index
+        )
 
         result = series[("foo", "bar")]
         result2 = series.loc[("foo", "bar")]
@@ -185,7 +204,9 @@ class TestMultiLevel:
         tm.assert_frame_equal(result, expected)
         tm.assert_frame_equal(result2, expected)
 
-    def test_reindex_level_partial_selection(self, multiindex_dataframe_random_data):
+    def test_reindex_level_partial_selection(
+        self, multiindex_dataframe_random_data
+    ):
         frame = multiindex_dataframe_random_data
 
         result = frame.reindex(["foo", "qux"], level=0)
@@ -308,7 +329,10 @@ class TestMultiLevel:
             columns=MultiIndex.from_product(
                 [
                     ["value1", "value2"],
-                    [datetime.datetime(2024, 11, 1), datetime.datetime(2024, 11, 2)],
+                    [
+                        datetime.datetime(2024, 11, 1),
+                        datetime.datetime(2024, 11, 2),
+                    ],
                 ],
                 names=[None, "Date"],
             ),
@@ -327,7 +351,8 @@ class TestSorted:
         # have a satisfying result :<
         # GH 15797
         idx = MultiIndex(
-            [["A", "B", "C"], ["c", "b", "a"]], [[0, 1, 2, 0, 1, 2], [0, 2, 1, 1, 0, 2]]
+            [["A", "B", "C"], ["c", "b", "a"]],
+            [[0, 1, 2, 0, 1, 2], [0, 2, 1, 1, 0, 2]],
         )
 
         df = DataFrame({"col": range(len(idx))}, index=idx, dtype="int64")

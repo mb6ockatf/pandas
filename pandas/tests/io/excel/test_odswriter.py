@@ -48,7 +48,9 @@ def test_engine_kwargs(tmp_excel, engine_kwargs):
         ):
             ExcelWriter(tmp_excel, engine="odf", engine_kwargs=engine_kwargs)
     else:
-        with ExcelWriter(tmp_excel, engine="odf", engine_kwargs=engine_kwargs) as _:
+        with ExcelWriter(
+            tmp_excel, engine="odf", engine_kwargs=engine_kwargs
+        ) as _:
             pass
 
 
@@ -103,4 +105,6 @@ def test_cell_value_type(
 
         cell = sheet_cells[0]
         assert cell.attributes.get((OFFICENS, "value-type")) == cell_value_type
-        assert cell.attributes.get((OFFICENS, cell_value_attribute)) == cell_value
+        assert (
+            cell.attributes.get((OFFICENS, cell_value_attribute)) == cell_value
+        )

@@ -78,7 +78,12 @@ def sum(
     axis: AxisInt | None = None,
 ):
     return _reductions(
-        np.sum, values=values, mask=mask, skipna=skipna, min_count=min_count, axis=axis
+        np.sum,
+        values=values,
+        mask=mask,
+        skipna=skipna,
+        min_count=min_count,
+        axis=axis,
     )
 
 
@@ -91,7 +96,12 @@ def prod(
     axis: AxisInt | None = None,
 ):
     return _reductions(
-        np.prod, values=values, mask=mask, skipna=skipna, min_count=min_count, axis=axis
+        np.prod,
+        values=values,
+        mask=mask,
+        skipna=skipna,
+        min_count=min_count,
+        axis=axis,
     )
 
 
@@ -162,7 +172,9 @@ def mean(
 ):
     if not values.size or mask.all():
         return libmissing.NA
-    return _reductions(np.mean, values=values, mask=mask, skipna=skipna, axis=axis)
+    return _reductions(
+        np.mean, values=values, mask=mask, skipna=skipna, axis=axis
+    )
 
 
 def var(
@@ -179,7 +191,12 @@ def var(
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", RuntimeWarning)
         return _reductions(
-            np.var, values=values, mask=mask, skipna=skipna, axis=axis, ddof=ddof
+            np.var,
+            values=values,
+            mask=mask,
+            skipna=skipna,
+            axis=axis,
+            ddof=ddof,
         )
 
 
@@ -197,5 +214,10 @@ def std(
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", RuntimeWarning)
         return _reductions(
-            np.std, values=values, mask=mask, skipna=skipna, axis=axis, ddof=ddof
+            np.std,
+            values=values,
+            mask=mask,
+            skipna=skipna,
+            axis=axis,
+            ddof=ddof,
         )

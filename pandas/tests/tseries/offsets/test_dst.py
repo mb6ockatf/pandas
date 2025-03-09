@@ -53,7 +53,10 @@ class TestDST:
             "utc_offset_daylight": -4,
             "utc_offset_standard": -5,
         },
-        "dateutil/US/Pacific": {"utc_offset_daylight": -7, "utc_offset_standard": -8},
+        "dateutil/US/Pacific": {
+            "utc_offset_daylight": -7,
+            "utc_offset_standard": -8,
+        },
     }
     valid_date_offsets_singular = [
         "weekday",
@@ -89,7 +92,12 @@ class TestDST:
             )
 
     def _test_offset(
-        self, offset_name, offset_n, tstart, expected_utc_offset, performance_warning
+        self,
+        offset_name,
+        offset_n,
+        tstart,
+        expected_utc_offset,
+        performance_warning,
     ):
         offset = DateOffset(**{offset_name: offset_n})
 
@@ -98,7 +106,8 @@ class TestDST:
             and offset_n == 1
             and tstart
             == Timestamp(
-                "2013-11-03 01:59:59.999999-0500", tz=pytz.timezone("US/Eastern")
+                "2013-11-03 01:59:59.999999-0500",
+                tz=pytz.timezone("US/Eastern"),
             )
         ):
             # This addition results in an ambiguous wall time
@@ -115,7 +124,9 @@ class TestDST:
             dti = DatetimeIndex([tstart])
             warn_msg = "Non-vectorized DateOffset"
             with pytest.raises(ValueError, match=err_msg):
-                with tm.assert_produces_warning(performance_warning, match=warn_msg):
+                with tm.assert_produces_warning(
+                    performance_warning, match=warn_msg
+                ):
                     dti + offset
             return
 
@@ -125,7 +136,10 @@ class TestDST:
 
         if offset_name == "weeks":
             # dates should match
-            assert t.date() == timedelta(days=7 * offset.kwds["weeks"]) + tstart.date()
+            assert (
+                t.date()
+                == timedelta(days=7 * offset.kwds["weeks"]) + tstart.date()
+            )
             # expect the same day of week, hour of day, minute, second, ...
             assert (
                 t.dayofweek == tstart.dayofweek
@@ -169,7 +183,9 @@ class TestDST:
             self._test_all_offsets(
                 n=3,
                 performance_warning=performance_warning,
-                tstart=self._make_timestamp(self.ts_pre_springfwd, hrs_pre, tz),
+                tstart=self._make_timestamp(
+                    self.ts_pre_springfwd, hrs_pre, tz
+                ),
                 expected_utc_offset=hrs_post,
             )
 
@@ -192,7 +208,9 @@ class TestDST:
             self._test_all_offsets(
                 n=1,
                 performance_warning=performance_warning,
-                tstart=self._make_timestamp(self.ts_pre_springfwd, hrs_pre, tz),
+                tstart=self._make_timestamp(
+                    self.ts_pre_springfwd, hrs_pre, tz
+                ),
                 expected_utc_offset=None,
             )
 
@@ -255,7 +273,9 @@ class TestDST:
         ),
     ],
 )
-def test_nontick_offset_with_ambiguous_time_error(original_dt, target_dt, offset, tz):
+def test_nontick_offset_with_ambiguous_time_error(
+    original_dt, target_dt, offset, tz
+):
     # .apply for non-Tick offsets throws ValueError when the target dt
     # is dst-ambiguous
     localized_dt = original_dt.tz_localize(tz)

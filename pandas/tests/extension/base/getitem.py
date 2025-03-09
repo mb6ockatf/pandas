@@ -18,7 +18,9 @@ class BaseGetitemTests:
         tm.assert_series_equal(result, expected)
 
     def test_iloc_frame(self, data):
-        df = pd.DataFrame({"A": data, "B": np.arange(len(data), dtype="int64")})
+        df = pd.DataFrame(
+            {"A": data, "B": np.arange(len(data), dtype="int64")}
+        )
         expected = pd.DataFrame({"A": data[:4]})
 
         # slice -> frame
@@ -77,7 +79,9 @@ class BaseGetitemTests:
         tm.assert_series_equal(result, expected)
 
     def test_loc_frame(self, data):
-        df = pd.DataFrame({"A": data, "B": np.arange(len(data), dtype="int64")})
+        df = pd.DataFrame(
+            {"A": data, "B": np.arange(len(data), dtype="int64")}
+        )
         expected = pd.DataFrame({"A": data[:4]})
 
         # slice -> frame
@@ -437,11 +441,15 @@ class BaseGetitemTests:
         valid = data_missing[1]
         na = data_missing[0]
 
-        arr = data_missing._from_sequence([na, valid], dtype=data_missing.dtype)
+        arr = data_missing._from_sequence(
+            [na, valid], dtype=data_missing.dtype
+        )
         ser = pd.Series(arr)
         result = ser.reindex([0, 1, 2], fill_value=valid)
         expected = pd.Series(
-            data_missing._from_sequence([na, valid, valid], dtype=data_missing.dtype)
+            data_missing._from_sequence(
+                [na, valid, valid], dtype=data_missing.dtype
+            )
         )
 
         tm.assert_series_equal(result, expected)

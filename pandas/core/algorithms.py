@@ -226,7 +226,13 @@ def _ensure_arraylike(values, func_name: str) -> ArrayLike:
     """
     if not isinstance(
         values,
-        (ABCIndex, ABCSeries, ABCExtensionArray, np.ndarray, ABCNumpyExtensionArray),
+        (
+            ABCIndex,
+            ABCSeries,
+            ABCExtensionArray,
+            np.ndarray,
+            ABCNumpyExtensionArray,
+        ),
     ):
         # GH#52986
         if func_name != "isin-targets":
@@ -503,7 +509,9 @@ def isin(comps: ListLike, values: ListLike) -> npt.NDArray[np.bool_]:
             f"to isin(), you passed a `{type(values).__name__}`"
         )
 
-    if not isinstance(values, (ABCIndex, ABCSeries, ABCExtensionArray, np.ndarray)):
+    if not isinstance(
+        values, (ABCIndex, ABCSeries, ABCExtensionArray, np.ndarray)
+    ):
         orig_values = list(values)
         values = _ensure_arraylike(orig_values, func_name="isin-targets")
 
@@ -531,7 +539,9 @@ def isin(comps: ListLike, values: ListLike) -> npt.NDArray[np.bool_]:
     elif needs_i8_conversion(comps_array.dtype):
         # Dispatch to DatetimeLikeArrayMixin.isin
         return pd_array(comps_array).isin(values)
-    elif needs_i8_conversion(values.dtype) and not is_object_dtype(comps_array.dtype):
+    elif needs_i8_conversion(values.dtype) and not is_object_dtype(
+        comps_array.dtype
+    ):
         # e.g. comps_array are integers and values are datetime64s
         return np.zeros(comps_array.shape, dtype=bool)
         # TODO: not quite right ... Sparse/Categorical
@@ -866,7 +876,9 @@ def value_counts_internal(
         try:
             ii = cut(values, bins, include_lowest=True)
         except TypeError as err:
-            raise TypeError("bins argument only works with numeric data.") from err
+            raise TypeError(
+                "bins argument only works with numeric data."
+            ) from err
 
         # count, remove nulls (from the index), and but the bins
         result = ii.value_counts(dropna=dropna)
@@ -885,7 +897,9 @@ def value_counts_internal(
     else:
         if is_extension_array_dtype(values):
             # handle Categorical and sparse,
-            result = Series(values, copy=False)._values.value_counts(dropna=dropna)
+            result = Series(values, copy=False)._values.value_counts(
+                dropna=dropna
+            )
             result.name = name
             result.index.name = index_name
             counts = result._values
@@ -986,7 +1000,9 @@ def duplicated(
 
 
 def mode(
-    values: ArrayLike, dropna: bool = True, mask: npt.NDArray[np.bool_] | None = None
+    values: ArrayLike,
+    dropna: bool = True,
+    mask: npt.NDArray[np.bool_] | None = None,
 ) -> ArrayLike:
     """
     Returns the mode(s) of an array.
@@ -1181,7 +1197,13 @@ def take(
     """
     if not isinstance(
         arr,
-        (np.ndarray, ABCExtensionArray, ABCIndex, ABCSeries, ABCNumpyExtensionArray),
+        (
+            np.ndarray,
+            ABCExtensionArray,
+            ABCIndex,
+            ABCSeries,
+            ABCNumpyExtensionArray,
+        ),
     ):
         # GH#52981
         raise TypeError(
@@ -1351,7 +1373,9 @@ def diff(arr, n: int, axis: AxisInt = 0):
         # i.e ExtensionArray
         if hasattr(arr, f"__{op.__name__}__"):
             if axis != 0:
-                raise ValueError(f"cannot diff {type(arr).__name__} on axis={axis}")
+                raise ValueError(
+                    f"cannot diff {type(arr).__name__} on axis={axis}"
+                )
             return op(arr, arr.shift(n))
         else:
             raise TypeError(
@@ -1606,7 +1630,9 @@ def union_with_duplicates(
     r_count = value_counts_internal(rvals, dropna=False)
     l_count, r_count = l_count.align(r_count, fill_value=0)
     final_count = np.maximum(l_count.values, r_count.values)
-    final_count = Series(final_count, index=l_count.index, dtype="int", copy=False)
+    final_count = Series(
+        final_count, index=l_count.index, dtype="int", copy=False
+    )
     if isinstance(lvals, ABCMultiIndex) and isinstance(rvals, ABCMultiIndex):
         unique_vals = lvals.append(rvals).unique()
     else:
@@ -1680,7 +1706,8 @@ def map_array(
                 mapper = Series(mapper, dtype=np.float64)
             elif isinstance(mapper, dict):
                 mapper = Series(
-                    mapper.values(), index=Index(mapper.keys(), tupleize_cols=False)
+                    mapper.values(),
+                    index=Index(mapper.keys(), tupleize_cols=False),
                 )
             else:
                 mapper = Series(mapper)
@@ -1704,4 +1731,6 @@ def map_array(
     if na_action is None:
         return lib.map_infer(values, mapper)
     else:
-        return lib.map_infer_mask(values, mapper, mask=isna(values).view(np.uint8))
+        return lib.map_infer_mask(
+            values, mapper, mask=isna(values).view(np.uint8)
+        )

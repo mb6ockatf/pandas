@@ -18,6 +18,7 @@ Usage::
 As a pre-commit hook:
     pre-commit run validate-errors-locations --all-files
 """
+
 from __future__ import annotations
 
 import argparse
@@ -41,7 +42,9 @@ ERROR_MESSAGE = (
 def get_warnings_and_exceptions_from_api_path() -> set[str]:
     with open(API_PATH, encoding="utf-8") as f:
         doc_errors = {
-            line.split(".")[1].strip() for line in f.readlines() if "errors" in line
+            line.split(".")[1].strip()
+            for line in f.readlines()
+            if "errors" in line
         }
         return doc_errors
 
@@ -54,7 +57,9 @@ class Visitor(ast.NodeVisitor):
 
     def visit_ClassDef(self, node) -> None:
         def is_an_exception_subclass(base_id: str) -> bool:
-            return base_id == "Exception" or base_id.endswith(("Warning", "Error"))
+            return base_id == "Exception" or base_id.endswith(
+                ("Warning", "Error")
+            )
 
         exception_classes = []
 

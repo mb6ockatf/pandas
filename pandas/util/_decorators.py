@@ -82,7 +82,9 @@ def deprecate(
     if alternative.__doc__:
         if alternative.__doc__.count("\n") < 3:
             raise AssertionError(doc_error_msg)
-        empty1, summary, empty2, doc_string = alternative.__doc__.split("\n", 3)
+        empty1, summary, empty2, doc_string = alternative.__doc__.split(
+            "\n", 3
+        )
         if empty1 or (empty2 and not summary):
             raise AssertionError(doc_error_msg)
         wrapper.__doc__ = dedent(
@@ -163,7 +165,11 @@ def deprecate_kwarg(
     future version please takes steps to stop use of 'cols'
     should raise warning
     """
-    if mapping is not None and not hasattr(mapping, "get") and not callable(mapping):
+    if (
+        mapping is not None
+        and not hasattr(mapping, "get")
+        and not callable(mapping)
+    ):
         raise TypeError(
             "mapping from old to new argument values must be dict or callable!"
         )
@@ -188,7 +194,9 @@ def deprecate_kwarg(
                     if callable(mapping):
                         new_arg_value = mapping(old_arg_value)
                     else:
-                        new_arg_value = mapping.get(old_arg_value, old_arg_value)
+                        new_arg_value = mapping.get(
+                            old_arg_value, old_arg_value
+                        )
                     msg = (
                         f"the {old_arg_name}={old_arg_value!r} keyword is "
                         "deprecated, use "
@@ -304,12 +312,14 @@ def deprecate_nonkeyword_arguments(
             ]
 
         new_params = [
-            p.replace(kind=p.KEYWORD_ONLY)
-            if (
-                p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)
-                and p.name not in allow_args
+            (
+                p.replace(kind=p.KEYWORD_ONLY)
+                if (
+                    p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)
+                    and p.name not in allow_args
+                )
+                else p
             )
-            else p
             for p in old_sig.parameters.values()
         ]
         new_params.sort(key=lambda p: p.kind)
@@ -339,7 +349,9 @@ def deprecate_nonkeyword_arguments(
     return decorate
 
 
-def doc(*docstrings: None | str | Callable, **params: object) -> Callable[[F], F]:
+def doc(
+    *docstrings: None | str | Callable, **params: object
+) -> Callable[[F], F]:
     """
     A decorator to take docstring templates, concatenate them and perform string
     substitution on them.
@@ -376,17 +388,21 @@ def doc(*docstrings: None | str | Callable, **params: object) -> Callable[[F], F
                 docstring_components.append(docstring)
 
         params_applied = [
-            component.format(**params)
-            if isinstance(component, str) and len(params) > 0
-            else component
+            (
+                component.format(**params)
+                if isinstance(component, str) and len(params) > 0
+                else component
+            )
             for component in docstring_components
         ]
 
         decorated.__doc__ = "".join(
             [
-                component
-                if isinstance(component, str)
-                else dedent(component.__doc__ or "")
+                (
+                    component
+                    if isinstance(component, str)
+                    else dedent(component.__doc__ or "")
+                )
                 for component in params_applied
             ]
         )
@@ -473,7 +489,9 @@ class Appender:
 
     addendum: str | None
 
-    def __init__(self, addendum: str | None, join: str = "", indents: int = 0) -> None:
+    def __init__(
+        self, addendum: str | None, join: str = "", indents: int = 0
+    ) -> None:
         if indents > 0:
             self.addendum = indent(addendum, indents=indents)
         else:

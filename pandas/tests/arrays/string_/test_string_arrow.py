@@ -38,7 +38,9 @@ def test_config(string_storage, using_infer_string):
 
     # pd.array(..) by default always returns the NA-variant
     dtype = StringDtype(string_storage, na_value=pd.NA)
-    expected = dtype.construct_array_type()._from_sequence(["a", "b"], dtype=dtype)
+    expected = dtype.construct_array_type()._from_sequence(
+        ["a", "b"], dtype=dtype
+    )
     tm.assert_equal(result, expected)
 
 
@@ -90,7 +92,9 @@ def test_constructor_not_string_type_value_dictionary_raises(chunked):
 def test_constructor_valid_string_type_value_dictionary(string_type, chunked):
     pa = pytest.importorskip("pyarrow")
 
-    arr = pa.array(["1", "2", "3"], getattr(pa, string_type)()).dictionary_encode()
+    arr = pa.array(
+        ["1", "2", "3"], getattr(pa, string_type)()
+    ).dictionary_encode()
     if chunked:
         arr = pa.chunked_array(arr)
 
@@ -130,14 +134,18 @@ def test_from_sequence_wrong_dtype_raises(using_infer_string):
         ArrowStringArray._from_sequence(["a", None, "c"], dtype="string")
 
     with pytest.raises(AssertionError, match=None):
-        ArrowStringArray._from_sequence(["a", None, "c"], dtype="string[python]")
+        ArrowStringArray._from_sequence(
+            ["a", None, "c"], dtype="string[python]"
+        )
 
     ArrowStringArray._from_sequence(["a", None, "c"], dtype="string[pyarrow]")
 
     if not using_infer_string:
         with pytest.raises(AssertionError, match=None):
             with pd.option_context("string_storage", "python"):
-                ArrowStringArray._from_sequence(["a", None, "c"], dtype=StringDtype())
+                ArrowStringArray._from_sequence(
+                    ["a", None, "c"], dtype=StringDtype()
+                )
 
     with pd.option_context("string_storage", "pyarrow"):
         ArrowStringArray._from_sequence(["a", None, "c"], dtype=StringDtype())
@@ -148,7 +156,9 @@ def test_from_sequence_wrong_dtype_raises(using_infer_string):
                 ["a", None, "c"], dtype=StringDtype("python")
             )
 
-    ArrowStringArray._from_sequence(["a", None, "c"], dtype=StringDtype("pyarrow"))
+    ArrowStringArray._from_sequence(
+        ["a", None, "c"], dtype=StringDtype("pyarrow")
+    )
 
     with pd.option_context("string_storage", "python"):
         StringArray._from_sequence(["a", None, "c"], dtype="string")
@@ -168,12 +178,16 @@ def test_from_sequence_wrong_dtype_raises(using_infer_string):
     if not using_infer_string:
         with pytest.raises(AssertionError, match=None):
             with pd.option_context("string_storage", "pyarrow"):
-                StringArray._from_sequence(["a", None, "c"], dtype=StringDtype())
+                StringArray._from_sequence(
+                    ["a", None, "c"], dtype=StringDtype()
+                )
 
     StringArray._from_sequence(["a", None, "c"], dtype=StringDtype("python"))
 
     with pytest.raises(AssertionError, match=None):
-        StringArray._from_sequence(["a", None, "c"], dtype=StringDtype("pyarrow"))
+        StringArray._from_sequence(
+            ["a", None, "c"], dtype=StringDtype("pyarrow")
+        )
 
 
 @td.skip_if_installed("pyarrow")
@@ -211,7 +225,11 @@ def test_pyarrow_not_installed_raises():
         (slice(2, 4), ["XX", "YY"], ["a", "b", "XX", "YY", "e"]),
         (slice(3, 1, -1), ["XX", "YY"], ["a", "b", "YY", "XX", "e"]),
         (slice(None), "XX", ["XX", "XX", "XX", "XX", "XX"]),
-        ([False, True, False, True, False], ["XX", "YY"], ["a", "XX", "c", "YY", "e"]),
+        (
+            [False, True, False, True, False],
+            ["XX", "YY"],
+            ["a", "XX", "c", "YY", "e"],
+        ),
     ],
 )
 def test_setitem(multiple_chunks, key, value, expected):

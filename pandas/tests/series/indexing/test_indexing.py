@@ -29,7 +29,8 @@ import pandas._testing as tm
 
 def test_basic_indexing():
     s = Series(
-        np.random.default_rng(2).standard_normal(5), index=["a", "b", "a", "a", "b"]
+        np.random.default_rng(2).standard_normal(5),
+        index=["a", "b", "a", "a", "b"],
     )
 
     with pytest.raises(KeyError, match="^5$"):
@@ -80,7 +81,8 @@ def test_basic_getitem_dt64tz_values():
     # GH12089
     # with tz for values
     ser = Series(
-        date_range("2011-01-01", periods=3, tz="US/Eastern"), index=["a", "b", "c"]
+        date_range("2011-01-01", periods=3, tz="US/Eastern"),
+        index=["a", "b", "c"],
     )
     expected = Timestamp("2011-01-01", tz="US/Eastern")
     result = ser.loc["a"]
@@ -239,7 +241,9 @@ def test_slice(string_series, object_series):
     assert string_series[numSlice.index[0]] == numSlice[numSlice.index[0]]
 
     assert numSlice.index[1] == string_series.index[11]
-    tm.assert_numpy_array_equal(np.array(numSliceEnd), np.array(string_series)[-10:])
+    tm.assert_numpy_array_equal(
+        np.array(numSliceEnd), np.array(string_series)[-10:]
+    )
 
     # Test return view.
     sl = string_series[10:20]
@@ -253,17 +257,23 @@ def test_timedelta_assignment():
     # GH 8209
     s = Series([], dtype=object)
     s.loc["B"] = timedelta(1)
-    expected = Series(Timedelta("1 days"), dtype="timedelta64[ns]", index=["B"])
+    expected = Series(
+        Timedelta("1 days"), dtype="timedelta64[ns]", index=["B"]
+    )
     tm.assert_series_equal(s, expected)
 
     s = s.reindex(s.index.insert(0, "A"))
     expected = Series(
-        [np.nan, Timedelta("1 days")], dtype="timedelta64[ns]", index=["A", "B"]
+        [np.nan, Timedelta("1 days")],
+        dtype="timedelta64[ns]",
+        index=["A", "B"],
     )
     tm.assert_series_equal(s, expected)
 
     s.loc["A"] = timedelta(1)
-    expected = Series(Timedelta("1 days"), dtype="timedelta64[ns]", index=["A", "B"])
+    expected = Series(
+        Timedelta("1 days"), dtype="timedelta64[ns]", index=["A", "B"]
+    )
     tm.assert_series_equal(s, expected)
 
 
@@ -289,10 +299,14 @@ def test_preserve_refs(datetime_series):
     assert not np.isnan(datetime_series.iloc[10])
 
 
-def test_multilevel_preserve_name(lexsorted_two_level_string_multiindex, indexer_sl):
+def test_multilevel_preserve_name(
+    lexsorted_two_level_string_multiindex, indexer_sl
+):
     index = lexsorted_two_level_string_multiindex
     ser = Series(
-        np.random.default_rng(2).standard_normal(len(index)), index=index, name="sth"
+        np.random.default_rng(2).standard_normal(len(index)),
+        index=index,
+        name="sth",
     )
 
     result = indexer_sl(ser)["foo"]
@@ -322,8 +336,12 @@ def test_slice_with_negative_step(index):
         tm.assert_indexing_slices_equivalent(ser, SLC[:key:-1], SLC[:8:-1])
 
         for key2 in [keystr2, index[13]]:
-            tm.assert_indexing_slices_equivalent(ser, SLC[key2:key:-1], SLC[13:8:-1])
-            tm.assert_indexing_slices_equivalent(ser, SLC[key:key2:-1], SLC[0:0:-1])
+            tm.assert_indexing_slices_equivalent(
+                ser, SLC[key2:key:-1], SLC[13:8:-1]
+            )
+            tm.assert_indexing_slices_equivalent(
+                ser, SLC[key:key2:-1], SLC[0:0:-1]
+            )
 
 
 def test_tuple_index():
@@ -395,7 +413,9 @@ def test_getitem_bool_int_key():
 
 
 @pytest.mark.parametrize("val", [{}, {"b": "x"}])
-@pytest.mark.parametrize("indexer", [[], [False, False], slice(0, -1), np.array([])])
+@pytest.mark.parametrize(
+    "indexer", [[], [False, False], slice(0, -1), np.array([])]
+)
 def test_setitem_empty_indexer(indexer, val):
     # GH#45981
     df = DataFrame({"a": [1, 2], **val})
@@ -477,7 +497,13 @@ class TestSetitemValidation:
         np.datetime64("NaT"),
         np.timedelta64("NaT"),
     ]
-    _indexers = [0, [0], slice(0, 1), [True, False, False], slice(None, None, None)]
+    _indexers = [
+        0,
+        [0],
+        slice(0, 1),
+        [True, False, False],
+        slice(None, None, None),
+    ]
 
     @pytest.mark.parametrize(
         "invalid", _invalid_scalars + [1, 1.0, np.int64(1), np.float64(1)]
@@ -487,9 +513,13 @@ class TestSetitemValidation:
         ser = Series([True, False, False], dtype="bool")
         self._check_setitem_invalid(ser, invalid, indexer)
 
-    @pytest.mark.parametrize("invalid", _invalid_scalars + [True, 1.5, np.float64(1.5)])
+    @pytest.mark.parametrize(
+        "invalid", _invalid_scalars + [True, 1.5, np.float64(1.5)]
+    )
     @pytest.mark.parametrize("indexer", _indexers)
-    def test_setitem_validation_scalar_int(self, invalid, any_int_numpy_dtype, indexer):
+    def test_setitem_validation_scalar_int(
+        self, invalid, any_int_numpy_dtype, indexer
+    ):
         ser = Series([1, 2, 3], dtype=any_int_numpy_dtype)
         if isna(invalid) and invalid is not NaT and not np.isnat(invalid):
             self._check_setitem_valid(ser, invalid, indexer)
@@ -498,6 +528,8 @@ class TestSetitemValidation:
 
     @pytest.mark.parametrize("invalid", _invalid_scalars + [True])
     @pytest.mark.parametrize("indexer", _indexers)
-    def test_setitem_validation_scalar_float(self, invalid, float_numpy_dtype, indexer):
+    def test_setitem_validation_scalar_float(
+        self, invalid, float_numpy_dtype, indexer
+    ):
         ser = Series([1, 2, None], dtype=float_numpy_dtype)
         self._check_setitem_invalid(ser, invalid, indexer)

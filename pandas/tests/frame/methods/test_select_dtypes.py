@@ -75,7 +75,9 @@ class TestSelectDtypes:
         ei = df[["b", "c", "d"]]
         tm.assert_frame_equal(ri, ei)
 
-        ri = df.select_dtypes(include=[np.number, "category"], exclude=["timedelta"])
+        ri = df.select_dtypes(
+            include=[np.number, "category"], exclude=["timedelta"]
+        )
         ei = df[["b", "c", "d", "f"]]
         tm.assert_frame_equal(ri, ei)
 
@@ -266,11 +268,15 @@ class TestSelectDtypes:
             }
         )
 
-        ri = df.select_dtypes(include=np.number, exclude=["floating", "timedelta"])
+        ri = df.select_dtypes(
+            include=np.number, exclude=["floating", "timedelta"]
+        )
         ei = df[["b", "c"]]
         tm.assert_frame_equal(ri, ei)
 
-        ri = df.select_dtypes(include=[np.number, "category"], exclude="floating")
+        ri = df.select_dtypes(
+            include=[np.number, "category"], exclude="floating"
+        )
         ei = df[["b", "c", "f", "k"]]
         tm.assert_frame_equal(ri, ei)
 
@@ -295,7 +301,9 @@ class TestSelectDtypes:
         result = df.select_dtypes(include=[np.number], exclude=["floating"])
         tm.assert_frame_equal(result, expected)
 
-    def test_select_dtypes_not_an_attr_but_still_valid_dtype(self, using_infer_string):
+    def test_select_dtypes_not_an_attr_but_still_valid_dtype(
+        self, using_infer_string
+    ):
         df = DataFrame(
             {
                 "a": list("abc"),
@@ -358,7 +366,9 @@ class TestSelectDtypes:
         expected = df3.reindex(columns=[])
         tm.assert_frame_equal(result, expected)
 
-    @pytest.mark.parametrize("dtype", [str, "str", np.bytes_, "S1", np.str_, "U1"])
+    @pytest.mark.parametrize(
+        "dtype", [str, "str", np.bytes_, "S1", np.str_, "U1"]
+    )
     @pytest.mark.parametrize("arg", ["include", "exclude"])
     def test_select_dtypes_str_raises(self, dtype, arg, using_infer_string):
         if using_infer_string and (dtype == "str" or dtype is str):
@@ -420,7 +430,9 @@ class TestSelectDtypes:
         is_selected = df.select_dtypes(np.number).shape == df.shape
         assert is_selected == expected
 
-    def test_select_dtypes_numeric_nullable_string(self, nullable_string_dtype):
+    def test_select_dtypes_numeric_nullable_string(
+        self, nullable_string_dtype
+    ):
         arr = pd.array(["a", "b"], dtype=nullable_string_dtype)
         df = DataFrame(arr)
         is_selected = df.select_dtypes(np.number).shape == df.shape

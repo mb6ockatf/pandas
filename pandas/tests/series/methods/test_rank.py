@@ -28,7 +28,10 @@ def ser():
 
 @pytest.fixture(
     params=[
-        ["average", np.array([1.5, 5.5, 7.0, 3.5, np.nan, 3.5, 1.5, 8.0, np.nan, 5.5])],
+        [
+            "average",
+            np.array([1.5, 5.5, 7.0, 3.5, np.nan, 3.5, 1.5, 8.0, np.nan, 5.5]),
+        ],
         ["min", np.array([1, 5, 7, 3, np.nan, 3, 1, 8, np.nan, 5])],
         ["max", np.array([2, 6, 7, 4, np.nan, 4, 2, 8, np.nan, 6])],
         ["first", np.array([1, 5, 7, 3, np.nan, 4, 2, 8, np.nan, 6])],
@@ -174,7 +177,14 @@ class TestSeriesRank:
             ["first", "second", "third", "fourth", "fifth", "sixth"]
         ).astype(
             CategoricalDtype(
-                categories=["first", "second", "third", "fourth", "fifth", "sixth"],
+                categories=[
+                    "first",
+                    "second",
+                    "third",
+                    "fourth",
+                    "fifth",
+                    "sixth",
+                ],
                 ordered=True,
             )
         )
@@ -186,7 +196,14 @@ class TestSeriesRank:
             ["first", "second", "third", "fourth", "fifth", "sixth"]
         ).astype(
             CategoricalDtype(
-                categories=["first", "second", "third", "fourth", "fifth", "sixth"],
+                categories=[
+                    "first",
+                    "second",
+                    "third",
+                    "fourth",
+                    "fifth",
+                    "sixth",
+                ],
                 ordered=False,
             )
         )
@@ -206,7 +223,15 @@ class TestSeriesRank:
             ["first", "second", "third", "fourth", "fifth", "sixth", np.nan]
         ).astype(
             CategoricalDtype(
-                ["first", "second", "third", "fourth", "fifth", "sixth", "seventh"],
+                [
+                    "first",
+                    "second",
+                    "third",
+                    "fourth",
+                    "fifth",
+                    "sixth",
+                    "seventh",
+                ],
                 True,
             )
         )
@@ -224,11 +249,15 @@ class TestSeriesRank:
         exp_bot = Series([6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 7.0])
         exp_keep = Series([6.0, 5.0, 4.0, 3.0, 2.0, 1.0, np.nan])
 
-        tm.assert_series_equal(na_ser.rank(na_option="top", ascending=False), exp_top)
+        tm.assert_series_equal(
+            na_ser.rank(na_option="top", ascending=False), exp_top
+        )
         tm.assert_series_equal(
             na_ser.rank(na_option="bottom", ascending=False), exp_bot
         )
-        tm.assert_series_equal(na_ser.rank(na_option="keep", ascending=False), exp_keep)
+        tm.assert_series_equal(
+            na_ser.rank(na_option="keep", ascending=False), exp_keep
+        )
 
         # Test invalid values for na_option
         msg = "na_option must be one of 'keep', 'top', or 'bottom'"
@@ -249,8 +278,12 @@ class TestSeriesRank:
         exp_keep = Series([0.25, 0.5, 0.75, 1.0, np.nan])
 
         tm.assert_series_equal(na_ser.rank(na_option="top", pct=True), exp_top)
-        tm.assert_series_equal(na_ser.rank(na_option="bottom", pct=True), exp_bot)
-        tm.assert_series_equal(na_ser.rank(na_option="keep", pct=True), exp_keep)
+        tm.assert_series_equal(
+            na_ser.rank(na_option="bottom", pct=True), exp_bot
+        )
+        tm.assert_series_equal(
+            na_ser.rank(na_option="keep", pct=True), exp_keep
+        )
 
     def test_rank_nullable_integer(self):
         # GH 56976
@@ -276,7 +309,9 @@ class TestSeriesRank:
 
         ser = ser if dtype is None else ser.astype(dtype)
         result = ser.rank(method=method)
-        tm.assert_series_equal(result, Series(exp, dtype=expected_dtype(dtype, method)))
+        tm.assert_series_equal(
+            result, Series(exp, dtype=expected_dtype(dtype, method))
+        )
 
     @pytest.mark.parametrize("na_option", ["top", "bottom", "keep"])
     @pytest.mark.parametrize(
@@ -295,7 +330,14 @@ class TestSeriesRank:
         ],
     )
     def test_rank_tie_methods_on_infs_nans(
-        self, rank_method, na_option, ascending, dtype, na_value, pos_inf, neg_inf
+        self,
+        rank_method,
+        na_option,
+        ascending,
+        dtype,
+        na_value,
+        pos_inf,
+        neg_inf,
     ):
         pytest.importorskip("scipy")
         if dtype == "float64[pyarrow]":
@@ -396,7 +438,9 @@ class TestSeriesRank:
             expected = (s.astype("float64").max() - s.astype("float64")).rank()
         else:
             expected = (s.max() - s).rank()
-        tm.assert_series_equal(res, expected.astype(expected_dtype(dtype, "average")))
+        tm.assert_series_equal(
+            res, expected.astype(expected_dtype(dtype, "average"))
+        )
 
         if dtype.startswith("str"):
             expected = (s.astype("float64").max() - s.astype("float64")).rank(
@@ -405,7 +449,9 @@ class TestSeriesRank:
         else:
             expected = (s.max() - s).rank(method=method)
         res2 = s.rank(method=method, ascending=False)
-        tm.assert_series_equal(res2, expected.astype(expected_dtype(dtype, method)))
+        tm.assert_series_equal(
+            res2, expected.astype(expected_dtype(dtype, method))
+        )
 
     def test_rank_int(self, ser, results):
         method, exp = results
@@ -457,7 +503,10 @@ class TestSeriesRank:
         ([1, 2, 2], [1.0 / 2, 2.0 / 2, 2.0 / 2]),
         ([4, 2, 1], [3.0 / 3, 2.0 / 3, 1.0 / 3]),
         ([1, 1, 5, 5, 3], [1.0 / 3, 1.0 / 3, 3.0 / 3, 3.0 / 3, 2.0 / 3]),
-        ([1, 1, 3, 3, 5, 5], [1.0 / 3, 1.0 / 3, 2.0 / 3, 2.0 / 3, 3.0 / 3, 3.0 / 3]),
+        (
+            [1, 1, 3, 3, 5, 5],
+            [1.0 / 3, 1.0 / 3, 2.0 / 3, 2.0 / 3, 3.0 / 3, 3.0 / 3],
+        ),
         ([-5, -4, -3, -2, -1], [1.0 / 5, 2.0 / 5, 3.0 / 5, 4.0 / 5, 5.0 / 5]),
     ],
 )
@@ -480,7 +529,10 @@ def test_rank_dense_pct(dtype, ser, exp):
         ([1, 2, 2], [1.0 / 3, 2.0 / 3, 2.0 / 3]),
         ([4, 2, 1], [3.0 / 3, 2.0 / 3, 1.0 / 3]),
         ([1, 1, 5, 5, 3], [1.0 / 5, 1.0 / 5, 4.0 / 5, 4.0 / 5, 3.0 / 5]),
-        ([1, 1, 3, 3, 5, 5], [1.0 / 6, 1.0 / 6, 3.0 / 6, 3.0 / 6, 5.0 / 6, 5.0 / 6]),
+        (
+            [1, 1, 3, 3, 5, 5],
+            [1.0 / 6, 1.0 / 6, 3.0 / 6, 3.0 / 6, 5.0 / 6, 5.0 / 6],
+        ),
         ([-5, -4, -3, -2, -1], [1.0 / 5, 2.0 / 5, 3.0 / 5, 4.0 / 5, 5.0 / 5]),
     ],
 )
@@ -503,7 +555,10 @@ def test_rank_min_pct(dtype, ser, exp):
         ([1, 2, 2], [1.0 / 3, 3.0 / 3, 3.0 / 3]),
         ([4, 2, 1], [3.0 / 3, 2.0 / 3, 1.0 / 3]),
         ([1, 1, 5, 5, 3], [2.0 / 5, 2.0 / 5, 5.0 / 5, 5.0 / 5, 3.0 / 5]),
-        ([1, 1, 3, 3, 5, 5], [2.0 / 6, 2.0 / 6, 4.0 / 6, 4.0 / 6, 6.0 / 6, 6.0 / 6]),
+        (
+            [1, 1, 3, 3, 5, 5],
+            [2.0 / 6, 2.0 / 6, 4.0 / 6, 4.0 / 6, 6.0 / 6, 6.0 / 6],
+        ),
         ([-5, -4, -3, -2, -1], [1.0 / 5, 2.0 / 5, 3.0 / 5, 4.0 / 5, 5.0 / 5]),
     ],
 )
@@ -526,7 +581,10 @@ def test_rank_max_pct(dtype, ser, exp):
         ([1, 2, 2], [1.0 / 3, 2.5 / 3, 2.5 / 3]),
         ([4, 2, 1], [3.0 / 3, 2.0 / 3, 1.0 / 3]),
         ([1, 1, 5, 5, 3], [1.5 / 5, 1.5 / 5, 4.5 / 5, 4.5 / 5, 3.0 / 5]),
-        ([1, 1, 3, 3, 5, 5], [1.5 / 6, 1.5 / 6, 3.5 / 6, 3.5 / 6, 5.5 / 6, 5.5 / 6]),
+        (
+            [1, 1, 3, 3, 5, 5],
+            [1.5 / 6, 1.5 / 6, 3.5 / 6, 3.5 / 6, 5.5 / 6, 5.5 / 6],
+        ),
         ([-5, -4, -3, -2, -1], [1.0 / 5, 2.0 / 5, 3.0 / 5, 4.0 / 5, 5.0 / 5]),
     ],
 )
@@ -549,7 +607,10 @@ def test_rank_average_pct(dtype, ser, exp):
         ([1, 2, 2], [1.0 / 3, 2.0 / 3, 3.0 / 3]),
         ([4, 2, 1], [3.0 / 3, 2.0 / 3, 1.0 / 3]),
         ([1, 1, 5, 5, 3], [1.0 / 5, 2.0 / 5, 4.0 / 5, 5.0 / 5, 3.0 / 5]),
-        ([1, 1, 3, 3, 5, 5], [1.0 / 6, 2.0 / 6, 3.0 / 6, 4.0 / 6, 5.0 / 6, 6.0 / 6]),
+        (
+            [1, 1, 3, 3, 5, 5],
+            [1.0 / 6, 2.0 / 6, 3.0 / 6, 4.0 / 6, 5.0 / 6, 6.0 / 6],
+        ),
         ([-5, -4, -3, -2, -1], [1.0 / 5, 2.0 / 5, 3.0 / 5, 4.0 / 5, 5.0 / 5]),
     ],
 )

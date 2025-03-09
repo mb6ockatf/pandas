@@ -69,8 +69,10 @@ ERROR_MSGS = {
 }
 ALL_ERRORS = set(NUMPYDOC_ERROR_MSGS).union(set(ERROR_MSGS))
 duplicated_errors = set(NUMPYDOC_ERROR_MSGS).intersection(set(ERROR_MSGS))
-assert not duplicated_errors, (f"Errors {duplicated_errors} exist in both pandas "
-                               "and numpydoc, should they be removed from pandas?")
+assert not duplicated_errors, (
+    f"Errors {duplicated_errors} exist in both pandas "
+    "and numpydoc, should they be removed from pandas?"
+)
 
 
 def pandas_error(code, **kwargs):
@@ -122,7 +124,9 @@ def get_api_items(api_doc_fd):
                 continue
 
         if line_stripped.startswith(".. currentmodule::"):
-            current_module = line_stripped.replace(".. currentmodule::", "").strip()
+            current_module = line_stripped.replace(
+                ".. currentmodule::", ""
+            ).strip()
             continue
 
         if line_stripped == ".. autosummary::":
@@ -190,7 +194,9 @@ class PandasDocstring(Validator):
 
         error_messages = []
 
-        file = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", delete=False)
+        file = tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", delete=False
+        )
         try:
             file.write(content)
             file.flush()
@@ -203,7 +209,9 @@ class PandasDocstring(Validator):
                 "--ignore=E203,E3,W503,W504,E402,E731,E128,E124,E704",
                 file.name,
             ]
-            response = subprocess.run(cmd, capture_output=True, check=False, text=True)
+            response = subprocess.run(
+                cmd, capture_output=True, check=False, text=True
+            )
             for output in ("stdout", "stderr"):
                 out = getattr(response, output)
                 out = out.replace(file.name, "")
@@ -249,7 +257,9 @@ def pandas_validate(func_name: str):
     mentioned_errs = doc.mentioned_private_classes
     if mentioned_errs:
         result["errors"].append(
-            pandas_error("GL04", mentioned_private_classes=", ".join(mentioned_errs))
+            pandas_error(
+                "GL04", mentioned_private_classes=", ".join(mentioned_errs)
+            )
         )
 
     if doc.see_also:
@@ -257,7 +267,7 @@ def pandas_validate(func_name: str):
             pandas_error(
                 "SA05",
                 reference_name=rel_name,
-                right_reference=rel_name[len("pandas."):],
+                right_reference=rel_name[len("pandas.") :],
             )
             for rel_name in doc.see_also
             if rel_name.startswith("pandas.")
@@ -265,7 +275,12 @@ def pandas_validate(func_name: str):
 
     result["examples_errs"] = ""
     if doc.examples:
-        for error_code, error_message, line_number, col_number in doc.validate_pep8():
+        for (
+            error_code,
+            error_message,
+            line_number,
+            col_number,
+        ) in doc.validate_pep8():
             result["errors"].append(
                 pandas_error(
                     "EX03",
@@ -365,12 +380,13 @@ def print_validate_all_results(
     for func_name, res in result.items():
         error_messages = dict(res["errors"])
         actual_failures = set(error_messages)
-        expected_failures = (ignore_errors.get(func_name, set())
-                             | ignore_errors.get(None, set()))
+        expected_failures = ignore_errors.get(
+            func_name, set()
+        ) | ignore_errors.get(None, set())
         for err_code in actual_failures - expected_failures:
             sys.stdout.write(
                 f'{prefix}{res["file"]}:{res["file_line"]}:'
-                f'{err_code}:{func_name}:{error_messages[err_code]}\n'
+                f"{err_code}:{func_name}:{error_messages[err_code]}\n"
             )
             exit_status += 1
         for err_code in ignore_errors.get(func_name, set()) - actual_failures:
@@ -384,8 +400,9 @@ def print_validate_all_results(
     return exit_status
 
 
-def print_validate_one_results(func_name: str,
-                               ignore_errors: dict[str, set[str]]) -> int:
+def print_validate_one_results(
+    func_name: str, ignore_errors: dict[str, set[str]]
+) -> int:
     def header(title, width=80, char="#") -> str:
         full_line = char * width
         side_len = (width - len(title) - 2) // 2
@@ -396,15 +413,20 @@ def print_validate_one_results(func_name: str,
 
     result = pandas_validate(func_name)
 
-    result["errors"] = [(code, message) for code, message in result["errors"]
-                        if code not in ignore_errors.get(None, set())]
+    result["errors"] = [
+        (code, message)
+        for code, message in result["errors"]
+        if code not in ignore_errors.get(None, set())
+    ]
 
     sys.stderr.write(header(f"Docstring ({func_name})"))
     sys.stderr.write(f"{result['docstring']}\n")
 
     sys.stderr.write(header("Validation"))
     if result["errors"]:
-        sys.stderr.write(f'{len(result["errors"])} Errors found for `{func_name}`:\n')
+        sys.stderr.write(
+            f'{len(result["errors"])} Errors found for `{func_name}`:\n'
+        )
         for err_code, err_desc in result["errors"]:
             sys.stderr.write(f"\t{err_code}\t{err_desc}\n")
     else:
@@ -431,14 +453,16 @@ def _format_ignore_errors(raw_ignore_errors):
                     raise ValueError(
                         f"Object `{obj_name}` is present in more than one "
                         "--ignore_errors argument. Please use it once and specify "
-                        "the errors separated by commas.")
+                        "the errors separated by commas."
+                    )
                 ignore_errors[obj_name] = set(error_codes.split(","))
 
                 unknown_errors = ignore_errors[obj_name] - ALL_ERRORS
                 if unknown_errors:
                     raise ValueError(
                         f"Object `{obj_name}` is ignoring errors {unknown_errors} "
-                        f"which are not known. Known errors are: {ALL_ERRORS}")
+                        f"which are not known. Known errors are: {ALL_ERRORS}"
+                    )
 
             # global errors "PR02,ES01"
             else:
@@ -448,27 +472,19 @@ def _format_ignore_errors(raw_ignore_errors):
         if unknown_errors:
             raise ValueError(
                 f"Unknown errors {unknown_errors} specified using --ignore_errors "
-                "Known errors are: {ALL_ERRORS}")
+                "Known errors are: {ALL_ERRORS}"
+            )
 
     return ignore_errors
 
 
-def main(
-    func_name,
-    output_format,
-    prefix,
-    ignore_deprecated,
-    ignore_errors
-):
+def main(func_name, output_format, prefix, ignore_deprecated, ignore_errors):
     """
     Main entry point. Call the validation for one or for all docstrings.
     """
     if func_name is None:
         return print_validate_all_results(
-            output_format,
-            prefix,
-            ignore_deprecated,
-            ignore_errors
+            output_format, prefix, ignore_deprecated, ignore_errors
         )
     else:
         return print_validate_one_results(func_name, ignore_errors)
@@ -481,7 +497,9 @@ if __name__ == "__main__":
         "if not provided, all docstrings are validated and returned "
         "as JSON"
     )
-    argparser = argparse.ArgumentParser(description="validate pandas docstrings")
+    argparser = argparse.ArgumentParser(
+        description="validate pandas docstrings"
+    )
     argparser.add_argument("function", nargs="?", default=None, help=func_help)
     argparser.add_argument(
         "--format",
@@ -524,10 +542,11 @@ if __name__ == "__main__":
     args = argparser.parse_args(sys.argv[1:])
 
     sys.exit(
-        main(args.function,
-             args.format,
-             args.prefix,
-             args.ignore_deprecated,
-             _format_ignore_errors(args.ignore_errors),
-             )
+        main(
+            args.function,
+            args.format,
+            args.prefix,
+            args.ignore_deprecated,
+            _format_ignore_errors(args.ignore_errors),
+        )
     )

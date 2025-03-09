@@ -405,7 +405,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
         elif self.ndim != 1:
             freq = None
         else:
-            key = check_array_indexer(self, key)  # maybe ndarray[bool] -> slice
+            key = check_array_indexer(
+                self, key
+            )  # maybe ndarray[bool] -> slice
             freq = None
             if isinstance(key, slice):
                 if self.freq is not None and key.step is not None:
@@ -627,7 +629,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
             return value
         return self._unbox_scalar(value)
 
-    def _validation_error_message(self, value, allow_listlike: bool = False) -> str:
+    def _validation_error_message(
+        self, value, allow_listlike: bool = False
+    ) -> str:
         """
         Construct an exception message on validation error.
 
@@ -725,7 +729,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
         return self._unbox(value)
 
     @final
-    def _unbox(self, other) -> np.int64 | np.datetime64 | np.timedelta64 | np.ndarray:
+    def _unbox(
+        self, other
+    ) -> np.int64 | np.datetime64 | np.timedelta64 | np.ndarray:
         """
         Unbox either a scalar with _unbox_scalar or an instance of our own type.
         """
@@ -1005,7 +1011,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
                         )
                 else:
                     other_arr = other._ndarray
-                    return compare_mismatched_resolutions(self._ndarray, other_arr, op)
+                    return compare_mismatched_resolutions(
+                        self._ndarray, other_arr, op
+                    )
 
         other_vals = self._unbox(other)
         # GH#37462 comparison on i8 values is almost 2x faster than M8/m8
@@ -1086,7 +1094,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
             # i.e. np.datetime64("NaT")
             # In this case we specifically interpret NaT as a datetime, not
             # the timedelta interpretation we would get by returning self + NaT
-            result = self._ndarray + NaT.to_datetime64().astype(f"M8[{self.unit}]")
+            result = self._ndarray + NaT.to_datetime64().astype(
+                f"M8[{self.unit}]"
+            )
             # Preserve our resolution
             return DatetimeArray._simple_new(result, dtype=result.dtype)
 
@@ -1101,7 +1111,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
         dtype = tz_to_dtype(tz=other.tz, unit=self.unit)
         res_values = result.view(f"M8[{self.unit}]")
         new_freq = self._get_arithmetic_result_freq(other)
-        return DatetimeArray._simple_new(res_values, dtype=dtype, freq=new_freq)
+        return DatetimeArray._simple_new(
+            res_values, dtype=dtype, freq=new_freq
+        )
 
     @final
     def _add_datetime_arraylike(self, other: DatetimeArray) -> DatetimeArray:
@@ -1118,7 +1130,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
         self, other: datetime | np.datetime64
     ) -> TimedeltaArray:
         if self.dtype.kind != "M":
-            raise TypeError(f"cannot subtract a datelike from a {type(self).__name__}")
+            raise TypeError(
+                f"cannot subtract a datelike from a {type(self).__name__}"
+            )
 
         self = cast("DatetimeArray", self)
         # subtract a datetime from myself, yielding a ndarray[timedelta64[ns]]
@@ -1135,7 +1149,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
     @final
     def _sub_datetime_arraylike(self, other: DatetimeArray) -> TimedeltaArray:
         if self.dtype.kind != "M":
-            raise TypeError(f"cannot subtract a datelike from a {type(self).__name__}")
+            raise TypeError(
+                f"cannot subtract a datelike from a {type(self).__name__}"
+            )
 
         if len(self) != len(other):
             raise ValueError("cannot add indices of unequal length")
@@ -1146,7 +1162,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
         return self._sub_datetimelike(other)
 
     @final
-    def _sub_datetimelike(self, other: Timestamp | DatetimeArray) -> TimedeltaArray:
+    def _sub_datetimelike(
+        self, other: Timestamp | DatetimeArray
+    ) -> TimedeltaArray:
         self = cast("DatetimeArray", self)
 
         from pandas.core.arrays import TimedeltaArray
@@ -1158,12 +1176,16 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
             raise type(err)(new_message) from err
 
         other_i8, o_mask = self._get_i8_values_and_mask(other)
-        res_values = add_overflowsafe(self.asi8, np.asarray(-other_i8, dtype="i8"))
+        res_values = add_overflowsafe(
+            self.asi8, np.asarray(-other_i8, dtype="i8")
+        )
         res_m8 = res_values.view(f"timedelta64[{self.unit}]")
 
         new_freq = self._get_arithmetic_result_freq(other)
         new_freq = cast("Tick | None", new_freq)
-        return TimedeltaArray._simple_new(res_m8, dtype=res_m8.dtype, freq=new_freq)
+        return TimedeltaArray._simple_new(
+            res_m8, dtype=res_m8.dtype, freq=new_freq
+        )
 
     @final
     def _add_period(self, other: Period) -> PeriodArray:
@@ -1191,7 +1213,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
         """
         if isna(other):
             # i.e np.timedelta64("NaT")
-            new_values = np.empty(self.shape, dtype="i8").view(self._ndarray.dtype)
+            new_values = np.empty(self.shape, dtype="i8").view(
+                self._ndarray.dtype
+            )
             new_values.fill(iNaT)
             return type(self)._simple_new(new_values, dtype=self.dtype)
 
@@ -1222,7 +1246,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
     @final
     def _add_timedeltalike(self, other: Timedelta | TimedeltaArray) -> Self:
         other_i8, o_mask = self._get_i8_values_and_mask(other)
-        new_values = add_overflowsafe(self.asi8, np.asarray(other_i8, dtype="i8"))
+        new_values = add_overflowsafe(
+            self.asi8, np.asarray(other_i8, dtype="i8")
+        )
         res_values = new_values.view(self._ndarray.dtype)
 
         new_freq = self._get_arithmetic_result_freq(other)
@@ -1277,7 +1303,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
             return result.view("timedelta64[ns]")
 
     @final
-    def _sub_periodlike(self, other: Period | PeriodArray) -> npt.NDArray[np.object_]:
+    def _sub_periodlike(
+        self, other: Period | PeriodArray
+    ) -> npt.NDArray[np.object_]:
         # If the operation is well-defined, we return an object-dtype ndarray
         # of DateOffsets.  Null entries are filled with pd.NaT
         if not isinstance(self.dtype, PeriodDtype):
@@ -1289,7 +1317,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
         self._check_compatible_with(other)
 
         other_i8, o_mask = self._get_i8_values_and_mask(other)
-        new_i8_data = add_overflowsafe(self.asi8, np.asarray(-other_i8, dtype="i8"))
+        new_i8_data = add_overflowsafe(
+            self.asi8, np.asarray(-other_i8, dtype="i8")
+        )
         new_data = np.array([self.freq.base * x for x in new_i8_data])
 
         if o_mask is None:
@@ -1302,7 +1332,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
         return new_data
 
     @final
-    def _addsub_object_array(self, other: npt.NDArray[np.object_], op) -> np.ndarray:
+    def _addsub_object_array(
+        self, other: npt.NDArray[np.object_], op
+    ) -> np.ndarray:
         """
         Add or subtract array-like of DateOffset objects
 
@@ -1340,7 +1372,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
 
     def _accumulate(self, name: str, *, skipna: bool = True, **kwargs) -> Self:
         if name not in {"cummin", "cummax"}:
-            raise TypeError(f"Accumulation {name} not supported for {type(self)}")
+            raise TypeError(
+                f"Accumulation {name} not supported for {type(self)}"
+            )
 
         op = getattr(datetimelike_accumulations, name)
         result = op(self.copy(), skipna=skipna, **kwargs)
@@ -1370,7 +1404,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
             if not isinstance(self.dtype, PeriodDtype):
                 raise integer_op_not_supported(self)
             obj = cast("PeriodArray", self)
-            result = obj._addsub_int_array_or_scalar(other * obj.dtype._n, operator.add)
+            result = obj._addsub_int_array_or_scalar(
+                other * obj.dtype._n, operator.add
+            )
 
         # array-like others
         elif lib.is_np_dtype(other_dtype, "m"):
@@ -1388,7 +1424,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
             if not isinstance(self.dtype, PeriodDtype):
                 raise integer_op_not_supported(self)
             obj = cast("PeriodArray", self)
-            result = obj._addsub_int_array_or_scalar(other * obj.dtype._n, operator.add)
+            result = obj._addsub_int_array_or_scalar(
+                other * obj.dtype._n, operator.add
+            )
         else:
             # Includes Categorical, other ExtensionArrays
             # For PeriodDtype, if self is a TimedeltaArray and other is a
@@ -1397,7 +1435,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
             #  In remaining cases, this will end up raising TypeError.
             return NotImplemented
 
-        if isinstance(result, np.ndarray) and lib.is_np_dtype(result.dtype, "m"):
+        if isinstance(result, np.ndarray) and lib.is_np_dtype(
+            result.dtype, "m"
+        ):
             from pandas.core.arrays import TimedeltaArray
 
             return TimedeltaArray._from_sequence(result, dtype=result.dtype)
@@ -1428,7 +1468,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
             if not isinstance(self.dtype, PeriodDtype):
                 raise integer_op_not_supported(self)
             obj = cast("PeriodArray", self)
-            result = obj._addsub_int_array_or_scalar(other * obj.dtype._n, operator.sub)
+            result = obj._addsub_int_array_or_scalar(
+                other * obj.dtype._n, operator.sub
+            )
 
         elif isinstance(other, Period):
             result = self._sub_periodlike(other)
@@ -1452,12 +1494,16 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
             if not isinstance(self.dtype, PeriodDtype):
                 raise integer_op_not_supported(self)
             obj = cast("PeriodArray", self)
-            result = obj._addsub_int_array_or_scalar(other * obj.dtype._n, operator.sub)
+            result = obj._addsub_int_array_or_scalar(
+                other * obj.dtype._n, operator.sub
+            )
         else:
             # Includes ExtensionArrays, float_dtype
             return NotImplemented
 
-        if isinstance(result, np.ndarray) and lib.is_np_dtype(result.dtype, "m"):
+        if isinstance(result, np.ndarray) and lib.is_np_dtype(
+            result.dtype, "m"
+        ):
             from pandas.core.arrays import TimedeltaArray
 
             return TimedeltaArray._from_sequence(result, dtype=result.dtype)
@@ -1481,15 +1527,23 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
 
                 other = DatetimeArray._from_sequence(other, dtype=other.dtype)
             return other - self
-        elif self.dtype.kind == "M" and hasattr(other, "dtype") and not other_is_dt64:
+        elif (
+            self.dtype.kind == "M"
+            and hasattr(other, "dtype")
+            and not other_is_dt64
+        ):
             # GH#19959 datetime - datetime is well-defined as timedelta,
             # but any other type - datetime is not well-defined.
             raise TypeError(
                 f"cannot subtract {type(self).__name__} from {type(other).__name__}"
             )
-        elif isinstance(self.dtype, PeriodDtype) and lib.is_np_dtype(other_dtype, "m"):
+        elif isinstance(self.dtype, PeriodDtype) and lib.is_np_dtype(
+            other_dtype, "m"
+        ):
             # TODO: Can we simplify/generalize these cases at all?
-            raise TypeError(f"cannot subtract {type(self).__name__} from {other.dtype}")
+            raise TypeError(
+                f"cannot subtract {type(self).__name__} from {other.dtype}"
+            )
         elif lib.is_np_dtype(self.dtype, "m"):
             self = cast("TimedeltaArray", self)
             return (-self) + other
@@ -1527,7 +1581,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
         return super()._quantile(qs=qs, interpolation=interpolation)
 
     @_period_dispatch
-    def min(self, *, axis: AxisInt | None = None, skipna: bool = True, **kwargs):
+    def min(
+        self, *, axis: AxisInt | None = None, skipna: bool = True, **kwargs
+    ):
         """
         Return the minimum value of the Array or minimum along
         an axis.
@@ -1545,7 +1601,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
         return self._wrap_reduction_result(axis, result)
 
     @_period_dispatch
-    def max(self, *, axis: AxisInt | None = None, skipna: bool = True, **kwargs):
+    def max(
+        self, *, axis: AxisInt | None = None, skipna: bool = True, **kwargs
+    ):
         """
         Return the maximum value of the Array or maximum along
         an axis.
@@ -1621,7 +1679,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
         return self._wrap_reduction_result(axis, result)
 
     @_period_dispatch
-    def median(self, *, axis: AxisInt | None = None, skipna: bool = True, **kwargs):
+    def median(
+        self, *, axis: AxisInt | None = None, skipna: bool = True, **kwargs
+    ):
         nv.validate_median((), kwargs)
 
         if axis is not None and abs(axis) >= self.ndim:
@@ -1656,8 +1716,18 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
         dtype = self.dtype
         if dtype.kind == "M":
             # Adding/multiplying datetimes is not valid
-            if how in ["sum", "prod", "cumsum", "cumprod", "var", "skew", "kurt"]:
-                raise TypeError(f"datetime64 type does not support operation '{how}'")
+            if how in [
+                "sum",
+                "prod",
+                "cumsum",
+                "cumprod",
+                "var",
+                "skew",
+                "kurt",
+            ]:
+                raise TypeError(
+                    f"datetime64 type does not support operation '{how}'"
+                )
             if how in ["any", "all"]:
                 # GH#34479
                 raise TypeError(
@@ -1667,8 +1737,18 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
 
         elif isinstance(dtype, PeriodDtype):
             # Adding/multiplying Periods is not valid
-            if how in ["sum", "prod", "cumsum", "cumprod", "var", "skew", "kurt"]:
-                raise TypeError(f"Period type does not support {how} operations")
+            if how in [
+                "sum",
+                "prod",
+                "cumsum",
+                "cumprod",
+                "var",
+                "skew",
+                "kurt",
+            ]:
+                raise TypeError(
+                    f"Period type does not support {how} operations"
+                )
             if how in ["any", "all"]:
                 # GH#34479
                 raise TypeError(
@@ -1678,7 +1758,9 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
         else:
             # timedeltas we can add but not multiply
             if how in ["prod", "cumprod", "skew", "kurt", "var"]:
-                raise TypeError(f"timedelta64 type does not support {how} operations")
+                raise TypeError(
+                    f"timedelta64 type does not support {how} operations"
+                )
 
         # All of the functions implemented here are ordinal, so we can
         #  operate on the tz-naive equivalents
@@ -1709,11 +1791,15 @@ class DatetimeLikeArrayMixin(  # type: ignore[misc]
             from pandas.core.arrays import TimedeltaArray
 
             if isinstance(self.dtype, PeriodDtype):
-                raise TypeError("'std' and 'sem' are not valid for PeriodDtype")
+                raise TypeError(
+                    "'std' and 'sem' are not valid for PeriodDtype"
+                )
             self = cast("DatetimeArray | TimedeltaArray", self)
             new_dtype = f"m8[{self.unit}]"
             res_values = res_values.view(new_dtype)
-            return TimedeltaArray._simple_new(res_values, dtype=res_values.dtype)
+            return TimedeltaArray._simple_new(
+                res_values, dtype=res_values.dtype
+            )
 
         res_values = res_values.view(self._ndarray.dtype)
         return self._from_backing_data(res_values)
@@ -1772,7 +1858,9 @@ class DatelikeOps(DatetimeLikeArrayMixin):
                'March 10, 2018, 09:00:02 AM'],
               dtype='object')
         """
-        result = self._format_native_types(date_format=date_format, na_rep=np.nan)
+        result = self._format_native_types(
+            date_format=date_format, na_rep=np.nan
+        )
         if using_string_dtype():
             from pandas import StringDtype
 
@@ -2146,7 +2234,9 @@ class TimelikeOps(DatetimeLikeArrayMixin):
             raise ValueError("Supported units are 's', 'ms', 'us', 'ns'")
 
         dtype = np.dtype(f"{self.dtype.kind}8[{unit}]")
-        new_values = astype_overflowsafe(self._ndarray, dtype, round_ok=round_ok)
+        new_values = astype_overflowsafe(
+            self._ndarray, dtype, round_ok=round_ok
+        )
 
         if isinstance(self.dtype, np.dtype):
             new_dtype = new_values.dtype
@@ -2215,7 +2305,9 @@ class TimelikeOps(DatetimeLikeArrayMixin):
         ambiguous: TimeAmbiguous = "raise",
         nonexistent: TimeNonexistent = "raise",
     ) -> Self:
-        return self._round(freq, RoundTo.NEAREST_HALF_EVEN, ambiguous, nonexistent)
+        return self._round(
+            freq, RoundTo.NEAREST_HALF_EVEN, ambiguous, nonexistent
+        )
 
     @Appender((_round_doc + _floor_example).format(op="floor"))
     def floor(
@@ -2240,12 +2332,16 @@ class TimelikeOps(DatetimeLikeArrayMixin):
 
     def any(self, *, axis: AxisInt | None = None, skipna: bool = True) -> bool:
         # GH#34479 the nanops call will raise a TypeError for non-td64 dtype
-        return nanops.nanany(self._ndarray, axis=axis, skipna=skipna, mask=self.isna())
+        return nanops.nanany(
+            self._ndarray, axis=axis, skipna=skipna, mask=self.isna()
+        )
 
     def all(self, *, axis: AxisInt | None = None, skipna: bool = True) -> bool:
         # GH#34479 the nanops call will raise a TypeError for non-td64 dtype
 
-        return nanops.nanall(self._ndarray, axis=axis, skipna=skipna, mask=self.isna())
+        return nanops.nanall(
+            self._ndarray, axis=axis, skipna=skipna, mask=self.isna()
+        )
 
     # --------------------------------------------------------------
     # Frequency Methods
@@ -2331,7 +2427,9 @@ class TimelikeOps(DatetimeLikeArrayMixin):
             # original frequency
             to_concat = [x for x in to_concat if len(x)]
 
-            if obj.freq is not None and all(x.freq == obj.freq for x in to_concat):
+            if obj.freq is not None and all(
+                x.freq == obj.freq for x in to_concat
+            ):
                 pairs = zip(to_concat[:-1], to_concat[1:])
                 if all(pair[0][-1] + obj.freq == pair[1][0] for pair in pairs):
                     new_freq = obj.freq
@@ -2390,7 +2488,10 @@ class TimelikeOps(DatetimeLikeArrayMixin):
         axis: AxisInt = 0,
     ) -> Self:
         result = super().take(
-            indices=indices, allow_fill=allow_fill, fill_value=fill_value, axis=axis
+            indices=indices,
+            allow_fill=allow_fill,
+            fill_value=fill_value,
+            axis=axis,
         )
 
         indices = np.asarray(indices, dtype=np.intp)
@@ -2423,7 +2524,9 @@ class TimelikeOps(DatetimeLikeArrayMixin):
 
         # TODO: can we reuse is_date_array_normalized?  would need a skipna kwd
         #  (first attempt at this was less performant than this implementation)
-        even_days = np.logical_and(consider_values, values_int % ppd != 0).sum() == 0
+        even_days = (
+            np.logical_and(consider_values, values_int % ppd != 0).sum() == 0
+        )
         return even_days
 
 

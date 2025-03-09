@@ -221,7 +221,9 @@ class TestStringsWithWrongPlacedWhitespace:
             ),
         ],
     )
-    def test_strings_with_wrong_placed_whitespace_raises(self, data, expected) -> None:
+    def test_strings_with_wrong_placed_whitespace_raises(
+        self, data, expected
+    ) -> None:
         fd = io.StringIO(data.strip())
         result = list(
             validate_unwanted_patterns.strings_with_wrong_placed_whitespace(fd)
@@ -255,7 +257,9 @@ b: lib.NoDefault = lib.no_default
     )
     def test_nodefault_used_not_only_for_typing(self, data) -> None:
         fd = io.StringIO(data.strip())
-        result = list(validate_unwanted_patterns.nodefault_used_not_only_for_typing(fd))
+        result = list(
+            validate_unwanted_patterns.nodefault_used_not_only_for_typing(fd)
+        )
         assert result == []
 
     @pytest.mark.parametrize(
@@ -292,7 +296,11 @@ if a is NoDefault:
             ),
         ],
     )
-    def test_nodefault_used_not_only_for_typing_raises(self, data, expected) -> None:
+    def test_nodefault_used_not_only_for_typing_raises(
+        self, data, expected
+    ) -> None:
         fd = io.StringIO(data.strip())
-        result = list(validate_unwanted_patterns.nodefault_used_not_only_for_typing(fd))
+        result = list(
+            validate_unwanted_patterns.nodefault_used_not_only_for_typing(fd)
+        )
         assert result == expected

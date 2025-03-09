@@ -38,10 +38,14 @@ class TestIntervalIndex:
         tm.assert_series_equal(expected, result)
 
         # missing or not exact
-        with pytest.raises(KeyError, match=re.escape("Interval(3, 5, closed='left')")):
+        with pytest.raises(
+            KeyError, match=re.escape("Interval(3, 5, closed='left')")
+        ):
             indexer_sl(ser)[Interval(3, 5, closed="left")]
 
-        with pytest.raises(KeyError, match=re.escape("Interval(3, 5, closed='right')")):
+        with pytest.raises(
+            KeyError, match=re.escape("Interval(3, 5, closed='right')")
+        ):
             indexer_sl(ser)[Interval(3, 5)]
 
         with pytest.raises(
@@ -49,7 +53,9 @@ class TestIntervalIndex:
         ):
             indexer_sl(ser)[Interval(-2, 0)]
 
-        with pytest.raises(KeyError, match=re.escape("Interval(5, 6, closed='right')")):
+        with pytest.raises(
+            KeyError, match=re.escape("Interval(5, 6, closed='right')")
+        ):
             indexer_sl(ser)[Interval(5, 6)]
 
     def test_loc_with_scalar(self, series_with_interval_index, indexer_sl):
@@ -149,7 +155,9 @@ class TestIntervalIndex:
         result = indexer_sl(ser)[[Interval(1, 5), Interval(3, 7)]]
         tm.assert_series_equal(expected, result)
 
-        with pytest.raises(KeyError, match=re.escape("Interval(3, 5, closed='right')")):
+        with pytest.raises(
+            KeyError, match=re.escape("Interval(3, 5, closed='right')")
+        ):
             indexer_sl(ser)[Interval(3, 5)]
 
         msg = (

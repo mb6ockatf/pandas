@@ -73,7 +73,9 @@ def test_iset_splits_blocks_inplace(locs, arr, dtype):
     )
     arr = arr.astype(dtype)
     df_orig = df.copy()
-    df2 = df.copy(deep=False)  # Trigger a CoW (if enabled, otherwise makes copy)
+    df2 = df.copy(
+        deep=False
+    )  # Trigger a CoW (if enabled, otherwise makes copy)
     df2._mgr.iset(locs, arr, inplace=True)
 
     tm.assert_frame_equal(df, df_orig)

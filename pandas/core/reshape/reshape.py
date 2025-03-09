@@ -135,14 +135,18 @@ class _Unstacker:
         if not self.sort:
             unique_codes = unique(self.index.codes[self.level])
             self.removed_level = self.removed_level.take(unique_codes)
-            self.removed_level_full = self.removed_level_full.take(unique_codes)
+            self.removed_level_full = self.removed_level_full.take(
+                unique_codes
+            )
 
         if get_option("performance_warnings"):
             # Bug fix GH 20601
             # If the data frame is too big, the number of unique index combination
             # will cause int32 overflow on windows environments.
             # We want to check and raise an warning before this happens
-            num_rows = max(index_level.size for index_level in self.new_index_levels)
+            num_rows = max(
+                index_level.size for index_level in self.new_index_levels
+            )
             num_columns = self.removed_level.size
 
             # GH20601: This forces an overflow if the number of cells is too high.
@@ -212,21 +216,27 @@ class _Unstacker:
         mask.put(selector, True)
 
         if mask.sum() < len(self.index):
-            raise ValueError("Index contains duplicate entries, cannot reshape")
+            raise ValueError(
+                "Index contains duplicate entries, cannot reshape"
+            )
 
         self.group_index = comp_index
         self.mask = mask
         if self.sort:
             self.compressor = comp_index.searchsorted(np.arange(ngroups))
         else:
-            self.compressor = np.sort(np.unique(comp_index, return_index=True)[1])
+            self.compressor = np.sort(
+                np.unique(comp_index, return_index=True)[1]
+            )
 
     @cache_readonly
     def mask_all(self) -> bool:
         return bool(self.mask.all())
 
     @cache_readonly
-    def arange_result(self) -> tuple[npt.NDArray[np.intp], npt.NDArray[np.bool_]]:
+    def arange_result(
+        self,
+    ) -> tuple[npt.NDArray[np.intp], npt.NDArray[np.bool_]]:
         # We cache this for reuse in ExtensionBlock._unstack
         dummy_arr = np.arange(len(self.index), dtype=np.intp)
         new_values, mask = self.get_new_values(dummy_arr, fill_value=-1)
@@ -246,7 +256,11 @@ class _Unstacker:
         index = self.new_index
 
         result = self.constructor(
-            new_values, index=index, columns=columns, dtype=new_values.dtype, copy=False
+            new_values,
+            index=index,
+            columns=columns,
+            dtype=new_values.dtype,
+            copy=False,
         )
         if isinstance(values, np.ndarray):
             base, new_base = values.base, new_values.base
@@ -341,7 +355,9 @@ class _Unstacker:
             if self.lift == 0:
                 return self.removed_level._rename(name=self.removed_name)
 
-            lev = self.removed_level.insert(0, item=self.removed_level._na_value)
+            lev = self.removed_level.insert(
+                0, item=self.removed_level._na_value
+            )
             return lev.rename(self.removed_name)
 
         stride = len(self.removed_level) + self.lift
@@ -371,7 +387,10 @@ class _Unstacker:
         # The entire level is then just a repetition of the single chunk:
         new_codes.append(np.tile(repeater, width))
         return MultiIndex(
-            levels=new_levels, codes=new_codes, names=new_names, verify_integrity=False
+            levels=new_levels,
+            codes=new_codes,
+            names=new_names,
+            verify_integrity=False,
         )
 
     @cache_readonly
@@ -445,7 +464,9 @@ def _unstack_multiple(
     group_index = get_group_index(ccodes, shape, sort=False, xnull=False)
 
     comp_ids, obs_ids = compress_group_index(group_index, sort=False)
-    recons_codes = decons_obs_group_ids(comp_ids, obs_ids, shape, ccodes, xnull=False)
+    recons_codes = decons_obs_group_ids(
+        comp_ids, obs_ids, shape, ccodes, xnull=False
+    )
 
     if not rlocs:
         # Everything is in clocs, so the dummy df has a regular index
@@ -462,7 +483,9 @@ def _unstack_multiple(
         dummy = data.copy(deep=False)
         dummy.index = dummy_index
 
-        unstacked = dummy.unstack("__placeholder__", fill_value=fill_value, sort=sort)
+        unstacked = dummy.unstack(
+            "__placeholder__", fill_value=fill_value, sort=sort
+        )
         new_levels = clevels
         new_names = cnames
         new_codes = recons_codes
@@ -501,7 +524,10 @@ def _unstack_multiple(
         new_codes.extend(rec.take(unstcols.codes[-1]) for rec in recons_codes)
 
     new_columns = MultiIndex(
-        levels=new_levels, codes=new_codes, names=new_names, verify_integrity=False
+        levels=new_levels,
+        codes=new_codes,
+        names=new_names,
+        verify_integrity=False,
     )
 
     if isinstance(unstacked, Series):
@@ -513,7 +539,9 @@ def _unstack_multiple(
 
 
 @overload
-def unstack(obj: Series, level, fill_value=..., sort: bool = ...) -> DataFrame: ...
+def unstack(
+    obj: Series, level, fill_value=..., sort: bool = ...
+) -> DataFrame: ...
 
 
 @overload
@@ -529,7 +557,9 @@ def unstack(
         if len(level) != 1:
             # _unstack_multiple only handles MultiIndexes,
             # and isn't needed for a single level
-            return _unstack_multiple(obj, level, fill_value=fill_value, sort=sort)
+            return _unstack_multiple(
+                obj, level, fill_value=fill_value, sort=sort
+            )
         else:
             level = level[0]
 
@@ -553,9 +583,14 @@ def unstack(
         if is_1d_only_ea_dtype(obj.dtype):
             return _unstack_extension_series(obj, level, fill_value, sort=sort)
         unstacker = _Unstacker(
-            obj.index, level=level, constructor=obj._constructor_expanddim, sort=sort
+            obj.index,
+            level=level,
+            constructor=obj._constructor_expanddim,
+            sort=sort,
         )
-        return unstacker.get_result(obj, value_columns=None, fill_value=fill_value)
+        return unstacker.get_result(
+            obj, value_columns=None, fill_value=fill_value
+        )
 
 
 def _unstack_frame(
@@ -652,10 +687,15 @@ def stack(
         new_names = list(frame.index.names)
         new_names.append(frame.columns.name)
         new_index = MultiIndex(
-            levels=new_levels, codes=new_codes, names=new_names, verify_integrity=False
+            levels=new_levels,
+            codes=new_codes,
+            names=new_names,
+            verify_integrity=False,
         )
     else:
-        levels, (ilab, clab) = zip(*map(stack_factorize, (frame.index, frame.columns)))
+        levels, (ilab, clab) = zip(
+            *map(stack_factorize, (frame.index, frame.columns))
+        )
         codes = ilab.repeat(K), np.tile(clab, N).ravel()
         new_index = MultiIndex(
             levels=levels,
@@ -693,7 +733,9 @@ def stack(
     return frame._constructor_sliced(new_values, index=new_index)
 
 
-def stack_multiple(frame: DataFrame, level, dropna: bool = True, sort: bool = True):
+def stack_multiple(
+    frame: DataFrame, level, dropna: bool = True, sort: bool = True
+):
     # If all passed levels match up to column names, no
     # ambiguity about what to do
     if all(lev in frame.columns.names for lev in level):
@@ -758,7 +800,10 @@ def _stack_multi_column_index(columns: MultiIndex) -> MultiIndex | Index:
 
 
 def _stack_multi_columns(
-    frame: DataFrame, level_num: int = -1, dropna: bool = True, sort: bool = True
+    frame: DataFrame,
+    level_num: int = -1,
+    dropna: bool = True,
+    sort: bool = True,
 ) -> DataFrame:
     def _convert_level_number(level_num: int, columns: Index):
         """
@@ -837,7 +882,10 @@ def _stack_multi_columns(
                 # TODO(EA2D): won't need special case, can go through .values
                 #  paths below (might change to ._values)
                 value_slice = dtype.construct_array_type()._concat_same_type(
-                    [x._values.astype(dtype, copy=False) for _, x in subset.items()]
+                    [
+                        x._values.astype(dtype, copy=False)
+                        for _, x in subset.items()
+                    ]
                 )
                 N, K = subset.shape
                 idx = np.arange(N * K).reshape(K, N).T.reshape(-1)
@@ -871,13 +919,18 @@ def _stack_multi_columns(
     new_names.append(frame.columns.names[level_num])
 
     new_index = MultiIndex(
-        levels=new_levels, codes=new_codes, names=new_names, verify_integrity=False
+        levels=new_levels,
+        codes=new_codes,
+        names=new_names,
+        verify_integrity=False,
     )
 
     result = frame._constructor(new_data, index=new_index, columns=new_columns)
 
     if frame.columns.nlevels > 1:
-        desired_columns = frame.columns._drop_level_numbers([level_num]).unique()
+        desired_columns = frame.columns._drop_level_numbers(
+            [level_num]
+        ).unique()
         if not result.columns.equals(desired_columns):
             result = result[desired_columns]
 
@@ -922,18 +975,26 @@ def _reorder_for_extension_array_stack(
     # idx is an indexer like
     # [c0r0, c1r0, c2r0, ...,
     #  c0r1, c1r1, c2r1, ...]
-    idx = np.arange(n_rows * n_columns).reshape(n_columns, n_rows).T.reshape(-1)
+    idx = (
+        np.arange(n_rows * n_columns).reshape(n_columns, n_rows).T.reshape(-1)
+    )
     return arr.take(idx)
 
 
 def stack_v3(frame: DataFrame, level: list[int]) -> Series | DataFrame:
     if frame.columns.nunique() != len(frame.columns):
-        raise ValueError("Columns with duplicate values are not supported in stack")
+        raise ValueError(
+            "Columns with duplicate values are not supported in stack"
+        )
     if not len(level):
         return frame
     set_levels = set(level)
     stack_cols = frame.columns._drop_level_numbers(
-        [k for k in range(frame.columns.nlevels - 1, -1, -1) if k not in set_levels]
+        [
+            k
+            for k in range(frame.columns.nlevels - 1, -1, -1)
+            if k not in set_levels
+        ]
     )
 
     result = stack_reshape(frame, level, set_levels, stack_cols)
@@ -964,7 +1025,9 @@ def stack_v3(frame: DataFrame, level: list[int]) -> Series | DataFrame:
         column_codes = ordered_stack_cols.drop_duplicates().codes
     else:
         column_levels = [ordered_stack_cols_unique]
-        column_codes = [factorize(ordered_stack_cols_unique, use_na_sentinel=False)[0]]
+        column_codes = [
+            factorize(ordered_stack_cols_unique, use_na_sentinel=False)[0]
+        ]
 
     # error: Incompatible types in assignment (expression has type "list[ndarray[Any,
     # dtype[Any]]]", variable has type "FrozenList")
@@ -980,7 +1043,9 @@ def stack_v3(frame: DataFrame, level: list[int]) -> Series | DataFrame:
     len_df = len(frame)
     n_uniques = len(ordered_stack_cols_unique)
     indexer = np.arange(n_uniques)
-    idxs = np.tile(len_df * indexer, len_df) + np.repeat(np.arange(len_df), n_uniques)
+    idxs = np.tile(len_df * indexer, len_df) + np.repeat(
+        np.arange(len_df), n_uniques
+    )
     result = result.take(idxs)
 
     # Reshape/rename if needed and dropna
@@ -1027,7 +1092,9 @@ def stack_reshape(
         if len(frame.columns) == 1:
             data = frame.copy(deep=False)
         else:
-            if not isinstance(frame.columns, MultiIndex) and not isinstance(idx, tuple):
+            if not isinstance(frame.columns, MultiIndex) and not isinstance(
+                idx, tuple
+            ):
                 # GH#57750 - if the frame is an Index with tuples, .loc below will fail
                 column_indexer = idx
             else:
@@ -1056,14 +1123,18 @@ def stack_reshape(
         # input is empty
         if len(level) < frame.columns.nlevels:
             # concat column order may be different from dropping the levels
-            new_columns = frame.columns._drop_level_numbers(drop_levnums).unique()
+            new_columns = frame.columns._drop_level_numbers(
+                drop_levnums
+            ).unique()
         else:
             new_columns = [0]
         result = DataFrame(columns=new_columns, dtype=frame._values.dtype)
 
     if len(level) < frame.columns.nlevels:
         # concat column order may be different from dropping the levels
-        desired_columns = frame.columns._drop_level_numbers(drop_levnums).unique()
+        desired_columns = frame.columns._drop_level_numbers(
+            drop_levnums
+        ).unique()
         if not result.columns.equals(desired_columns):
             result = result[desired_columns]
 

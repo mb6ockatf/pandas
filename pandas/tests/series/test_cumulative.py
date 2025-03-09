@@ -67,8 +67,16 @@ class TestSeriesCumulativeOps:
     @pytest.mark.parametrize(
         "method, skipna, exp_tdi",
         [
-            ["cummax", True, ["NaT", "2 days", "NaT", "2 days", "NaT", "3 days"]],
-            ["cummin", True, ["NaT", "2 days", "NaT", "1 days", "NaT", "1 days"]],
+            [
+                "cummax",
+                True,
+                ["NaT", "2 days", "NaT", "2 days", "NaT", "3 days"],
+            ],
+            [
+                "cummin",
+                True,
+                ["NaT", "2 days", "NaT", "1 days", "NaT", "1 days"],
+            ],
             [
                 "cummax",
                 False,
@@ -85,7 +93,9 @@ class TestSeriesCumulativeOps:
         # with ts==pd.Timedelta(0), we are testing td64; with naive Timestamp
         #  we are testing datetime64[ns]; with Timestamp[US/Pacific]
         #  we are testing dt64tz
-        tdi = pd.to_timedelta(["NaT", "2 days", "NaT", "1 days", "NaT", "3 days"])
+        tdi = pd.to_timedelta(
+            ["NaT", "2 days", "NaT", "1 days", "NaT", "3 days"]
+        )
         ser = pd.Series(tdi + ts)
 
         exp_tdi = pd.to_timedelta(exp_tdi)
@@ -107,7 +117,10 @@ class TestSeriesCumulativeOps:
             [
                 [pd.Timedelta(0), pd.Timedelta(days=1)],
                 [pd.Timedelta(days=2), pd.NaT],
-                [pd.Timedelta(days=1, hours=18), pd.Timedelta(days=1, hours=12)],
+                [
+                    pd.Timedelta(days=1, hours=18),
+                    pd.Timedelta(days=1, hours=12),
+                ],
             ]
         )
         tm.assert_frame_equal(result, expected)
@@ -122,7 +135,11 @@ class TestSeriesCumulativeOps:
     def test_cummin_cummax_period(self, func, exp):
         # GH#28385
         ser = pd.Series(
-            [pd.Period("2012-1-1", freq="D"), pd.NaT, pd.Period("2012-1-2", freq="D")]
+            [
+                pd.Period("2012-1-1", freq="D"),
+                pd.NaT,
+                pd.Period("2012-1-2", freq="D"),
+            ]
         )
         result = getattr(ser, func)(skipna=False)
         expected = pd.Series([pd.Period("2012-1-1", freq="D"), pd.NaT, pd.NaT])
@@ -207,7 +224,9 @@ class TestSeriesCumulativeOps:
             ["cummin", "cba"],
         ],
     )
-    def test_cummax_cummin_ordered_categorical_nan(self, skip, exp, method, order):
+    def test_cummax_cummin_ordered_categorical_nan(
+        self, skip, exp, method, order
+    ):
         # GH#52335
         cat = pd.CategoricalDtype(list(order), ordered=True)
         ser = pd.Series(
@@ -227,7 +246,9 @@ class TestSeriesCumulativeOps:
     def test_cumprod_timedelta(self):
         # GH#48111
         ser = pd.Series([pd.Timedelta(days=1), pd.Timedelta(days=3)])
-        with pytest.raises(TypeError, match="cumprod not supported for Timedelta"):
+        with pytest.raises(
+            TypeError, match="cumprod not supported for Timedelta"
+        ):
             ser.cumprod()
 
     @pytest.mark.parametrize(
@@ -279,6 +300,8 @@ class TestSeriesCumulativeOps:
     def test_cumprod_pyarrow_strings(self, pyarrow_string_dtype, skipna):
         # https://github.com/pandas-dev/pandas/pull/60633
         ser = pd.Series(list("xyz"), dtype=pyarrow_string_dtype)
-        msg = re.escape(f"operation 'cumprod' not supported for dtype '{ser.dtype}'")
+        msg = re.escape(
+            f"operation 'cumprod' not supported for dtype '{ser.dtype}'"
+        )
         with pytest.raises(TypeError, match=msg):
             ser.cumprod(skipna=skipna)

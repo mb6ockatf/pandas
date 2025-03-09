@@ -49,7 +49,17 @@ class SeriesPlotting:
 
 class FramePlotting:
     params = [
-        ["line", "bar", "area", "barh", "hist", "kde", "pie", "scatter", "hexbin"]
+        [
+            "line",
+            "bar",
+            "area",
+            "barh",
+            "hist",
+            "kde",
+            "pie",
+            "scatter",
+            "hexbin",
+        ]
     ]
     param_names = ["kind"]
 
@@ -125,7 +135,9 @@ class BackendLoading:
             stack.enter_context(
                 mock.patch.dict(sys.modules, {"pandas_dummy_backend": mod})
             )
-            tmp_path = pathlib.Path(stack.enter_context(tempfile.TemporaryDirectory()))
+            tmp_path = pathlib.Path(
+                stack.enter_context(tempfile.TemporaryDirectory())
+            )
 
             sys.path.insert(0, os.fsdecode(tmp_path))
             stack.callback(sys.path.remove, os.fsdecode(tmp_path))

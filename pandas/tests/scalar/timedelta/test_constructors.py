@@ -144,7 +144,9 @@ class TestTimedeltaConstructorUnitKeyword:
         tm.assert_index_equal(result, expected)
 
         # scalar
-        expected = Timedelta(np.timedelta64(2, np_unit).astype("timedelta64[ns]"))
+        expected = Timedelta(
+            np.timedelta64(2, np_unit).astype("timedelta64[ns]")
+        )
         result = to_timedelta(2, unit=unit)
         assert result == expected
         result = Timedelta(2, unit=unit)
@@ -352,16 +354,14 @@ def test_construction():
     with pytest.raises(ValueError, match=msg):
         Timedelta("foo")
 
-    msg = (
-        "cannot construct a Timedelta from the passed arguments, allowed keywords are "
-    )
+    msg = "cannot construct a Timedelta from the passed arguments, allowed keywords are "
     with pytest.raises(ValueError, match=msg):
         Timedelta(day=10)
 
     # floats
-    expected = np.timedelta64(10, "s").astype("m8[ns]").view("i8") + np.timedelta64(
-        500, "ms"
-    ).astype("m8[ns]").view("i8")
+    expected = np.timedelta64(10, "s").astype("m8[ns]").view(
+        "i8"
+    ) + np.timedelta64(500, "ms").astype("m8[ns]").view("i8")
     assert Timedelta(10.5, unit="s")._value == expected
 
     # offset
@@ -395,7 +395,8 @@ def test_construction():
     ),
 )
 @pytest.mark.parametrize(
-    "npdtype", [np.int64, np.int32, np.int16, np.float64, np.float32, np.float16]
+    "npdtype",
+    [np.int64, np.int32, np.int16, np.float64, np.float32, np.float16],
 )
 def test_td_construction_with_np_dtypes(npdtype, item):
     # GH#8757: test construction with np dtypes
@@ -464,7 +465,9 @@ def test_construction_out_of_bounds_td64ns(val, unit):
 
     # Timedelta.max is just under 106752 days
     td64 = np.timedelta64(val, unit)
-    assert td64.astype("m8[ns]").view("i8") < 0  # i.e. naive astype will be wrong
+    assert (
+        td64.astype("m8[ns]").view("i8") < 0
+    )  # i.e. naive astype will be wrong
 
     td = Timedelta(td64)
     if unit != "M":
@@ -480,7 +483,9 @@ def test_construction_out_of_bounds_td64ns(val, unit):
     assert Timedelta(td64 - 1) == td64 - 1
 
     td64 *= -1
-    assert td64.astype("m8[ns]").view("i8") > 0  # i.e. naive astype will be wrong
+    assert (
+        td64.astype("m8[ns]").view("i8") > 0
+    )  # i.e. naive astype will be wrong
 
     td2 = Timedelta(td64)
     msg = r"Cannot cast -1067\d\d days .* to unit='ns' without overflow"

@@ -58,9 +58,7 @@ class TestTimestampArithmetic:
         stamp = Timestamp("2000/1/1").as_unit("ns")
         offset_overflow = to_offset("D") * 100**5
 
-        lmsg3 = (
-            r"Cannot cast -?10000000000 days \+?00:00:00 to unit='ns' without overflow"
-        )
+        lmsg3 = r"Cannot cast -?10000000000 days \+?00:00:00 to unit='ns' without overflow"
         with pytest.raises(OutOfBoundsTimedelta, match=lmsg3):
             stamp + offset_overflow
 
@@ -142,7 +140,9 @@ class TestTimestampArithmetic:
     def test_subtracting_different_timezones(self, tz_aware_fixture):
         t_raw = Timestamp("20130101")
         t_UTC = t_raw.tz_localize("UTC")
-        t_diff = t_UTC.tz_convert(tz_aware_fixture) + Timedelta("0 days 05:00:00")
+        t_diff = t_UTC.tz_convert(tz_aware_fixture) + Timedelta(
+            "0 days 05:00:00"
+        )
 
         result = t_diff - t_UTC
 
@@ -241,7 +241,9 @@ class TestTimestampArithmetic:
         result = ts + other
 
         ex_stamps = [ts + Timedelta(hours=n) for n in range(6)]
-        expected = np.array([x.asm8 for x in ex_stamps], dtype="M8[ns]").reshape(shape)
+        expected = np.array(
+            [x.asm8 for x in ex_stamps], dtype="M8[ns]"
+        ).reshape(shape)
         tm.assert_numpy_array_equal(result, expected)
 
         result = other + ts
@@ -249,7 +251,9 @@ class TestTimestampArithmetic:
 
         result = ts - other
         ex_stamps = [ts - Timedelta(hours=n) for n in range(6)]
-        expected = np.array([x.asm8 for x in ex_stamps], dtype="M8[ns]").reshape(shape)
+        expected = np.array(
+            [x.asm8 for x in ex_stamps], dtype="M8[ns]"
+        ).reshape(shape)
         tm.assert_numpy_array_equal(result, expected)
 
         msg = r"unsupported operand type\(s\) for -: 'numpy.ndarray' and 'Timestamp'"

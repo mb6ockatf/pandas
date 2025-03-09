@@ -81,7 +81,9 @@ def quantile_with_mask(
         # unsqueeze, operate, re-squeeze
         values = np.atleast_2d(values)
         mask = np.atleast_2d(mask)
-        res_values = quantile_with_mask(values, mask, fill_value, qs, interpolation)
+        res_values = quantile_with_mask(
+            values, mask, fill_value, qs, interpolation
+        )
         return res_values[0]
 
     assert values.ndim == 2

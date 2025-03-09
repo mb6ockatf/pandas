@@ -119,7 +119,9 @@ def month_classes(request):
 
 @pytest.fixture(
     params=[
-        getattr(offsets, o) for o in offsets.__all__ if o not in ("Tick", "BaseOffset")
+        getattr(offsets, o)
+        for o in offsets.__all__
+        if o not in ("Tick", "BaseOffset")
     ]
 )
 def offset_types(request):
@@ -243,7 +245,9 @@ class TestCommon:
             code = _get_offset(freqstr)
             assert offset.rule_code == code
 
-    def _check_offsetfunc_works(self, offset, funcname, dt, expected, normalize=False):
+    def _check_offsetfunc_works(
+        self, offset, funcname, dt, expected, normalize=False
+    ):
         if normalize and issubclass(offset, Tick):
             # normalize=True disallowed for Tick subclasses GH#21427
             return
@@ -371,7 +375,9 @@ class TestCommon:
 
         for dt in [sdt, ndt]:
             expected = expecteds[offset_types.__name__]
-            self._check_offsetfunc_works(offset_types, "rollforward", dt, expected)
+            self._check_offsetfunc_works(
+                offset_types, "rollforward", dt, expected
+            )
             expected = norm_expected[offset_types.__name__]
             self._check_offsetfunc_works(
                 offset_types, "rollforward", dt, expected, normalize=True
@@ -451,7 +457,9 @@ class TestCommon:
 
         for dt in [sdt, ndt]:
             expected = expecteds[offset_types.__name__]
-            self._check_offsetfunc_works(offset_types, "rollback", dt, expected)
+            self._check_offsetfunc_works(
+                offset_types, "rollback", dt, expected
+            )
 
             expected = norm_expected[offset_types.__name__]
             self._check_offsetfunc_works(
@@ -667,8 +675,12 @@ class TestDateOffset:
         ),
     )
     def test_add(self, arithmatic_offset_type, expected, dt):
-        assert DateOffset(**{arithmatic_offset_type: 1}) + dt == Timestamp(expected)
-        assert dt + DateOffset(**{arithmatic_offset_type: 1}) == Timestamp(expected)
+        assert DateOffset(**{arithmatic_offset_type: 1}) + dt == Timestamp(
+            expected
+        )
+        assert dt + DateOffset(**{arithmatic_offset_type: 1}) == Timestamp(
+            expected
+        )
 
     @pytest.mark.parametrize(
         "arithmatic_offset_type, expected",
@@ -688,8 +700,12 @@ class TestDateOffset:
         ),
     )
     def test_sub(self, arithmatic_offset_type, expected, dt):
-        assert dt - DateOffset(**{arithmatic_offset_type: 1}) == Timestamp(expected)
-        with pytest.raises(TypeError, match="Cannot subtract datetime from offset"):
+        assert dt - DateOffset(**{arithmatic_offset_type: 1}) == Timestamp(
+            expected
+        )
+        with pytest.raises(
+            TypeError, match="Cannot subtract datetime from offset"
+        ):
             DateOffset(**{arithmatic_offset_type: 1}) - dt
 
     @pytest.mark.parametrize(
@@ -711,10 +727,18 @@ class TestDateOffset:
         ),
     )
     def test_mul_add(self, arithmatic_offset_type, n, expected, dt):
-        assert DateOffset(**{arithmatic_offset_type: 1}) * n + dt == Timestamp(expected)
-        assert n * DateOffset(**{arithmatic_offset_type: 1}) + dt == Timestamp(expected)
-        assert dt + DateOffset(**{arithmatic_offset_type: 1}) * n == Timestamp(expected)
-        assert dt + n * DateOffset(**{arithmatic_offset_type: 1}) == Timestamp(expected)
+        assert DateOffset(**{arithmatic_offset_type: 1}) * n + dt == Timestamp(
+            expected
+        )
+        assert n * DateOffset(**{arithmatic_offset_type: 1}) + dt == Timestamp(
+            expected
+        )
+        assert dt + DateOffset(**{arithmatic_offset_type: 1}) * n == Timestamp(
+            expected
+        )
+        assert dt + n * DateOffset(**{arithmatic_offset_type: 1}) == Timestamp(
+            expected
+        )
 
     @pytest.mark.parametrize(
         "arithmatic_offset_type, n, expected",
@@ -735,8 +759,12 @@ class TestDateOffset:
         ),
     )
     def test_mul_sub(self, arithmatic_offset_type, n, expected, dt):
-        assert dt - DateOffset(**{arithmatic_offset_type: 1}) * n == Timestamp(expected)
-        assert dt - n * DateOffset(**{arithmatic_offset_type: 1}) == Timestamp(expected)
+        assert dt - DateOffset(**{arithmatic_offset_type: 1}) * n == Timestamp(
+            expected
+        )
+        assert dt - n * DateOffset(**{arithmatic_offset_type: 1}) == Timestamp(
+            expected
+        )
 
     def test_leap_year(self):
         d = datetime(2008, 1, 31)
@@ -753,7 +781,10 @@ class TestDateOffset:
     @pytest.mark.parametrize(
         "offset_kwargs, expected_arg",
         [
-            ({"microseconds": 1, "milliseconds": 1}, "2022-01-01 00:00:00.001001"),
+            (
+                {"microseconds": 1, "milliseconds": 1},
+                "2022-01-01 00:00:00.001001",
+            ),
             ({"seconds": 1, "milliseconds": 1}, "2022-01-01 00:00:01.001"),
             ({"minutes": 1, "milliseconds": 1}, "2022-01-01 00:01:00.001"),
             ({"hours": 1, "milliseconds": 1}, "2022-01-01 01:00:00.001"),
@@ -810,9 +841,9 @@ def test_get_offset():
 
     for name, expected in pairs:
         offset = _get_offset(name)
-        assert offset == expected, (
-            f"Expected {name!r} to yield {expected!r} (actual: {offset!r})"
-        )
+        assert (
+            offset == expected
+        ), f"Expected {name!r} to yield {expected!r} (actual: {offset!r})"
 
 
 def test_get_offset_legacy():
@@ -927,7 +958,11 @@ class TestReprNames:
         ]
         days = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
         names += ["W-" + day for day in days]
-        names += ["WOM-" + week + day for week in ("1", "2", "3", "4") for day in days]
+        names += [
+            "WOM-" + week + day
+            for week in ("1", "2", "3", "4")
+            for day in days
+        ]
         _offset_map.clear()
         for name in names:
             offset = _get_offset(name)
@@ -1110,7 +1145,10 @@ def test_construct_int_arg_no_kwargs_assumed_days(n):
             DateOffset(minutes=7, nanoseconds=18),
             Timestamp("2022-01-01 00:07:00.000000018"),
         ),
-        (DateOffset(nanoseconds=3), Timestamp("2022-01-01 00:00:00.000000003")),
+        (
+            DateOffset(nanoseconds=3),
+            Timestamp("2022-01-01 00:00:00.000000003"),
+        ),
     ],
 )
 def test_dateoffset_add_sub_timestamp_series_with_nano(offset, expected):
@@ -1158,7 +1196,9 @@ def test_offset_multiplication(
 
 def test_dateoffset_operations_on_dataframes(performance_warning):
     # GH 47953
-    df = DataFrame({"T": [Timestamp("2019-04-30")], "D": [DateOffset(months=1)]})
+    df = DataFrame(
+        {"T": [Timestamp("2019-04-30")], "D": [DateOffset(months=1)]}
+    )
     frameresult1 = df["T"] + 26 * df["D"]
     df2 = DataFrame(
         {

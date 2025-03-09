@@ -255,7 +255,9 @@ class ModeObjectDropNAFalse:
 
 class Dir:
     def setup(self):
-        self.s = Series(index=Index([f"i-{i}" for i in range(10000)], dtype=object))
+        self.s = Series(
+            index=Index([f"i-{i}" for i in range(10000)], dtype=object)
+        )
 
     def time_dir_strings(self):
         dir(self.s)
@@ -264,7 +266,9 @@ class Dir:
 class SeriesGetattr:
     # https://github.com/pandas-dev/pandas/issues/19764
     def setup(self):
-        self.s = Series(1, index=date_range("2012-01-01", freq="s", periods=10**6))
+        self.s = Series(
+            1, index=date_range("2012-01-01", freq="s", periods=10**6)
+        )
 
     def time_series_datetimeindex_repr(self):
         getattr(self.s, "a", None)

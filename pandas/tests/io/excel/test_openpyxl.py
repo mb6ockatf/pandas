@@ -36,9 +36,17 @@ def test_to_excel_styleconverter():
 
     hstyle = {
         "font": {"color": "00FF0000", "bold": True},
-        "borders": {"top": "thin", "right": "thin", "bottom": "thin", "left": "thin"},
+        "borders": {
+            "top": "thin",
+            "right": "thin",
+            "bottom": "thin",
+            "left": "thin",
+        },
         "alignment": {"horizontal": "center", "vertical": "top"},
-        "fill": {"patternType": "solid", "fgColor": {"rgb": "006666FF", "tint": 0.3}},
+        "fill": {
+            "patternType": "solid",
+            "fgColor": {"rgb": "006666FF", "tint": 0.3},
+        },
         "number_format": {"format_code": "0.00"},
         "protection": {"locked": True, "hidden": False},
     }
@@ -82,7 +90,12 @@ def test_write_cells_merge_styled(tmp_excel):
     openpyxl_sty_merged = sty_kwargs["font"]
     merge_cells = [
         ExcelCell(
-            col=0, row=0, val="pandas", mergestart=1, mergeend=1, style=sty_merged
+            col=0,
+            row=0,
+            val="pandas",
+            mergestart=1,
+            mergeend=1,
+            style=sty_merged,
         )
     ]
 
@@ -136,7 +149,10 @@ def test_engine_kwargs_append_data_only(tmp_excel, data_only, expected):
     # openpyxl's load_workbook
     DataFrame(["=1+1"]).to_excel(tmp_excel)
     with ExcelWriter(
-        tmp_excel, engine="openpyxl", mode="a", engine_kwargs={"data_only": data_only}
+        tmp_excel,
+        engine="openpyxl",
+        mode="a",
+        engine_kwargs={"data_only": data_only},
     ) as writer:
         assert writer.sheets["Sheet1"]["B2"].value == expected
         # ExcelWriter needs us to writer something to close properly?
@@ -200,7 +216,9 @@ def test_write_append_mode(tmp_excel, mode, expected):
         ("overlay", 1, ["pear", "banana"]),
     ],
 )
-def test_if_sheet_exists_append_modes(tmp_excel, if_sheet_exists, num_sheets, expected):
+def test_if_sheet_exists_append_modes(
+    tmp_excel, if_sheet_exists, num_sheets, expected
+):
     # GH 40230
     df1 = DataFrame({"fruit": ["apple", "banana"]})
     df2 = DataFrame({"fruit": ["pear"]})
@@ -233,7 +251,9 @@ def test_if_sheet_exists_append_modes(tmp_excel, if_sheet_exists, num_sheets, ex
 def test_append_overlay_startrow_startcol(
     tmp_excel, startrow, startcol, greeting, goodbye
 ):
-    df1 = DataFrame({"greeting": ["hello", "world"], "goodbye": ["goodbye", "people"]})
+    df1 = DataFrame(
+        {"greeting": ["hello", "world"], "goodbye": ["goodbye", "people"]}
+    )
     df2 = DataFrame(["poop"])
 
     df1.to_excel(tmp_excel, engine="openpyxl", sheet_name="poo", index=False)
@@ -279,7 +299,10 @@ def test_if_sheet_exists_raises(tmp_excel, if_sheet_exists, msg):
     df.to_excel(tmp_excel, sheet_name="foo", engine="openpyxl")
     with pytest.raises(ValueError, match=re.escape(msg)):
         with ExcelWriter(
-            tmp_excel, engine="openpyxl", mode="a", if_sheet_exists=if_sheet_exists
+            tmp_excel,
+            engine="openpyxl",
+            mode="a",
+            if_sheet_exists=if_sheet_exists,
         ) as writer:
             df.to_excel(writer, sheet_name="foo")
 
@@ -424,8 +447,15 @@ def test_read_multiindex_header_no_index_names(datapath, ext):
     expected = DataFrame(
         [[np.nan, "x", "x", "x"], ["x", np.nan, np.nan, np.nan]],
         columns=pd.MultiIndex.from_tuples(
-            [("X", "Y", "A1"), ("X", "Y", "A2"), ("XX", "YY", "B1"), ("XX", "YY", "B2")]
+            [
+                ("X", "Y", "A1"),
+                ("X", "Y", "A2"),
+                ("XX", "YY", "B1"),
+                ("XX", "YY", "B2"),
+            ]
         ),
-        index=pd.MultiIndex.from_tuples([("A", "AA", "AAA"), ("A", "BB", "BBB")]),
+        index=pd.MultiIndex.from_tuples(
+            [("A", "AA", "AAA"), ("A", "BB", "BBB")]
+        ),
     )
     tm.assert_frame_equal(result, expected)

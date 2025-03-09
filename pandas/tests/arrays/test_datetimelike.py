@@ -55,7 +55,9 @@ def period_index(freqstr):
             "ignore", message="Period with BDay freq", category=FutureWarning
         )
         freqstr = PeriodDtype(to_offset(freqstr))._freqstr
-        pi = pd.period_range(start=Timestamp("2000-01-01"), periods=100, freq=freqstr)
+        pi = pd.period_range(
+            start=Timestamp("2000-01-01"), periods=100, freq=freqstr
+        )
     return pi
 
 
@@ -69,7 +71,9 @@ def datetime_index(freqstr):
     the DatetimeIndex behavior.
     """
     # TODO: non-monotone indexes; NaTs, different start dates, timezones
-    dti = pd.date_range(start=Timestamp("2000-01-01"), periods=100, freq=freqstr)
+    dti = pd.date_range(
+        start=Timestamp("2000-01-01"), periods=100, freq=freqstr
+    )
     return dti
 
 
@@ -127,7 +131,9 @@ class SharedTests:
 
     @pytest.mark.parametrize("reverse", [True, False])
     @pytest.mark.parametrize("as_index", [True, False])
-    def test_compare_categorical_dtype(self, arr1d, as_index, reverse, ordered):
+    def test_compare_categorical_dtype(
+        self, arr1d, as_index, reverse, ordered
+    ):
         other = pd.Categorical(arr1d, ordered=ordered)
         if as_index:
             other = pd.CategoricalIndex(other)
@@ -182,9 +188,13 @@ class SharedTests:
 
         tm.assert_index_equal(self.index_cls(result), expected)
 
-    @pytest.mark.parametrize("fill_value", [2, 2.0, Timestamp(2021, 1, 1, 12).time])
+    @pytest.mark.parametrize(
+        "fill_value", [2, 2.0, Timestamp(2021, 1, 1, 12).time]
+    )
     def test_take_fill_raises(self, fill_value, arr1d):
-        msg = f"value should be a '{arr1d._scalar_type.__name__}' or 'NaT'. Got"
+        msg = (
+            f"value should be a '{arr1d._scalar_type.__name__}' or 'NaT'. Got"
+        )
         with pytest.raises(TypeError, match=msg):
             arr1d.take([0, 1], allow_fill=True, fill_value=fill_value)
 
@@ -205,11 +215,15 @@ class SharedTests:
     )
     def test_take_fill_str(self, arr1d):
         # Cast str fill_value matching other fill_value-taking methods
-        result = arr1d.take([-1, 1], allow_fill=True, fill_value=str(arr1d[-1]))
+        result = arr1d.take(
+            [-1, 1], allow_fill=True, fill_value=str(arr1d[-1])
+        )
         expected = arr1d[[-1, 1]]
         tm.assert_equal(result, expected)
 
-        msg = f"value should be a '{arr1d._scalar_type.__name__}' or 'NaT'. Got"
+        msg = (
+            f"value should be a '{arr1d._scalar_type.__name__}' or 'NaT'. Got"
+        )
         with pytest.raises(TypeError, match=msg):
             arr1d.take([-1, 1], allow_fill=True, fill_value="foo")
 
@@ -366,7 +380,9 @@ class SharedTests:
 
         # Lookup on a 2D array
         arr2d = expected
-        expected = type(arr2d)._simple_new(arr2d._ndarray[:3, 0], dtype=arr2d.dtype)
+        expected = type(arr2d)._simple_new(
+            arr2d._ndarray[:3, 0], dtype=arr2d.dtype
+        )
         result = arr2d[:3, 0]
         tm.assert_equal(result, expected)
 
@@ -604,8 +620,12 @@ class SharedTests:
             expected = self.array_cls(arr, dtype=self.example_dtype)
             result = self.array_cls(data, dtype=self.example_dtype)
         else:
-            expected = self.array_cls._from_sequence(arr, dtype=self.example_dtype)
-            result = self.array_cls._from_sequence(data, dtype=self.example_dtype)
+            expected = self.array_cls._from_sequence(
+                arr, dtype=self.example_dtype
+            )
+            result = self.array_cls._from_sequence(
+                data, dtype=self.example_dtype
+            )
 
         tm.assert_extension_array_equal(result, expected)
 
@@ -623,7 +643,9 @@ class TestDatetimeArray(SharedTests):
         timezones
         """
         tz = tz_naive_fixture
-        dti = pd.date_range("2016-01-01 01:01:00", periods=5, freq=freqstr, tz=tz)
+        dti = pd.date_range(
+            "2016-01-01 01:01:00", periods=5, freq=freqstr, tz=tz
+        )
         dta = dti._data
         return dta
 
@@ -766,7 +788,9 @@ class TestDatetimeArray(SharedTests):
         assert asobj.dtype == "O"
         assert list(asobj) == list(dti)
 
-    @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+    @pytest.mark.filterwarnings(
+        r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+    )
     def test_to_period(self, datetime_index, freqstr):
         dti = datetime_index
         arr = dti._data
@@ -782,7 +806,9 @@ class TestDatetimeArray(SharedTests):
         arr2d = arr1d.reshape(1, -1)
 
         warn = None if arr1d.tz is None else UserWarning
-        with tm.assert_produces_warning(warn, match="will drop timezone information"):
+        with tm.assert_produces_warning(
+            warn, match="will drop timezone information"
+        ):
             result = arr2d.to_period("D")
             expected = arr1d.to_period("D").reshape(1, -1)
         tm.assert_period_array_equal(result, expected)
@@ -817,7 +843,9 @@ class TestDatetimeArray(SharedTests):
         result = arr.take([-1, 1], allow_fill=True, fill_value=now)
         assert result[0] == now
 
-        msg = f"value should be a '{arr1d._scalar_type.__name__}' or 'NaT'. Got"
+        msg = (
+            f"value should be a '{arr1d._scalar_type.__name__}' or 'NaT'. Got"
+        )
         with pytest.raises(TypeError, match=msg):
             # fill_value Timedelta invalid
             arr.take([-1, 1], allow_fill=True, fill_value=now - now)
@@ -834,7 +862,9 @@ class TestDatetimeArray(SharedTests):
             arr.take([-1, 1], allow_fill=True, fill_value=now)
 
         value = NaT._value
-        msg = f"value should be a '{arr1d._scalar_type.__name__}' or 'NaT'. Got"
+        msg = (
+            f"value should be a '{arr1d._scalar_type.__name__}' or 'NaT'. Got"
+        )
         with pytest.raises(TypeError, match=msg):
             # require NaT, not iNaT, as it could be confused with an integer
             arr.take([-1, 1], allow_fill=True, fill_value=value)
@@ -871,8 +901,12 @@ class TestDatetimeArray(SharedTests):
 
     def test_concat_same_type_different_freq(self, unit):
         # we *can* concatenate DTI with different freqs.
-        a = pd.date_range("2000", periods=2, freq="D", tz="US/Central", unit=unit)._data
-        b = pd.date_range("2000", periods=2, freq="h", tz="US/Central", unit=unit)._data
+        a = pd.date_range(
+            "2000", periods=2, freq="D", tz="US/Central", unit=unit
+        )._data
+        b = pd.date_range(
+            "2000", periods=2, freq="h", tz="US/Central", unit=unit
+        )._data
         result = DatetimeArray._concat_same_type([a, b])
         expected = (
             pd.to_datetime(
@@ -896,7 +930,9 @@ class TestDatetimeArray(SharedTests):
         result = arr.strftime("%Y %b")
         expected = np.array([ts.strftime("%Y %b") for ts in arr], dtype=object)
         if using_infer_string:
-            expected = pd.array(expected, dtype=pd.StringDtype(na_value=np.nan))
+            expected = pd.array(
+                expected, dtype=pd.StringDtype(na_value=np.nan)
+            )
         tm.assert_equal(result, expected)
 
     def test_strftime_nat(self, using_infer_string):
@@ -906,7 +942,9 @@ class TestDatetimeArray(SharedTests):
         result = arr.strftime("%Y-%m-%d")
         expected = np.array(["2019-01-01", np.nan], dtype=object)
         if using_infer_string:
-            expected = pd.array(expected, dtype=pd.StringDtype(na_value=np.nan))
+            expected = pd.array(
+                expected, dtype=pd.StringDtype(na_value=np.nan)
+            )
         tm.assert_equal(result, expected)
 
 
@@ -1032,8 +1070,12 @@ class TestTimedeltaArray(SharedTests):
             arr.take([-1, 1], allow_fill=True, fill_value=value)
 
 
-@pytest.mark.filterwarnings(r"ignore:Period with BDay freq is deprecated:FutureWarning")
-@pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+@pytest.mark.filterwarnings(
+    r"ignore:Period with BDay freq is deprecated:FutureWarning"
+)
+@pytest.mark.filterwarnings(
+    r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+)
 class TestPeriodArray(SharedTests):
     index_cls = PeriodIndex
     array_cls = PeriodArray
@@ -1069,7 +1111,9 @@ class TestPeriodArray(SharedTests):
         arr = arr1d
 
         value = NaT._value
-        msg = f"value should be a '{arr1d._scalar_type.__name__}' or 'NaT'. Got"
+        msg = (
+            f"value should be a '{arr1d._scalar_type.__name__}' or 'NaT'. Got"
+        )
         with pytest.raises(TypeError, match=msg):
             # require NaT, not iNaT, as it could be confused with an integer
             arr.take([-1, 1], allow_fill=True, fill_value=value)
@@ -1178,7 +1222,9 @@ class TestPeriodArray(SharedTests):
         result = arr.strftime("%Y")
         expected = np.array([per.strftime("%Y") for per in arr], dtype=object)
         if using_infer_string:
-            expected = pd.array(expected, dtype=pd.StringDtype(na_value=np.nan))
+            expected = pd.array(
+                expected, dtype=pd.StringDtype(na_value=np.nan)
+            )
         tm.assert_equal(result, expected)
 
     def test_strftime_nat(self, using_infer_string):
@@ -1188,7 +1234,9 @@ class TestPeriodArray(SharedTests):
         result = arr.strftime("%Y-%m-%d")
         expected = np.array(["2019-01-01", np.nan], dtype=object)
         if using_infer_string:
-            expected = pd.array(expected, dtype=pd.StringDtype(na_value=np.nan))
+            expected = pd.array(
+                expected, dtype=pd.StringDtype(na_value=np.nan)
+            )
         tm.assert_equal(result, expected)
 
 
@@ -1229,7 +1277,11 @@ def test_casting_nat_setitem_array(arr, casting_nats):
         ),
         (
             pd.period_range("2000-01-01", periods=3, freq="D")._data,
-            (np.datetime64("NaT", "ns"), np.timedelta64("NaT", "ns"), NaT._value),
+            (
+                np.datetime64("NaT", "ns"),
+                np.timedelta64("NaT", "ns"),
+                NaT._value,
+            ),
         ),
     ],
     ids=lambda x: type(x).__name__,
@@ -1315,7 +1367,8 @@ def test_searchsorted_datetimelike_with_listlike(values, klass, as_index):
     ],
 )
 @pytest.mark.parametrize(
-    "arg", [[1, 2], ["a", "b"], [Timestamp("2020-01-01", tz="Europe/London")] * 2]
+    "arg",
+    [[1, 2], ["a", "b"], [Timestamp("2020-01-01", tz="Europe/London")] * 2],
 )
 def test_searchsorted_datetimelike_with_listlike_invalid_dtype(values, arg):
     # https://github.com/pandas-dev/pandas/issues/32762

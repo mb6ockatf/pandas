@@ -61,7 +61,13 @@ class TestBase:
                 freq="D",
             ),
             DatetimeIndex(
-                ["2013-01-01", "2013-01-02", "2013-01-03", "2013-01-04", "2013-01-05"],
+                [
+                    "2013-01-01",
+                    "2013-01-02",
+                    "2013-01-03",
+                    "2013-01-04",
+                    "2013-01-05",
+                ],
                 dtype="datetime64[ns]",
                 freq="D",
             ),
@@ -93,7 +99,9 @@ class TestBase:
 
     def test_shift(self, simple_index):
         # GH8083 test the base class for shift
-        if isinstance(simple_index, (DatetimeIndex, TimedeltaIndex, PeriodIndex)):
+        if isinstance(
+            simple_index, (DatetimeIndex, TimedeltaIndex, PeriodIndex)
+        ):
             pytest.skip("Tested in test_ops/test_arithmetic")
         idx = simple_index
         msg = (
@@ -109,7 +117,9 @@ class TestBase:
         # GH#29069 check that name is hashable
         # See also same-named test in tests.series.test_constructors
         idx = simple_index
-        with pytest.raises(TypeError, match="Index.name must be a hashable type"):
+        with pytest.raises(
+            TypeError, match="Index.name must be a hashable type"
+        ):
             type(idx)(idx, name=[])
 
     def test_create_index_existing_name(self, simple_index):
@@ -243,7 +253,9 @@ class TestBase:
             repr(idx)
             assert "..." not in str(idx)
 
-    @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+    @pytest.mark.filterwarnings(
+        r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+    )
     def test_ensure_copied_data(self, index):
         # Check the "copy" argument of each Index.__new__ is honoured
         # GH12309
@@ -256,7 +268,10 @@ class TestBase:
                 "RangeIndex cannot be initialized from data, "
                 "MultiIndex and CategoricalIndex are tested separately"
             )
-        elif index.dtype == object and index.inferred_type in ["boolean", "string"]:
+        elif index.dtype == object and index.inferred_type in [
+            "boolean",
+            "string",
+        ]:
             init_kwargs["dtype"] = index.dtype
 
         index_type = type(index)
@@ -270,8 +285,12 @@ class TestBase:
 
         if isinstance(index, PeriodIndex):
             # .values an object array of Period, thus copied
-            result = index_type.from_ordinals(ordinals=index.asi8, **init_kwargs)
-            tm.assert_numpy_array_equal(index.asi8, result.asi8, check_same="same")
+            result = index_type.from_ordinals(
+                ordinals=index.asi8, **init_kwargs
+            )
+            tm.assert_numpy_array_equal(
+                index.asi8, result.asi8, check_same="same"
+            )
         elif isinstance(index, IntervalIndex):
             # checked in test_interval.py
             pass
@@ -280,20 +299,33 @@ class TestBase:
             tm.assert_index_equal(result, index)
 
             if isinstance(index._values, BaseMaskedArray):
-                assert np.shares_memory(index._values._data, result._values._data)
-                tm.assert_numpy_array_equal(
-                    index._values._data, result._values._data, check_same="same"
+                assert np.shares_memory(
+                    index._values._data, result._values._data
                 )
-                assert np.shares_memory(index._values._mask, result._values._mask)
                 tm.assert_numpy_array_equal(
-                    index._values._mask, result._values._mask, check_same="same"
+                    index._values._data,
+                    result._values._data,
+                    check_same="same",
+                )
+                assert np.shares_memory(
+                    index._values._mask, result._values._mask
+                )
+                tm.assert_numpy_array_equal(
+                    index._values._mask,
+                    result._values._mask,
+                    check_same="same",
                 )
             elif (
-                isinstance(index.dtype, StringDtype) and index.dtype.storage == "python"
+                isinstance(index.dtype, StringDtype)
+                and index.dtype.storage == "python"
             ):
-                assert np.shares_memory(index._values._ndarray, result._values._ndarray)
+                assert np.shares_memory(
+                    index._values._ndarray, result._values._ndarray
+                )
                 tm.assert_numpy_array_equal(
-                    index._values._ndarray, result._values._ndarray, check_same="same"
+                    index._values._ndarray,
+                    result._values._ndarray,
+                    check_same="same",
                 )
             elif (
                 isinstance(index.dtype, StringDtype)
@@ -304,7 +336,9 @@ class TestBase:
                 raise NotImplementedError(index.dtype)
         else:
             result = index_type(index.values, copy=False, **init_kwargs)
-            tm.assert_numpy_array_equal(index.values, result.values, check_same="same")
+            tm.assert_numpy_array_equal(
+                index.values, result.values, check_same="same"
+            )
 
     def test_memory_usage(self, index):
         index._engine.clear_mapping()
@@ -410,9 +444,9 @@ class TestBase:
             np.repeat(idx, rep, axis=0)
 
     def test_where(self, listlike_box, simple_index):
-        if isinstance(simple_index, (IntervalIndex, PeriodIndex)) or is_numeric_dtype(
-            simple_index.dtype
-        ):
+        if isinstance(
+            simple_index, (IntervalIndex, PeriodIndex)
+        ) or is_numeric_dtype(simple_index.dtype):
             pytest.skip("Tested elsewhere.")
         klass = listlike_box
 
@@ -499,12 +533,16 @@ class TestBase:
         with pytest.raises(IndexError, match=msg):
             index.delete(length)
 
-    @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+    @pytest.mark.filterwarnings(
+        r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+    )
     def test_equals(self, index):
         if isinstance(index, IntervalIndex):
             pytest.skip(f"{type(index).__name__} tested elsewhere")
 
-        is_ea_idx = type(index) is Index and not isinstance(index.dtype, np.dtype)
+        is_ea_idx = type(index) is Index and not isinstance(
+            index.dtype, np.dtype
+        )
 
         assert index.equals(index)
         assert index.equals(index.copy())
@@ -633,8 +671,12 @@ class TestBase:
             with pytest.raises(NotImplementedError, match=msg):
                 idx.isna()
         elif not index.hasnans:
-            tm.assert_numpy_array_equal(index.isna(), np.zeros(len(index), dtype=bool))
-            tm.assert_numpy_array_equal(index.notna(), np.ones(len(index), dtype=bool))
+            tm.assert_numpy_array_equal(
+                index.isna(), np.zeros(len(index), dtype=bool)
+            )
+            tm.assert_numpy_array_equal(
+                index.notna(), np.ones(len(index), dtype=bool)
+            )
         else:
             result = isna(index)
             tm.assert_numpy_array_equal(index.isna(), result)
@@ -672,7 +714,9 @@ class TestBase:
             lambda values, index: Series(values, index),
         ],
     )
-    @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+    @pytest.mark.filterwarnings(
+        r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+    )
     def test_map_dictlike(self, mapper, simple_index, request):
         idx = simple_index
         if isinstance(idx, (DatetimeIndex, TimedeltaIndex, PeriodIndex)):
@@ -852,7 +896,9 @@ class TestBase:
             if idx.dtype.kind == "f":
                 msg = "ufunc 'invert' not supported for the input types"
             else:
-                msg = "bad operand|__invert__ is not supported for string dtype"
+                msg = (
+                    "bad operand|__invert__ is not supported for string dtype"
+                )
             with pytest.raises(TypeError, match=msg):
                 ~idx
 
@@ -930,7 +976,9 @@ class TestNumericBase:
         na_val = nulls_fixture
 
         if na_val is pd.NaT:
-            expected = Index([index[0], pd.NaT] + list(index[1:]), dtype=object)
+            expected = Index(
+                [index[0], pd.NaT] + list(index[1:]), dtype=object
+            )
         else:
             expected = Index([index[0], np.nan] + list(index[1:]))
             # GH#43921 we preserve float dtype

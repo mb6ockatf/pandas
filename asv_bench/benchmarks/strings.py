@@ -32,12 +32,21 @@ class Construction:
         ["str", "string[python]", "string[pyarrow]"],
     )
     param_names = ["pd_type", "dtype"]
-    pd_mapping = {"series": Series, "frame": DataFrame, "categorical_series": Series}
-    dtype_mapping = {"str": "str", "string[python]": object, "string[pyarrow]": object}
+    pd_mapping = {
+        "series": Series,
+        "frame": DataFrame,
+        "categorical_series": Series,
+    }
+    dtype_mapping = {
+        "str": "str",
+        "string[python]": object,
+        "string[pyarrow]": object,
+    }
 
     def setup(self, pd_type, dtype):
         series_arr = np.array(
-            [str(i) * 10 for i in range(100_000)], dtype=self.dtype_mapping[dtype]
+            [str(i) * 10 for i in range(100_000)],
+            dtype=self.dtype_mapping[dtype],
         )
         if pd_type == "series":
             self.arr = series_arr
@@ -188,10 +197,12 @@ class Cat:
 
     def setup(self, other_cols, sep, na_rep, na_frac):
         N = 10**5
-        mask_gen = lambda: np.random.choice([True, False], N, p=[1 - na_frac, na_frac])
-        self.s = Series(Index([f"i-{i}" for i in range(N)], dtype=object)).where(
-            mask_gen()
+        mask_gen = lambda: np.random.choice(
+            [True, False], N, p=[1 - na_frac, na_frac]
         )
+        self.s = Series(
+            Index([f"i-{i}" for i in range(N)], dtype=object)
+        ).where(mask_gen())
         if other_cols == 0:
             # str.cat self-concatenates only for others=None
             self.others = None
@@ -263,7 +274,9 @@ class Dummies(Dtypes):
 
 class Encode:
     def setup(self):
-        self.ser = Series(Index([f"i-{i}" for i in range(10_000)], dtype=object))
+        self.ser = Series(
+            Index([f"i-{i}" for i in range(10_000)], dtype=object)
+        )
 
     def time_encode_decode(self):
         self.ser.str.encode("utf-8").str.decode("utf-8")
@@ -286,8 +299,12 @@ class Iter(Dtypes):
 
 class StringArrayConstruction:
     def setup(self):
-        self.series_arr = np.array([str(i) * 10 for i in range(10**5)], dtype=object)
-        self.series_arr_nan = np.concatenate([self.series_arr, np.array([NA] * 1000)])
+        self.series_arr = np.array(
+            [str(i) * 10 for i in range(10**5)], dtype=object
+        )
+        self.series_arr_nan = np.concatenate(
+            [self.series_arr, np.array([NA] * 1000)]
+        )
 
     def time_string_array_construction(self):
         StringArray(self.series_arr)

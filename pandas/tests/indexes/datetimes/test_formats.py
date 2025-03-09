@@ -20,7 +20,9 @@ def test_get_values_for_csv():
     index = pd.date_range(freq="1D", periods=3, start="2017-01-01")
 
     # First, with no arguments.
-    expected = np.array(["2017-01-01", "2017-01-02", "2017-01-03"], dtype=object)
+    expected = np.array(
+        ["2017-01-01", "2017-01-02", "2017-01-03"], dtype=object
+    )
 
     result = index._get_values_for_csv()
     tm.assert_numpy_array_equal(result, expected)
@@ -30,7 +32,9 @@ def test_get_values_for_csv():
     tm.assert_numpy_array_equal(result, expected)
 
     # Make sure date formatting works
-    expected = np.array(["01-2017-01", "01-2017-02", "01-2017-03"], dtype=object)
+    expected = np.array(
+        ["01-2017-01", "01-2017-02", "01-2017-03"], dtype=object
+    )
 
     result = index._get_values_for_csv(date_format="%m-%Y-%d")
     tm.assert_numpy_array_equal(result, expected)
@@ -47,7 +51,9 @@ def test_get_values_for_csv():
     result = index._get_values_for_csv(na_rep="pandas")
     tm.assert_numpy_array_equal(result, expected)
 
-    result = index._get_values_for_csv(na_rep="NaT", date_format="%Y-%m-%d %H:%M:%S.%f")
+    result = index._get_values_for_csv(
+        na_rep="NaT", date_format="%Y-%m-%d %H:%M:%S.%f"
+    )
     expected = np.array(
         ["2017-01-01 00:00:00.000000", "NaT", "2017-01-03 00:00:00.000000"],
         dtype=object,
@@ -71,14 +77,20 @@ class TestDatetimeIndexRendering:
         assert "2010-04-13 00:00:00" in rng_repr
 
     def test_dti_repr_dates(self):
-        text = str(pd.to_datetime([datetime(2013, 1, 1), datetime(2014, 1, 1)]))
+        text = str(
+            pd.to_datetime([datetime(2013, 1, 1), datetime(2014, 1, 1)])
+        )
         assert "['2013-01-01'," in text
         assert ", '2014-01-01']" in text
 
     def test_dti_repr_mixed(self):
         text = str(
             pd.to_datetime(
-                [datetime(2013, 1, 1), datetime(2014, 1, 1, 12), datetime(2014, 1, 1)]
+                [
+                    datetime(2013, 1, 1),
+                    datetime(2014, 1, 1, 12),
+                    datetime(2014, 1, 1),
+                ]
             )
         )
         assert "'2013-01-01 00:00:00'," in text
@@ -129,7 +141,9 @@ class TestDatetimeIndexRendering:
         idxs.append(DatetimeIndex([], freq="D"))
         idxs.append(DatetimeIndex(["2011-01-01"], freq="D"))
         idxs.append(DatetimeIndex(["2011-01-01", "2011-01-02"], freq="D"))
-        idxs.append(DatetimeIndex(["2011-01-01", "2011-01-02", "2011-01-03"], freq="D"))
+        idxs.append(
+            DatetimeIndex(["2011-01-01", "2011-01-02", "2011-01-03"], freq="D")
+        )
         idxs.append(
             DatetimeIndex(
                 ["2011-01-01 09:00", "2011-01-01 10:00", "2011-01-01 11:00"],
@@ -143,12 +157,16 @@ class TestDatetimeIndexRendering:
             )
         )
         idxs.append(
-            DatetimeIndex(["2011-01-01 09:00", "2011-01-01 10:00", NaT], tz="UTC")
+            DatetimeIndex(
+                ["2011-01-01 09:00", "2011-01-01 10:00", NaT], tz="UTC"
+            )
         )
 
         exp = []
         exp.append("DatetimeIndex([], dtype='datetime64[ns]', freq='D')")
-        exp.append("DatetimeIndex(['2011-01-01'], dtype='datetime64[ns]', freq='D')")
+        exp.append(
+            "DatetimeIndex(['2011-01-01'], dtype='datetime64[ns]', freq='D')"
+        )
         exp.append(
             "DatetimeIndex(['2011-01-01', '2011-01-02'], "
             "dtype='datetime64[ns]', freq='D')"
@@ -188,7 +206,9 @@ class TestDatetimeIndexRendering:
         idx1 = DatetimeIndex([], freq="D")
         idx2 = DatetimeIndex(["2011-01-01"], freq="D")
         idx3 = DatetimeIndex(["2011-01-01", "2011-01-02"], freq="D")
-        idx4 = DatetimeIndex(["2011-01-01", "2011-01-02", "2011-01-03"], freq="D")
+        idx4 = DatetimeIndex(
+            ["2011-01-01", "2011-01-02", "2011-01-03"], freq="D"
+        )
         idx5 = DatetimeIndex(
             ["2011-01-01 09:00", "2011-01-01 10:00", "2011-01-01 11:00"],
             freq="h",
@@ -237,7 +257,9 @@ class TestDatetimeIndexRendering:
         idx1 = DatetimeIndex([], freq="D")
         idx2 = DatetimeIndex(["2011-01-01"], freq="D")
         idx3 = DatetimeIndex(["2011-01-01", "2011-01-02"], freq="D")
-        idx4 = DatetimeIndex(["2011-01-01", "2011-01-02", "2011-01-03"], freq="D")
+        idx4 = DatetimeIndex(
+            ["2011-01-01", "2011-01-02", "2011-01-03"], freq="D"
+        )
         idx5 = DatetimeIndex(
             ["2011-01-01 09:00", "2011-01-01 10:00", "2011-01-01 11:00"],
             freq="h",
@@ -264,7 +286,8 @@ class TestDatetimeIndexRendering:
         exp6 = """DatetimeIndex: 3 entries, 2011-01-01 09:00:00-05:00 to NaT"""
 
         for idx, expected in zip(
-            [idx1, idx2, idx3, idx4, idx5, idx6], [exp1, exp2, exp3, exp4, exp5, exp6]
+            [idx1, idx2, idx3, idx4, idx5, idx6],
+            [exp1, exp2, exp3, exp4, exp5, exp6],
         ):
             result = idx._summary()
             assert result == expected

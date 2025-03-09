@@ -14,7 +14,9 @@ class TestDataFrameAlterAxes:
         # GH 6785
         # set the index manually
 
-        df = DataFrame([{"ts": datetime(2014, 4, 1, tzinfo=timezone.utc), "foo": 1}])
+        df = DataFrame(
+            [{"ts": datetime(2014, 4, 1, tzinfo=timezone.utc), "foo": 1}]
+        )
         expected = df.set_index("ts")
         df.index = df["ts"]
         df.pop("ts")
@@ -28,4 +30,6 @@ class TestDataFrameAlterAxes:
         df = float_frame.copy()
         df.columns = ["foo", "bar", "baz", "quux", "foo2"]
         tm.assert_series_equal(float_frame["C"], df["baz"], check_names=False)
-        tm.assert_series_equal(float_frame["hi"], df["foo2"], check_names=False)
+        tm.assert_series_equal(
+            float_frame["hi"], df["foo2"], check_names=False
+        )

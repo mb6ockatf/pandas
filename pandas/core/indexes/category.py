@@ -218,7 +218,11 @@ class CategoricalIndex(NDArrayBackedExtensionIndex):
             cls._raise_scalar_data_error(data)
 
         data = Categorical(
-            data, categories=categories, ordered=ordered, dtype=dtype, copy=copy
+            data,
+            categories=categories,
+            ordered=ordered,
+            dtype=dtype,
+            copy=copy,
         )
 
         return cls._simple_new(data, name=name)
@@ -254,7 +258,9 @@ class CategoricalIndex(NDArrayBackedExtensionIndex):
 
         elif other._is_multi:
             # preempt raising NotImplementedError in isna call
-            raise TypeError("MultiIndex is not dtype-compatible with CategoricalIndex")
+            raise TypeError(
+                "MultiIndex is not dtype-compatible with CategoricalIndex"
+            )
         else:
             values = other
 
@@ -380,15 +386,20 @@ class CategoricalIndex(NDArrayBackedExtensionIndex):
         if is_valid_na_for_dtype(key, self.categories.dtype):
             return self.hasnans
         if self.categories._typ == "rangeindex":
-            container: Index | libindex.IndexEngine | libindex.ExtensionEngine = (
-                self.categories
-            )
+            container: (
+                Index | libindex.IndexEngine | libindex.ExtensionEngine
+            ) = self.categories
         else:
             container = self._engine
         return contains(self, key, container=container)
 
     def reindex(
-        self, target, method=None, level=None, limit: int | None = None, tolerance=None
+        self,
+        target,
+        method=None,
+        level=None,
+        limit: int | None = None,
+        tolerance=None,
     ) -> tuple[Index, npt.NDArray[np.intp] | None]:
         """
         Create index with target's values (move/add/delete values as necessary)

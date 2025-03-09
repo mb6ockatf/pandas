@@ -72,7 +72,9 @@ class disallow:
         self.dtypes = tuple(pandas_dtype(dtype).type for dtype in dtypes)
 
     def check(self, obj) -> bool:
-        return hasattr(obj, "dtype") and issubclass(obj.dtype.type, self.dtypes)
+        return hasattr(obj, "dtype") and issubclass(
+            obj.dtype.type, self.dtypes
+        )
 
     def __call__(self, f: F) -> F:
         @functools.wraps(f)
@@ -132,7 +134,11 @@ class bottleneck_switch:
                 # It *may* just be `var`
                 return _na_for_min_count(values, axis)
 
-            if _USE_BOTTLENECK and skipna and _bn_ok_dtype(values.dtype, bn_name):
+            if (
+                _USE_BOTTLENECK
+                and skipna
+                and _bn_ok_dtype(values.dtype, bn_name)
+            ):
                 if kwds.get("mask", None) is None:
                     # `mask` is not recognised by bottleneck, would raise
                     #  TypeError if called
@@ -409,14 +415,18 @@ def _datetimelike_compat(func: F) -> F:
             result = _wrap_results(result, orig_values.dtype, fill_value=iNaT)
             if not skipna:
                 assert mask is not None  # checked above
-                result = _mask_datetimelike_result(result, axis, mask, orig_values)
+                result = _mask_datetimelike_result(
+                    result, axis, mask, orig_values
+                )
 
         return result
 
     return cast(F, new_func)
 
 
-def _na_for_min_count(values: np.ndarray, axis: AxisInt | None) -> Scalar | np.ndarray:
+def _na_for_min_count(
+    values: np.ndarray, axis: AxisInt | None
+) -> Scalar | np.ndarray:
     """
     Return the missing value for `values`.
 
@@ -470,7 +480,8 @@ def maybe_operate_rowwise(func: F) -> F:
             if kwargs.get("mask") is not None:
                 mask = kwargs.pop("mask")
                 results = [
-                    func(arrs[i], mask=mask[i], **kwargs) for i in range(len(arrs))
+                    func(arrs[i], mask=mask[i], **kwargs)
+                    for i in range(len(arrs))
                 ]
             else:
                 results = [func(x, **kwargs) for x in arrs]
@@ -636,7 +647,9 @@ def nansum(
         dtype_sum = np.dtype(np.float64)
 
     the_sum = values.sum(axis, dtype=dtype_sum)
-    the_sum = _maybe_null_out(the_sum, axis, mask, values.shape, min_count=min_count)
+    the_sum = _maybe_null_out(
+        the_sum, axis, mask, values.shape, min_count=min_count
+    )
 
     return the_sum
 
@@ -727,7 +740,11 @@ def nanmean(
 
 @bottleneck_switch()
 def nanmedian(
-    values: np.ndarray, *, axis: AxisInt | None = None, skipna: bool = True, mask=None
+    values: np.ndarray,
+    *,
+    axis: AxisInt | None = None,
+    skipna: bool = True,
+    mask=None,
 ) -> float | np.ndarray:
     """
     Parameters
@@ -772,7 +789,9 @@ def nanmedian(
             warnings.filterwarnings(
                 "ignore", "All-NaN slice encountered", RuntimeWarning
             )
-            warnings.filterwarnings("ignore", "Mean of empty slice", RuntimeWarning)
+            warnings.filterwarnings(
+                "ignore", "Mean of empty slice", RuntimeWarning
+            )
             res = np.nanmedian(x[_mask])
         return res
 
@@ -948,7 +967,9 @@ def nanstd(
     orig_dtype = values.dtype
     values, mask = _get_values(values, skipna, mask=mask)
 
-    result = np.sqrt(nanvar(values, axis=axis, skipna=skipna, ddof=ddof, mask=mask))
+    result = np.sqrt(
+        nanvar(values, axis=axis, skipna=skipna, ddof=ddof, mask=mask)
+    )
     return _wrap_results(result, orig_dtype)
 
 
@@ -997,7 +1018,9 @@ def nanvar(
             values[mask] = np.nan
 
     if values.dtype.kind == "f":
-        count, d = _get_counts_nanvar(values.shape, mask, axis, ddof, values.dtype)
+        count, d = _get_counts_nanvar(
+            values.shape, mask, axis, ddof, values.dtype
+        )
     else:
         count, d = _get_counts_nanvar(values.shape, mask, axis, ddof)
 
@@ -1695,7 +1718,9 @@ def _ensure_numeric(x):
                     x = x.astype(np.float64)
                 except ValueError as err:
                     # GH#29941 we get here with object arrays containing strs
-                    raise TypeError(f"Could not convert {x} to numeric") from err
+                    raise TypeError(
+                        f"Could not convert {x} to numeric"
+                    ) from err
             else:
                 if not np.any(np.imag(x)):
                     x = x.real

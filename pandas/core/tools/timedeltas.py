@@ -74,16 +74,18 @@ def to_timedelta(
 
 
 def to_timedelta(
-    arg: str
-    | int
-    | float
-    | timedelta
-    | list
-    | tuple
-    | range
-    | ArrayLike
-    | Index
-    | Series,
+    arg: (
+        str
+        | int
+        | float
+        | timedelta
+        | list
+        | tuple
+        | range
+        | ArrayLike
+        | Index
+        | Series
+    ),
     unit: UnitChoices | None = None,
     errors: DateTimeErrorChoices = "raise",
 ) -> Timedelta | TimedeltaIndex | Series | NaTType | Any:
@@ -203,7 +205,9 @@ def to_timedelta(
         )
 
     if isinstance(arg, str) and unit is not None:
-        raise ValueError("unit must not be specified if the input is/contains a str")
+        raise ValueError(
+            "unit must not be specified if the input is/contains a str"
+        )
 
     # ...so it must be a scalar value. Return scalar.
     return _coerce_scalar_to_timedelta_type(arg, unit=unit, errors=errors)

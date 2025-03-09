@@ -184,7 +184,9 @@ class TestMelt:
         result7 = df.melt(id_vars=["id1", "id2"], var_name=var_name)
         assert result7.columns.tolist() == ["id1", "id2", "var", "value"]
 
-        result8 = df.melt(id_vars=["id1", "id2"], value_vars="A", var_name=var_name)
+        result8 = df.melt(
+            id_vars=["id1", "id2"], value_vars="A", var_name=var_name
+        )
         assert result8.columns.tolist() == ["id1", "id2", "var", "value"]
 
         result9 = df.melt(
@@ -217,7 +219,9 @@ class TestMelt:
         assert result13.columns.tolist() == ["id1", "id2", "variable", "val"]
 
         result14 = df.melt(
-            id_vars=["id1", "id2"], value_vars=["A", "B"], value_name=value_name
+            id_vars=["id1", "id2"],
+            value_vars=["A", "B"],
+            value_name=value_name,
         )
         expected14 = DataFrame(
             {
@@ -234,7 +238,9 @@ class TestMelt:
         result15 = df.melt(var_name=var_name, value_name=value_name)
         assert result15.columns.tolist() == ["var", "val"]
 
-        result16 = df.melt(id_vars=["id1"], var_name=var_name, value_name=value_name)
+        result16 = df.melt(
+            id_vars=["id1"], var_name=var_name, value_name=value_name
+        )
         assert result16.columns.tolist() == ["id1", "var", "val"]
 
         result17 = df.melt(
@@ -293,11 +299,21 @@ class TestMelt:
         # GH 15785
         col = pd.Series(col)
         df = DataFrame(
-            {"klass": range(5), "col": col, "attr1": [1, 0, 0, 0, 0], "attr2": col}
+            {
+                "klass": range(5),
+                "col": col,
+                "attr1": [1, 0, 0, 0, 0],
+                "attr2": col,
+            }
         )
-        expected_value = pd.concat([pd.Series([1, 0, 0, 0, 0]), col], ignore_index=True)
+        expected_value = pd.concat(
+            [pd.Series([1, 0, 0, 0, 0]), col], ignore_index=True
+        )
         result = melt(
-            df, id_vars=["klass", "col"], var_name="attribute", value_name="value"
+            df,
+            id_vars=["klass", "col"],
+            var_name="attribute",
+            value_name="value",
         )
         expected = DataFrame(
             {
@@ -315,7 +331,11 @@ class TestMelt:
         data = DataFrame({"A": [1, 2], "B": pd.Categorical(["X", "Y"])})
         result = melt(data, ["B"], ["A"])
         expected = DataFrame(
-            {"B": pd.Categorical(["X", "Y"]), "variable": ["A", "A"], "value": [1, 2]}
+            {
+                "B": pd.Categorical(["X", "Y"]),
+                "variable": ["A", "A"],
+                "value": [1, 2],
+            }
         )
 
         tm.assert_frame_equal(result, expected)
@@ -327,7 +347,8 @@ class TestMelt:
 
         # Generate data
         df = DataFrame(
-            np.random.default_rng(2).standard_normal((5, 4)), columns=list("abcd")
+            np.random.default_rng(2).standard_normal((5, 4)),
+            columns=list("abcd"),
         )
 
         # Try to melt with missing `value_vars` column name
@@ -359,7 +380,12 @@ class TestMelt:
         df = DataFrame({0: ["foo"], "a": ["bar"], "b": [1], "d": [2]})
         result = melt(df, id_vars=[0, "a"], value_vars=["b", "d"])
         expected = DataFrame(
-            {0: ["foo"] * 2, "a": ["bar"] * 2, "variable": list("bd"), "value": [1, 2]}
+            {
+                0: ["foo"] * 2,
+                "a": ["bar"] * 2,
+                "variable": list("bd"),
+                "value": [1, 2],
+            }
         )
         # the df's columns are mixed type and thus object -> preserves object dtype
         expected["variable"] = expected["variable"].astype(object)
@@ -377,7 +403,8 @@ class TestMelt:
         df = DataFrame({"foo": [0], "bar": [1]}, index=["first"])
         result = melt(df, ignore_index=False)
         expected = DataFrame(
-            {"variable": ["foo", "bar"], "value": [0, 1]}, index=["first", "first"]
+            {"variable": ["foo", "bar"], "value": [0, 1]},
+            index=["first", "first"],
         )
         tm.assert_frame_equal(result, expected)
 
@@ -390,7 +417,8 @@ class TestMelt:
         result = melt(df, ignore_index=False)
 
         expected_index = pd.MultiIndex.from_tuples(
-            [("first", "second"), ("first", "third")] * 2, names=["baz", "foobar"]
+            [("first", "second"), ("first", "third")] * 2,
+            names=["baz", "foobar"],
         )
         expected = DataFrame(
             {"variable": ["foo"] * 2 + ["bar"] * 2, "value": [0, 1, 2, 3]},
@@ -405,7 +433,9 @@ class TestMelt:
         df = DataFrame({"x": [0, 1], "y": [2, 3]}, index=index)
         result = melt(df, ignore_index=False)
 
-        expected_index = Index(["foo", "bar"] * 2, dtype="category", name="baz")
+        expected_index = Index(
+            ["foo", "bar"] * 2, dtype="category", name="baz"
+        )
         expected = DataFrame(
             {"variable": ["x", "x", "y", "y"], "value": [0, 1, 2, 3]},
             index=expected_index,
@@ -418,7 +448,8 @@ class TestMelt:
         df = DataFrame([["id", 2, 3]], columns=["a", "b", "b"])
         result = df.melt(id_vars=["a"], value_vars=["b"])
         expected = DataFrame(
-            [["id", "b", 2], ["id", "b", 3]], columns=["a", "variable", "value"]
+            [["id", "b", 2], ["id", "b", 3]],
+            columns=["a", "variable", "value"],
         )
         tm.assert_frame_equal(result, expected)
 
@@ -492,10 +523,18 @@ class TestMelt:
                     3: "end_date",
                 },
                 "date": {
-                    0: pd.Timestamp("2023-03-01 00:00:00+0900", tz="Asia/Tokyo"),
-                    1: pd.Timestamp("2023-03-01 00:00:00+0900", tz="Asia/Tokyo"),
-                    2: pd.Timestamp("2023-03-10 00:00:00+0900", tz="Asia/Tokyo"),
-                    3: pd.Timestamp("2023-03-11 00:00:00+0900", tz="Asia/Tokyo"),
+                    0: pd.Timestamp(
+                        "2023-03-01 00:00:00+0900", tz="Asia/Tokyo"
+                    ),
+                    1: pd.Timestamp(
+                        "2023-03-01 00:00:00+0900", tz="Asia/Tokyo"
+                    ),
+                    2: pd.Timestamp(
+                        "2023-03-10 00:00:00+0900", tz="Asia/Tokyo"
+                    ),
+                    3: pd.Timestamp(
+                        "2023-03-11 00:00:00+0900", tz="Asia/Tokyo"
+                    ),
                 },
             }
         )
@@ -540,11 +579,14 @@ class TestMelt:
         df = DataFrame({("A", "a"): [1], ("A", "b"): [2]})
 
         expected = DataFrame(
-            [("A", "a", 1), ("A", "b", 2)], columns=["first", "second", "value"]
+            [("A", "a", 1), ("A", "b", 2)],
+            columns=["first", "second", "value"],
         )
 
         tm.assert_frame_equal(df.melt(var_name=["first", "second"]), expected)
-        tm.assert_frame_equal(df.melt(var_name=["first"]), expected[["first", "value"]])
+        tm.assert_frame_equal(
+            df.melt(var_name=["first"]), expected[["first", "value"]]
+        )
 
     def test_melt_multiindex_columns_var_name_too_many(self):
         # GH 58033
@@ -576,8 +618,20 @@ class TestLreshape:
                 "29dec2008",
                 "20jan2009",
             ],
-            "visitdt2": ["21jan2009", np.nan, "22jan2009", "31dec2008", "03feb2009"],
-            "visitdt3": ["05feb2009", np.nan, np.nan, "02jan2009", "15feb2009"],
+            "visitdt2": [
+                "21jan2009",
+                np.nan,
+                "22jan2009",
+                "31dec2008",
+                "03feb2009",
+            ],
+            "visitdt3": [
+                "05feb2009",
+                np.nan,
+                np.nan,
+                "02jan2009",
+                "15feb2009",
+            ],
             "wt1": [1823, 3338, 1549, 3298, 4306],
             "wt2": [2011.0, np.nan, 1892.0, 3338.0, 4575.0],
             "wt3": [2293.0, np.nan, np.nan, 3377.0, 4805.0],
@@ -868,7 +922,9 @@ class TestWideToLong:
         expected = expected.set_index(["id", "year"])[
             ["X", "A(quarterly)", "B(quarterly)"]
         ]
-        result = wide_to_long(df, ["A(quarterly)", "B(quarterly)"], i="id", j="year")
+        result = wide_to_long(
+            df, ["A(quarterly)", "B(quarterly)"], i="id", j="year"
+        )
         tm.assert_frame_equal(result, expected)
 
     def test_unbalanced(self):
@@ -920,9 +976,13 @@ class TestWideToLong:
                 "year": [11, 11, 11, 12, 12, 12],
             }
         )
-        expected = expected.set_index(["id", "year"])[["BBBX", "BBBZ", "A", "B", "BB"]]
+        expected = expected.set_index(["id", "year"])[
+            ["BBBX", "BBBZ", "A", "B", "BB"]
+        ]
         result = wide_to_long(df, ["A", "B", "BB"], i="id", j="year")
-        tm.assert_frame_equal(result.sort_index(axis=1), expected.sort_index(axis=1))
+        tm.assert_frame_equal(
+            result.sort_index(axis=1), expected.sort_index(axis=1)
+        )
 
     def test_invalid_separator(self):
         # if an invalid separator is supplied a empty data frame is returned
@@ -952,7 +1012,9 @@ class TestWideToLong:
         ]
         expected.index = expected.index.set_levels([0, 1], level=0)
         result = wide_to_long(df, ["A", "B"], i="id", j="year", sep=sep)
-        tm.assert_frame_equal(result.sort_index(axis=1), expected.sort_index(axis=1))
+        tm.assert_frame_equal(
+            result.sort_index(axis=1), expected.sort_index(axis=1)
+        )
 
     def test_num_string_disambiguation(self):
         # Test that we can disambiguate number value_vars from
@@ -985,7 +1047,9 @@ class TestWideToLong:
             ["Arating", "Arating_old", "A", "B", "BB"]
         ]
         result = wide_to_long(df, ["A", "B", "BB"], i="id", j="year")
-        tm.assert_frame_equal(result.sort_index(axis=1), expected.sort_index(axis=1))
+        tm.assert_frame_equal(
+            result.sort_index(axis=1), expected.sort_index(axis=1)
+        )
 
     def test_invalid_suffixtype(self):
         # If all stubs names end with a string, but a numeric suffix is
@@ -1014,7 +1078,9 @@ class TestWideToLong:
         expected = expected.set_index(["id", "year"])
         expected.index = expected.index.set_levels([0, 1], level=0)
         result = wide_to_long(df, ["A", "B"], i="id", j="year")
-        tm.assert_frame_equal(result.sort_index(axis=1), expected.sort_index(axis=1))
+        tm.assert_frame_equal(
+            result.sort_index(axis=1), expected.sort_index(axis=1)
+        )
 
     def test_multiple_id_columns(self):
         # Taken from http://www.ats.ucla.edu/stat/stata/modules/reshapel.htm
@@ -1048,8 +1114,46 @@ class TestWideToLong:
                     2.1,
                     2.9,
                 ],
-                "famid": [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3],
-                "birth": [1, 1, 2, 2, 3, 3, 1, 1, 2, 2, 3, 3, 1, 1, 2, 2, 3, 3],
+                "famid": [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    2,
+                    2,
+                    2,
+                    2,
+                    2,
+                    2,
+                    3,
+                    3,
+                    3,
+                    3,
+                    3,
+                    3,
+                ],
+                "birth": [
+                    1,
+                    1,
+                    2,
+                    2,
+                    3,
+                    3,
+                    1,
+                    1,
+                    2,
+                    2,
+                    3,
+                    3,
+                    1,
+                    1,
+                    2,
+                    2,
+                    3,
+                    3,
+                ],
                 "age": [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2],
             }
         )
@@ -1061,7 +1165,11 @@ class TestWideToLong:
         # GH16382
         # Raise an error message if non unique id vars (i) are passed
         df = DataFrame(
-            {"A_A1": [1, 2, 3, 4, 5], "B_B1": [1, 2, 3, 4, 5], "x": [1, 1, 1, 1, 1]}
+            {
+                "A_A1": [1, 2, 3, 4, 5],
+                "B_B1": [1, 2, 3, 4, 5],
+                "x": [1, 1, 1, 1, 1],
+            }
         )
         msg = "the id variables need to uniquely identify each row"
         with pytest.raises(ValueError, match=msg):
@@ -1071,7 +1179,11 @@ class TestWideToLong:
         df = DataFrame(
             {
                 "actor_1": ["CCH Pounder", "Johnny Depp", "Christoph Waltz"],
-                "actor_2": ["Joel David Moore", "Orlando Bloom", "Rory Kinnear"],
+                "actor_2": [
+                    "Joel David Moore",
+                    "Orlando Bloom",
+                    "Rory Kinnear",
+                ],
                 "actor_fb_likes_1": [1000.0, 40000.0, 11000.0],
                 "actor_fb_likes_2": [936.0, 5000.0, 393.0],
                 "title": ["Avatar", "Pirates of the Caribbean", "Spectre"],
@@ -1088,7 +1200,14 @@ class TestWideToLong:
                     "Orlando Bloom",
                     "Rory Kinnear",
                 ],
-                "actor_fb_likes": [1000.0, 40000.0, 11000.0, 936.0, 5000.0, 393.0],
+                "actor_fb_likes": [
+                    1000.0,
+                    40000.0,
+                    11000.0,
+                    936.0,
+                    5000.0,
+                    393.0,
+                ],
                 "num": [1, 1, 1, 2, 2, 2],
                 "title": [
                     "Avatar",
@@ -1138,7 +1257,12 @@ class TestWideToLong:
         )
         expected = expected.set_index(["A", "colname"])
         result = wide_to_long(
-            df, ["result", "treatment"], i="A", j="colname", suffix="[a-z]+", sep="_"
+            df,
+            ["result", "treatment"],
+            i="A",
+            j="colname",
+            suffix="[a-z]+",
+            sep="_",
         )
         tm.assert_frame_equal(result, expected)
 
@@ -1161,7 +1285,12 @@ class TestWideToLong:
             }
         ).set_index(["A", "colname"])
         result = wide_to_long(
-            df, ["result", "treatment"], i="A", j="colname", suffix=".+", sep="_"
+            df,
+            ["result", "treatment"],
+            i="A",
+            j="colname",
+            suffix=".+",
+            sep="_",
         )
         tm.assert_frame_equal(result, expected)
 
@@ -1180,12 +1309,26 @@ class TestWideToLong:
                 "A": ["X1", "X2", "X1", "X2", "X1", "X2", "X1", "X2"],
                 "colname": [1.2, 1.2, 1.0, 1.0, 1.1, 1.1, 2.1, 2.1],
                 "result": [5.0, 6.0, 0.0, 9.0, np.nan, np.nan, np.nan, np.nan],
-                "treatment": [np.nan, np.nan, np.nan, np.nan, 1.0, 2.0, 3.0, 4.0],
+                "treatment": [
+                    np.nan,
+                    np.nan,
+                    np.nan,
+                    np.nan,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                ],
             }
         )
         expected = expected.set_index(["A", "colname"])
         result = wide_to_long(
-            df, ["result", "treatment"], i="A", j="colname", suffix="[0-9.]+", sep="_"
+            df,
+            ["result", "treatment"],
+            i="A",
+            j="colname",
+            suffix="[0-9.]+",
+            sep="_",
         )
         tm.assert_frame_equal(result, expected)
 
@@ -1201,8 +1344,12 @@ class TestWideToLong:
             "PA3": {0: 0.34, 1: 0.70, 2: 0.52, 3: 0.98, 4: 0.67},
         }
         wide_df = DataFrame.from_dict(wide_data)
-        expected = wide_to_long(wide_df, stubnames=["PA"], i=["node_id", "A"], j="time")
-        result = wide_to_long(wide_df, stubnames="PA", i=["node_id", "A"], j="time")
+        expected = wide_to_long(
+            wide_df, stubnames=["PA"], i=["node_id", "A"], j="time"
+        )
+        result = wide_to_long(
+            wide_df, stubnames="PA", i=["node_id", "A"], j="time"
+        )
         tm.assert_frame_equal(result, expected)
 
     def test_raise_of_column_name_value(self):
@@ -1218,7 +1365,9 @@ class TestWideToLong:
 
     def test_missing_stubname(self, any_string_dtype):
         # GH46044
-        df = DataFrame({"id": ["1", "2"], "a-1": [100, 200], "a-2": [300, 400]})
+        df = DataFrame(
+            {"id": ["1", "2"], "a-1": [100, 200], "a-2": [300, 400]}
+        )
         df = df.astype({"id": any_string_dtype})
         result = wide_to_long(
             df,

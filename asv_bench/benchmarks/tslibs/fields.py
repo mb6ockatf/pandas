@@ -19,7 +19,9 @@ class TimeGetTimedeltaField:
     def setup(self, size, field):
         arr = np.random.randint(0, 10, size=size, dtype="i8")
         self.i8data = arr
-        arr = np.random.randint(-86400 * 1_000_000_000, 0, size=size, dtype="i8")
+        arr = np.random.randint(
+            -86400 * 1_000_000_000, 0, size=size, dtype="i8"
+        )
         self.i8data_negative = arr
 
     def time_get_timedelta_field(self, size, field):
@@ -76,7 +78,9 @@ class TimeGetStartEndField:
         self.attrname = f"is_{period}_{side}"
 
     def time_get_start_end_field(self, size, side, period, freqstr, month_kw):
-        get_start_end_field(self.i8data, self.attrname, freqstr, month_kw=month_kw)
+        get_start_end_field(
+            self.i8data, self.attrname, freqstr, month_kw=month_kw
+        )
 
 
 from ..pandas_vb_common import setup  # noqa: F401 isort:skip

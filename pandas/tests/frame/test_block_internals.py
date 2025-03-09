@@ -130,7 +130,9 @@ class TestDataFrameBlockInternals:
 
         df = DataFrame({"A": [1.0 + 2.0j, 3.0]})
         result = df["A"]
-        expected = Series(np.asarray([1.0 + 2.0j, 3.0], np.complex128), name="A")
+        expected = Series(
+            np.asarray([1.0 + 2.0j, 3.0], np.complex128), name="A"
+        )
         tm.assert_series_equal(result, expected)
 
         df = DataFrame({"A": [1.0 + 2.0j, True]})
@@ -145,22 +147,29 @@ class TestDataFrameBlockInternals:
 
         df = DataFrame({"A": [1.0 + 2.0j, None]})
         result = df["A"]
-        expected = Series(np.asarray([1.0 + 2.0j, np.nan], np.complex128), name="A")
+        expected = Series(
+            np.asarray([1.0 + 2.0j, np.nan], np.complex128), name="A"
+        )
         tm.assert_series_equal(result, expected)
 
         df = DataFrame({"A": [2.0, 1, True, None]})
         result = df["A"]
-        expected = Series(np.asarray([2.0, 1, True, None], np.object_), name="A")
+        expected = Series(
+            np.asarray([2.0, 1, True, None], np.object_), name="A"
+        )
         tm.assert_series_equal(result, expected)
 
         df = DataFrame({"A": [2.0, 1, datetime(2006, 1, 1), None]})
         result = df["A"]
         expected = Series(
-            np.asarray([2.0, 1, datetime(2006, 1, 1), None], np.object_), name="A"
+            np.asarray([2.0, 1, datetime(2006, 1, 1), None], np.object_),
+            name="A",
         )
         tm.assert_series_equal(result, expected)
 
-    def test_construction_with_mixed(self, float_string_frame, using_infer_string):
+    def test_construction_with_mixed(
+        self, float_string_frame, using_infer_string
+    ):
         # mixed-type frames
         float_string_frame["datetime"] = datetime.now()
         float_string_frame["timedelta"] = timedelta(days=1, seconds=1)
@@ -170,9 +179,11 @@ class TestDataFrameBlockInternals:
         expected = Series(
             [np.dtype("float64")] * 4
             + [
-                np.dtype("object")
-                if not using_infer_string
-                else pd.StringDtype(na_value=np.nan),
+                (
+                    np.dtype("object")
+                    if not using_infer_string
+                    else pd.StringDtype(na_value=np.nan)
+                ),
                 np.dtype("datetime64[us]"),
                 np.dtype("timedelta64[us]"),
             ],
@@ -186,7 +197,8 @@ class TestDataFrameBlockInternals:
         arr = np.array([1, 2, 3], dtype="timedelta64[s]")
         df = DataFrame({"A": arr})
         expected = DataFrame(
-            {"A": pd.timedelta_range("00:00:01", periods=3, freq="s")}, index=range(3)
+            {"A": pd.timedelta_range("00:00:01", periods=3, freq="s")},
+            index=range(3),
         )
         tm.assert_numpy_array_equal(df["A"].to_numpy(), arr)
 
@@ -222,7 +234,9 @@ class TestDataFrameBlockInternals:
             data = list(itertools.repeat((datetime(2001, 1, 1), "aa", 20), 9))
             return DataFrame(data=data, columns=["A", "B", "C"], dtype=dtype)
 
-        msg = "compound dtypes are not implemented in the DataFrame constructor"
+        msg = (
+            "compound dtypes are not implemented in the DataFrame constructor"
+        )
         with pytest.raises(NotImplementedError, match=msg):
             f([("A", "datetime64[h]"), ("B", "str"), ("C", "int32")])
 
@@ -295,7 +309,9 @@ class TestDataFrameBlockInternals:
         df.starting = ser_starting.index
         df.ending = ser_ending.index
 
-        tm.assert_index_equal(pd.DatetimeIndex(df.starting), ser_starting.index)
+        tm.assert_index_equal(
+            pd.DatetimeIndex(df.starting), ser_starting.index
+        )
         tm.assert_index_equal(pd.DatetimeIndex(df.ending), ser_ending.index)
 
     def test_is_mixed_type(self, float_frame, float_string_frame):
@@ -354,7 +370,9 @@ class TestDataFrameBlockInternals:
     def test_add_column_with_pandas_array(self):
         # GH 26390
         df = DataFrame({"a": [1, 2, 3, 4], "b": ["a", "b", "c", "d"]})
-        df["c"] = pd.arrays.NumpyExtensionArray(np.array([1, 2, None, 3], dtype=object))
+        df["c"] = pd.arrays.NumpyExtensionArray(
+            np.array([1, 2, None, 3], dtype=object)
+        )
         df2 = DataFrame(
             {
                 "a": [1, 2, 3, 4],

@@ -95,7 +95,10 @@ class TestCategoricalAnalytics:
 
     @pytest.mark.parametrize(
         "values, categories",
-        [(["a", "b", "c", np.nan], list("cba")), ([1, 2, 3, np.nan], [3, 2, 1])],
+        [
+            (["a", "b", "c", np.nan], list("cba")),
+            ([1, 2, 3, np.nan], [3, 2, 1]),
+        ],
     )
     @pytest.mark.parametrize("function", ["min", "max"])
     def test_min_max_with_nan(self, values, categories, function, skipna):

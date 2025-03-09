@@ -20,11 +20,15 @@ plt = pytest.importorskip("matplotlib.pyplot")
 cm = pytest.importorskip("matplotlib.cm")
 
 
-def _check_colors_box(bp, box_c, whiskers_c, medians_c, caps_c="k", fliers_c=None):
+def _check_colors_box(
+    bp, box_c, whiskers_c, medians_c, caps_c="k", fliers_c=None
+):
     if fliers_c is None:
         fliers_c = "k"
     _check_colors(bp["boxes"], linecolors=[box_c] * len(bp["boxes"]))
-    _check_colors(bp["whiskers"], linecolors=[whiskers_c] * len(bp["whiskers"]))
+    _check_colors(
+        bp["whiskers"], linecolors=[whiskers_c] * len(bp["whiskers"])
+    )
     _check_colors(bp["medians"], linecolors=[medians_c] * len(bp["medians"]))
     _check_colors(bp["fliers"], linecolors=[fliers_c] * len(bp["fliers"]))
     _check_colors(bp["caps"], linecolors=[caps_c] * len(bp["caps"]))
@@ -36,7 +40,8 @@ class TestDataFrameColor:
         # GH 15516
         color = f"C{color}"
         df = DataFrame(
-            np.random.default_rng(2).standard_normal((10, 3)), columns=["a", "b", "c"]
+            np.random.default_rng(2).standard_normal((10, 3)),
+            columns=["a", "b", "c"],
         )
         _check_plot_works(df.plot, color=color)
 
@@ -81,7 +86,10 @@ class TestDataFrameColor:
         "color, expected",
         [
             ("green", ["green"] * 4),
-            (["yellow", "red", "green", "blue"], ["yellow", "red", "green", "blue"]),
+            (
+                ["yellow", "red", "green", "blue"],
+                ["yellow", "red", "green", "blue"],
+            ),
         ],
     )
     def test_color_and_marker(self, color, expected):
@@ -140,7 +148,11 @@ class TestDataFrameColor:
 
     def test_bar_user_colors(self):
         df = DataFrame(
-            {"A": range(4), "B": range(1, 5), "color": ["red", "blue", "blue", "red"]}
+            {
+                "A": range(4),
+                "B": range(1, 5),
+                "color": ["red", "blue", "blue", "red"],
+            }
         )
         # This should *only* work when `y` is specified, else
         # we use one color per column
@@ -173,7 +185,8 @@ class TestDataFrameColor:
         assert vis1 == vis2
 
         assert (
-            ax1.xaxis.get_label().get_visible() == ax2.xaxis.get_label().get_visible()
+            ax1.xaxis.get_label().get_visible()
+            == ax2.xaxis.get_label().get_visible()
         )
 
     def test_if_hexbin_xaxis_label_is_visible(self):
@@ -213,16 +226,24 @@ class TestDataFrameColor:
         )
         df["species"] = ["r", "r", "g", "g", "b"]
         if cmap is not None:
-            with tm.assert_produces_warning(UserWarning, check_stacklevel=False):
+            with tm.assert_produces_warning(
+                UserWarning, check_stacklevel=False
+            ):
                 ax = df.plot.scatter(x=0, y=1, cmap=cmap, c="species")
         else:
             ax = df.plot.scatter(x=0, y=1, c="species", cmap=cmap)
 
-        assert len(np.unique(ax.collections[0].get_facecolor(), axis=0)) == 3  # r/g/b
+        assert (
+            len(np.unique(ax.collections[0].get_facecolor(), axis=0)) == 3
+        )  # r/g/b
         assert (
             np.unique(ax.collections[0].get_facecolor(), axis=0)
             == np.array(
-                [[0.0, 0.0, 1.0, 1.0], [0.0, 0.5, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0]]
+                [
+                    [0.0, 0.0, 1.0, 1.0],
+                    [0.0, 0.5, 0.0, 1.0],
+                    [1.0, 0.0, 0.0, 1.0],
+                ]
             )  # r/g/b
         ).all()
         assert ax.collections[0].colorbar is None
@@ -243,7 +264,10 @@ class TestDataFrameColor:
 
         # Then
         ax = df.plot.scatter("dataX", "dataY", c="color")
-        assert len(np.unique(ax.collections[0].get_facecolor(), axis=0)) == color_count
+        assert (
+            len(np.unique(ax.collections[0].get_facecolor(), axis=0))
+            == color_count
+        )
 
         # Given
         colors = ["r", "g", "not-a-color"]
@@ -262,11 +286,16 @@ class TestDataFrameColor:
 
         # Then
         ax = df.plot.scatter("dataX", "dataY", c="color")
-        assert len(np.unique(ax.collections[0].get_facecolor(), axis=0)) == color_count
+        assert (
+            len(np.unique(ax.collections[0].get_facecolor(), axis=0))
+            == color_count
+        )
 
     def test_scatter_colors(self):
         df = DataFrame({"a": [1, 2, 3], "b": [1, 2, 3], "c": [1, 2, 3]})
-        with pytest.raises(TypeError, match="Specify exactly one of `c` and `color`"):
+        with pytest.raises(
+            TypeError, match="Specify exactly one of `c` and `color`"
+        ):
             df.plot.scatter(x="a", y="b", c="c", color="green")
 
     def test_scatter_colors_not_raising_warnings(self):
@@ -569,7 +598,9 @@ class TestDataFrameColor:
         df = DataFrame(np.random.default_rng(2).standard_normal((5, 5)))
         # make color a list if plotting one column frame
         # handles cases like df.plot(color='DodgerBlue')
-        axes = df.loc[:, [0]].plot(kind="kde", color="DodgerBlue", subplots=True)
+        axes = df.loc[:, [0]].plot(
+            kind="kde", color="DodgerBlue", subplots=True
+        )
         _check_colors(axes[0].lines, linecolors=["DodgerBlue"])
 
     def test_kde_colors_and_styles_subplots_single_char(self):
@@ -642,13 +673,17 @@ class TestDataFrameColor:
         df = DataFrame(np.random.default_rng(2).standard_normal((5, 5)))
         # string color is applied to all artists except fliers
         bp = df.plot.box(color="DodgerBlue", return_type="dict")
-        _check_colors_box(bp, "DodgerBlue", "DodgerBlue", "DodgerBlue", "DodgerBlue")
+        _check_colors_box(
+            bp, "DodgerBlue", "DodgerBlue", "DodgerBlue", "DodgerBlue"
+        )
 
     def test_boxplot_colors_tuple(self):
         df = DataFrame(np.random.default_rng(2).standard_normal((5, 5)))
         # tuple is also applied to all artists except fliers
         bp = df.plot.box(color=(0, 1, 0), sym="#123456", return_type="dict")
-        _check_colors_box(bp, (0, 1, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), "#123456")
+        _check_colors_box(
+            bp, (0, 1, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), "#123456"
+        )
 
     def test_boxplot_colors_invalid(self):
         df = DataFrame(np.random.default_rng(2).standard_normal((5, 5)))
@@ -703,7 +738,9 @@ class TestDataFrameColor:
 
     def test_rcParams_bar_colors(self):
         color_tuples = [(0.9, 0, 0, 1), (0, 0.9, 0, 1), (0, 0, 0.9, 1)]
-        with mpl.rc_context(rc={"axes.prop_cycle": mpl.cycler("color", color_tuples)}):
+        with mpl.rc_context(
+            rc={"axes.prop_cycle": mpl.cycler("color", color_tuples)}
+        ):
             barplot = DataFrame([[1, 2, 3]]).plot(kind="bar")
         assert color_tuples == [c.get_facecolor() for c in barplot.patches]
 
@@ -724,7 +761,8 @@ class TestDataFrameColor:
 
     def test_invalid_colormap(self):
         df = DataFrame(
-            np.random.default_rng(2).standard_normal((3, 2)), columns=["A", "B"]
+            np.random.default_rng(2).standard_normal((3, 2)),
+            columns=["A", "B"],
         )
         msg = "(is not a valid value)|(is not a known colormap)"
         with pytest.raises((ValueError, KeyError), match=msg):

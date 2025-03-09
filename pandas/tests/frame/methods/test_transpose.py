@@ -141,7 +141,9 @@ class TestTranspose:
         assert result._mgr.nblocks == 1
 
         rtrip = result._mgr.blocks[0].values
-        assert np.shares_memory(df._mgr.blocks[0].values._ndarray, rtrip._ndarray)
+        assert np.shares_memory(
+            df._mgr.blocks[0].values._ndarray, rtrip._ndarray
+        )
 
     def test_transpose_not_inferring_dt(self):
         # GH#51546
@@ -164,7 +166,8 @@ class TestTranspose:
         df = DataFrame(
             {
                 "a": Series(
-                    [Timestamp("2019-12-31"), Timestamp("2019-12-31")], dtype=object
+                    [Timestamp("2019-12-31"), Timestamp("2019-12-31")],
+                    dtype=object,
                 ),
                 "b": [Timestamp("2019-12-31"), Timestamp("2019-12-31")],
             }

@@ -48,7 +48,9 @@ def test_array_interface(idx):
         return
 
     # for MultiIndex, copy=False is never allowed
-    with pytest.raises(ValueError, match="Unable to avoid copy while creating"):
+    with pytest.raises(
+        ValueError, match="Unable to avoid copy while creating"
+    ):
         np.array(idx, copy=False)
 
 
@@ -96,7 +98,9 @@ def test_to_frame():
         index.to_frame(name=["first"])
 
     # Tests for datetime index
-    index = MultiIndex.from_product([range(5), pd.date_range("20130101", periods=3)])
+    index = MultiIndex.from_product(
+        [range(5), pd.date_range("20130101", periods=3)]
+    )
     result = index.to_frame(index=False)
     expected = DataFrame(
         {
@@ -136,7 +140,9 @@ def test_to_frame_dtype_fidelity():
         ],
         names=["dates", "a", "b", "c"],
     )
-    original_dtypes = {name: mi.levels[i].dtype for i, name in enumerate(mi.names)}
+    original_dtypes = {
+        name: mi.levels[i].dtype for i, name in enumerate(mi.names)
+    }
 
     expected_df = DataFrame(
         {
@@ -168,7 +174,9 @@ def test_to_frame_duplicate_labels():
     data = [(1, 2), (3, 4)]
     names = ["a", "a"]
     index = MultiIndex.from_tuples(data, names=names)
-    with pytest.raises(ValueError, match="Cannot create duplicate column labels"):
+    with pytest.raises(
+        ValueError, match="Cannot create duplicate column labels"
+    ):
         index.to_frame()
 
     result = index.to_frame(allow_duplicates=True)
@@ -177,7 +185,9 @@ def test_to_frame_duplicate_labels():
 
     names = [None, 0]
     index = MultiIndex.from_tuples(data, names=names)
-    with pytest.raises(ValueError, match="Cannot create duplicate column labels"):
+    with pytest.raises(
+        ValueError, match="Cannot create duplicate column labels"
+    ):
         index.to_frame()
 
     result = index.to_frame(allow_duplicates=True)

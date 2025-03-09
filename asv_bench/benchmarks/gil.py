@@ -72,7 +72,9 @@ def test_parallel(num_threads=2, kwargs_list=None):
             threads = []
             for i in range(num_threads):
                 updated_kwargs = update_kwargs(i)
-                thread = threading.Thread(target=func, args=args, kwargs=updated_kwargs)
+                thread = threading.Thread(
+                    target=func, args=args, kwargs=updated_kwargs
+                )
                 threads.append(thread)
             for thread in threads:
                 thread.start()
@@ -85,14 +87,20 @@ def test_parallel(num_threads=2, kwargs_list=None):
 
 
 class ParallelGroupbyMethods:
-    params = ([2, 4, 8], ["count", "last", "max", "mean", "min", "prod", "sum", "var"])
+    params = (
+        [2, 4, 8],
+        ["count", "last", "max", "mean", "min", "prod", "sum", "var"],
+    )
     param_names = ["threads", "method"]
 
     def setup(self, threads, method):
         N = 10**6
         ngroups = 10**3
         df = DataFrame(
-            {"key": np.random.randint(0, ngroups, size=N), "data": np.random.randn(N)}
+            {
+                "key": np.random.randint(0, ngroups, size=N),
+                "data": np.random.randn(N),
+            }
         )
 
         @test_parallel(num_threads=threads)
@@ -161,7 +169,10 @@ class ParallelKth:
     def setup(self):
         N = 10**7
         k = 5 * 10**5
-        kwargs_list = [{"arr": np.random.randn(N)}, {"arr": np.random.randn(N)}]
+        kwargs_list = [
+            {"arr": np.random.randn(N)},
+            {"arr": np.random.randn(N)},
+        ]
 
         @test_parallel(num_threads=2, kwargs_list=kwargs_list)
         def parallel_kth_smallest(arr):
@@ -274,11 +285,14 @@ class ParallelReadCSV(BaseIO):
             df = DataFrame(np.random.randn(rows, cols))
         elif dtype == "datetime":
             df = DataFrame(
-                np.random.randn(rows, cols), index=date_range("1/1/2000", periods=rows)
+                np.random.randn(rows, cols),
+                index=date_range("1/1/2000", periods=rows),
             )
         elif dtype == "object":
             df = DataFrame(
-                "foo", index=range(rows), columns=["object%03d" for _ in range(5)]
+                "foo",
+                index=range(rows),
+                columns=["object%03d" for _ in range(5)],
             )
         else:
             raise NotImplementedError

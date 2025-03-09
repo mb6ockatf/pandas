@@ -189,11 +189,13 @@ class NumpyExtensionArray(  # type: ignore[misc]
 
         # Defer to the implementation of the ufunc on unwrapped values.
         inputs = tuple(
-            x._ndarray if isinstance(x, NumpyExtensionArray) else x for x in inputs
+            x._ndarray if isinstance(x, NumpyExtensionArray) else x
+            for x in inputs
         )
         if out:
             kwargs["out"] = tuple(
-                x._ndarray if isinstance(x, NumpyExtensionArray) else x for x in out
+                x._ndarray if isinstance(x, NumpyExtensionArray) else x
+                for x in out
             )
         result = getattr(ufunc, method)(*inputs, **kwargs)
 
@@ -397,7 +399,9 @@ class NumpyExtensionArray(  # type: ignore[misc]
         keepdims: bool = False,
         skipna: bool = True,
     ):
-        nv.validate_mean((), {"dtype": dtype, "out": out, "keepdims": keepdims})
+        nv.validate_mean(
+            (), {"dtype": dtype, "out": out, "keepdims": keepdims}
+        )
         result = nanops.nanmean(self._ndarray, axis=axis, skipna=skipna)
         return self._wrap_reduction_result(axis, result)
 
@@ -411,7 +415,12 @@ class NumpyExtensionArray(  # type: ignore[misc]
         skipna: bool = True,
     ):
         nv.validate_median(
-            (), {"out": out, "overwrite_input": overwrite_input, "keepdims": keepdims}
+            (),
+            {
+                "out": out,
+                "overwrite_input": overwrite_input,
+                "keepdims": keepdims,
+            },
         )
         result = nanops.nanmedian(self._ndarray, axis=axis, skipna=skipna)
         return self._wrap_reduction_result(axis, result)
@@ -429,7 +438,9 @@ class NumpyExtensionArray(  # type: ignore[misc]
         nv.validate_stat_ddof_func(
             (), {"dtype": dtype, "out": out, "keepdims": keepdims}, fname="std"
         )
-        result = nanops.nanstd(self._ndarray, axis=axis, skipna=skipna, ddof=ddof)
+        result = nanops.nanstd(
+            self._ndarray, axis=axis, skipna=skipna, ddof=ddof
+        )
         return self._wrap_reduction_result(axis, result)
 
     def var(
@@ -445,7 +456,9 @@ class NumpyExtensionArray(  # type: ignore[misc]
         nv.validate_stat_ddof_func(
             (), {"dtype": dtype, "out": out, "keepdims": keepdims}, fname="var"
         )
-        result = nanops.nanvar(self._ndarray, axis=axis, skipna=skipna, ddof=ddof)
+        result = nanops.nanvar(
+            self._ndarray, axis=axis, skipna=skipna, ddof=ddof
+        )
         return self._wrap_reduction_result(axis, result)
 
     def sem(
@@ -461,7 +474,9 @@ class NumpyExtensionArray(  # type: ignore[misc]
         nv.validate_stat_ddof_func(
             (), {"dtype": dtype, "out": out, "keepdims": keepdims}, fname="sem"
         )
-        result = nanops.nansem(self._ndarray, axis=axis, skipna=skipna, ddof=ddof)
+        result = nanops.nansem(
+            self._ndarray, axis=axis, skipna=skipna, ddof=ddof
+        )
         return self._wrap_reduction_result(axis, result)
 
     def kurt(
@@ -474,7 +489,9 @@ class NumpyExtensionArray(  # type: ignore[misc]
         skipna: bool = True,
     ):
         nv.validate_stat_ddof_func(
-            (), {"dtype": dtype, "out": out, "keepdims": keepdims}, fname="kurt"
+            (),
+            {"dtype": dtype, "out": out, "keepdims": keepdims},
+            fname="kurt",
         )
         result = nanops.nankurt(self._ndarray, axis=axis, skipna=skipna)
         return self._wrap_reduction_result(axis, result)
@@ -489,7 +506,9 @@ class NumpyExtensionArray(  # type: ignore[misc]
         skipna: bool = True,
     ):
         nv.validate_stat_ddof_func(
-            (), {"dtype": dtype, "out": out, "keepdims": keepdims}, fname="skew"
+            (),
+            {"dtype": dtype, "out": out, "keepdims": keepdims},
+            fname="skew",
         )
         result = nanops.nanskew(self._ndarray, axis=axis, skipna=skipna)
         return self._wrap_reduction_result(axis, result)
@@ -546,7 +565,9 @@ class NumpyExtensionArray(  # type: ignore[misc]
             if isinstance(a, np.ndarray):
                 # for e.g. op vs TimedeltaArray, we may already
                 #  have an ExtensionArray, in which case we do not wrap
-                return self._wrap_ndarray_result(a), self._wrap_ndarray_result(b)
+                return self._wrap_ndarray_result(a), self._wrap_ndarray_result(
+                    b
+                )
             return a, b
 
         if isinstance(result, np.ndarray):

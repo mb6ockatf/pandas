@@ -1,4 +1,6 @@
-from pandas.core.internals.api import make_block  # 2023-09-18 pyarrow uses this
+from pandas.core.internals.api import (
+    make_block,
+)  # 2023-09-18 pyarrow uses this
 from pandas.core.internals.concat import concatenate_managers
 from pandas.core.internals.managers import (
     BlockManager,
@@ -29,7 +31,9 @@ def __getattr__(name: str):
             # on hard-coding stacklevel
             stacklevel=2,
         )
-        from pandas.core.internals.managers import create_block_manager_from_blocks
+        from pandas.core.internals.managers import (
+            create_block_manager_from_blocks,
+        )
 
         return create_block_manager_from_blocks
 
@@ -54,4 +58,6 @@ def __getattr__(name: str):
 
             return Block
 
-    raise AttributeError(f"module 'pandas.core.internals' has no attribute '{name}'")
+    raise AttributeError(
+        f"module 'pandas.core.internals' has no attribute '{name}'"
+    )

@@ -187,7 +187,9 @@ class PythonParser(ParserBase):
     def num(self) -> re.Pattern:
         decimal = re.escape(self.decimal)
         if self.thousands is None:
-            regex = rf"^[\-\+]?[0-9]*({decimal}[0-9]*)?([0-9]?(E|e)\-?[0-9]+)?$"
+            regex = (
+                rf"^[\-\+]?[0-9]*({decimal}[0-9]*)?([0-9]?(E|e)\-?[0-9]+)?$"
+            )
         else:
             thousands = re.escape(self.thousands)
             regex = (
@@ -196,7 +198,9 @@ class PythonParser(ParserBase):
             )
         return re.compile(regex)
 
-    def _make_reader(self, f: IO[str] | ReadCsvBuffer[str]) -> Iterator[list[str]]:
+    def _make_reader(
+        self, f: IO[str] | ReadCsvBuffer[str]
+    ) -> Iterator[list[str]]:
         sep = self.delimiter
 
         if sep is None or len(sep) == 1:
@@ -260,9 +264,7 @@ class PythonParser(ParserBase):
 
         return reader
 
-    def read(
-        self, rows: int | None = None
-    ) -> tuple[
+    def read(self, rows: int | None = None) -> tuple[
         Index | None,
         Sequence[Hashable] | MultiIndex,
         Mapping[Hashable, ArrayLike | Series],
@@ -295,7 +297,9 @@ class PythonParser(ParserBase):
                 names,
                 self.dtype,
             )
-            conv_columns = self._maybe_make_multi_index_columns(columns, self.col_names)
+            conv_columns = self._maybe_make_multi_index_columns(
+                columns, self.col_names
+            )
             return index, conv_columns, col_dict
 
         # handle new style for names in index
@@ -312,7 +316,9 @@ class PythonParser(ParserBase):
         conv_data = self._convert_data(data)
         conv_data = self._do_date_conversions(columns, conv_data)
 
-        index, result_columns = self._make_index(alldata, columns, indexnamerow)
+        index, result_columns = self._make_index(
+            alldata, columns, indexnamerow
+        )
 
         return index, result_columns, conv_data
 
@@ -338,13 +344,13 @@ class PythonParser(ParserBase):
         self._check_data_length(names, alldata)
 
         return {
-            name: alldata[i + offset] for i, name in enumerate(names) if i < len_alldata
+            name: alldata[i + offset]
+            for i, name in enumerate(names)
+            if i < len_alldata
         }, names
 
     # legacy
-    def get_chunk(
-        self, size: int | None = None
-    ) -> tuple[
+    def get_chunk(self, size: int | None = None) -> tuple[
         Index | None,
         Sequence[Hashable] | MultiIndex,
         Mapping[Hashable, ArrayLike | Series],
@@ -399,7 +405,9 @@ class PythonParser(ParserBase):
         dtypes=None,
     ) -> dict[Any, np.ndarray]:
         result = {}
-        parse_date_cols = validate_parse_dates_presence(self.parse_dates, self.columns)
+        parse_date_cols = validate_parse_dates_presence(
+            self.parse_dates, self.columns
+        )
         for c, values in dct.items():
             conv_f = None if converters is None else converters.get(c, None)
             if isinstance(dtypes, dict):
@@ -418,7 +426,9 @@ class PythonParser(ParserBase):
             if c in parse_date_cols:
                 # GH#26203 Do not convert columns which get converted to dates
                 # but replace nans to ensure to_datetime works
-                mask = algorithms.isin(values, set(col_na_values) | col_na_fvalues)  # pyright: ignore[reportArgumentType]
+                mask = algorithms.isin(
+                    values, set(col_na_values) | col_na_fvalues
+                )  # pyright: ignore[reportArgumentType]
                 np.putmask(values, mask, np.nan)
                 result[c] = values
                 continue
@@ -438,7 +448,9 @@ class PythonParser(ParserBase):
                 try:
                     values = lib.map_infer(values, conv_f)
                 except ValueError:
-                    mask = algorithms.isin(values, list(na_values)).view(np.uint8)
+                    mask = algorithms.isin(values, list(na_values)).view(
+                        np.uint8
+                    )
                     values = lib.map_infer_mask(values, conv_f, mask)
 
                 cvals, na_count = self._infer_types(
@@ -468,14 +480,18 @@ class PythonParser(ParserBase):
                 if cast_type and (cvals.dtype != cast_type or is_ea):
                     if not is_ea and na_count > 0:
                         if is_bool_dtype(cast_type):
-                            raise ValueError(f"Bool column has NA values in column {c}")
+                            raise ValueError(
+                                f"Bool column has NA values in column {c}"
+                            )
                     cvals = self._cast_types(cvals, cast_type, c)
 
             result[c] = cvals
         return result
 
     @final
-    def _cast_types(self, values: ArrayLike, cast_type: DtypeObj, column) -> ArrayLike:
+    def _cast_types(
+        self, values: ArrayLike, cast_type: DtypeObj, column
+    ) -> ArrayLike:
         """
         Cast values to specified type
 
@@ -504,7 +520,10 @@ class PythonParser(ParserBase):
 
             cats = Index(values).unique().dropna()
             values = Categorical._from_inferred_categories(
-                cats, cats.get_indexer(values), cast_type, true_values=self.true_values
+                cats,
+                cats.get_indexer(values),
+                cast_type,
+                true_values=self.true_values,
             )
 
         # use the EA's implementation of casting
@@ -523,7 +542,9 @@ class PythonParser(ParserBase):
                         none_values=self.na_values,  # pyright: ignore[reportCallIssue]
                     )
                 else:
-                    return array_type._from_sequence_of_strings(values, dtype=cast_type)
+                    return array_type._from_sequence_of_strings(
+                        values, dtype=cast_type
+                    )
             except NotImplementedError as err:
                 raise NotImplementedError(
                     f"Extension Array: {array_type} must implement "
@@ -592,7 +613,11 @@ class PythonParser(ParserBase):
                     ):
                         # If no rows we want to raise a different message and if
                         # we have mi columns, the last line is not part of the header
-                        joi = list(map(str, header[:-1] if have_mi_columns else header))
+                        joi = list(
+                            map(
+                                str, header[:-1] if have_mi_columns else header
+                            )
+                        )
                         msg = f"[{','.join(joi)}], len of {len(joi)}, "
                         raise ValueError(
                             f"Passed header={msg}but only {self.line_pos} lines in file"
@@ -608,7 +633,9 @@ class PythonParser(ParserBase):
                         return columns, num_original_columns, unnamed_cols
 
                     if not self.names:
-                        raise EmptyDataError("No columns to parse from file") from err
+                        raise EmptyDataError(
+                            "No columns to parse from file"
+                        ) from err
 
                     line = self.names[:]
 
@@ -658,7 +685,9 @@ class PythonParser(ParserBase):
                                 and self.dtype.get(old_col) is not None
                                 and self.dtype.get(col) is None
                             ):
-                                self.dtype.update({col: self.dtype.get(old_col)})
+                                self.dtype.update(
+                                    {col: self.dtype.get(old_col)}
+                                )
                         this_columns[i] = col
                         counts[col] = cur_count + 1
                 elif have_mi_columns:
@@ -673,13 +702,17 @@ class PythonParser(ParserBase):
                         unnamed_count = len(this_unnamed_cols)
 
                         # if wrong number of blanks or no index, not our format
-                        if (lc != unnamed_count and lc - ic > unnamed_count) or ic == 0:
+                        if (
+                            lc != unnamed_count and lc - ic > unnamed_count
+                        ) or ic == 0:
                             clear_buffer = False
                             this_columns = [None] * lc
                             self.buf = [self.buf[-1]]
 
                 columns.append(this_columns)
-                unnamed_cols.update({this_columns[i] for i in this_unnamed_cols})
+                unnamed_cols.update(
+                    {this_columns[i] for i in this_unnamed_cols}
+                )
 
                 if len(columns) == 1:
                     num_original_columns = len(this_columns)
@@ -695,15 +728,22 @@ class PythonParser(ParserBase):
                 except StopIteration:
                     first_line = None
 
-                len_first_data_row = 0 if first_line is None else len(first_line)
+                len_first_data_row = (
+                    0 if first_line is None else len(first_line)
+                )
 
-                if len(names) > len(columns[0]) and len(names) > len_first_data_row:
+                if (
+                    len(names) > len(columns[0])
+                    and len(names) > len_first_data_row
+                ):
                     raise ValueError(
                         "Number of passed names did not match "
                         "number of header fields in the file"
                     )
                 if len(columns) > 1:
-                    raise TypeError("Cannot pass names with multi-index columns")
+                    raise TypeError(
+                        "Cannot pass names with multi-index columns"
+                    )
 
                 if self.usecols is not None:
                     # Set _use_cols. We don't store columns because they are
@@ -731,7 +771,9 @@ class PythonParser(ParserBase):
             elif self.usecols is None or len(names) >= ncols:
                 columns = self._handle_usecols([names], names, ncols)
                 num_original_columns = len(names)
-            elif not callable(self.usecols) and len(names) != len(self.usecols):
+            elif not callable(self.usecols) and len(names) != len(
+                self.usecols
+            ):
                 raise ValueError(
                     "Number of passed names did not match number of "
                     "header fields in the file"
@@ -772,7 +814,9 @@ class PythonParser(ParserBase):
         col_indices: set[int] | list[int]
         if self.usecols is not None:
             if callable(self.usecols):
-                col_indices = evaluate_callable_usecols(self.usecols, usecols_key)
+                col_indices = evaluate_callable_usecols(
+                    self.usecols, usecols_key
+                )
             elif any(isinstance(u, str) for u in self.usecols):
                 if len(columns) > 1:
                     raise ValueError(
@@ -785,7 +829,9 @@ class PythonParser(ParserBase):
                         try:
                             col_indices.append(usecols_key.index(col))
                         except ValueError:
-                            self._validate_usecols_names(self.usecols, usecols_key)
+                            self._validate_usecols_names(
+                                self.usecols, usecols_key
+                            )
                     else:
                         col_indices.append(col)
             else:
@@ -1052,13 +1098,16 @@ class PythonParser(ParserBase):
             if (
                 len(line) > 1
                 or (
-                    len(line) == 1 and (not isinstance(line[0], str) or line[0].strip())
+                    len(line) == 1
+                    and (not isinstance(line[0], str) or line[0].strip())
                 )
             )
         ]
         return ret
 
-    def _check_thousands(self, lines: list[list[Scalar]]) -> list[list[Scalar]]:
+    def _check_thousands(
+        self, lines: list[list[Scalar]]
+    ) -> list[list[Scalar]]:
         if self.thousands is None:
             return lines
 
@@ -1203,7 +1252,9 @@ class PythonParser(ParserBase):
                     if callable(self.on_bad_lines):
                         new_l = self.on_bad_lines(_content)
                         if new_l is not None:
-                            content.append(new_l)  # pyright: ignore[reportArgumentType]
+                            content.append(
+                                new_l
+                            )  # pyright: ignore[reportArgumentType]
                     elif self.on_bad_lines in (
                         self.BadLineHandleMethod.ERROR,
                         self.BadLineHandleMethod.WARN,
@@ -1217,9 +1268,7 @@ class PythonParser(ParserBase):
                     content.append(_content)
 
             for row_num, actual_len in bad_lines:
-                msg = (
-                    f"Expected {col_len} fields in line {row_num + 1}, saw {actual_len}"
-                )
+                msg = f"Expected {col_len} fields in line {row_num + 1}, saw {actual_len}"
                 if (
                     self.delimiter
                     and len(self.delimiter) > 1
@@ -1235,7 +1284,9 @@ class PythonParser(ParserBase):
                 self._alert_malformed(msg, row_num + 1)
 
         # see gh-13320
-        zipped_content = list(lib.to_object_array(content, min_width=col_len).T)
+        zipped_content = list(
+            lib.to_object_array(content, min_width=col_len).T
+        )
 
         if self.usecols:
             assert self._col_indices is not None
@@ -1306,7 +1357,9 @@ class PythonParser(ParserBase):
                         rows = 0
 
                         while True:
-                            next_row = self._next_iter_line(row_num=self.pos + rows + 1)
+                            next_row = self._next_iter_line(
+                                row_num=self.pos + rows + 1
+                            )
                             rows += 1
 
                             if next_row is not None:
@@ -1334,10 +1387,14 @@ class PythonParser(ParserBase):
         lines = self._check_thousands(lines)
         return self._check_decimal(lines)
 
-    def _remove_skipped_rows(self, new_rows: list[list[Scalar]]) -> list[list[Scalar]]:
+    def _remove_skipped_rows(
+        self, new_rows: list[list[Scalar]]
+    ) -> list[list[Scalar]]:
         if self.skiprows:
             return [
-                row for i, row in enumerate(new_rows) if not self.skipfunc(i + self.pos)
+                row
+                for i, row in enumerate(new_rows)
+                if not self.skipfunc(i + self.pos)
             ]
         return new_rows
 
@@ -1410,7 +1467,9 @@ class FixedWidthReader(abc.Iterator):
                     "2 element tuple or list of integers"
                 )
 
-    def get_rows(self, infer_nrows: int, skiprows: set[int] | None = None) -> list[str]:
+    def get_rows(
+        self, infer_nrows: int, skiprows: set[int] | None = None
+    ) -> list[str]:
         """
         Read rows from self.f, skipping as specified.
 
@@ -1482,7 +1541,10 @@ class FixedWidthReader(abc.Iterator):
         else:
             line = next(self.f)  # type: ignore[arg-type]
         # Note: 'colspecs' is a sequence of half-open intervals.
-        return [line[from_:to].strip(self.delimiter) for (from_, to) in self.colspecs]
+        return [
+            line[from_:to].strip(self.delimiter)
+            for (from_, to) in self.colspecs
+        ]
 
 
 class FixedWidthFieldParser(PythonParser):
@@ -1497,7 +1559,9 @@ class FixedWidthFieldParser(PythonParser):
         self.infer_nrows = kwds.pop("infer_nrows")
         PythonParser.__init__(self, f, **kwds)
 
-    def _make_reader(self, f: IO[str] | ReadCsvBuffer[str]) -> FixedWidthReader:
+    def _make_reader(
+        self, f: IO[str] | ReadCsvBuffer[str]
+    ) -> FixedWidthReader:
         return FixedWidthReader(
             f,
             self.colspecs,

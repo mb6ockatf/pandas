@@ -68,7 +68,9 @@ def test_orc_reader_basic(dirpath):
         "byte1": np.array([1, 100], dtype="int8"),
         "short1": np.array([1024, 2048], dtype="int16"),
         "int1": np.array([65536, 65536], dtype="int32"),
-        "long1": np.array([9223372036854775807, 9223372036854775807], dtype="int64"),
+        "long1": np.array(
+            [9223372036854775807, 9223372036854775807], dtype="int64"
+        ),
         "float1": np.array([1.0, 2.0], dtype="float32"),
         "double1": np.array([-15.0, -5.0], dtype="float64"),
         "bytes1": np.array([b"\x00\x01\x02\x03\x04", b""], dtype="object"),
@@ -242,7 +244,9 @@ def test_orc_roundtrip_file(dirpath):
         "byte1": np.array([1, 100], dtype="int8"),
         "short1": np.array([1024, 2048], dtype="int16"),
         "int1": np.array([65536, 65536], dtype="int32"),
-        "long1": np.array([9223372036854775807, 9223372036854775807], dtype="int64"),
+        "long1": np.array(
+            [9223372036854775807, 9223372036854775807], dtype="int64"
+        ),
         "float1": np.array([1.0, 2.0], dtype="float32"),
         "double1": np.array([-15.0, -5.0], dtype="float64"),
         "bytes1": np.array([b"\x00\x01\x02\x03\x04", b""], dtype="object"),
@@ -267,7 +271,9 @@ def test_orc_roundtrip_bytesio():
         "byte1": np.array([1, 100], dtype="int8"),
         "short1": np.array([1024, 2048], dtype="int16"),
         "int1": np.array([65536, 65536], dtype="int32"),
-        "long1": np.array([9223372036854775807, 9223372036854775807], dtype="int64"),
+        "long1": np.array(
+            [9223372036854775807, 9223372036854775807], dtype="int64"
+        ),
         "float1": np.array([1.0, 2.0], dtype="float32"),
         "double1": np.array([-15.0, -5.0], dtype="float64"),
         "bytes1": np.array([b"\x00\x01\x02\x03\x04", b""], dtype="object"),
@@ -330,7 +336,9 @@ def test_orc_dtype_backend_pyarrow(using_infer_string):
 
     expected = pd.DataFrame(
         {
-            col: pd.arrays.ArrowExtensionArray(pa.array(df[col], from_pandas=True))
+            col: pd.arrays.ArrowExtensionArray(
+                pa.array(df[col], from_pandas=True)
+            )
             for col in df.columns
         }
     )
@@ -339,8 +347,12 @@ def test_orc_dtype_backend_pyarrow(using_infer_string):
         # -> the default large string comes back as string
         string_dtype = pd.ArrowDtype(pa.string())
         expected["string"] = expected["string"].astype(string_dtype)
-        expected["string_with_nan"] = expected["string_with_nan"].astype(string_dtype)
-        expected["string_with_none"] = expected["string_with_none"].astype(string_dtype)
+        expected["string_with_nan"] = expected["string_with_nan"].astype(
+            string_dtype
+        )
+        expected["string_with_none"] = expected["string_with_none"].astype(
+            string_dtype
+        )
 
     tm.assert_frame_equal(result, expected)
 

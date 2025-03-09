@@ -77,8 +77,8 @@ class AbstractEngine(metaclass=abc.ABCMeta):
             The result of the passed expression.
         """
         if not self._is_aligned:
-            self.result_type, self.aligned_axes, self.result_name = align_terms(
-                self.expr.terms
+            self.result_type, self.aligned_axes, self.result_name = (
+                align_terms(self.expr.terms)
             )
 
         # make sure no names in resolvers and locals/globals clash

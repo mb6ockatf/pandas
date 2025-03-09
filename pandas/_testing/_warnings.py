@@ -27,7 +27,9 @@ if TYPE_CHECKING:
 
 @contextmanager
 def assert_produces_warning(
-    expected_warning: type[Warning] | bool | tuple[type[Warning], ...] | None = Warning,
+    expected_warning: (
+        type[Warning] | bool | tuple[type[Warning], ...] | None
+    ) = Warning,
     filter_level: Literal[
         "error", "ignore", "always", "default", "module", "once"
     ] = "always",
@@ -106,13 +108,18 @@ def assert_produces_warning(
             yield w
         finally:
             if expected_warning:
-                if isinstance(expected_warning, tuple) and must_find_all_warnings:
+                if (
+                    isinstance(expected_warning, tuple)
+                    and must_find_all_warnings
+                ):
                     match = (
                         match
                         if isinstance(match, tuple)
                         else (match,) * len(expected_warning)
                     )
-                    for warning_type, warning_match in zip(expected_warning, match):
+                    for warning_type, warning_match in zip(
+                        expected_warning, match
+                    ):
                         _assert_caught_expected_warnings(
                             caught_warnings=w,
                             expected_warning=warning_type,
@@ -185,7 +192,9 @@ def _assert_caught_expected_warnings(
                     unmatched_messages.append(actual_warning.message)
 
     if not saw_warning:
-        raise AssertionError(f"Did not see expected warning of class {warning_name!r}")
+        raise AssertionError(
+            f"Did not see expected warning of class {warning_name!r}"
+        )
 
     if match and not matched_message:
         raise AssertionError(
@@ -231,7 +240,9 @@ def _assert_caught_no_extra_warnings(
             )
 
     if extra_warnings:
-        raise AssertionError(f"Caused unexpected warning(s): {extra_warnings!r}")
+        raise AssertionError(
+            f"Caused unexpected warning(s): {extra_warnings!r}"
+        )
 
 
 def _is_unexpected_warning(

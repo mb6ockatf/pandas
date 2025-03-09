@@ -45,7 +45,9 @@ def test_compare_various_formats(keep_shape, keep_equal):
         columns = pd.Index(["self", "other"])
         if keep_equal:
             expected = pd.DataFrame(
-                [["a", "x"], ["b", "b"], ["c", "z"]], index=indices, columns=columns
+                [["a", "x"], ["b", "b"], ["c", "z"]],
+                index=indices,
+                columns=columns,
             )
         else:
             expected = pd.DataFrame(

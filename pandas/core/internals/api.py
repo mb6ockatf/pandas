@@ -65,9 +65,9 @@ def _make_block(values: ArrayLike, placement: np.ndarray) -> Block:
     klass = get_block_type(dtype)
     placement_obj = BlockPlacement(placement)
 
-    if (isinstance(dtype, ExtensionDtype) and dtype._supports_2d) or isinstance(
-        values, (DatetimeArray, TimedeltaArray)
-    ):
+    if (
+        isinstance(dtype, ExtensionDtype) and dtype._supports_2d
+    ) or isinstance(values, (DatetimeArray, TimedeltaArray)):
         values = ensure_block_shape(values, ndim=2)
 
     values = maybe_coerce_values(values)
@@ -129,7 +129,9 @@ def make_block(
     return klass(values, ndim=ndim, placement=placement)
 
 
-def maybe_infer_ndim(values, placement: BlockPlacement, ndim: int | None) -> int:
+def maybe_infer_ndim(
+    values, placement: BlockPlacement, ndim: int | None
+) -> int:
     """
     If `ndim` is not provided, infer it from placement and values.
     """

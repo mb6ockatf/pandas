@@ -13,7 +13,9 @@ class TestTZLocalizeToUTC:
         vals = np.array([val, val - 1, val], dtype=np.int64)
 
         with pytest.raises(ValueError, match="2011-11-06 01:00:00"):
-            tz_localize_to_utc(vals, zoneinfo.ZoneInfo("US/Eastern"), ambiguous="infer")
+            tz_localize_to_utc(
+                vals, zoneinfo.ZoneInfo("US/Eastern"), ambiguous="infer"
+            )
 
         with pytest.raises(ValueError, match="are no repeated times"):
             tz_localize_to_utc(
@@ -23,4 +25,6 @@ class TestTZLocalizeToUTC:
         vals[1] += 1
         msg = "There are 2 dst switches when there should only be 1"
         with pytest.raises(ValueError, match=msg):
-            tz_localize_to_utc(vals, zoneinfo.ZoneInfo("US/Eastern"), ambiguous="infer")
+            tz_localize_to_utc(
+                vals, zoneinfo.ZoneInfo("US/Eastern"), ambiguous="infer"
+            )

@@ -45,7 +45,9 @@ bar2,12,13,14,15
                     [12, 13, 14, 15],
                     [12, 13, 14, 15],
                 ],
-                index=Index(["foo", "bar", "baz", "qux", "foo2", "bar2"], name="index"),
+                index=Index(
+                    ["foo", "bar", "baz", "qux", "foo2", "bar2"], name="index"
+                ),
                 columns=["A", "B", "C", "D"],
             ),
         ),
@@ -56,7 +58,10 @@ foo,three,12,13,14,15
 bar,one,12,13,14,15
 bar,two,12,13,14,15
 """,
-            {"index_col": [0, 1], "names": ["index1", "index2", "A", "B", "C", "D"]},
+            {
+                "index_col": [0, 1],
+                "names": ["index1", "index2", "A", "B", "C", "D"],
+            },
             DataFrame(
                 [
                     [2, 3, 4, 5],

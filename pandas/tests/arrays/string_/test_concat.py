@@ -25,7 +25,10 @@ from pandas.util.version import Version
     ],
 )
 def test_concat_series(request, to_concat_dtypes, result_dtype):
-    if any(storage == "pyarrow" for storage, _ in to_concat_dtypes) and not HAS_PYARROW:
+    if (
+        any(storage == "pyarrow" for storage, _ in to_concat_dtypes)
+        and not HAS_PYARROW
+    ):
         pytest.skip("Could not import 'pyarrow'")
 
     ser_list = [
@@ -49,7 +52,9 @@ def test_concat_with_object(string_dtype_arguments):
     # results in object dtype
     result = pd.concat(
         [
-            pd.Series(["a", "b", None], dtype=pd.StringDtype(*string_dtype_arguments)),
+            pd.Series(
+                ["a", "b", None], dtype=pd.StringDtype(*string_dtype_arguments)
+            ),
             pd.Series(["a", "b", None], dtype=object),
         ]
     )

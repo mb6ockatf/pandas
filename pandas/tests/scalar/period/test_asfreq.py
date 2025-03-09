@@ -79,7 +79,9 @@ class TestFreqConversion:
         ival_A_to_D_start = Period(freq="D", year=2007, month=1, day=1)
         ival_A_to_D_end = Period(freq="D", year=2007, month=12, day=31)
         ival_A_to_H_start = Period(freq="h", year=2007, month=1, day=1, hour=0)
-        ival_A_to_H_end = Period(freq="h", year=2007, month=12, day=31, hour=23)
+        ival_A_to_H_end = Period(
+            freq="h", year=2007, month=12, day=31, hour=23
+        )
         ival_A_to_T_start = Period(
             freq="Min", year=2007, month=1, day=1, hour=0, minute=0
         )
@@ -90,7 +92,13 @@ class TestFreqConversion:
             freq="s", year=2007, month=1, day=1, hour=0, minute=0, second=0
         )
         ival_A_to_S_end = Period(
-            freq="s", year=2007, month=12, day=31, hour=23, minute=59, second=59
+            freq="s",
+            year=2007,
+            month=12,
+            day=31,
+            hour=23,
+            minute=59,
+            second=59,
         )
 
         ival_AJAN_to_D_end = Period(freq="D", year=2007, month=1, day=31)
@@ -388,7 +396,9 @@ class TestFreqConversion:
         with tm.assert_produces_warning(FutureWarning, match=bday_msg):
             ival_B = Period(freq="B", year=2007, month=1, day=1)
             ival_B_end_of_year = Period(freq="B", year=2007, month=12, day=31)
-            ival_B_end_of_quarter = Period(freq="B", year=2007, month=3, day=30)
+            ival_B_end_of_quarter = Period(
+                freq="B", year=2007, month=3, day=30
+            )
             ival_B_end_of_month = Period(freq="B", year=2007, month=1, day=31)
             ival_B_end_of_week = Period(freq="B", year=2007, month=1, day=5)
 
@@ -514,12 +524,24 @@ class TestFreqConversion:
         # frequency conversion tests: from Hourly Frequency"
 
         ival_H = Period(freq="h", year=2007, month=1, day=1, hour=0)
-        ival_H_end_of_year = Period(freq="h", year=2007, month=12, day=31, hour=23)
-        ival_H_end_of_quarter = Period(freq="h", year=2007, month=3, day=31, hour=23)
-        ival_H_end_of_month = Period(freq="h", year=2007, month=1, day=31, hour=23)
-        ival_H_end_of_week = Period(freq="h", year=2007, month=1, day=7, hour=23)
-        ival_H_end_of_day = Period(freq="h", year=2007, month=1, day=1, hour=23)
-        ival_H_end_of_bus = Period(freq="h", year=2007, month=1, day=1, hour=23)
+        ival_H_end_of_year = Period(
+            freq="h", year=2007, month=12, day=31, hour=23
+        )
+        ival_H_end_of_quarter = Period(
+            freq="h", year=2007, month=3, day=31, hour=23
+        )
+        ival_H_end_of_month = Period(
+            freq="h", year=2007, month=1, day=31, hour=23
+        )
+        ival_H_end_of_week = Period(
+            freq="h", year=2007, month=1, day=7, hour=23
+        )
+        ival_H_end_of_day = Period(
+            freq="h", year=2007, month=1, day=1, hour=23
+        )
+        ival_H_end_of_bus = Period(
+            freq="h", year=2007, month=1, day=1, hour=23
+        )
 
         ival_H_to_A = Period(freq="Y", year=2007)
         ival_H_to_Q = Period(freq="Q", year=2007, quarter=1)
@@ -566,7 +588,9 @@ class TestFreqConversion:
     def test_conv_minutely(self):
         # frequency conversion tests: from Minutely Frequency"
 
-        ival_T = Period(freq="Min", year=2007, month=1, day=1, hour=0, minute=0)
+        ival_T = Period(
+            freq="Min", year=2007, month=1, day=1, hour=0, minute=0
+        )
         ival_T_end_of_year = Period(
             freq="Min", year=2007, month=12, day=31, hour=23, minute=59
         )
@@ -629,9 +653,17 @@ class TestFreqConversion:
     def test_conv_secondly(self):
         # frequency conversion tests: from Secondly Frequency"
 
-        ival_S = Period(freq="s", year=2007, month=1, day=1, hour=0, minute=0, second=0)
+        ival_S = Period(
+            freq="s", year=2007, month=1, day=1, hour=0, minute=0, second=0
+        )
         ival_S_end_of_year = Period(
-            freq="s", year=2007, month=12, day=31, hour=23, minute=59, second=59
+            freq="s",
+            year=2007,
+            month=12,
+            day=31,
+            hour=23,
+            minute=59,
+            second=59,
         )
         ival_S_end_of_quarter = Period(
             freq="s", year=2007, month=3, day=31, hour=23, minute=59, second=59
@@ -663,7 +695,9 @@ class TestFreqConversion:
         with tm.assert_produces_warning(FutureWarning, match=bday_msg):
             ival_S_to_B = Period(freq="B", year=2007, month=1, day=1)
         ival_S_to_H = Period(freq="h", year=2007, month=1, day=1, hour=0)
-        ival_S_to_T = Period(freq="Min", year=2007, month=1, day=1, hour=0, minute=0)
+        ival_S_to_T = Period(
+            freq="Min", year=2007, month=1, day=1, hour=0, minute=0
+        )
 
         assert ival_S.asfreq("Y") == ival_S_to_A
         assert ival_S_end_of_year.asfreq("Y") == ival_S_to_A

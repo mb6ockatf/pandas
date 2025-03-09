@@ -37,9 +37,9 @@ class TestFromDict:
         data = [OrderedDict([["a", 1.5], ["b", 3], ["c", 4], ["d", 6]])]
 
         result = DataFrame(data)
-        expected = DataFrame.from_dict(dict(zip([0], data)), orient="index").reindex(
-            result.index
-        )
+        expected = DataFrame.from_dict(
+            dict(zip([0], data)), orient="index"
+        ).reindex(result.index)
         tm.assert_frame_equal(result, expected)
 
     def test_constructor_list_of_series(self):
@@ -139,7 +139,9 @@ class TestFromDict:
             orient="index",
             columns=["one", "two"],
         )
-        expected = DataFrame([[1, 2], [4, 5]], index=["A", "B"], columns=["one", "two"])
+        expected = DataFrame(
+            [[1, 2], [4, 5]], index=["A", "B"], columns=["one", "two"]
+        )
         tm.assert_frame_equal(result, expected)
 
         msg = "cannot use columns parameter with orient='columns'"
@@ -150,7 +152,9 @@ class TestFromDict:
                 columns=["one", "two"],
             )
         with pytest.raises(ValueError, match=msg):
-            DataFrame.from_dict({"A": [1, 2], "B": [4, 5]}, columns=["one", "two"])
+            DataFrame.from_dict(
+                {"A": [1, 2], "B": [4, 5]}, columns=["one", "two"]
+            )
 
     @pytest.mark.parametrize(
         "data_dict, orient, expected",
@@ -166,7 +170,11 @@ class TestFromDict:
                 "columns",
                 Index([("a",), ("b",)], tupleize_cols=False),
             ),
-            ([{("a", "b"): 1}], "columns", Index([("a", "b")], tupleize_cols=False)),
+            (
+                [{("a", "b"): 1}],
+                "columns",
+                Index([("a", "b")], tupleize_cols=False),
+            ),
         ],
     )
     def test_constructor_from_dict_tuples(self, data_dict, orient, expected):
@@ -177,10 +185,12 @@ class TestFromDict:
 
     def test_frame_dict_constructor_empty_series(self):
         s1 = Series(
-            [1, 2, 3, 4], index=MultiIndex.from_tuples([(1, 2), (1, 3), (2, 2), (2, 4)])
+            [1, 2, 3, 4],
+            index=MultiIndex.from_tuples([(1, 2), (1, 3), (2, 2), (2, 4)]),
         )
         s2 = Series(
-            [1, 2, 3, 4], index=MultiIndex.from_tuples([(1, 2), (1, 3), (3, 2), (3, 4)])
+            [1, 2, 3, 4],
+            index=MultiIndex.from_tuples([(1, 2), (1, 3), (3, 2), (3, 4)]),
         )
         s3 = Series(dtype=object)
 

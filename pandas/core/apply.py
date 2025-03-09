@@ -246,9 +246,9 @@ class Apply(metaclass=abc.ABCMeta):
             and not obj.empty
         ):
             raise ValueError("Transform function failed")
-        if not isinstance(result, (ABCSeries, ABCDataFrame)) or not result.index.equals(
-            obj.index
-        ):
+        if not isinstance(
+            result, (ABCSeries, ABCDataFrame)
+        ) or not result.index.equals(obj.index):
             raise ValueError("Function did not transform")
 
         return result
@@ -339,7 +339,9 @@ class Apply(metaclass=abc.ABCMeta):
         # degenerate case
         if selected_obj.ndim == 1:
             for a in func:
-                colg = obj._gotitem(selected_obj.name, ndim=1, subset=selected_obj)
+                colg = obj._gotitem(
+                    selected_obj.name, ndim=1, subset=selected_obj
+                )
                 args = (
                     [self.axis, *self.args]
                     if include_axis(op_name, colg)
@@ -355,7 +357,9 @@ class Apply(metaclass=abc.ABCMeta):
         else:
             indices = []
             for index, col in enumerate(selected_obj):
-                colg = obj._gotitem(col, ndim=1, subset=selected_obj.iloc[:, index])
+                colg = obj._gotitem(
+                    col, ndim=1, subset=selected_obj.iloc[:, index]
+                )
                 args = (
                     [self.axis, *self.args]
                     if include_axis(op_name, colg)
@@ -448,7 +452,10 @@ class Apply(metaclass=abc.ABCMeta):
         if selected_obj.ndim == 1:
             # key only used for output
             colg = obj._gotitem(selection, ndim=1)
-            results = [getattr(colg, op_name)(how, **kwargs) for _, how in func.items()]
+            results = [
+                getattr(colg, op_name)(how, **kwargs)
+                for _, how in func.items()
+            ]
             keys = list(func.keys())
         elif not is_groupby and is_non_unique_col:
             # key used for column selection and output
@@ -463,7 +470,9 @@ class Apply(metaclass=abc.ABCMeta):
                     label_to_indices[label].append(index)
 
                 key_data = [
-                    getattr(selected_obj._ixs(indice, axis=1), op_name)(how, **kwargs)
+                    getattr(selected_obj._ixs(indice, axis=1), op_name)(
+                        how, **kwargs
+                    )
                     for label, indices in label_to_indices.items()
                     for indice in indices
                 ]
@@ -513,7 +522,9 @@ class Apply(metaclass=abc.ABCMeta):
         if all(is_ndframe):
             results = [result for result in result_data if not result.empty]
             keys_to_use: Iterable[Hashable]
-            keys_to_use = [k for k, v in zip(result_index, result_data) if not v.empty]
+            keys_to_use = [
+                k for k, v in zip(result_index, result_data) if not v.empty
+            ]
             # Have to check, if at least one DataFrame is not empty.
             if keys_to_use == []:
                 keys_to_use = result_index
@@ -605,7 +616,9 @@ class Apply(metaclass=abc.ABCMeta):
             )
 
         if self.axis == 1 and isinstance(self.obj, ABCDataFrame):
-            return self.obj.T.apply(self.func, 0, args=self.args, **self.kwargs).T
+            return self.obj.T.apply(
+                self.func, 0, args=self.args, **self.kwargs
+            ).T
 
         func = self.func
         kwargs = self.kwargs
@@ -898,7 +911,9 @@ class FrameApply(NDFrameApply):
 
         # raw
         elif self.raw:
-            return self.apply_raw(engine=self.engine, engine_kwargs=self.engine_kwargs)
+            return self.apply_raw(
+                engine=self.engine, engine_kwargs=self.engine_kwargs
+            )
 
         return self.apply_standard()
 
@@ -921,7 +936,9 @@ class FrameApply(NDFrameApply):
             result = result.T if result is not None else result
 
         if result is None:
-            result = self.obj.apply(self.func, axis, args=self.args, **self.kwargs)
+            result = self.obj.apply(
+                self.func, axis, args=self.args, **self.kwargs
+            )
 
         return result
 
@@ -963,7 +980,9 @@ class FrameApply(NDFrameApply):
 
         if should_reduce:
             if len(self.agg_axis):
-                r = self.func(Series([], dtype=np.float64), *self.args, **self.kwargs)
+                r = self.func(
+                    Series([], dtype=np.float64), *self.args, **self.kwargs
+                )
             else:
                 r = np.nan
 
@@ -1018,7 +1037,9 @@ class FrameApply(NDFrameApply):
 
         # TODO: mixed type case
         if result.ndim == 2:
-            return self.obj._constructor(result, index=self.index, columns=self.columns)
+            return self.obj._constructor(
+                result, index=self.index, columns=self.columns
+            )
         else:
             return self.obj._constructor_sliced(result, index=self.agg_axis)
 
@@ -1089,7 +1110,9 @@ class FrameApply(NDFrameApply):
         results = self.apply_with_numba()
         return results, self.result_index
 
-    def wrap_results(self, results: ResType, res_index: Index) -> DataFrame | Series:
+    def wrap_results(
+        self, results: ResType, res_index: Index
+    ) -> DataFrame | Series:
         from pandas import Series
 
         # see if we can infer the results
@@ -1150,7 +1173,9 @@ class FrameRowApply(FrameApply):
             for j in range(values.shape[1]):
                 # Create the series
                 ser = Series(
-                    values[:, j], index=df_index, name=maybe_cast_str(col_names[j])
+                    values[:, j],
+                    index=df_index,
+                    name=maybe_cast_str(col_names[j]),
                 )
                 results[j] = jitted_udf(ser, *args)
             return results
@@ -1172,7 +1197,10 @@ class FrameRowApply(FrameApply):
 
         # Convert from numba dict to regular dict
         # Our isinstance checks in the df constructor don't pass for numbas typed dict
-        with set_numba_data(index) as index, set_numba_data(columns) as columns:
+        with (
+            set_numba_data(index) as index,
+            set_numba_data(columns) as columns,
+        ):
             res = dict(nb_func(self.values, columns, index, *args))
         return res
 
@@ -1349,7 +1377,9 @@ class FrameColumnApply(FrameApply):
 
         return result
 
-    def infer_to_same_shape(self, results: ResType, res_index: Index) -> DataFrame:
+    def infer_to_same_shape(
+        self, results: ResType, res_index: Index
+    ) -> DataFrame:
         """infer the results to the same shape as the input object"""
         result = self.obj._constructor(data=results)
         result = result.T
@@ -1525,7 +1555,9 @@ class GroupByApply(Apply):
         with com.temp_setattr(
             obj, "as_index", True, condition=hasattr(obj, "as_index")
         ):
-            keys, results = self.compute_list_like(op_name, selected_obj, kwargs)
+            keys, results = self.compute_list_like(
+                op_name, selected_obj, kwargs
+            )
         result = self.wrap_results_list_like(keys, results)
         return result
 
@@ -1565,7 +1597,9 @@ class GroupByApply(Apply):
             result_index, result_data = self.compute_dict_like(
                 op_name, selected_obj, selection, kwargs
             )
-        result = self.wrap_results_dict_like(selected_obj, result_index, result_data)
+        result = self.wrap_results_dict_like(
+            selected_obj, result_index, result_data
+        )
         return result
 
 
@@ -1599,7 +1633,9 @@ class ResamplerWindowApply(GroupByApply):
 
 def reconstruct_func(
     func: AggFuncType | None, **kwargs
-) -> tuple[bool, AggFuncType, tuple[str, ...] | None, npt.NDArray[np.intp] | None]:
+) -> tuple[
+    bool, AggFuncType, tuple[str, ...] | None, npt.NDArray[np.intp] | None
+]:
     """
     This is the internal function to reconstruct func given if there is relabeling
     or not and also normalize the keyword to get new order of columns.
@@ -1649,7 +1685,9 @@ def reconstruct_func(
             )
         if func is None:
             # nicer error message
-            raise TypeError("Must provide 'func' or tuples of '(column, aggfunc).")
+            raise TypeError(
+                "Must provide 'func' or tuples of '(column, aggfunc)."
+            )
 
     if relabeling:
         # error: Incompatible types in assignment (expression has type
@@ -1686,9 +1724,9 @@ def is_multi_agg_with_relabel(**kwargs) -> bool:
     >>> is_multi_agg_with_relabel()
     False
     """
-    return all(isinstance(v, tuple) and len(v) == 2 for v in kwargs.values()) and (
-        len(kwargs) > 0
-    )
+    return all(
+        isinstance(v, tuple) and len(v) == 2 for v in kwargs.values()
+    ) and (len(kwargs) > 0)
 
 
 def normalize_keyword_aggregation(
@@ -1765,7 +1803,11 @@ def _make_unique_kwarg_list(
     [('a', '<lambda>_0'), ('a', '<lambda>_1'), ('b', '<lambda>')]
     """
     return [
-        (pair[0], f"{pair[1]}_{seq[:i].count(pair)}") if seq.count(pair) > 1 else pair
+        (
+            (pair[0], f"{pair[1]}_{seq[:i].count(pair)}")
+            if seq.count(pair) > 1
+            else pair
+        )
         for i, pair in enumerate(seq)
     ]
 
@@ -1813,7 +1855,9 @@ def relabel_result(
     reordered_result_in_dict: dict[Hashable, Series] = {}
     idx = 0
 
-    reorder_mask = not isinstance(result, ABCSeries) and len(result.columns) > 1
+    reorder_mask = (
+        not isinstance(result, ABCSeries) and len(result.columns) > 1
+    )
     for col, fun in func.items():
         s = result[col].dropna()
 
@@ -1839,7 +1883,8 @@ def relabel_result(
         # mean  1.5
         if reorder_mask:
             fun = [
-                com.get_callable_name(f) if not isinstance(f, str) else f for f in fun
+                com.get_callable_name(f) if not isinstance(f, str) else f
+                for f in fun
             ]
             col_idx_order = Index(s.index).get_indexer(fun)
             valid_idx = col_idx_order != -1
@@ -1854,7 +1899,9 @@ def relabel_result(
     return reordered_result_in_dict
 
 
-def reconstruct_and_relabel_result(result, func, **kwargs) -> DataFrame | Series:
+def reconstruct_and_relabel_result(
+    result, func, **kwargs
+) -> DataFrame | Series:
     from pandas import DataFrame
 
     relabeling, func, columns, order = reconstruct_func(func, **kwargs)
@@ -1986,7 +2033,9 @@ def validate_func_kwargs(
     func = []
     for col_func in kwargs.values():
         if not (isinstance(col_func, str) or callable(col_func)):
-            raise TypeError(tuple_given_message.format(type(col_func).__name__))
+            raise TypeError(
+                tuple_given_message.format(type(col_func).__name__)
+            )
         func.append(col_func)
     if not columns:
         no_arg_message = "Must provide 'func' or named aggregation **kwargs."
@@ -1994,7 +2043,9 @@ def validate_func_kwargs(
     return columns, func
 
 
-def include_axis(op_name: Literal["agg", "apply"], colg: Series | DataFrame) -> bool:
+def include_axis(
+    op_name: Literal["agg", "apply"], colg: Series | DataFrame
+) -> bool:
     return isinstance(colg, ABCDataFrame) or (
         isinstance(colg, ABCSeries) and op_name == "agg"
     )

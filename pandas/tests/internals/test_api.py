@@ -129,7 +129,9 @@ def test_create_dataframe_from_blocks_datetimelike():
         step=datetime.timedelta(1),
     ).reshape((2, 3))
     block_array2 = np.arange(
-        datetime.timedelta(1), datetime.timedelta(7), step=datetime.timedelta(1)
+        datetime.timedelta(1),
+        datetime.timedelta(7),
+        step=datetime.timedelta(1),
     ).reshape((2, 3))
     result = create_dataframe_from_blocks(
         [(block_array1, np.array([0, 2])), (block_array2, np.array([1, 3]))],
@@ -162,6 +164,8 @@ def test_create_dataframe_from_blocks_1dEA(array):
 
     block = df._mgr.blocks[0]
     result = create_dataframe_from_blocks(
-        [(block.values[0], block.mgr_locs.as_array)], index=df.index, columns=df.columns
+        [(block.values[0], block.mgr_locs.as_array)],
+        index=df.index,
+        columns=df.columns,
     )
     tm.assert_frame_equal(result, df)

@@ -47,7 +47,9 @@ class Query:
         index = pd.date_range("20010101", periods=N, freq="min")
         s = pd.Series(index)
         self.ts = s.iloc[halfway]
-        self.df = pd.DataFrame({"a": np.random.randn(N), "dates": index}, index=index)
+        self.df = pd.DataFrame(
+            {"a": np.random.randn(N), "dates": index}, index=index
+        )
         data = np.random.randn(N)
         self.min_val = data.min()
         self.max_val = data.max()

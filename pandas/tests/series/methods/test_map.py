@@ -34,10 +34,14 @@ def test_series_map_box_timedelta():
 
 def test_map_callable(datetime_series):
     with np.errstate(all="ignore"):
-        tm.assert_series_equal(datetime_series.map(np.sqrt), np.sqrt(datetime_series))
+        tm.assert_series_equal(
+            datetime_series.map(np.sqrt), np.sqrt(datetime_series)
+        )
 
     # map function element-wise
-    tm.assert_series_equal(datetime_series.map(math.exp), np.exp(datetime_series))
+    tm.assert_series_equal(
+        datetime_series.map(math.exp), np.exp(datetime_series)
+    )
 
     # empty series
     s = Series(dtype=object, name="foo", index=Index([], name="bar"))
@@ -99,7 +103,9 @@ def test_map_series_stringdtype(any_string_dtype, using_infer_string):
     if ser2.dtype == object:
         item = np.nan
 
-    expected = Series(data=["rabbit", "dog", "cat", item], dtype=any_string_dtype)
+    expected = Series(
+        data=["rabbit", "dog", "cat", item], dtype=any_string_dtype
+    )
     if using_infer_string and any_string_dtype == "object":
         expected = expected.astype("str")
 
@@ -214,7 +220,9 @@ def test_map_category_string():
     c = Series(["B", "C", "D", "E"], index=Index(["b", "c", "d", "e"]))
 
     exp = Series(
-        pd.Categorical([np.nan, "B", "C", "D"], categories=["B", "C", "D", "E"])
+        pd.Categorical(
+            [np.nan, "B", "C", "D"], categories=["B", "C", "D", "E"]
+        )
     )
     tm.assert_series_equal(a.map(b), exp)
     exp = Series([np.nan, "B", "C", "D"])
@@ -291,7 +299,9 @@ def test_map_dict_with_tuple_keys():
     df["labels"] = df["a"].map(label_mappings)
     df["expected_labels"] = Series(["A", "B", "A", "B"], index=df.index)
     # All labels should be filled now
-    tm.assert_series_equal(df["labels"], df["expected_labels"], check_names=False)
+    tm.assert_series_equal(
+        df["labels"], df["expected_labels"], check_names=False
+    )
 
 
 def test_map_counter():
@@ -327,7 +337,9 @@ def test_map_defaultdict_na_key(na_action):
     s = Series([1, 2, np.nan])
     default_map = defaultdict(lambda: "missing", {1: "a", 2: "b", np.nan: "c"})
     result = s.map(default_map, na_action=na_action)
-    expected = Series({0: "a", 1: "b", 2: "c" if na_action is None else np.nan})
+    expected = Series(
+        {0: "a", 1: "b", 2: "c" if na_action is None else np.nan}
+    )
     tm.assert_series_equal(result, expected)
 
 
@@ -336,7 +348,9 @@ def test_map_defaultdict_missing_key(na_action):
     s = Series([1, 2, np.nan])
     default_map = defaultdict(lambda: "missing", {1: "a", 2: "b", 3: "c"})
     result = s.map(default_map, na_action=na_action)
-    expected = Series({0: "a", 1: "b", 2: "missing" if na_action is None else np.nan})
+    expected = Series(
+        {0: "a", 1: "b", 2: "missing" if na_action is None else np.nan}
+    )
     tm.assert_series_equal(result, expected)
 
 
@@ -370,7 +384,10 @@ def test_map_defaultdict_ignore_na():
 
 @pytest.mark.parametrize(
     "na_action, expected",
-    [(None, Series([10.0, 42.0, np.nan])), ("ignore", Series([10, np.nan, np.nan]))],
+    [
+        (None, Series([10.0, 42.0, np.nan])),
+        ("ignore", Series([10, np.nan, np.nan])),
+    ],
 )
 def test_map_categorical_na_ignore(na_action, expected):
     # GH#47527
@@ -468,7 +485,10 @@ def test_map_box_td64(unit):
 
 def test_map_box_period():
     # period
-    vals = [pd.Period("2011-01-01", freq="M"), pd.Period("2011-01-02", freq="M")]
+    vals = [
+        pd.Period("2011-01-01", freq="M"),
+        pd.Period("2011-01-02", freq="M"),
+    ]
     ser = Series(vals)
     assert ser.dtype == "Period[M]"
     res = ser.map(lambda x: f"{type(x).__name__}_{x.freqstr}")
@@ -477,11 +497,15 @@ def test_map_box_period():
 
 
 def test_map_categorical(na_action, using_infer_string):
-    values = pd.Categorical(list("ABBABCD"), categories=list("DCBA"), ordered=True)
+    values = pd.Categorical(
+        list("ABBABCD"), categories=list("DCBA"), ordered=True
+    )
     s = Series(values, name="XX", index=list("abcdefg"))
 
     result = s.map(lambda x: x.lower(), na_action=na_action)
-    exp_values = pd.Categorical(list("abbabcd"), categories=list("dcba"), ordered=True)
+    exp_values = pd.Categorical(
+        list("abbabcd"), categories=list("dcba"), ordered=True
+    )
     exp = Series(exp_values, name="XX", index=list("abcdefg"))
     tm.assert_series_equal(result, exp)
     tm.assert_categorical_equal(result.values, exp_values)
@@ -515,7 +539,9 @@ def test_map_categorical_na_action(na_action, expected):
 
 
 def test_map_datetimetz():
-    values = date_range("2011-01-01", "2011-01-02", freq="h").tz_localize("Asia/Tokyo")
+    values = date_range("2011-01-01", "2011-01-02", freq="h").tz_localize(
+        "Asia/Tokyo"
+    )
     s = Series(values, name="XX")
 
     # keep tz

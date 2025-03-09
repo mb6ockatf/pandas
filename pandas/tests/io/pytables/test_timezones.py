@@ -50,7 +50,9 @@ def test_append_with_timezones(setup_path, gettz):
     df_est = DataFrame(
         {
             "A": [
-                Timestamp("20130102 2:00:00", tz=gettz("US/Eastern")).as_unit("ns")
+                Timestamp("20130102 2:00:00", tz=gettz("US/Eastern")).as_unit(
+                    "ns"
+                )
                 + timedelta(hours=1) * i
                 for i in range(5)
             ]
@@ -245,7 +247,9 @@ def test_timezones_fixed_format_frame_non_empty(setup_path):
         tm.assert_frame_equal(result, df)
 
 
-def test_timezones_fixed_format_empty(setup_path, tz_aware_fixture, frame_or_series):
+def test_timezones_fixed_format_empty(
+    setup_path, tz_aware_fixture, frame_or_series
+):
     # GH 20594
 
     dtype = pd.DatetimeTZDtype(tz=tz_aware_fixture)

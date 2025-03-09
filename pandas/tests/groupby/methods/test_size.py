@@ -20,7 +20,9 @@ def test_size(df, by):
 
 @pytest.mark.parametrize("by", ["A", "B", ["A", "B"]])
 def test_size_sort(sort, by):
-    df = DataFrame(np.random.default_rng(2).choice(20, (1000, 3)), columns=list("ABC"))
+    df = DataFrame(
+        np.random.default_rng(2).choice(20, (1000, 3)), columns=list("ABC")
+    )
     left = df.groupby(by=by, sort=sort).size()
     right = df.groupby(by=by, sort=sort)["C"].apply(lambda a: a.shape[0])
     tm.assert_series_equal(left, right, check_names=False)
@@ -56,7 +58,8 @@ def test_size_on_categorical(as_index):
     result = df.groupby(["A", "B"], as_index=as_index, observed=False).size()
 
     expected = DataFrame(
-        [[1, 1, 1], [1, 2, 0], [2, 1, 0], [2, 2, 1]], columns=["A", "B", "size"]
+        [[1, 1, 1], [1, 2, 0], [2, 1, 0], [2, 2, 1]],
+        columns=["A", "B", "size"],
     )
     expected["A"] = expected["A"].astype("category")
     if as_index:
@@ -80,7 +83,9 @@ def test_size_strings(any_string_dtype, using_infer_string):
     df = DataFrame({"a": ["a", "a", "b"], "b": "a"}, dtype=dtype)
     result = df.groupby("a")["b"].size()
     exp_dtype = "Int64" if dtype == "string[pyarrow]" else "int64"
-    exp_index_dtype = "str" if using_infer_string and dtype == "object" else dtype
+    exp_index_dtype = (
+        "str" if using_infer_string and dtype == "object" else dtype
+    )
     expected = Series(
         [2, 1],
         index=Index(["a", "b"], name="a", dtype=exp_index_dtype),

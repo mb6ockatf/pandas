@@ -124,9 +124,13 @@ def test_parse_dates_string(all_parsers):
 20090103,c,4,5
 """
     parser = all_parsers
-    result = parser.read_csv(StringIO(data), index_col="date", parse_dates=["date"])
+    result = parser.read_csv(
+        StringIO(data), index_col="date", parse_dates=["date"]
+    )
     # freq doesn't round-trip
-    index = date_range("1/1/2009", periods=3, name="date", unit="s")._with_freq(None)
+    index = date_range(
+        "1/1/2009", periods=3, name="date", unit="s"
+    )._with_freq(None)
 
     expected = DataFrame(
         {"A": ["a", "b", "c"], "B": [1, 3, 4], "C": [2, 4, 5]}, index=index
@@ -148,7 +152,10 @@ def test_parse_dates_column_list(all_parsers, parse_dates):
     expected = expected.set_index(["a", "b"])
 
     result = parser.read_csv(
-        StringIO(data), index_col=[0, 1], parse_dates=parse_dates, dayfirst=True
+        StringIO(data),
+        index_col=[0, 1],
+        parse_dates=parse_dates,
+        dayfirst=True,
     )
     tm.assert_frame_equal(result, expected)
 
@@ -213,7 +220,8 @@ def test_parse_tz_aware(all_parsers):
 
     result = parser.read_csv(StringIO(data), index_col=0, parse_dates=True)
     expected = DataFrame(
-        {"x": [0.5]}, index=Index([Timestamp("2012-06-13 01:39:00+00:00")], name="Date")
+        {"x": [0.5]},
+        index=Index([Timestamp("2012-06-13 01:39:00+00:00")], name="Date"),
     )
     if parser.engine == "pyarrow":
         pytz = pytest.importorskip("pytz")
@@ -228,7 +236,9 @@ def test_parse_tz_aware(all_parsers):
 def test_read_with_parse_dates_scalar_non_bool(all_parsers, kwargs):
     # see gh-5636
     parser = all_parsers
-    msg = "Only booleans and lists are accepted for the 'parse_dates' parameter"
+    msg = (
+        "Only booleans and lists are accepted for the 'parse_dates' parameter"
+    )
     data = """A,B,C
     1,2,2003-11-1"""
 
@@ -239,7 +249,9 @@ def test_read_with_parse_dates_scalar_non_bool(all_parsers, kwargs):
 @pytest.mark.parametrize("parse_dates", [(1,), np.array([4, 5]), {1, 3}])
 def test_read_with_parse_dates_invalid_type(all_parsers, parse_dates):
     parser = all_parsers
-    msg = "Only booleans and lists are accepted for the 'parse_dates' parameter"
+    msg = (
+        "Only booleans and lists are accepted for the 'parse_dates' parameter"
+    )
     data = """A,B,C
     1,2,2003-11-1"""
 
@@ -298,7 +310,9 @@ def test_parse_dates_empty_string(all_parsers):
     # see gh-2263
     parser = all_parsers
     data = "Date,test\n2012-01-01,1\n,2"
-    result = parser.read_csv(StringIO(data), parse_dates=["Date"], na_filter=False)
+    result = parser.read_csv(
+        StringIO(data), parse_dates=["Date"], na_filter=False
+    )
 
     expected = DataFrame(
         [[datetime(2012, 1, 1), 1], [pd.NaT, 2]], columns=["Date", "test"]
@@ -320,7 +334,8 @@ def test_parse_dates_empty_string(all_parsers):
             "a\n04.15.2016",
             {"parse_dates": True, "index_col": 0},
             DataFrame(
-                index=DatetimeIndex(["2016-04-15"], dtype="M8[s]", name="a"), columns=[]
+                index=DatetimeIndex(["2016-04-15"], dtype="M8[s]", name="a"),
+                columns=[],
             ),
         ),
         (
@@ -422,7 +437,14 @@ def test_parse_timezone(all_parsers):
 @skip_pyarrow  # pandas.errors.ParserError: CSV parse error
 @pytest.mark.parametrize(
     "date_string",
-    ["32/32/2019", "02/30/2019", "13/13/2019", "13/2019", "a3/11/2018", "10/11/2o17"],
+    [
+        "32/32/2019",
+        "02/30/2019",
+        "13/13/2019",
+        "13/2019",
+        "a3/11/2018",
+        "10/11/2o17",
+    ],
 )
 def test_invalid_parse_delimited_date(all_parsers, date_string):
     parser = all_parsers
@@ -455,10 +477,15 @@ def test_parse_delimited_date_swap_no_warning(
         if not dayfirst:
             # "CSV parse error: Empty CSV file or block"
             pytest.skip(reason="https://github.com/apache/arrow/issues/38676")
-        msg = "The 'dayfirst' option is not supported with the 'pyarrow' engine"
+        msg = (
+            "The 'dayfirst' option is not supported with the 'pyarrow' engine"
+        )
         with pytest.raises(ValueError, match=msg):
             parser.read_csv(
-                StringIO(date_string), header=None, dayfirst=dayfirst, parse_dates=[0]
+                StringIO(date_string),
+                header=None,
+                dayfirst=dayfirst,
+                parse_dates=[0],
             )
         return
 
@@ -508,7 +535,9 @@ def test_parse_multiple_delimited_dates_with_swap_warnings():
             r"You might want to try:"
         ),
     ):
-        pd.to_datetime(["01/01/2000", "31/05/2000", "31/05/2001", "01/02/2000"])
+        pd.to_datetime(
+            ["01/01/2000", "31/05/2000", "31/05/2001", "01/02/2000"]
+        )
 
 
 # ArrowKeyError: Column 'fdate1' in include_columns does not exist in CSV file
@@ -518,7 +547,12 @@ def test_parse_multiple_delimited_dates_with_swap_warnings():
     [
         (None, ["val"], ["date", "time"], "date, time"),
         (None, ["val"], [0, "time"], "time"),
-        (["date1", "time1", "temperature"], None, ["date", "time"], "date, time"),
+        (
+            ["date1", "time1", "temperature"],
+            None,
+            ["date", "time"],
+            "date, time",
+        ),
         (
             ["date1", "time1", "temperature"],
             ["date1", "temperature"],
@@ -537,7 +571,11 @@ def test_missing_parse_dates_column_raises(
 
     with pytest.raises(ValueError, match=msg):
         parser.read_csv(
-            content, sep=",", names=names, usecols=usecols, parse_dates=parse_dates
+            content,
+            sep=",",
+            names=names,
+            usecols=usecols,
+            parse_dates=parse_dates,
         )
 
 
@@ -567,8 +605,12 @@ def test_date_parser_multiindex_columns(all_parsers):
     data = """a,b
 1,2
 2019-12-31,6"""
-    result = parser.read_csv(StringIO(data), parse_dates=[("a", "1")], header=[0, 1])
-    expected = DataFrame({("a", "1"): Timestamp("2019-12-31"), ("b", "2"): [6]})
+    result = parser.read_csv(
+        StringIO(data), parse_dates=[("a", "1")], header=[0, 1]
+    )
+    expected = DataFrame(
+        {("a", "1"): Timestamp("2019-12-31"), ("b", "2"): [6]}
+    )
     tm.assert_frame_equal(result, expected)
 
 
@@ -583,7 +625,9 @@ def test_date_parser_usecols_thousands(all_parsers):
 
     if parser.engine == "pyarrow":
         # DeprecationWarning for passing a Manager object
-        msg = "The 'thousands' option is not supported with the 'pyarrow' engine"
+        msg = (
+            "The 'thousands' option is not supported with the 'pyarrow' engine"
+        )
         with pytest.raises(ValueError, match=msg):
             parser.read_csv(
                 StringIO(data),
@@ -601,7 +645,9 @@ def test_date_parser_usecols_thousands(all_parsers):
         usecols=[1, 2],
         thousands="-",
     )
-    expected = DataFrame({"B": [3, 4], "C": [Timestamp("20-09-2001 01:00:00")] * 2})
+    expected = DataFrame(
+        {"B": [3, 4], "C": [Timestamp("20-09-2001 01:00:00")] * 2}
+    )
     expected["C"] = expected["C"].astype("M8[s]")
     tm.assert_frame_equal(result, expected)
 
@@ -612,7 +658,10 @@ def test_dayfirst_warnings():
     # CASE 1: valid input
     input = "date\n31/12/2014\n10/03/2011"
     expected = DatetimeIndex(
-        ["2014-12-31", "2011-03-10"], dtype="datetime64[s]", freq=None, name="date"
+        ["2014-12-31", "2011-03-10"],
+        dtype="datetime64[s]",
+        freq=None,
+        name="date",
     )
     warning_msg = (
         "Parsing dates in .* format when dayfirst=.* was specified. "
@@ -628,7 +677,10 @@ def test_dayfirst_warnings():
     # B. dayfirst arg incorrect, warning
     with tm.assert_produces_warning(UserWarning, match=warning_msg):
         res2 = read_csv(
-            StringIO(input), parse_dates=["date"], dayfirst=False, index_col="date"
+            StringIO(input),
+            parse_dates=["date"],
+            dayfirst=False,
+            index_col="date",
         ).index
     tm.assert_index_equal(expected, res2)
 
@@ -649,7 +701,10 @@ def test_dayfirst_warnings():
     # B. use dayfirst=False
     with tm.assert_produces_warning(UserWarning, match=warning_msg):
         res6 = read_csv(
-            StringIO(input), parse_dates=["date"], dayfirst=False, index_col="date"
+            StringIO(input),
+            parse_dates=["date"],
+            dayfirst=False,
+            index_col="date",
         ).index
     tm.assert_index_equal(expected, res6)
 
@@ -812,13 +867,18 @@ def test_parse_dates_dict_format_index(all_parsers):
 2020-12-31,31-12-2020"""
 
     result = parser.read_csv(
-        StringIO(data), date_format={"a": "%Y-%m-%d"}, parse_dates=True, index_col=0
+        StringIO(data),
+        date_format={"a": "%Y-%m-%d"},
+        parse_dates=True,
+        index_col=0,
     )
     expected = DataFrame(
         {
             "b": ["31-12-2019", "31-12-2020"],
         },
-        index=Index([Timestamp("2019-12-31"), Timestamp("2020-12-31")], name="a"),
+        index=Index(
+            [Timestamp("2019-12-31"), Timestamp("2020-12-31")], name="a"
+        ),
     )
     tm.assert_frame_equal(result, expected)
 

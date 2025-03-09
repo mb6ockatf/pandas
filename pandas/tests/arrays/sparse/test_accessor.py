@@ -16,7 +16,9 @@ class TestSeriesAccessor:
         expected = pd.Series([0, 1, 0, 10])
         tm.assert_series_equal(result, expected)
 
-    @pytest.mark.parametrize("attr", ["npoints", "density", "fill_value", "sp_values"])
+    @pytest.mark.parametrize(
+        "attr", ["npoints", "density", "fill_value", "sp_values"]
+    )
     def test_get_attributes(self, attr):
         arr = SparseArray([0, 1])
         ser = pd.Series(arr)
@@ -105,14 +107,18 @@ class TestFrameAccessor:
 
     @pytest.mark.parametrize("format", ["csc", "csr", "coo"])
     @pytest.mark.parametrize("labels", [None, list(string.ascii_letters[:10])])
-    @pytest.mark.parametrize("dtype", [np.complex128, np.float64, np.int64, bool])
+    @pytest.mark.parametrize(
+        "dtype", [np.complex128, np.float64, np.int64, bool]
+    )
     def test_from_spmatrix(self, format, labels, dtype):
         sp_sparse = pytest.importorskip("scipy.sparse")
 
         sp_dtype = SparseDtype(dtype)
 
         sp_mat = sp_sparse.eye(10, format=format, dtype=dtype)
-        result = pd.DataFrame.sparse.from_spmatrix(sp_mat, index=labels, columns=labels)
+        result = pd.DataFrame.sparse.from_spmatrix(
+            sp_mat, index=labels, columns=labels
+        )
         mat = np.eye(10, dtype=dtype)
         expected = pd.DataFrame(
             np.ma.array(mat, mask=(mat == 0)).filled(sp_dtype.fill_value),
@@ -128,7 +134,9 @@ class TestFrameAccessor:
 
         sp_dtype = SparseDtype(dtype)
 
-        sp_mat = sp_sparse.random(10, 2, density=0.5, format=format, dtype=dtype)
+        sp_mat = sp_sparse.random(
+            10, 2, density=0.5, format=format, dtype=dtype
+        )
         sp_mat.data[0] = 0
         result = pd.DataFrame.sparse.from_spmatrix(sp_mat)
         mat = sp_mat.toarray()
@@ -139,7 +147,11 @@ class TestFrameAccessor:
 
     @pytest.mark.parametrize(
         "columns",
-        [["a", "b"], pd.MultiIndex.from_product([["A"], ["a", "b"]]), ["a", "a"]],
+        [
+            ["a", "b"],
+            pd.MultiIndex.from_product([["A"], ["a", "b"]]),
+            ["a", "a"],
+        ],
     )
     def test_from_spmatrix_columns(self, columns):
         sp_sparse = pytest.importorskip("scipy.sparse")
@@ -156,15 +168,20 @@ class TestFrameAccessor:
         tm.assert_frame_equal(result, expected)
 
     @pytest.mark.parametrize(
-        "columns", [("A", "B"), (1, 2), (1, pd.NA), (0.1, 0.2), ("x", "x"), (0, 0)]
+        "columns",
+        [("A", "B"), (1, 2), (1, pd.NA), (0.1, 0.2), ("x", "x"), (0, 0)],
     )
-    @pytest.mark.parametrize("dtype", [np.complex128, np.float64, np.int64, bool])
+    @pytest.mark.parametrize(
+        "dtype", [np.complex128, np.float64, np.int64, bool]
+    )
     def test_to_coo(self, columns, dtype):
         sp_sparse = pytest.importorskip("scipy.sparse")
 
         sp_dtype = SparseDtype(dtype)
 
-        expected = sp_sparse.random(10, 2, density=0.5, format="coo", dtype=dtype)
+        expected = sp_sparse.random(
+            10, 2, density=0.5, format="coo", dtype=dtype
+        )
         mat = expected.toarray()
         result = pd.DataFrame(
             np.ma.array(mat, mask=(mat == 0)).filled(sp_dtype.fill_value),
@@ -187,7 +204,8 @@ class TestFrameAccessor:
         ser = pd.Series(1, index=midx, dtype="Sparse[int]")
         result = ser.sparse.to_coo(row_levels=["x"], column_levels=["y"])[0]
         expected = sp_sparse.coo_matrix(
-            (np.array([1, 1]), (np.array([0, 1]), np.array([0, 1]))), shape=(2, 2)
+            (np.array([1, 1]), (np.array([0, 1]), np.array([0, 1]))),
+            shape=(2, 2),
         )
         assert (result != expected).nnz == 0
 
@@ -196,7 +214,9 @@ class TestFrameAccessor:
             {
                 "A": SparseArray([1, 0], dtype=SparseDtype("int64", 0)),
                 "B": SparseArray([1, 0], dtype=SparseDtype("int64", 1)),
-                "C": SparseArray([1.0, 0.0], dtype=SparseDtype("float64", 0.0)),
+                "C": SparseArray(
+                    [1.0, 0.0], dtype=SparseDtype("float64", 0.0)
+                ),
             },
             index=["b", "a"],
         )
@@ -232,9 +252,13 @@ class TestFrameAccessor:
                 np.array([2, 2], dtype=np.int32),
             ],
         )
-        expected = pd.Series(SparseArray(np.array([1, 1, 1], dtype=dtype)), index=index)
+        expected = pd.Series(
+            SparseArray(np.array([1, 1, 1], dtype=dtype)), index=index
+        )
         if dense_index:
-            expected = expected.reindex(pd.MultiIndex.from_product(index.levels))
+            expected = expected.reindex(
+                pd.MultiIndex.from_product(index.levels)
+            )
 
         tm.assert_series_equal(result, expected)
 
@@ -251,7 +275,9 @@ class TestFrameAccessor:
     def test_with_column_named_sparse(self):
         # https://github.com/pandas-dev/pandas/issues/30758
         df = pd.DataFrame({"sparse": pd.arrays.SparseArray([1, 2])})
-        assert isinstance(df.sparse, pd.core.arrays.sparse.accessor.SparseFrameAccessor)
+        assert isinstance(
+            df.sparse, pd.core.arrays.sparse.accessor.SparseFrameAccessor
+        )
 
     def test_subclassing(self):
         df = tm.SubclassedDataFrame({"sparse": pd.arrays.SparseArray([1, 2])})

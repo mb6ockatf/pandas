@@ -58,7 +58,9 @@ def all_1d_no_arg_interpolation_methods(request):
 )
 def test_asfreq(frame_or_series, index, freq):
     obj = frame_or_series(range(len(index)), index=index)
-    idx_range = date_range if isinstance(index, DatetimeIndex) else timedelta_range
+    idx_range = (
+        date_range if isinstance(index, DatetimeIndex) else timedelta_range
+    )
 
     result = obj.resample(freq).asfreq()
     new_index = idx_range(obj.index[0], obj.index[-1], freq=freq)
@@ -77,7 +79,9 @@ def test_asfreq_fill_value(index):
     # test for fill value during resampling, issue 3715
 
     ser = Series(range(len(index)), index=index, name="a")
-    idx_range = date_range if isinstance(index, DatetimeIndex) else timedelta_range
+    idx_range = (
+        date_range if isinstance(index, DatetimeIndex) else timedelta_range
+    )
 
     result = ser.resample("1h").asfreq()
     new_index = idx_range(ser.index[0], ser.index[-1], freq="1h")
@@ -135,11 +139,15 @@ def test_resample_interpolate_regular_sampling_off_grid(
         # Check that the resampled values are close to the expected values
         # except for methods with known inaccuracies
         assert np.all(
-            np.isclose(ser_resampled.values[1:], np.arange(0.5, 4.5, 0.5), rtol=1.0e-1)
+            np.isclose(
+                ser_resampled.values[1:], np.arange(0.5, 4.5, 0.5), rtol=1.0e-1
+            )
         )
 
 
-def test_resample_interpolate_irregular_sampling(all_1d_no_arg_interpolation_methods):
+def test_resample_interpolate_irregular_sampling(
+    all_1d_no_arg_interpolation_methods,
+):
     pytest.importorskip("scipy")
     # GH#21351
     ser = Series(
@@ -156,7 +164,9 @@ def test_resample_interpolate_irregular_sampling(all_1d_no_arg_interpolation_met
     )
 
     # Resample to 5 second sampling and interpolate with the given method
-    ser_resampled = ser.resample("5s").interpolate(all_1d_no_arg_interpolation_methods)
+    ser_resampled = ser.resample("5s").interpolate(
+        all_1d_no_arg_interpolation_methods
+    )
 
     # Check that none of the resampled values are NaN, except the first one
     # which lies 3 seconds before the first actual data point
@@ -226,7 +236,9 @@ def test_resample_empty_series(freq, index, resample_method):
 @pytest.mark.parametrize(
     "freq",
     [
-        pytest.param("ME", marks=pytest.mark.xfail(reason="Don't know why this fails")),
+        pytest.param(
+            "ME", marks=pytest.mark.xfail(reason="Don't know why this fails")
+        ),
         "D",
         "h",
     ],
@@ -323,8 +335,12 @@ def test_resample_empty_dataframe(index, freq, resample_method):
     result = getattr(rs, resample_method)()
     if resample_method == "ohlc":
         # TODO: no tests with len(df.columns) > 0
-        mi = MultiIndex.from_product([df.columns, ["open", "high", "low", "close"]])
-        expected = DataFrame([], index=df.index[:0], columns=mi, dtype=np.float64)
+        mi = MultiIndex.from_product(
+            [df.columns, ["open", "high", "low", "close"]]
+        )
+        expected = DataFrame(
+            [], index=df.index[:0], columns=mi, dtype=np.float64
+        )
         expected.index = _asfreq_compat(df.index, freq)
 
     elif resample_method != "size":
@@ -348,7 +364,9 @@ def test_resample_empty_dataframe(index, freq, resample_method):
 @pytest.mark.parametrize("freq", ["ME", "D", "h"])
 def test_resample_count_empty_dataframe(freq, index):
     # GH28427
-    empty_frame_dti = DataFrame(index=index, columns=Index(["a"], dtype=object))
+    empty_frame_dti = DataFrame(
+        index=index, columns=Index(["a"], dtype=object)
+    )
 
     if freq == "ME" and isinstance(empty_frame_dti.index, TimedeltaIndex):
         msg = (
@@ -372,7 +390,9 @@ def test_resample_count_empty_dataframe(freq, index):
 
     index = _asfreq_compat(empty_frame_dti.index, freq)
 
-    expected = DataFrame(dtype="int64", index=index, columns=Index(["a"], dtype=object))
+    expected = DataFrame(
+        dtype="int64", index=index, columns=Index(["a"], dtype=object)
+    )
 
     tm.assert_frame_equal(result, expected)
 
@@ -384,7 +404,9 @@ def test_resample_count_empty_dataframe(freq, index):
 def test_resample_size_empty_dataframe(freq, index):
     # GH28427
 
-    empty_frame_dti = DataFrame(index=index, columns=Index(["a"], dtype=object))
+    empty_frame_dti = DataFrame(
+        index=index, columns=Index(["a"], dtype=object)
+    )
 
     if freq == "ME" and isinstance(empty_frame_dti.index, TimedeltaIndex):
         msg = (
@@ -422,7 +444,9 @@ def test_resample_size_empty_dataframe(freq, index):
     ],
 )
 @pytest.mark.parametrize("dtype", [float, int, object, "datetime64[ns]"])
-@pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+@pytest.mark.filterwarnings(
+    r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+)
 def test_resample_empty_dtypes(index, dtype, resample_method):
     # Empty series were sometimes causing a segfault (for the functions
     # with Cython bounds-checking disabled) or an IndexError.  We just run
@@ -533,7 +557,9 @@ def test_resample_quantile(index):
         warn = FutureWarning
     with tm.assert_produces_warning(warn, match=msg):
         result = ser.resample(freq).quantile(q)
-        expected = ser.resample(freq).agg(lambda x: x.quantile(q)).rename(ser.name)
+        expected = (
+            ser.resample(freq).agg(lambda x: x.quantile(q)).rename(ser.name)
+        )
     tm.assert_series_equal(result, expected)
 
 

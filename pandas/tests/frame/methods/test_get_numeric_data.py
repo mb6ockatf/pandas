@@ -15,7 +15,9 @@ from pandas.core.arrays import IntervalArray
 class TestGetNumericData:
     def test_get_numeric_data_preserve_dtype(self):
         # get the numeric data
-        obj = DataFrame({"A": [1, "2", 3.0]}, columns=Index(["A"], dtype="object"))
+        obj = DataFrame(
+            {"A": [1, "2", 3.0]}, columns=Index(["A"], dtype="object")
+        )
         result = obj._get_numeric_data()
         expected = DataFrame(dtype=object, index=pd.RangeIndex(3), columns=[])
         tm.assert_frame_equal(result, expected)
@@ -33,9 +35,11 @@ class TestGetNumericData:
             [
                 np.dtype("float64"),
                 np.dtype("int64"),
-                np.dtype(objectname)
-                if not using_infer_string
-                else pd.StringDtype(na_value=np.nan),
+                (
+                    np.dtype(objectname)
+                    if not using_infer_string
+                    else pd.StringDtype(na_value=np.nan)
+                ),
                 np.dtype(datetime64name),
             ],
             index=["a", "b", "c", "f"],
@@ -64,7 +68,9 @@ class TestGetNumericData:
         expected = df.loc[:, []]
         tm.assert_frame_equal(result, expected)
 
-        df = DataFrame.from_dict({"a": [1, 2], "b": ["foo", "bar"], "c": [np.pi, np.e]})
+        df = DataFrame.from_dict(
+            {"a": [1, 2], "b": ["foo", "bar"], "c": [np.pi, np.e]}
+        )
         result = df._get_numeric_data()
         expected = DataFrame.from_dict({"a": [1, 2], "c": [np.pi, np.e]})
         tm.assert_frame_equal(result, expected)

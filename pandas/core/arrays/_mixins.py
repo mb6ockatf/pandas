@@ -182,7 +182,9 @@ class NDArrayBackedExtensionArray(NDArrayBacked, ExtensionArray):  # type: ignor
             return False
         if self.dtype != other.dtype:
             return False
-        return bool(array_equivalent(self._ndarray, other._ndarray, dtype_equal=True))
+        return bool(
+            array_equivalent(self._ndarray, other._ndarray, dtype_equal=True)
+        )
 
     @classmethod
     def _from_factorized(cls, values, original):
@@ -328,7 +330,9 @@ class NDArrayBackedExtensionArray(NDArrayBacked, ExtensionArray):  # type: ignor
         return new_values
 
     @doc(ExtensionArray.fillna)
-    def fillna(self, value, limit: int | None = None, copy: bool = True) -> Self:
+    def fillna(
+        self, value, limit: int | None = None, copy: bool = True
+    ) -> Self:
         mask = self.isna()
         if limit is not None and limit < len(self):
             # mypy doesn't like that mask can be an EA which need not have `cumsum`
@@ -482,7 +486,9 @@ class NDArrayBackedExtensionArray(NDArrayBacked, ExtensionArray):  # type: ignor
 
         index_arr = self._from_backing_data(np.asarray(result.index._data))
         index = Index(index_arr, name=result.index.name)
-        return Series(result._values, index=index, name=result.name, copy=False)
+        return Series(
+            result._values, index=index, name=result.name, copy=False
+        )
 
     def _quantile(
         self,
@@ -495,7 +501,9 @@ class NDArrayBackedExtensionArray(NDArrayBacked, ExtensionArray):  # type: ignor
         arr = self._ndarray
         fill_value = self._internal_fill_value
 
-        res_values = quantile_with_mask(arr, mask, fill_value, qs, interpolation)
+        res_values = quantile_with_mask(
+            arr, mask, fill_value, qs, interpolation
+        )
         if res_values.dtype == self._ndarray.dtype:
             return self._from_backing_data(res_values)
         else:

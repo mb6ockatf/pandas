@@ -21,7 +21,9 @@ def test_merge_cross(input_col, output_cols):
     left_copy = left.copy()
     right_copy = right.copy()
     result = merge(left, right, how="cross")
-    expected = DataFrame({output_cols[0]: [1, 1, 3, 3], output_cols[1]: [3, 4, 3, 4]})
+    expected = DataFrame(
+        {output_cols[0]: [1, 1, 3, 3], output_cols[1]: [3, 4, 3, 4]}
+    )
     tm.assert_frame_equal(result, expected)
     tm.assert_frame_equal(left, left_copy)
     tm.assert_frame_equal(right, right_copy)
@@ -41,9 +43,7 @@ def test_merge_cross_error_reporting(kwargs):
     # GH#5401
     left = DataFrame({"a": [1, 3]})
     right = DataFrame({"b": [3, 4]})
-    msg = (
-        "Can not pass on, right_on, left_on or set right_index=True or left_index=True"
-    )
+    msg = "Can not pass on, right_on, left_on or set right_index=True or left_index=True"
     with pytest.raises(MergeError, match=msg):
         merge(left, right, how="cross", **kwargs)
 
@@ -53,7 +53,9 @@ def test_merge_cross_mixed_dtypes():
     left = DataFrame(["a", "b", "c"], columns=["A"])
     right = DataFrame(range(2), columns=["B"])
     result = merge(left, right, how="cross")
-    expected = DataFrame({"A": ["a", "a", "b", "b", "c", "c"], "B": [0, 1, 0, 1, 0, 1]})
+    expected = DataFrame(
+        {"A": ["a", "a", "b", "b", "c", "c"], "B": [0, 1, 0, 1, 0, 1]}
+    )
     tm.assert_frame_equal(result, expected)
 
 
@@ -92,9 +94,7 @@ def test_join_cross_error_reporting():
     # GH#5401
     left = DataFrame({"a": [1, 3]})
     right = DataFrame({"a": [3, 4]})
-    msg = (
-        "Can not pass on, right_on, left_on or set right_index=True or left_index=True"
-    )
+    msg = "Can not pass on, right_on, left_on or set right_index=True or left_index=True"
     with pytest.raises(MergeError, match=msg):
         left.join(right, how="cross", on="a")
 

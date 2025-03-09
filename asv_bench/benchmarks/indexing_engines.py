@@ -96,7 +96,9 @@ class NumericEngineIndexing:
     def time_get_loc(self, engine_and_dtype, index_type, unique, N):
         self.data.get_loc(self.key_early)
 
-    def time_get_loc_near_middle(self, engine_and_dtype, index_type, unique, N):
+    def time_get_loc_near_middle(
+        self, engine_and_dtype, index_type, unique, N
+    ):
         # searchsorted performance may be different near the middle of a range
         #  vs near an endpoint
         self.data.get_loc(self.key_middle)
@@ -149,7 +151,9 @@ class MaskedNumericEngineIndexing:
     def time_get_loc(self, engine_and_dtype, index_type, unique, N):
         self.data.get_loc(self.key_early)
 
-    def time_get_loc_near_middle(self, engine_and_dtype, index_type, unique, N):
+    def time_get_loc_near_middle(
+        self, engine_and_dtype, index_type, unique, N
+    ):
         # searchsorted performance may be different near the middle of a range
         #  vs near an endpoint
         self.data.get_loc(self.key_middle)

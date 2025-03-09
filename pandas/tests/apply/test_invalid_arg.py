@@ -132,7 +132,8 @@ def test_transform_mixed_column_name_dtypes():
 
 
 @pytest.mark.parametrize(
-    "how, args", [("pct_change", ()), ("nsmallest", (1, ["a", "b"])), ("tail", 1)]
+    "how, args",
+    [("pct_change", ()), ("nsmallest", (1, ["a", "b"])), ("tail", 1)],
 )
 def test_apply_str_axis_1_raises(how, args):
     # GH 39211 - some ops don't support axis=1
@@ -215,7 +216,9 @@ def test_apply_modify_traceback():
         DataFrame([["a", "b"], ["b", "a"]]), [["cumprod", TypeError]]
     ),
 )
-def test_agg_cython_table_raises_frame(df, func, expected, axis, using_infer_string):
+def test_agg_cython_table_raises_frame(
+    df, func, expected, axis, using_infer_string
+):
     # GH 21224
     if using_infer_string:
         expected = (expected, NotImplementedError)
@@ -247,7 +250,9 @@ def test_agg_cython_table_raises_frame(df, func, expected, axis, using_infer_str
         )
     ),
 )
-def test_agg_cython_table_raises_series(series, func, expected, using_infer_string):
+def test_agg_cython_table_raises_series(
+    series, func, expected, using_infer_string
+):
     # GH21224
     msg = r"[Cc]ould not convert|can't multiply sequence by non-int of type"
     if func == "median" or func is np.nanmedian or func is np.median:
@@ -257,13 +262,16 @@ def test_agg_cython_table_raises_series(series, func, expected, using_infer_stri
         expected = (expected, NotImplementedError)
 
     msg = (
-        msg + "|does not support|has no kernel|Cannot perform|cannot perform|operation"
+        msg
+        + "|does not support|has no kernel|Cannot perform|cannot perform|operation"
     )
     warn = None if isinstance(func, str) else FutureWarning
 
     with pytest.raises(expected, match=msg):
         # e.g. Series('a b'.split()).cumprod() will raise
-        with tm.assert_produces_warning(warn, match="is currently using Series.*"):
+        with tm.assert_produces_warning(
+            warn, match="is currently using Series.*"
+        ):
             series.agg(func)
 
 
@@ -349,7 +357,8 @@ def test_transform_wont_agg_series(string_series, func):
 
 
 @pytest.mark.parametrize(
-    "op_wrapper", [lambda x: x, lambda x: [x], lambda x: {"A": x}, lambda x: {"A": [x]}]
+    "op_wrapper",
+    [lambda x: x, lambda x: [x], lambda x: {"A": x}, lambda x: {"A": [x]}],
 )
 def test_transform_reducer_raises(all_reductions, frame_or_series, op_wrapper):
     # GH 35964

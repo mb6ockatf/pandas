@@ -228,7 +228,9 @@ class CSSToExcelConverter:
         properties = self.compute_css(declarations, self.inherited)
         return self.build_xlstyle(properties)
 
-    def build_xlstyle(self, props: Mapping[str, str]) -> dict[str, dict[str, str]]:
+    def build_xlstyle(
+        self, props: Mapping[str, str]
+    ) -> dict[str, dict[str, str]]:
         out = {
             "alignment": self.build_alignment(props),
             "border": self.build_border(props),
@@ -252,7 +254,9 @@ class CSSToExcelConverter:
         remove_none(out)
         return out
 
-    def build_alignment(self, props: Mapping[str, str]) -> dict[str, bool | str | None]:
+    def build_alignment(
+        self, props: Mapping[str, str]
+    ) -> dict[str, bool | str | None]:
         # TODO: text-indent, padding-left -> alignment.indent
         return {
             "horizontal": props.get("text-align"),
@@ -281,7 +285,9 @@ class CSSToExcelConverter:
                     props.get(f"border-{side}-width"),
                     self.color_to_excel(props.get(f"border-{side}-color")),
                 ),
-                "color": self.color_to_excel(props.get(f"border-{side}-color")),
+                "color": self.color_to_excel(
+                    props.get(f"border-{side}-color")
+                ),
             }
             for side in ["top", "right", "bottom", "left"]
         }
@@ -367,9 +373,14 @@ class CSSToExcelConverter:
         #       -excel-pattern-bgcolor and -excel-pattern-type
         fill_color = props.get("background-color")
         if fill_color not in (None, "transparent", "none"):
-            return {"fgColor": self.color_to_excel(fill_color), "patternType": "solid"}
+            return {
+                "fgColor": self.color_to_excel(fill_color),
+                "patternType": "solid",
+            }
 
-    def build_number_format(self, props: Mapping[str, str]) -> dict[str, str | None]:
+    def build_number_format(
+        self, props: Mapping[str, str]
+    ) -> dict[str, str | None]:
         fc = props.get("number-format")
         fc = fc.replace("§", ";") if isinstance(fc, str) else fc
         return {"format_code": fc}
@@ -575,7 +586,9 @@ class ExcelFormatter:
 
             if len(Index(cols).intersection(df.columns)) != len(set(cols)):
                 # Deprecated in GH#17295, enforced in 1.0.0
-                raise KeyError("Not all names specified in 'columns' are found")
+                raise KeyError(
+                    "Not all names specified in 'columns' are found"
+                )
 
             self.df = df.reindex(columns=cols)
 
@@ -621,7 +634,9 @@ class ExcelFormatter:
 
         columns = self.columns
         merge_columns = self.merge_cells in {True, "columns"}
-        level_strs = columns._format_multi(sparsify=merge_columns, include_names=False)
+        level_strs = columns._format_multi(
+            sparsify=merge_columns, include_names=False
+        )
         level_lengths = get_level_lengths(level_strs)
         coloffset = 0
         lnum = 0
@@ -871,7 +886,9 @@ class ExcelFormatter:
                 )
 
     def get_formatted_cells(self) -> Iterable[ExcelCell]:
-        for cell in itertools.chain(self._format_header(), self._format_body()):
+        for cell in itertools.chain(
+            self._format_header(), self._format_body()
+        ):
             cell.val = self._format_value(cell.val)
             yield cell
 

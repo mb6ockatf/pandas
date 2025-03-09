@@ -32,7 +32,9 @@ class TestDataFrameMissingData:
         assert return_value is None
 
         smaller_frame = frame.dropna(how="all", subset=["foo"])
-        return_value = inplace_frame2.dropna(how="all", subset=["foo"], inplace=True)
+        return_value = inplace_frame2.dropna(
+            how="all", subset=["foo"], inplace=True
+        )
         tm.assert_series_equal(smaller_frame["foo"], expected)
         tm.assert_series_equal(inplace_frame2["foo"], expected)
         assert return_value is None
@@ -195,7 +197,9 @@ class TestDataFrameMissingData:
         # Ex2
         df = DataFrame({"Time": [dt1, None, np.nan, dt2]})
         result = df.dropna(axis=0)
-        expected = DataFrame([dt1, dt2], columns=["Time"], index=range(0, 6, 3))
+        expected = DataFrame(
+            [dt1, dt2], columns=["Time"], index=range(0, 6, 3)
+        )
         tm.assert_frame_equal(result, expected)
 
     def test_dropna_categorical_interval_index(self):
@@ -233,7 +237,8 @@ class TestDataFrameMissingData:
         # GH 41021
         df = DataFrame({"A": [1, 2, 3], "B": list("abc"), "C": [4, np.nan, 5]})
         expected = DataFrame(
-            {"A": [1, 3], "B": list("ac"), "C": [4.0, 5.0]}, index=range(0, 4, 2)
+            {"A": [1, 3], "B": list("ac"), "C": [4.0, 5.0]},
+            index=range(0, 4, 2),
         )
         result = df.dropna(subset="C")
         tm.assert_frame_equal(result, expected)
@@ -248,7 +253,9 @@ class TestDataFrameMissingData:
 
     def test_subset_is_nparray(self):
         # GH 41021
-        df = DataFrame({"A": [1, 2, np.nan], "B": list("abc"), "C": [4, np.nan, 5]})
+        df = DataFrame(
+            {"A": [1, 2, np.nan], "B": list("abc"), "C": [4, np.nan, 5]}
+        )
         expected = DataFrame({"A": [1.0], "B": ["a"], "C": [4.0]})
         result = df.dropna(subset=np.array(["A", "C"]))
         tm.assert_frame_equal(result, expected)
@@ -263,7 +270,9 @@ class TestDataFrameMissingData:
     def test_how_thresh_param_incompatible(self):
         # GH46575
         df = DataFrame([1, 2, pd.NA])
-        msg = "You cannot set both the how and thresh arguments at the same time"
+        msg = (
+            "You cannot set both the how and thresh arguments at the same time"
+        )
         with pytest.raises(TypeError, match=msg):
             df.dropna(how="all", thresh=2)
 

@@ -268,7 +268,9 @@ def union_indexes(indexes, sort: bool | None = True) -> Index:
             dtype = find_common_type(dtypes)
         else:
             dtype = None
-        all_lists = (idx.tolist() if isinstance(idx, Index) else idx for idx in indexes)
+        all_lists = (
+            idx.tolist() if isinstance(idx, Index) else idx for idx in indexes
+        )
         return Index(
             lib.fast_unique_multiple_list_gen(all_lists, sort=bool(sort)),
             dtype=dtype,
@@ -303,7 +305,8 @@ def _sanitize_and_check(indexes):
     if list in kinds:
         if len(kinds) > 1:
             indexes = [
-                Index(list(x)) if not isinstance(x, Index) else x for x in indexes
+                Index(list(x)) if not isinstance(x, Index) else x
+                for x in indexes
             ]
             kinds -= {list}
         else:

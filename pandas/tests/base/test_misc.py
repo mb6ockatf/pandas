@@ -22,9 +22,13 @@ from pandas import (
 def test_isnull_notnull_docstrings():
     # GH#41855 make sure its clear these are aliases
     doc = pd.DataFrame.notnull.__doc__
-    assert doc.startswith("\nDataFrame.notnull is an alias for DataFrame.notna.\n")
+    assert doc.startswith(
+        "\nDataFrame.notnull is an alias for DataFrame.notna.\n"
+    )
     doc = pd.DataFrame.isnull.__doc__
-    assert doc.startswith("\nDataFrame.isnull is an alias for DataFrame.isna.\n")
+    assert doc.startswith(
+        "\nDataFrame.isnull is an alias for DataFrame.isna.\n"
+    )
 
     doc = Series.notnull.__doc__
     assert doc.startswith("\nSeries.notnull is an alias for Series.notna.\n")
@@ -183,7 +187,10 @@ def test_access_by_position(index_flat):
     assert index[-1] == index[size - 1]
 
     msg = f"index {size} is out of bounds for axis 0 with size {size}"
-    if isinstance(index.dtype, pd.StringDtype) and index.dtype.storage == "pyarrow":
+    if (
+        isinstance(index.dtype, pd.StringDtype)
+        and index.dtype.storage == "pyarrow"
+    ):
         msg = "index out of bounds"
     with pytest.raises(IndexError, match=msg):
         index[size]

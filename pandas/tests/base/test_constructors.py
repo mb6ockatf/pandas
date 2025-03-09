@@ -72,7 +72,9 @@ class TestPandasDelegate:
             typ="property",
         )
         self.Delegate._add_delegate_accessors(
-            delegate=self.Delegator, accessors=self.Delegator._methods, typ="method"
+            delegate=self.Delegator,
+            accessors=self.Delegator._methods,
+            typ="method",
         )
 
         delegate = self.Delegate(self.Delegator())
@@ -154,7 +156,10 @@ class TestConstruction:
             assert result.dtype == "M8[us]", result.dtype
         else:
             result = constructor(a)
-            if using_infer_string and "object-string" in request.node.callspec.id:
+            if (
+                using_infer_string
+                and "object-string" in request.node.callspec.id
+            ):
                 assert result.dtype == "string"
             else:
                 assert result.dtype == "object"

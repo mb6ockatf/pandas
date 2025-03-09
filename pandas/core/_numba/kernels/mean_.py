@@ -46,7 +46,14 @@ def add_mean(
             num_consecutive_same_value = 1
         prev_value = val
 
-    return nobs, sum_x, neg_ct, compensation, num_consecutive_same_value, prev_value
+    return (
+        nobs,
+        sum_x,
+        neg_ct,
+        compensation,
+        num_consecutive_same_value,
+        prev_value,
+    )
 
 
 @numba.jit(nopython=True, nogil=True, parallel=False)
@@ -171,8 +178,8 @@ def grouped_mean(
     min_periods: int,
     skipna: bool,
 ) -> tuple[np.ndarray, list[int]]:
-    output, nobs_arr, comp_arr, consecutive_counts, prev_vals = grouped_kahan_sum(
-        values, result_dtype, labels, ngroups, skipna
+    output, nobs_arr, comp_arr, consecutive_counts, prev_vals = (
+        grouped_kahan_sum(values, result_dtype, labels, ngroups, skipna)
     )
 
     # Post-processing, replace sums that don't satisfy min_periods

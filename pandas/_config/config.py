@@ -251,7 +251,9 @@ def set_option(*args) -> None:
     # must at least 1 arg deal with constraints later
     nargs = len(args)
     if not nargs or nargs % 2 != 0:
-        raise ValueError("Must provide an even number of non-keyword arguments")
+        raise ValueError(
+            "Must provide an even number of non-keyword arguments"
+        )
 
     for k, v in zip(args[::2], args[1::2]):
         key = _get_single_key(k)
@@ -606,7 +608,9 @@ def deprecate_option(
     key = key.lower()
 
     if key in _deprecated_options:
-        raise OptionError(f"Option '{key}' has already been defined as deprecated.")
+        raise OptionError(
+            f"Option '{key}' has already been defined as deprecated."
+        )
 
     _deprecated_options[key] = DeprecatedOption(key, msg, rkey, removal_ver)
 
@@ -816,7 +820,9 @@ def is_type_factory(_type: type[Any]) -> Callable[[Any], None]:
     return inner
 
 
-def is_instance_factory(_type: type | tuple[type, ...]) -> Callable[[Any], None]:
+def is_instance_factory(
+    _type: type | tuple[type, ...],
+) -> Callable[[Any], None]:
     """
 
     Parameters

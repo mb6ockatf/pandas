@@ -81,7 +81,11 @@ class Unpickler(pickle._Unpickler):
         except TypeError:
             # If we have a deprecated function,
             # try to replace and try again.
-            if args and isinstance(args[0], type) and issubclass(args[0], BaseOffset):
+            if (
+                args
+                and isinstance(args[0], type)
+                and issubclass(args[0], BaseOffset)
+            ):
                 # TypeError: object.__new__(Day) is not safe, use Day.__new__()
                 cls = args[0]
                 stack[-1] = cls.__new__(*args)

@@ -384,8 +384,13 @@ def test_where_numeric_with_string():
 
 def test_where_datetimetz():
     # GH 15701
-    timestamps = ["2016-12-31 12:00:04+00:00", "2016-12-31 12:00:04.010000+00:00"]
-    ser = Series([Timestamp(t) for t in timestamps], dtype="datetime64[ns, UTC]")
+    timestamps = [
+        "2016-12-31 12:00:04+00:00",
+        "2016-12-31 12:00:04.010000+00:00",
+    ]
+    ser = Series(
+        [Timestamp(t) for t in timestamps], dtype="datetime64[ns, UTC]"
+    )
     rs = ser.where(Series([False, True]))
     expected = Series([pd.NaT, ser[1]], dtype="datetime64[ns, UTC]")
     tm.assert_series_equal(rs, expected)
@@ -409,7 +414,9 @@ def test_where_empty_series_and_empty_cond_having_non_bool_dtypes():
 def test_where_categorical(frame_or_series):
     # https://github.com/pandas-dev/pandas/issues/18888
     exp = frame_or_series(
-        pd.Categorical(["A", "A", "B", "B", np.nan], categories=["A", "B", "C"]),
+        pd.Categorical(
+            ["A", "A", "B", "B", np.nan], categories=["A", "B", "C"]
+        ),
         dtype="category",
     )
     df = frame_or_series(["A", "A", "B", "B", "C"], dtype="category")

@@ -20,7 +20,11 @@ from pandas.tests.frame.common import _check_mixed_float
 class TestFillNA:
     def test_fillna_dict_inplace_nonunique_columns(self):
         df = DataFrame(
-            {"A": [np.nan] * 3, "B": [NaT, Timestamp(1), NaT], "C": [np.nan, "foo", 2]}
+            {
+                "A": [np.nan] * 3,
+                "B": [NaT, Timestamp(1), NaT],
+                "C": [np.nan, "foo", 2],
+            }
         )
         df.columns = ["A", "A", "A"]
         orig = df[:]
@@ -70,7 +74,8 @@ class TestFillNA:
 
         result = mf.ffill()
         assert (
-            result.loc[result.index[-10:], "A"] == result.loc[result.index[-11], "A"]
+            result.loc[result.index[-10:], "A"]
+            == result.loc[result.index[-11], "A"]
         ).all()
         assert (result.loc[result.index[5:20], "foo"] == "bar").all()
 
@@ -90,12 +95,20 @@ class TestFillNA:
     def test_fillna_different_dtype(self):
         # with different dtype (GH#3386)
         df = DataFrame(
-            [["a", "a", np.nan, "a"], ["b", "b", np.nan, "b"], ["c", "c", np.nan, "c"]]
+            [
+                ["a", "a", np.nan, "a"],
+                ["b", "b", np.nan, "b"],
+                ["c", "c", np.nan, "c"],
+            ]
         )
 
         result = df.fillna({2: "foo"})
         expected = DataFrame(
-            [["a", "a", "foo", "a"], ["b", "b", "foo", "b"], ["c", "c", "foo", "c"]]
+            [
+                ["a", "a", "foo", "a"],
+                ["b", "b", "foo", "b"],
+                ["c", "c", "foo", "c"],
+            ]
         )
         # column is originally float (all-NaN) -> filling with string gives object dtype
         expected[2] = expected[2].astype("object")
@@ -128,7 +141,9 @@ class TestFillNA:
         )
 
         expected = df.copy()
-        expected["Date"] = expected["Date"].fillna(df.loc[df.index[0], "Date2"])
+        expected["Date"] = expected["Date"].fillna(
+            df.loc[df.index[0], "Date2"]
+        )
         result = df.fillna(value={"Date": df["Date2"]})
         tm.assert_frame_equal(result, expected)
 
@@ -232,7 +247,9 @@ class TestFillNA:
 
         res = df.fillna(median)
         v_exp = [np.nan, np.nan, np.nan]
-        df_exp = DataFrame({"cats": [2, 2, 2], "vals": v_exp}, dtype="category")
+        df_exp = DataFrame(
+            {"cats": [2, 2, 2], "vals": v_exp}, dtype="category"
+        )
         tm.assert_frame_equal(res, df_exp)
 
         result = df.cats.fillna(np.nan)
@@ -242,12 +259,20 @@ class TestFillNA:
         tm.assert_series_equal(result, df.vals)
 
         idx = DatetimeIndex(
-            ["2011-01-01 09:00", "2016-01-01 23:45", "2011-01-01 09:00", NaT, NaT]
+            [
+                "2011-01-01 09:00",
+                "2016-01-01 23:45",
+                "2011-01-01 09:00",
+                NaT,
+                NaT,
+            ]
         )
         df = DataFrame({"a": Categorical(idx)})
         tm.assert_frame_equal(df.fillna(value=NaT), df)
 
-        idx = PeriodIndex(["2011-01", "2011-01", "2011-01", NaT, NaT], freq="M")
+        idx = PeriodIndex(
+            ["2011-01", "2011-01", "2011-01", NaT, NaT], freq="M"
+        )
         df = DataFrame({"a": Categorical(idx)})
         tm.assert_frame_equal(df.fillna(value=NaT), df)
 
@@ -287,7 +312,9 @@ class TestFillNA:
         # empty block
         df = DataFrame(index=range(3), columns=["A", "B"], dtype="float64")
         result = df.fillna("nan")
-        expected = DataFrame("nan", dtype="object", index=range(3), columns=["A", "B"])
+        expected = DataFrame(
+            "nan", dtype="object", index=range(3), columns=["A", "B"]
+        )
         tm.assert_frame_equal(result, expected)
 
     @pytest.mark.parametrize("val", ["", 1, np.nan, 1.0])
@@ -357,7 +384,9 @@ class TestFillNA:
 
     def test_frame_pad_backfill_limit(self):
         index = np.arange(10)
-        df = DataFrame(np.random.default_rng(2).standard_normal((10, 4)), index=index)
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((10, 4)), index=index
+        )
 
         result = df[:2].reindex(index, method="pad", limit=5)
 
@@ -373,7 +402,9 @@ class TestFillNA:
 
     def test_frame_fillna_limit(self):
         index = np.arange(10)
-        df = DataFrame(np.random.default_rng(2).standard_normal((10, 4)), index=index)
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((10, 4)), index=index
+        )
 
         result = df[:2].reindex(index)
         result = result.ffill(limit=5)
@@ -392,14 +423,18 @@ class TestFillNA:
     def test_fillna_skip_certain_blocks(self):
         # don't try to fill boolean, int blocks
 
-        df = DataFrame(np.random.default_rng(2).standard_normal((10, 4)).astype(int))
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((10, 4)).astype(int)
+        )
 
         # it works!
         df.fillna(np.nan)
 
     @pytest.mark.parametrize("type", [int, float])
     def test_fillna_positive_limit(self, type):
-        df = DataFrame(np.random.default_rng(2).standard_normal((10, 4))).astype(type)
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((10, 4))
+        ).astype(type)
 
         msg = "Limit must be greater than 0"
         with pytest.raises(ValueError, match=msg):
@@ -407,7 +442,9 @@ class TestFillNA:
 
     @pytest.mark.parametrize("type", [int, float])
     def test_fillna_integer_limit(self, type):
-        df = DataFrame(np.random.default_rng(2).standard_normal((10, 4))).astype(type)
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((10, 4))
+        ).astype(type)
 
         msg = "Limit must be an integer"
         with pytest.raises(ValueError, match=msg):
@@ -514,7 +551,9 @@ class TestFillNA:
 
     def test_fillna_invalid_value(self, float_frame):
         # list
-        msg = '"value" parameter must be a scalar or dict, but you passed a "{}"'
+        msg = (
+            '"value" parameter must be a scalar or dict, but you passed a "{}"'
+        )
         with pytest.raises(TypeError, match=msg.format("list")):
             float_frame.fillna([1, 2])
         # tuple

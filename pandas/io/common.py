@@ -71,7 +71,9 @@ from pandas.core.shared_docs import _shared_docs
 
 _VALID_URLS = set(uses_relative + uses_netloc + uses_params)
 _VALID_URLS.discard("")
-_FSSPEC_URL_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9+\-+.]*(::[A-Za-z0-9+\-+.]+)*://")
+_FSSPEC_URL_PATTERN = re.compile(
+    r"^[A-Za-z][A-Za-z0-9+\-+.]*(::[A-Za-z0-9+\-+.]+)*://"
+)
 
 BaseBufferT = TypeVar("BaseBufferT", bound=BaseBuffer)
 
@@ -122,7 +124,9 @@ class IOHandles(Generic[AnyStr]):
     # handle might not implement the IO-interface
     handle: IO[AnyStr]
     compression: CompressionDict
-    created_handles: list[IO[bytes] | IO[str]] = dataclasses.field(default_factory=list)
+    created_handles: list[IO[bytes] | IO[str]] = dataclasses.field(
+        default_factory=list
+    )
     is_wrapped: bool = False
 
     def close(self) -> None:
@@ -216,7 +220,9 @@ def validate_header_arg(header: object) -> None:
         if not all(map(is_integer, header)):
             raise ValueError("header must be integer or list of integers")
         if any(i < 0 for i in header):
-            raise ValueError("cannot specify multi-index header with negative integers")
+            raise ValueError(
+                "cannot specify multi-index header with negative integers"
+            )
         return
     if is_bool(header):
         raise TypeError(
@@ -298,7 +304,8 @@ def is_fsspec_url(url: FilePath | BaseBuffer) -> bool:
 
 @doc(
     storage_options=_shared_docs["storage_options"],
-    compression_options=_shared_docs["compression_options"] % "filepath_or_buffer",
+    compression_options=_shared_docs["compression_options"]
+    % "filepath_or_buffer",
 )
 def _get_filepath_or_buffer(
     filepath_or_buffer: FilePath | BaseBuffer,
@@ -331,10 +338,16 @@ def _get_filepath_or_buffer(
 
     # handle compression dict
     compression_method, compression = get_compression_method(compression)
-    compression_method = infer_compression(filepath_or_buffer, compression_method)
+    compression_method = infer_compression(
+        filepath_or_buffer, compression_method
+    )
 
     # GH21227 internal compression is not used for non-binary handles.
-    if compression_method and hasattr(filepath_or_buffer, "write") and "b" not in mode:
+    if (
+        compression_method
+        and hasattr(filepath_or_buffer, "write")
+        and "b" not in mode
+    ):
         warnings.warn(
             "compression has no effect when passing a non-binary object as input.",
             RuntimeWarning,
@@ -385,7 +398,9 @@ def _get_filepath_or_buffer(
         import urllib.request
 
         # assuming storage_options is to be interpreted as headers
-        req_info = urllib.request.Request(filepath_or_buffer, headers=storage_options)
+        req_info = urllib.request.Request(
+            filepath_or_buffer, headers=storage_options
+        )
         with urlopen(req_info) as req:
             content_encoding = req.headers.get("Content-Encoding", None)
             if content_encoding == "gzip":
@@ -471,7 +486,8 @@ def _get_filepath_or_buffer(
     # is_file_like requires (read | write) & __iter__ but __iter__ is only
     # needed for read_csv(engine=python)
     if not (
-        hasattr(filepath_or_buffer, "read") or hasattr(filepath_or_buffer, "write")
+        hasattr(filepath_or_buffer, "read")
+        or hasattr(filepath_or_buffer, "write")
     ):
         msg = f"Invalid file path or buffer object type: {type(filepath_or_buffer)}"
         raise ValueError(msg)
@@ -545,14 +561,19 @@ def get_compression_method(
         try:
             compression_method = compression_args.pop("method")
         except KeyError as err:
-            raise ValueError("If mapping, compression must have key 'method'") from err
+            raise ValueError(
+                "If mapping, compression must have key 'method'"
+            ) from err
     else:
         compression_args = {}
         compression_method = compression
     return compression_method, compression_args
 
 
-@doc(compression_options=_shared_docs["compression_options"] % "filepath_or_buffer")
+@doc(
+    compression_options=_shared_docs["compression_options"]
+    % "filepath_or_buffer"
+)
 def infer_compression(
     filepath_or_buffer: FilePath | BaseBuffer, compression: str | None
 ) -> str | None:
@@ -587,7 +608,9 @@ def infer_compression(
         if isinstance(filepath_or_buffer, str) and "::" in filepath_or_buffer:
             # chained URLs contain ::
             filepath_or_buffer = filepath_or_buffer.split("::")[0]
-        filepath_or_buffer = stringify_path(filepath_or_buffer, convert_file_like=True)
+        filepath_or_buffer = stringify_path(
+            filepath_or_buffer, convert_file_like=True
+        )
         if not isinstance(filepath_or_buffer, str):
             # Cannot infer compression of a buffer, assume no compression
             return None
@@ -621,7 +644,9 @@ def check_parent_directory(path: Path | str) -> None:
     """
     parent = Path(path).parent
     if not parent.is_dir():
-        raise OSError(rf"Cannot save file into a non-existent directory: '{parent}'")
+        raise OSError(
+            rf"Cannot save file into a non-existent directory: '{parent}'"
+        )
 
 
 @overload
@@ -809,7 +834,9 @@ def get_handle(
                 if len(zip_names) == 1:
                     handle = handle.buffer.open(zip_names.pop())
                 elif not zip_names:
-                    raise ValueError(f"Zero files found in ZIP file {path_or_buf}")
+                    raise ValueError(
+                        f"Zero files found in ZIP file {path_or_buf}"
+                    )
                 else:
                     raise ValueError(
                         "Multiple files found in ZIP file. "
@@ -838,7 +865,9 @@ def get_handle(
                     assert file is not None
                     handle = file
                 elif not files:
-                    raise ValueError(f"Zero files found in TAR archive {path_or_buf}")
+                    raise ValueError(
+                        f"Zero files found in TAR archive {path_or_buf}"
+                    )
                 else:
                     raise ValueError(
                         "Multiple files found in TAR archive. "
@@ -1101,7 +1130,9 @@ class _IOWrapper:
 class _BytesIOWrapper:
     # Wrapper that wraps a StringIO buffer and reads bytes from it
     # Created for compat with pyarrow read_csv
-    def __init__(self, buffer: StringIO | TextIOBase, encoding: str = "utf-8") -> None:
+    def __init__(
+        self, buffer: StringIO | TextIOBase, encoding: str = "utf-8"
+    ) -> None:
         self.buffer = buffer
         self.encoding = encoding
         # Because a character can be represented by more than 1 byte,
@@ -1243,7 +1274,9 @@ def is_potential_multi_index(
     return bool(
         len(columns)
         and not isinstance(columns, ABCMultiIndex)
-        and all(isinstance(c, tuple) for c in columns if c not in index_columns)
+        and all(
+            isinstance(c, tuple) for c in columns if c not in index_columns
+        )
     )
 
 

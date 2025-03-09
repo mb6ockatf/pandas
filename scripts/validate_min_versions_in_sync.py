@@ -81,7 +81,9 @@ def pin_min_versions_to_ci_deps() -> int:
 
 def get_toml_map_from(toml_dic: dict[str, Any]) -> dict[str, str]:
     toml_deps = {}
-    toml_dependencies = set(toml_dic["project"]["optional-dependencies"]["all"])
+    toml_dependencies = set(
+        toml_dic["project"]["optional-dependencies"]["all"]
+    )
     for dependency in toml_dependencies:
         toml_package, toml_version = dependency.strip().split(">=")
         toml_deps[toml_package] = toml_version
@@ -105,7 +107,7 @@ def get_operator_from(dependency: str) -> str | None:
 
 
 def get_yaml_map_from(
-    yaml_dic: list[str | dict[str, list[str]]]
+    yaml_dic: list[str | dict[str, list[str]]],
 ) -> dict[str, list[str] | None]:
     yaml_map: dict[str, list[str] | None] = {}
     for dependency in yaml_dic:
@@ -160,7 +162,9 @@ def clean_version_list(
 
 
 def pin_min_versions_to_yaml_file(
-    yaml_map: dict[str, list[str] | None], toml_map: dict[str, str], yaml_file_data: str
+    yaml_map: dict[str, list[str] | None],
+    toml_map: dict[str, str],
+    yaml_file_data: str,
 ) -> str:
     data = yaml_file_data
     for yaml_package, yaml_versions in yaml_map.items():
@@ -205,7 +209,9 @@ def get_versions_from_code() -> dict[str, str]:
     return {install_map.get(k, k).casefold(): v for k, v in versions.items()}
 
 
-def get_versions_from_ci(content: list[str]) -> tuple[dict[str, str], dict[str, str]]:
+def get_versions_from_ci(
+    content: list[str],
+) -> tuple[dict[str, str], dict[str, str]]:
     """Min versions in CI job for testing all optional dependencies."""
     # Don't parse with pyyaml because it ignores comments we're looking for
     seen_required = False
@@ -252,12 +258,16 @@ def get_versions_from_toml() -> dict[str, str]:
         dependencies = set(opt_deps["all"])
 
         # remove pytest plugin dependencies
-        pytest_plugins = {dep for dep in opt_deps["test"] if dep.startswith("pytest-")}
+        pytest_plugins = {
+            dep for dep in opt_deps["test"] if dep.startswith("pytest-")
+        }
         dependencies = dependencies.difference(pytest_plugins)
 
     for dependency in dependencies:
         package, version = dependency.strip().split(">=")
-        optional_dependencies[install_map.get(package, package).casefold()] = version
+        optional_dependencies[install_map.get(package, package).casefold()] = (
+            version
+        )
 
     for item in EXCLUDE_DEPS:
         optional_dependencies.pop(item, None)
@@ -272,9 +282,9 @@ def main() -> int:
     code_optional = get_versions_from_code()
     setup_optional = get_versions_from_toml()
 
-    diff = (ci_optional.items() | code_optional.items() | setup_optional.items()) - (
-        ci_optional.items() & code_optional.items() & setup_optional.items()
-    )
+    diff = (
+        ci_optional.items() | code_optional.items() | setup_optional.items()
+    ) - (ci_optional.items() & code_optional.items() & setup_optional.items())
 
     if diff:
         packages = {package for package, _ in diff}

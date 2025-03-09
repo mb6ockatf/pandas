@@ -43,7 +43,9 @@ class Factorize:
         elif dtype == "datetime64[ns]":
             data = pd.date_range("2011-01-01", freq="h", periods=N)
         elif dtype == "datetime64[ns, tz]":
-            data = pd.date_range("2011-01-01", freq="h", periods=N, tz="Asia/Tokyo")
+            data = pd.date_range(
+                "2011-01-01", freq="h", periods=N, tz="Asia/Tokyo"
+            )
         elif dtype == "object_str":
             data = pd.Index([f"i-{i}" for i in range(N)], dtype=object)
         elif dtype == "string[pyarrow]":
@@ -93,7 +95,9 @@ class Duplicated:
         elif dtype == "datetime64[ns]":
             data = pd.date_range("2011-01-01", freq="h", periods=N)
         elif dtype == "datetime64[ns, tz]":
-            data = pd.date_range("2011-01-01", freq="h", periods=N, tz="Asia/Tokyo")
+            data = pd.date_range(
+                "2011-01-01", freq="h", periods=N, tz="Asia/Tokyo"
+            )
         elif dtype in ["timestamp[ms][pyarrow]", "duration[s][pyarrow]"]:
             data = pd.Index(np.arange(N), dtype=dtype)
         else:
@@ -137,9 +141,9 @@ class Hashing:
         df = pd.DataFrame(
             {
                 "strings": pd.Series(
-                    pd.Index([f"i-{i}" for i in range(10000)], dtype=object).take(
-                        np.random.randint(0, 10000, size=N)
-                    )
+                    pd.Index(
+                        [f"i-{i}" for i in range(10000)], dtype=object
+                    ).take(np.random.randint(0, 10000, size=N))
                 ),
                 "floats": np.random.randn(N),
                 "ints": np.arange(N),

@@ -8,9 +8,24 @@ import pandas as pd
 class Methods:
     params = (
         ["DataFrame", "Series"],
-        [("rolling", {"window": 10}), ("rolling", {"window": 1000}), ("expanding", {})],
+        [
+            ("rolling", {"window": 10}),
+            ("rolling", {"window": 1000}),
+            ("expanding", {}),
+        ],
         ["int", "float"],
-        ["median", "mean", "max", "min", "std", "count", "skew", "kurt", "sum", "sem"],
+        [
+            "median",
+            "mean",
+            "max",
+            "min",
+            "std",
+            "count",
+            "skew",
+            "kurt",
+            "sum",
+            "sem",
+        ],
     )
     param_names = ["constructor", "window_kwargs", "dtype", "method"]
 
@@ -68,7 +83,9 @@ class NumbaEngineMethods:
     def setup(self, constructor, dtype, window_kwargs, method, parallel, cols):
         N = 10**3
         window, kwargs = window_kwargs
-        shape = (N, cols) if cols is not None and constructor != "Series" else N
+        shape = (
+            (N, cols) if cols is not None and constructor != "Series" else N
+        )
         arr = (100 * np.random.random(shape)).astype(dtype)
         data = getattr(pd, constructor)(arr)
 
@@ -80,7 +97,9 @@ class NumbaEngineMethods:
                 engine="numba", engine_kwargs={"parallel": parallel}
             )
 
-    def test_method(self, constructor, dtype, window_kwargs, method, parallel, cols):
+    def test_method(
+        self, constructor, dtype, window_kwargs, method, parallel, cols
+    ):
         with warnings.catch_warnings(record=True):
             getattr(self.window, method)(
                 engine="numba", engine_kwargs={"parallel": parallel}
@@ -105,10 +124,14 @@ class NumbaEngineApply:
         "cols",
     ]
 
-    def setup(self, constructor, dtype, window_kwargs, function, parallel, cols):
+    def setup(
+        self, constructor, dtype, window_kwargs, function, parallel, cols
+    ):
         N = 10**3
         window, kwargs = window_kwargs
-        shape = (N, cols) if cols is not None and constructor != "Series" else N
+        shape = (
+            (N, cols) if cols is not None and constructor != "Series" else N
+        )
         arr = (100 * np.random.random(shape)).astype(dtype)
         data = getattr(pd, constructor)(arr)
 
@@ -117,13 +140,21 @@ class NumbaEngineApply:
             # Catch parallel=True not being applicable e.g. 1D data
             self.window = getattr(data, window)(**kwargs)
             self.window.apply(
-                function, raw=True, engine="numba", engine_kwargs={"parallel": parallel}
+                function,
+                raw=True,
+                engine="numba",
+                engine_kwargs={"parallel": parallel},
             )
 
-    def test_method(self, constructor, dtype, window_kwargs, function, parallel, cols):
+    def test_method(
+        self, constructor, dtype, window_kwargs, function, parallel, cols
+    ):
         with warnings.catch_warnings(record=True):
             self.window.apply(
-                function, raw=True, engine="numba", engine_kwargs={"parallel": parallel}
+                function,
+                raw=True,
+                engine="numba",
+                engine_kwargs={"parallel": parallel},
             )
 
 
@@ -163,7 +194,18 @@ class VariableWindowMethods(Methods):
         ["DataFrame", "Series"],
         ["50s", "1h", "1d"],
         ["int", "float"],
-        ["median", "mean", "max", "min", "std", "count", "skew", "kurt", "sum", "sem"],
+        [
+            "median",
+            "mean",
+            "max",
+            "min",
+            "std",
+            "count",
+            "skew",
+            "kurt",
+            "sum",
+            "sem",
+        ],
     )
     param_names = ["constructor", "window", "dtype", "method"]
 
@@ -171,12 +213,18 @@ class VariableWindowMethods(Methods):
         N = 10**5
         arr = (100 * np.random.random(N)).astype(dtype)
         index = pd.date_range("2017-01-01", periods=N, freq="5s")
-        self.window = getattr(pd, constructor)(arr, index=index).rolling(window)
+        self.window = getattr(pd, constructor)(arr, index=index).rolling(
+            window
+        )
 
 
 class Pairwise:
     params = (
-        [({"window": 10}, "rolling"), ({"window": 1000}, "rolling"), ({}, "expanding")],
+        [
+            ({"window": 10}, "rolling"),
+            ({"window": 1000}, "rolling"),
+            ({}, "expanding"),
+        ],
         ["corr", "cov"],
         [True, False],
     )
@@ -216,7 +264,9 @@ class Quantile:
         arr = np.random.random(N).astype(dtype)
         self.roll = getattr(pd, constructor)(arr).rolling(window)
 
-    def time_quantile(self, constructor, window, dtype, percentile, interpolation):
+    def time_quantile(
+        self, constructor, window, dtype, percentile, interpolation
+    ):
         self.roll.quantile(percentile, interpolation=interpolation)
 
 
@@ -243,7 +293,9 @@ class Rank:
         arr = np.random.random(N).astype(dtype)
         self.roll = getattr(pd, constructor)(arr).rolling(window)
 
-    def time_rank(self, constructor, window, dtype, percentile, ascending, method):
+    def time_rank(
+        self, constructor, window, dtype, percentile, ascending, method
+    ):
         self.roll.rank(pct=percentile, ascending=ascending, method=method)
 
 
@@ -272,7 +324,9 @@ class ForwardWindowMethods:
     def setup(self, constructor, window_size, dtype, method):
         N = 10**5
         arr = np.random.random(N).astype(dtype)
-        indexer = pd.api.indexers.FixedForwardWindowIndexer(window_size=window_size)
+        indexer = pd.api.indexers.FixedForwardWindowIndexer(
+            window_size=window_size
+        )
         self.roll = getattr(pd, constructor)(arr).rolling(window=indexer)
 
     def time_rolling(self, constructor, window_size, dtype, method):
@@ -302,7 +356,9 @@ class Groupby:
             }
         )
         if isinstance(kwargs.get("window", None), str):
-            df.index = pd.date_range(start="1900-01-01", freq="1min", periods=N * 10)
+            df.index = pd.date_range(
+                start="1900-01-01", freq="1min", periods=N * 10
+            )
         self.groupby_window = getattr(df.groupby("A"), window)(**kwargs)
 
     def time_method(self, method, window_kwargs):
@@ -317,7 +373,9 @@ class GroupbyLargeGroups:
 
     def setup(self):
         N = 100000
-        self.df = pd.DataFrame({"A": [1, 2] * (N // 2), "B": np.random.randn(N)})
+        self.df = pd.DataFrame(
+            {"A": [1, 2] * (N // 2), "B": np.random.randn(N)}
+        )
 
     def time_rolling_multiindex_creation(self):
         self.df.groupby("A").rolling(3).mean()

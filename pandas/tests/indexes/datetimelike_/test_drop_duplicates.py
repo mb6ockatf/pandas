@@ -89,7 +89,9 @@ class TestDropDuplicatesDatetimeIndex(DropDuplicates):
         """
         Fixture to get DatetimeIndex for 10 periods for different frequencies.
         """
-        return date_range("2011-01-01", freq=freq_sample, periods=10, name="idx")
+        return date_range(
+            "2011-01-01", freq=freq_sample, periods=10, name="idx"
+        )
 
 
 class TestDropDuplicatesTimedeltaIndex(DropDuplicates):
@@ -98,4 +100,6 @@ class TestDropDuplicatesTimedeltaIndex(DropDuplicates):
         """
         Fixture to get TimedeltaIndex for 10 periods for different frequencies.
         """
-        return timedelta_range("1 day", periods=10, freq=freq_sample, name="idx")
+        return timedelta_range(
+            "1 day", periods=10, freq=freq_sample, name="idx"
+        )

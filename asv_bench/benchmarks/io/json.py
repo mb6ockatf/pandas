@@ -59,7 +59,11 @@ class ReadJSONLines(BaseIO):
         read_json(self.fname, orient="records", lines=True)
 
     def time_read_json_lines_concat(self, index):
-        concat(read_json(self.fname, orient="records", lines=True, chunksize=25000))
+        concat(
+            read_json(
+                self.fname, orient="records", lines=True, chunksize=25000
+            )
+        )
 
     def time_read_json_lines_nrows(self, index):
         read_json(self.fname, orient="records", lines=True, nrows=25000)
@@ -68,7 +72,11 @@ class ReadJSONLines(BaseIO):
         read_json(self.fname, orient="records", lines=True)
 
     def peakmem_read_json_lines_concat(self, index):
-        concat(read_json(self.fname, orient="records", lines=True, chunksize=25000))
+        concat(
+            read_json(
+                self.fname, orient="records", lines=True, chunksize=25000
+            )
+        )
 
     def peakmem_read_json_lines_nrows(self, index):
         read_json(self.fname, orient="records", lines=True, nrows=15000)
@@ -78,7 +86,13 @@ class NormalizeJSON(BaseIO):
     fname = "__test__.json"
     params = [
         ["split", "columns", "index", "values", "records"],
-        ["df", "df_date_idx", "df_td_int_ts", "df_int_floats", "df_int_float_str"],
+        [
+            "df",
+            "df_date_idx",
+            "df_td_int_ts",
+            "df_int_floats",
+            "df_int_float_str",
+        ],
     ]
     param_names = ["orient", "frame"]
 
@@ -99,7 +113,13 @@ class ToJSON(BaseIO):
     fname = "__test__.json"
     params = [
         ["split", "columns", "index", "values", "records"],
-        ["df", "df_date_idx", "df_td_int_ts", "df_int_floats", "df_int_float_str"],
+        [
+            "df",
+            "df_date_idx",
+            "df_td_int_ts",
+            "df_int_floats",
+            "df_int_float_str",
+        ],
     ]
     param_names = ["orient", "frame"]
 
@@ -172,7 +192,9 @@ class ToJSONWide(ToJSON):
     def setup(self, orient, frame):
         super().setup(orient, frame)
         base_df = getattr(self, frame).copy()
-        df_wide = concat([base_df.iloc[:100]] * 1000, ignore_index=True, axis=1)
+        df_wide = concat(
+            [base_df.iloc[:100]] * 1000, ignore_index=True, axis=1
+        )
         self.df_wide = df_wide
 
     def time_to_json_wide(self, orient, frame):
@@ -282,13 +304,17 @@ class ToJSONLines(BaseIO):
         self.df_int_float_str.to_json(self.fname, orient="records", lines=True)
 
     def time_float_longint_str_lines(self):
-        self.df_longint_float_str.to_json(self.fname, orient="records", lines=True)
+        self.df_longint_float_str.to_json(
+            self.fname, orient="records", lines=True
+        )
 
 
 class ToJSONMem:
     def setup_cache(self):
         df = DataFrame([[1]])
-        df2 = DataFrame(range(8), date_range("1/1/2000", periods=8, freq="min"))
+        df2 = DataFrame(
+            range(8), date_range("1/1/2000", periods=8, freq="min")
+        )
         frames = {"int": df, "float": df.astype(float), "datetime": df2}
 
         return frames

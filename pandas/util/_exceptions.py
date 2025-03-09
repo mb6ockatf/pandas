@@ -51,7 +51,9 @@ def find_stack_level() -> int:
         n = 0
         while frame:
             filename = inspect.getfile(frame)
-            if filename.startswith(pkg_dir) and not filename.startswith(test_dir):
+            if filename.startswith(pkg_dir) and not filename.startswith(
+                test_dir
+            ):
                 frame = frame.f_back
                 n += 1
             else:

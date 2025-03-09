@@ -125,7 +125,11 @@ class TestTake:
         tm.assert_almost_equal(result, expected)
 
     def test_2d_other_dtypes(self):
-        arr = np.random.default_rng(2).standard_normal((10, 5)).astype(np.float32)
+        arr = (
+            np.random.default_rng(2)
+            .standard_normal((10, 5))
+            .astype(np.float32)
+        )
 
         indexer = [1, 2, 3, -1]
 
@@ -166,7 +170,9 @@ class TestTake:
         assert result.dtype == np.object_
 
     def test_2d_float32(self):
-        arr = np.random.default_rng(2).standard_normal((4, 3)).astype(np.float32)
+        arr = (
+            np.random.default_rng(2).standard_normal((4, 3)).astype(np.float32)
+        )
         indexer = [0, 2, -1, 1, -1]
 
         # axis=0
@@ -197,7 +203,9 @@ class TestTake:
         expected.view(np.int64)[[2, 4], :] = iNaT
         tm.assert_almost_equal(result, expected)
 
-        result = algos.take_nd(arr, indexer, axis=0, fill_value=datetime(2007, 1, 1))
+        result = algos.take_nd(
+            arr, indexer, axis=0, fill_value=datetime(2007, 1, 1)
+        )
         expected = arr.take(indexer, axis=0)
         expected[[2, 4], :] = datetime(2007, 1, 1)
         tm.assert_almost_equal(result, expected)
@@ -208,7 +216,9 @@ class TestTake:
         expected.view(np.int64)[:, [2, 4]] = iNaT
         tm.assert_almost_equal(result, expected)
 
-        result = algos.take_nd(arr, indexer, axis=1, fill_value=datetime(2007, 1, 1))
+        result = algos.take_nd(
+            arr, indexer, axis=1, fill_value=datetime(2007, 1, 1)
+        )
         expected = arr.take(indexer, axis=1)
         expected[:, [2, 4]] = datetime(2007, 1, 1)
         tm.assert_almost_equal(result, expected)
@@ -231,7 +241,9 @@ class TestTake:
         tm.assert_numpy_array_equal(result, expected)
 
         # allow_fill=True
-        result = algos.take(arr, [0, -1], axis=1, allow_fill=True, fill_value=0)
+        result = algos.take(
+            arr, [0, -1], axis=1, allow_fill=True, fill_value=0
+        )
         expected = np.array([[0, 0], [3, 0], [6, 0], [9, 0]])
         tm.assert_numpy_array_equal(result, expected)
 
@@ -295,7 +307,9 @@ class TestExtensionTake:
             algos.take(arr, [0], allow_fill=allow_fill)
 
     def test_take_na_empty(self):
-        result = algos.take(np.array([]), [-1, -1], allow_fill=True, fill_value=0.0)
+        result = algos.take(
+            np.array([]), [-1, -1], allow_fill=True, fill_value=0.0
+        )
         expected = np.array([0.0, 0.0])
         tm.assert_numpy_array_equal(result, expected)
 
@@ -311,7 +325,9 @@ class TestExtensionTake:
 
     def test_take_NumpyExtensionArray(self):
         # GH#59177
-        arr = array([1 + 1j, 2, 3])  # NumpyEADtype('complex128') (NumpyExtensionArray)
+        arr = array(
+            [1 + 1j, 2, 3]
+        )  # NumpyEADtype('complex128') (NumpyExtensionArray)
         assert algos.take(arr, [2]) == 2
         arr = array([1, 2, 3])  # Int64Dtype() (ExtensionArray)
         assert algos.take(arr, [2]) == 2

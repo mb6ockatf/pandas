@@ -162,7 +162,9 @@ def mode(request):
     return request.param
 
 
-@pytest.fixture(params=[pytest.param("lxml", marks=td.skip_if_no("lxml")), "etree"])
+@pytest.fixture(
+    params=[pytest.param("lxml", marks=td.skip_if_no("lxml")), "etree"]
+)
 def parser(request):
     return request.param
 
@@ -288,7 +290,11 @@ def test_index_false_rename_row_root(xml_books, parser):
 
     with tm.ensure_clean("test.xml") as path:
         df_file.to_xml(
-            path, index=False, root_name="books", row_name="book", parser=parser
+            path,
+            index=False,
+            root_name="books",
+            row_name="book",
+            parser=parser,
         )
         with open(path, "rb") as f:
             output = f.read().decode("utf-8").strip()
@@ -417,7 +423,9 @@ def test_attrs_cols_nan_output(parser, geom_df):
   <row index="2" shape="triangle" degrees="180" sides="3.0"/>
 </data>"""
 
-    output = geom_df.to_xml(attr_cols=["shape", "degrees", "sides"], parser=parser)
+    output = geom_df.to_xml(
+        attr_cols=["shape", "degrees", "sides"], parser=parser
+    )
     output = equalize_decl(output)
 
     assert output == expected
@@ -598,7 +606,9 @@ sum_mass="2667.54" mean_mass="333.44"/>
         margins=True,
     ).round(2)
 
-    output = pvt.to_xml(attr_cols=list(pvt.reset_index().columns.values), parser=parser)
+    output = pvt.to_xml(
+        attr_cols=list(pvt.reset_index().columns.values), parser=parser
+    )
     output = equalize_decl(output)
 
     assert output == expected
@@ -663,7 +673,9 @@ sum="189.23" mean="94.61"/>
         .agg(["count", "sum", "mean"])
         .round(2)
     )
-    output = agg.to_xml(attr_cols=list(agg.reset_index().columns.values), parser=parser)
+    output = agg.to_xml(
+        attr_cols=list(agg.reset_index().columns.values), parser=parser
+    )
     output = equalize_decl(output)
 
     assert output == expected
@@ -696,7 +708,9 @@ def test_default_namespace(parser, geom_df):
   </row>
 </data>"""
 
-    output = geom_df.to_xml(namespaces={"": "http://example.com"}, parser=parser)
+    output = geom_df.to_xml(
+        namespaces={"": "http://example.com"}, parser=parser
+    )
     output = equalize_decl(output)
 
     assert output == expected
@@ -850,7 +864,9 @@ encoding_expected = """\
 
 
 def test_encoding_option_str(xml_baby_names, parser):
-    df_file = read_xml(xml_baby_names, parser=parser, encoding="ISO-8859-1").head(5)
+    df_file = read_xml(
+        xml_baby_names, parser=parser, encoding="ISO-8859-1"
+    ).head(5)
 
     output = df_file.to_xml(encoding="ISO-8859-1", parser=parser)
 
@@ -949,7 +965,9 @@ def test_no_pretty_print_no_decl(parser, geom_df):
         "</row></data>"
     )
 
-    output = geom_df.to_xml(xml_declaration=False, pretty_print=False, parser=parser)
+    output = geom_df.to_xml(
+        xml_declaration=False, pretty_print=False, parser=parser
+    )
 
     # etree adds space for closed tags
     if output is not None:
@@ -964,7 +982,8 @@ def test_no_pretty_print_no_decl(parser, geom_df):
 @td.skip_if_installed("lxml")
 def test_default_parser_no_lxml(geom_df):
     with pytest.raises(
-        ImportError, match=("lxml not found, please install or use the etree parser.")
+        ImportError,
+        match=("lxml not found, please install or use the etree parser."),
     ):
         geom_df.to_xml()
 
@@ -1157,7 +1176,9 @@ def test_stylesheet_with_etree(geom_df):
         </xsl:copy>
     </xsl:template>"""
 
-    with pytest.raises(ValueError, match="To use stylesheet, you need lxml installed"):
+    with pytest.raises(
+        ValueError, match="To use stylesheet, you need lxml installed"
+    ):
         geom_df.to_xml(parser="etree", stylesheet=StringIO(xsl))
 
 
@@ -1364,5 +1385,7 @@ def test_s3_permission_output(parser, s3_public_bucket, geom_df):
         fs.ls(s3_public_bucket.name)
 
         geom_df.to_xml(
-            f"s3://{s3_public_bucket.name}/geom.xml", compression="zip", parser=parser
+            f"s3://{s3_public_bucket.name}/geom.xml",
+            compression="zip",
+            parser=parser,
         )

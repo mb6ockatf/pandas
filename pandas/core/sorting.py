@@ -289,10 +289,16 @@ def decons_obs_group_ids(
     if not is_int64_overflow_possible(shape):
         # obs ids are deconstructable! take the fast route!
         out = _decons_group_index(obs_ids, shape)
-        return out if xnull or not lift.any() else [x - y for x, y in zip(out, lift)]
+        return (
+            out
+            if xnull or not lift.any()
+            else [x - y for x, y in zip(out, lift)]
+        )
 
     indexer = unique_label_indices(comp_ids)
-    return [lab[indexer].astype(np.intp, subok=False, copy=True) for lab in labels]
+    return [
+        lab[indexer].astype(np.intp, subok=False, copy=True) for lab in labels
+    ]
 
 
 def lexsort_indexer(
@@ -482,7 +488,9 @@ def nargminmax(values: ExtensionArray, method: str, axis: AxisInt = 0):
     return _nanargminmax(arr_values, mask, func)
 
 
-def _nanargminmax(values: np.ndarray, mask: npt.NDArray[np.bool_], func) -> int:
+def _nanargminmax(
+    values: np.ndarray, mask: npt.NDArray[np.bool_], func
+) -> int:
     """
     See nanargminmax.__doc__.
     """
@@ -528,14 +536,18 @@ def _ensure_key_mapped_multiindex(
         else:
             level_iter = level
 
-        sort_levels: range | set = {index._get_level_number(lev) for lev in level_iter}
+        sort_levels: range | set = {
+            index._get_level_number(lev) for lev in level_iter
+        }
     else:
         sort_levels = range(index.nlevels)
 
     mapped = [
-        ensure_key_mapped(index._get_level_values(level), key)
-        if level in sort_levels
-        else index._get_level_values(level)
+        (
+            ensure_key_mapped(index._get_level_values(level), key)
+            if level in sort_levels
+            else index._get_level_values(level)
+        )
         for level in range(index.nlevels)
     ]
 
@@ -654,7 +666,9 @@ def get_group_index_sorter(
     count = len(group_index)
     alpha = 0.0  # taking complexities literally; there may be
     beta = 1.0  # some room for fine-tuning these parameters
-    do_groupsort = count > 0 and ((alpha + beta * ngroups) < (count * np.log(count)))
+    do_groupsort = count > 0 and (
+        (alpha + beta * ngroups) < (count * np.log(count))
+    )
     if do_groupsort:
         sorter, _ = algos.groupsort_indexer(
             ensure_platform_int(group_index),
@@ -692,7 +706,9 @@ def compress_group_index(
         comp_ids, obs_group_ids = table.get_labels_groupby(group_index)
 
         if sort and len(obs_group_ids) > 0:
-            obs_group_ids, comp_ids = _reorder_by_uniques(obs_group_ids, comp_ids)
+            obs_group_ids, comp_ids = _reorder_by_uniques(
+                obs_group_ids, comp_ids
+            )
 
     return ensure_int64(comp_ids), ensure_int64(obs_group_ids)
 

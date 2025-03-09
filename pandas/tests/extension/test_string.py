@@ -64,9 +64,13 @@ def dtype(string_dtype_arguments):
 
 @pytest.fixture
 def data(dtype, chunked):
-    strings = np.random.default_rng(2).choice(list(string.ascii_letters), size=100)
+    strings = np.random.default_rng(2).choice(
+        list(string.ascii_letters), size=100
+    )
     while strings[0] == strings[1]:
-        strings = np.random.default_rng(2).choice(list(string.ascii_letters), size=100)
+        strings = np.random.default_rng(2).choice(
+            list(string.ascii_letters), size=100
+        )
 
     arr = dtype.construct_array_type()._from_sequence(strings, dtype=dtype)
     return maybe_split_array(arr, chunked)
@@ -75,19 +79,25 @@ def data(dtype, chunked):
 @pytest.fixture
 def data_missing(dtype, chunked):
     """Length 2 array with [NA, Valid]"""
-    arr = dtype.construct_array_type()._from_sequence([pd.NA, "A"], dtype=dtype)
+    arr = dtype.construct_array_type()._from_sequence(
+        [pd.NA, "A"], dtype=dtype
+    )
     return maybe_split_array(arr, chunked)
 
 
 @pytest.fixture
 def data_for_sorting(dtype, chunked):
-    arr = dtype.construct_array_type()._from_sequence(["B", "C", "A"], dtype=dtype)
+    arr = dtype.construct_array_type()._from_sequence(
+        ["B", "C", "A"], dtype=dtype
+    )
     return maybe_split_array(arr, chunked)
 
 
 @pytest.fixture
 def data_missing_for_sorting(dtype, chunked):
-    arr = dtype.construct_array_type()._from_sequence(["B", pd.NA, "A"], dtype=dtype)
+    arr = dtype.construct_array_type()._from_sequence(
+        ["B", pd.NA, "A"], dtype=dtype
+    )
     return maybe_split_array(arr, chunked)
 
 
@@ -124,14 +134,18 @@ class TestStringArray(base.ExtensionTests):
 
     def test_construct_from_string_own_name(self, dtype, using_infer_string):
         if dtype.na_value is np.nan and not using_infer_string:
-            with pytest.raises(TypeError, match="Cannot construct a 'StringDtype'"):
+            with pytest.raises(
+                TypeError, match="Cannot construct a 'StringDtype'"
+            ):
                 dtype.construct_from_string(dtype.name)
         else:
             super().test_construct_from_string_own_name(dtype)
 
     def test_view(self, data):
         if data.dtype.storage == "pyarrow":
-            pytest.skip(reason="2D support not implemented for ArrowStringArray")
+            pytest.skip(
+                reason="2D support not implemented for ArrowStringArray"
+            )
         super().test_view(data)
 
     def test_from_dtype(self, data):
@@ -140,12 +154,16 @@ class TestStringArray(base.ExtensionTests):
 
     def test_transpose(self, data):
         if data.dtype.storage == "pyarrow":
-            pytest.skip(reason="2D support not implemented for ArrowStringArray")
+            pytest.skip(
+                reason="2D support not implemented for ArrowStringArray"
+            )
         super().test_transpose(data)
 
     def test_setitem_preserves_views(self, data):
         if data.dtype.storage == "pyarrow":
-            pytest.skip(reason="2D support not implemented for ArrowStringArray")
+            pytest.skip(
+                reason="2D support not implemented for ArrowStringArray"
+            )
         super().test_setitem_preserves_views(data)
 
     def test_dropna_array(self, data_missing):
@@ -198,7 +216,9 @@ class TestStringArray(base.ExtensionTests):
         assert isinstance(ser.dtype, StorageExtensionDtype)
         return op_name in ["cummin", "cummax", "cumsum"]
 
-    def _cast_pointwise_result(self, op_name: str, obj, other, pointwise_result):
+    def _cast_pointwise_result(
+        self, op_name: str, obj, other, pointwise_result
+    ):
         dtype = cast(StringDtype, tm.get_dtype(obj))
         if op_name in ["__add__", "__radd__"]:
             cast_to = dtype
@@ -214,8 +234,12 @@ class TestStringArray(base.ExtensionTests):
         ser = pd.Series(data)
         self._compare_other(ser, data, comparison_op, "abc")
 
-    def test_groupby_extension_apply(self, data_for_grouping, groupby_apply_op):
-        super().test_groupby_extension_apply(data_for_grouping, groupby_apply_op)
+    def test_groupby_extension_apply(
+        self, data_for_grouping, groupby_apply_op
+    ):
+        super().test_groupby_extension_apply(
+            data_for_grouping, groupby_apply_op
+        )
 
     def test_combine_add(self, data_repeated, using_infer_string, request):
         dtype = next(data_repeated(1)).dtype
@@ -237,7 +261,8 @@ class TestStringArray(base.ExtensionTests):
             using_infer_string
             and all_arithmetic_operators == "__radd__"
             and (
-                (dtype.na_value is pd.NA) or (dtype.storage == "python" and HAS_PYARROW)
+                (dtype.na_value is pd.NA)
+                or (dtype.storage == "python" and HAS_PYARROW)
             )
         ):
             mark = pytest.mark.xfail(
@@ -252,7 +277,9 @@ class Test2DCompat(base.Dim2CompatTests):
     @pytest.fixture(autouse=True)
     def arrow_not_supported(self, data):
         if isinstance(data, ArrowStringArray):
-            pytest.skip(reason="2D support not implemented for ArrowStringArray")
+            pytest.skip(
+                reason="2D support not implemented for ArrowStringArray"
+            )
 
 
 def test_searchsorted_with_na_raises(data_for_sorting, as_series):

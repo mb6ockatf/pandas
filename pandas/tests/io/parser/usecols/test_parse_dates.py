@@ -83,5 +83,7 @@ def test_usecols_with_parse_dates3(all_parsers):
     }
     expected = DataFrame(cols, columns=usecols)
 
-    result = parser.read_csv(StringIO(data), usecols=usecols, parse_dates=parse_dates)
+    result = parser.read_csv(
+        StringIO(data), usecols=usecols, parse_dates=parse_dates
+    )
     tm.assert_frame_equal(result, expected)

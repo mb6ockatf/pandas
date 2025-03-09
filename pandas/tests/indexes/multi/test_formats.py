@@ -16,7 +16,9 @@ def test_repr_with_unicode_data():
 
 
 def test_repr_roundtrip_raises():
-    mi = MultiIndex.from_product([list("ab"), range(3)], names=["first", "second"])
+    mi = MultiIndex.from_product(
+        [list("ab"), range(3)], names=["first", "second"]
+    )
     msg = "Must pass both levels and codes"
     with pytest.raises(TypeError, match=msg):
         eval(repr(mi))
@@ -101,7 +103,9 @@ MultiIndex([...
         n = 1000
         ci = pd.CategoricalIndex(list("a" * n) + (["abc"] * n))
         dti = pd.date_range("2000-01-01", freq="s", periods=n * 2)
-        mi = MultiIndex.from_arrays([ci, ci.codes + 9, dti], names=["a", "b", "dti"])
+        mi = MultiIndex.from_arrays(
+            [ci, ci.codes + 9, dti], names=["a", "b", "dti"]
+        )
         result = mi[:1].__repr__()
         expected = """\
 MultiIndex([('a', 9, '2000-01-01 00:00:00')],

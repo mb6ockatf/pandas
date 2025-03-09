@@ -19,7 +19,27 @@ class TestJoin:
         tm.assert_index_equal(res, noidx_res)
 
         eres = Index(
-            [0, 2, 4, 6, 8, 10, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+            [
+                0,
+                2,
+                4,
+                6,
+                8,
+                10,
+                12,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+            ]
         )
         elidx = np.array(
             [0, 1, 2, 3, 4, 5, 6, 7, -1, 8, -1, 9, -1, -1, -1, -1, -1, -1, -1],
@@ -112,7 +132,9 @@ class TestJoin:
 
         res, lidx, ridx = index.join(other, how="right", return_indexers=True)
         eres = other
-        elidx = np.array([-1, -1, -1, -1, -1, -1, -1, 9, -1, 8, -1], dtype=np.intp)
+        elidx = np.array(
+            [-1, -1, -1, -1, -1, -1, -1, 9, -1, 8, -1], dtype=np.intp
+        )
 
         assert isinstance(other, Index) and other.dtype == np.int64
         tm.assert_index_equal(res, eres)
@@ -166,7 +188,9 @@ class TestJoin:
 
         eres = Index([0, 2, 4, 4, 6, 8, 10, 12, 14, 16, 18])
         elidx = np.array([0, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9], dtype=np.intp)
-        eridx = np.array([-1, -1, 0, 1, -1, -1, -1, -1, -1, -1, -1], dtype=np.intp)
+        eridx = np.array(
+            [-1, -1, 0, 1, -1, -1, -1, -1, -1, -1, -1], dtype=np.intp
+        )
 
         tm.assert_index_equal(res, eres)
         tm.assert_numpy_array_equal(lidx, elidx)
@@ -183,8 +207,22 @@ class TestJoin:
     [
         [RangeIndex(2), RangeIndex(3), RangeIndex(2), None, [0, 1], "left"],
         [RangeIndex(2), RangeIndex(2), RangeIndex(2), None, None, "left"],
-        [RangeIndex(2), RangeIndex(20, 22), RangeIndex(2), None, [-1, -1], "left"],
-        [RangeIndex(2), RangeIndex(3), RangeIndex(3), [0, 1, -1], None, "right"],
+        [
+            RangeIndex(2),
+            RangeIndex(20, 22),
+            RangeIndex(2),
+            None,
+            [-1, -1],
+            "left",
+        ],
+        [
+            RangeIndex(2),
+            RangeIndex(3),
+            RangeIndex(3),
+            [0, 1, -1],
+            None,
+            "right",
+        ],
         [RangeIndex(2), RangeIndex(2), RangeIndex(2), None, None, "right"],
         [
             RangeIndex(2),
@@ -197,7 +235,14 @@ class TestJoin:
         [RangeIndex(2), RangeIndex(3), RangeIndex(2), [0, 1], [0, 1], "inner"],
         [RangeIndex(2), RangeIndex(2), RangeIndex(2), None, None, "inner"],
         [RangeIndex(2), RangeIndex(1, 3), RangeIndex(1, 2), [1], [0], "inner"],
-        [RangeIndex(2), RangeIndex(3), RangeIndex(3), [0, 1, -1], [0, 1, 2], "outer"],
+        [
+            RangeIndex(2),
+            RangeIndex(3),
+            RangeIndex(3),
+            [0, 1, -1],
+            [0, 1, 2],
+            "outer",
+        ],
         [RangeIndex(2), RangeIndex(2), RangeIndex(2), None, None, "outer"],
         [
             RangeIndex(2),
@@ -219,7 +264,9 @@ class TestJoin:
 def test_join_preserves_rangeindex(
     left, right, expected, expected_lidx, expected_ridx, how, right_type
 ):
-    result, lidx, ridx = left.join(right_type(right), how=how, return_indexers=True)
+    result, lidx, ridx = left.join(
+        right_type(right), how=how, return_indexers=True
+    )
     tm.assert_index_equal(result, expected, exact=True)
 
     if expected_lidx is None:

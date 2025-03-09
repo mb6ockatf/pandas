@@ -108,7 +108,9 @@ class MaybeConvertObjects:
 class ToDatetimeFromIntsFloats:
     def setup(self):
         self.ts_sec = Series(range(1521080307, 1521685107), dtype="int64")
-        self.ts_sec_uint = Series(range(1521080307, 1521685107), dtype="uint64")
+        self.ts_sec_uint = Series(
+            range(1521080307, 1521685107), dtype="uint64"
+        )
         self.ts_sec_float = self.ts_sec.astype("float64")
 
         self.ts_nanosec = 1_000_000 * self.ts_sec
@@ -165,7 +167,9 @@ class ToDatetimeISO8601:
         self.strings_tz_space = [
             x.strftime("%Y-%m-%d %H:%M:%S") + " -0800" for x in rng
         ]
-        self.strings_zero_tz = [x.strftime("%Y-%m-%d %H:%M:%S") + "Z" for x in rng]
+        self.strings_zero_tz = [
+            x.strftime("%Y-%m-%d %H:%M:%S") + "Z" for x in rng
+        ]
 
     def time_iso8601(self):
         to_datetime(self.strings)
@@ -232,10 +236,14 @@ class ToDatetimeFormat:
         to_datetime(self.same_offset, format="%m/%d/%Y %H:%M:%S.%f%z")
 
     def time_same_offset_to_utc(self):
-        to_datetime(self.same_offset, format="%m/%d/%Y %H:%M:%S.%f%z", utc=True)
+        to_datetime(
+            self.same_offset, format="%m/%d/%Y %H:%M:%S.%f%z", utc=True
+        )
 
     def time_different_offset_to_utc(self):
-        to_datetime(self.diff_offset, format="%m/%d/%Y %H:%M:%S.%f%z", utc=True)
+        to_datetime(
+            self.diff_offset, format="%m/%d/%Y %H:%M:%S.%f%z", utc=True
+        )
 
 
 class ToDatetimeCache:

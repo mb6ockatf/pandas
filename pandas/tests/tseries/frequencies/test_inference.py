@@ -143,7 +143,9 @@ def test_fifth_week_of_month_infer():
 def test_week_of_month_fake():
     # All of these dates are on same day
     # of week and are 4 or 5 weeks apart.
-    index = DatetimeIndex(["2013-08-27", "2013-10-01", "2013-10-29", "2013-11-26"])
+    index = DatetimeIndex(
+        ["2013-08-27", "2013-10-01", "2013-10-29", "2013-11-26"]
+    )
     assert frequencies.infer_freq(index) != "WOM-4TUE"
 
 
@@ -245,7 +247,15 @@ def test_infer_freq_tz_series(tz_naive_fixture):
 )
 @pytest.mark.parametrize(
     "freq",
-    ["h", "3h", "10min", "3601s", "3600001ms", "3600000001us", "3600000000001ns"],
+    [
+        "h",
+        "3h",
+        "10min",
+        "3601s",
+        "3600001ms",
+        "3600000001us",
+        "3600000000001ns",
+    ],
 )
 def test_infer_freq_tz_transition(tz_naive_fixture, date_pair, freq):
     # see gh-8772
@@ -382,7 +392,9 @@ def test_invalid_index_types(idx):
         frequencies.infer_freq(idx)
 
 
-@pytest.mark.skipif(is_platform_windows(), reason="see gh-10822: Windows issue")
+@pytest.mark.skipif(
+    is_platform_windows(), reason="see gh-10822: Windows issue"
+)
 def test_invalid_index_types_unicode():
     # see gh-10822
     #

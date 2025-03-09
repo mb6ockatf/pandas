@@ -37,11 +37,17 @@ def test_get_level_number_integer(idx):
 def test_get_dtypes(using_infer_string):
     # Test MultiIndex.dtypes (# Gh37062)
     idx_multitype = MultiIndex.from_product(
-        [[1, 2, 3], ["a", "b", "c"], pd.date_range("20200101", periods=2, tz="UTC")],
+        [
+            [1, 2, 3],
+            ["a", "b", "c"],
+            pd.date_range("20200101", periods=2, tz="UTC"),
+        ],
         names=["int", "string", "dt"],
     )
 
-    exp = "object" if not using_infer_string else pd.StringDtype(na_value=np.nan)
+    exp = (
+        "object" if not using_infer_string else pd.StringDtype(na_value=np.nan)
+    )
     expected = pd.Series(
         {
             "int": np.dtype("int64"),
@@ -61,7 +67,9 @@ def test_get_dtypes_no_level_name(using_infer_string):
             pd.date_range("20200101", periods=2, tz="UTC"),
         ],
     )
-    exp = "object" if not using_infer_string else pd.StringDtype(na_value=np.nan)
+    exp = (
+        "object" if not using_infer_string else pd.StringDtype(na_value=np.nan)
+    )
     expected = pd.Series(
         {
             "level_0": np.dtype("int64"),
@@ -82,7 +90,9 @@ def test_get_dtypes_duplicate_level_names(using_infer_string):
         ],
         names=["A", "A", "A"],
     ).dtypes
-    exp = "object" if not using_infer_string else pd.StringDtype(na_value=np.nan)
+    exp = (
+        "object" if not using_infer_string else pd.StringDtype(na_value=np.nan)
+    )
     expected = pd.Series(
         [np.dtype("int64"), exp, DatetimeTZDtype(tz="utc")],
         index=["A", "A", "A"],
@@ -346,7 +356,9 @@ def test_set_levels_with_iterable():
     result = index.set_levels(map(int, ["3", "2", "1"]), level="size")
 
     expected_sizes = [3, 2, 1]
-    expected = MultiIndex.from_arrays([expected_sizes, colors], names=["size", "color"])
+    expected = MultiIndex.from_arrays(
+        [expected_sizes, colors], names=["size", "color"]
+    )
     tm.assert_index_equal(result, expected)
 
 

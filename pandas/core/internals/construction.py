@@ -172,7 +172,9 @@ def rec_array_to_mgr(
 
     # create the manager
 
-    arrays, arr_columns = reorder_arrays(arrays, arr_columns, columns, len(index))
+    arrays, arr_columns = reorder_arrays(
+        arrays, arr_columns, columns, len(index)
+    )
     if columns is None:
         columns = arr_columns
 
@@ -212,7 +214,10 @@ def ndarray_to_mgr(
     if is_1d_only_ea_dtype(vdtype) or is_1d_only_ea_dtype(dtype):
         # GH#19157
 
-        if isinstance(values, (np.ndarray, ExtensionArray)) and values.ndim > 1:
+        if (
+            isinstance(values, (np.ndarray, ExtensionArray))
+            and values.ndim > 1
+        ):
             # GH#12513 a EA dtype passed with a 2D array, split into
             #  multiple EAs that view the values
             # error: No overload variant of "__getitem__" of "ExtensionArray"
@@ -294,7 +299,9 @@ def ndarray_to_mgr(
         # don't convert (and copy) the objects if no type inference occurs
         if any(x is not y for x, y in zip(obj_columns, maybe_datetime)):
             block_values = [
-                new_block_2d(ensure_block_shape(dval, 2), placement=BlockPlacement(n))
+                new_block_2d(
+                    ensure_block_shape(dval, 2), placement=BlockPlacement(n)
+                )
                 for n, dval in enumerate(maybe_datetime)
             ]
         else:
@@ -343,7 +350,9 @@ def _check_values_indices_shape_match(
 
         passed = values.shape
         implied = (len(index), len(columns))
-        raise ValueError(f"Shape of passed values is {passed}, indices imply {implied}")
+        raise ValueError(
+            f"Shape of passed values is {passed}, indices imply {implied}"
+        )
 
 
 def dict_to_mgr(
@@ -412,14 +421,21 @@ def dict_to_mgr(
         # We only need to copy arrays that will not get consolidated, i.e.
         #  only EA arrays
         arrays = [
-            x.copy()
-            if isinstance(x, ExtensionArray)
-            else x.copy(deep=True)
-            if (
-                isinstance(x, Index)
-                or (isinstance(x, ABCSeries) and is_1d_only_ea_dtype(x.dtype))
+            (
+                x.copy()
+                if isinstance(x, ExtensionArray)
+                else (
+                    x.copy(deep=True)
+                    if (
+                        isinstance(x, Index)
+                        or (
+                            isinstance(x, ABCSeries)
+                            and is_1d_only_ea_dtype(x.dtype)
+                        )
+                    )
+                    else x
+                )
             )
-            else x
             for x in arrays
         ]
 
@@ -617,7 +633,10 @@ def _extract_index(data) -> Index:
 
 
 def reorder_arrays(
-    arrays: list[ArrayLike], arr_columns: Index, columns: Index | None, length: int
+    arrays: list[ArrayLike],
+    arr_columns: Index,
+    columns: Index | None,
+    length: int,
 ) -> tuple[list[ArrayLike], Index]:
     """
     Preemptively (cheaply) reindex arrays with new columns.
@@ -788,7 +807,9 @@ def _list_of_series_to_arrays(
 
     if columns is None:
         # We know pass_data is non-empty because data[0] is a Series
-        pass_data = [x for x in data if isinstance(x, (ABCSeries, ABCDataFrame))]
+        pass_data = [
+            x for x in data if isinstance(x, (ABCSeries, ABCDataFrame))
+        ]
         columns = get_objs_combined_axis(pass_data, sort=False)
 
     indexer_cache: dict[int, np.ndarray] = {}
@@ -965,8 +986,12 @@ def convert_object_array(
                 if arr.dtype == np.dtype("O"):
                     # i.e. maybe_convert_objects didn't convert
                     convert_to_nullable_dtype = dtype_backend != "numpy"
-                    arr = maybe_infer_to_datetimelike(arr, convert_to_nullable_dtype)
-                    if convert_to_nullable_dtype and arr.dtype == np.dtype("O"):
+                    arr = maybe_infer_to_datetimelike(
+                        arr, convert_to_nullable_dtype
+                    )
+                    if convert_to_nullable_dtype and arr.dtype == np.dtype(
+                        "O"
+                    ):
                         new_dtype = StringDtype()
                         arr_cls = new_dtype.construct_array_type()
                         arr = arr_cls._from_sequence(arr, dtype=new_dtype)

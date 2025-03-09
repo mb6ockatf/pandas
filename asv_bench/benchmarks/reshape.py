@@ -46,7 +46,10 @@ class Pivot:
 
 class SimpleReshape:
     def setup(self):
-        arrays = [np.arange(100).repeat(100), np.roll(np.tile(np.arange(100), 100), 25)]
+        arrays = [
+            np.arange(100).repeat(100),
+            np.roll(np.tile(np.arange(100), 100), 25),
+        ]
         index = MultiIndex.from_arrays(arrays)
         self.df = DataFrame(np.random.randn(10000, 4), index=index)
         self.udf = self.df.unstack(1)
@@ -67,7 +70,9 @@ class ReshapeExtensionDtype:
         ri = pd.Index(range(1000))
         mi = MultiIndex.from_product([lev, ri], names=["foo", "bar"])
 
-        index = date_range("2016-01-01", periods=10000, freq="s", tz="US/Pacific")
+        index = date_range(
+            "2016-01-01", periods=10000, freq="s", tz="US/Pacific"
+        )
         if dtype == "Period[s]":
             index = index.tz_localize(None).to_period("s")
 
@@ -175,7 +180,9 @@ class WideToLong:
             for letter, num in product(self.letters, range(1, nyrs + 1))
         ]
         columns = [str(i) for i in range(nidvars)] + yrvars
-        self.df = DataFrame(np.random.randn(N, nidvars + len(yrvars)), columns=columns)
+        self.df = DataFrame(
+            np.random.randn(N, nidvars + len(yrvars)), columns=columns
+        )
         self.df["id"] = self.df.index
 
     def time_wide_to_long_big(self):
@@ -200,7 +207,11 @@ class PivotTable:
             }
         )
         self.df2 = DataFrame(
-            {"col1": list("abcde"), "col2": list("fghij"), "col3": [1, 2, 3, 4, 5]}
+            {
+                "col1": list("abcde"),
+                "col2": list("fghij"),
+                "col3": [1, 2, 3, 4, 5],
+            }
         )
         self.df2.col1 = self.df2.col1.astype("category")
         self.df2.col2 = self.df2.col2.astype("category")
@@ -214,11 +225,17 @@ class PivotTable:
         )
 
     def time_pivot_table_margins(self):
-        self.df.pivot_table(index="key1", columns=["key2", "key3"], margins=True)
+        self.df.pivot_table(
+            index="key1", columns=["key2", "key3"], margins=True
+        )
 
     def time_pivot_table_categorical(self):
         self.df2.pivot_table(
-            index="col1", values="col3", columns="col2", aggfunc="sum", fill_value=0
+            index="col1",
+            values="col3",
+            columns="col2",
+            aggfunc="sum",
+            fill_value=0,
         )
 
     def time_pivot_table_categorical_observed(self):
@@ -288,7 +305,9 @@ class Cut:
         self.datetime_series = pd.Series(
             np.random.randint(N, size=N), dtype="datetime64[ns]"
         )
-        self.interval_bins = pd.IntervalIndex.from_breaks(np.linspace(0, N, bins))
+        self.interval_bins = pd.IntervalIndex.from_breaks(
+            np.linspace(0, N, bins)
+        )
 
     def time_cut_int(self, bins):
         pd.cut(self.int_series, bins)
@@ -328,7 +347,10 @@ class Explode:
     params = [[100, 1000, 10000], [3, 5, 10]]
 
     def setup(self, n_rows, max_list_length):
-        data = [np.arange(np.random.randint(max_list_length)) for _ in range(n_rows)]
+        data = [
+            np.arange(np.random.randint(max_list_length))
+            for _ in range(n_rows)
+        ]
         self.series = pd.Series(data)
 
     def time_explode(self, n_rows, max_list_length):

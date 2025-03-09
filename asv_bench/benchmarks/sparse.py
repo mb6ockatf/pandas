@@ -98,7 +98,9 @@ class ToCooFrame:
         arr[0, 0] = 3.0
         arr[12, 7] = -1.0
         arr[0, 9] = 11.2
-        self.df = pd.DataFrame(arr, dtype=pd.SparseDtype("float", fill_value=0.0))
+        self.df = pd.DataFrame(
+            arr, dtype=pd.SparseDtype("float", fill_value=0.0)
+        )
 
     def time_to_coo(self):
         self.df.sparse.to_coo()
@@ -177,7 +179,10 @@ class MinMax:
 
 
 class Take:
-    params = ([np.array([0]), np.arange(100_000), np.full(100_000, -1)], [True, False])
+    params = (
+        [np.array([0]), np.arange(100_000), np.full(100_000, -1)],
+        [True, False],
+    )
     param_names = ["indices", "allow_fill"]
 
     def setup(self, indices, allow_fill):
@@ -215,10 +220,14 @@ class GetItemMask:
         self.sp_arr = SparseArray(arr)
         b_arr = np.full(shape=N, fill_value=fill_value, dtype=np.bool_)
         fv_inds = np.unique(
-            np.random.randint(low=0, high=N - 1, size=int(N * d), dtype=np.int32)
+            np.random.randint(
+                low=0, high=N - 1, size=int(N * d), dtype=np.int32
+            )
         )
         b_arr[fv_inds] = True if pd.isna(fill_value) else not fill_value
-        self.sp_b_arr = SparseArray(b_arr, dtype=np.bool_, fill_value=fill_value)
+        self.sp_b_arr = SparseArray(
+            b_arr, dtype=np.bool_, fill_value=fill_value
+        )
 
     def time_mask(self, fill_value):
         self.sp_arr[self.sp_b_arr]

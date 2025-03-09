@@ -24,7 +24,9 @@ class TestCategoricalIndex:
         """
         Fixture that provides a CategoricalIndex.
         """
-        return CategoricalIndex(list("aabbca"), categories=list("cab"), ordered=False)
+        return CategoricalIndex(
+            list("aabbca"), categories=list("cab"), ordered=False
+        )
 
     def test_can_hold_identifiers(self):
         idx = CategoricalIndex(list("aabbca"), categories=None, ordered=False)
@@ -210,11 +212,15 @@ class TestCategoricalIndex:
 
         # long format
         # this is not reprable
-        ci = CategoricalIndex(np.random.default_rng(2).integers(0, 5, size=100))
+        ci = CategoricalIndex(
+            np.random.default_rng(2).integers(0, 5, size=100)
+        )
         str(ci)
 
     def test_isin(self):
-        ci = CategoricalIndex(list("aabca") + [np.nan], categories=["c", "a", "b"])
+        ci = CategoricalIndex(
+            list("aabca") + [np.nan], categories=["c", "a", "b"]
+        )
         tm.assert_numpy_array_equal(
             ci.isin(["c"]), np.array([False, False, False, True, False, False])
         )
@@ -243,7 +249,9 @@ class TestCategoricalIndex:
 
     def test_identical(self):
         ci1 = CategoricalIndex(["a", "b"], categories=["a", "b"], ordered=True)
-        ci2 = CategoricalIndex(["a", "b"], categories=["a", "b", "c"], ordered=True)
+        ci2 = CategoricalIndex(
+            ["a", "b"], categories=["a", "b", "c"], ordered=True
+        )
         assert ci1.identical(ci1)
         assert ci1.identical(ci1.copy())
         assert not ci1.identical(ci2)
@@ -362,7 +370,9 @@ class TestCategoricalIndex2:
         result = ci.remove_categories(["c"])
         tm.assert_index_equal(
             result,
-            CategoricalIndex(list("aabb") + [np.nan] + ["a"], categories=list("ab")),
+            CategoricalIndex(
+                list("aabb") + [np.nan] + ["a"], categories=list("ab")
+            ),
         )
 
         ci = CategoricalIndex(list("aabbca"), categories=list("cabdef"))
@@ -373,7 +383,9 @@ class TestCategoricalIndex2:
         result = ci.as_ordered()
         tm.assert_index_equal(
             result,
-            CategoricalIndex(list("aabbca"), categories=list("cabdef"), ordered=True),
+            CategoricalIndex(
+                list("aabbca"), categories=list("cabdef"), ordered=True
+            ),
         )
 
         # invalid
@@ -386,13 +398,17 @@ class TestCategoricalIndex2:
         result = ci.reorder_categories(["d", "c", "b", "a"], ordered=True)
         tm.assert_index_equal(
             result,
-            CategoricalIndex(list("abcdda"), categories=list("dcba"), ordered=True),
+            CategoricalIndex(
+                list("abcdda"), categories=list("dcba"), ordered=True
+            ),
         )
         result = result.remove_categories(["c"])
         tm.assert_index_equal(
             result,
             CategoricalIndex(
-                ["a", "b", np.nan, "d", "d", "a"], categories=list("dba"), ordered=True
+                ["a", "b", np.nan, "d", "d", "a"],
+                categories=list("dba"),
+                ordered=True,
             ),
         )
 

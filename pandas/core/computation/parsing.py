@@ -44,7 +44,9 @@ def create_valid_python_identifier(name: str) -> str:
         for c in name
     )
     name = "".join(
-        c_escaped.replace("\\", "_UNICODE_" if c != c_escaped else "_BACKSLASH_")
+        c_escaped.replace(
+            "\\", "_UNICODE_" if c != c_escaped else "_BACKSLASH_"
+        )
         for c, c_escaped in gen
     )
 
@@ -70,11 +72,15 @@ def create_valid_python_identifier(name: str) -> str:
         }
     )
 
-    name = "".join([special_characters_replacements.get(char, char) for char in name])
+    name = "".join(
+        [special_characters_replacements.get(char, char) for char in name]
+    )
     name = f"BACKTICK_QUOTED_STRING_{name}"
 
     if not name.isidentifier():
-        raise SyntaxError(f"Could not convert '{name}' to a valid Python identifier.")
+        raise SyntaxError(
+            f"Could not convert '{name}' to a valid Python identifier."
+        )
 
     return name
 
@@ -161,7 +167,9 @@ def _split_by_backtick(s: str) -> list[tuple[bool, str]]:
         The second is the actual substring.
     """
     substrings = []
-    substr: list[str] = []  # Will join into a string before adding to `substrings`
+    substr: list[str] = (
+        []
+    )  # Will join into a string before adding to `substrings`
     i = 0
     parse_state = ParseState.DEFAULT
     while i < len(s):
@@ -202,14 +210,18 @@ def _split_by_backtick(s: str) -> list[tuple[bool, str]]:
                 if parse_state == ParseState.DEFAULT:
                     parse_state = ParseState.IN_SINGLE_QUOTE
                 # end of a single-quoted string
-                elif (parse_state == ParseState.IN_SINGLE_QUOTE) and (s[i - 1] != "\\"):
+                elif (parse_state == ParseState.IN_SINGLE_QUOTE) and (
+                    s[i - 1] != "\\"
+                ):
                     parse_state = ParseState.DEFAULT
             case '"':
                 # start of a double-quoted string
                 if parse_state == ParseState.DEFAULT:
                     parse_state = ParseState.IN_DOUBLE_QUOTE
                 # end of a double-quoted string
-                elif (parse_state == ParseState.IN_DOUBLE_QUOTE) and (s[i - 1] != "\\"):
+                elif (parse_state == ParseState.IN_DOUBLE_QUOTE) and (
+                    s[i - 1] != "\\"
+                ):
                     parse_state = ParseState.DEFAULT
         substr.append(char)
         i += 1

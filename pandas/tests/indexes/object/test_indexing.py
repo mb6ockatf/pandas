@@ -52,11 +52,14 @@ class TestGetIndexer:
         # is mangled
         if unique_nulls_fixture is unique_nulls_fixture2:
             return  # skip it, values are not unique
-        arr = np.array([unique_nulls_fixture, unique_nulls_fixture2], dtype=object)
+        arr = np.array(
+            [unique_nulls_fixture, unique_nulls_fixture2], dtype=object
+        )
         index = Index(arr, dtype=object)
         result = index.get_indexer(
             Index(
-                [unique_nulls_fixture, unique_nulls_fixture2, "Unknown"], dtype=object
+                [unique_nulls_fixture, unique_nulls_fixture2, "Unknown"],
+                dtype=object,
             )
         )
         expected = np.array([0, 1, -1], dtype=np.intp)
@@ -96,7 +99,9 @@ class TestGetIndexerNonUnique:
             index = Index(["a", float("NaN"), "b", float("NaN")], dtype=object)
             match_but_not_identical = True
         elif is_matching_na(nulls_fixture, Decimal("NaN")):
-            index = Index(["a", Decimal("NaN"), "b", Decimal("NaN")], dtype=object)
+            index = Index(
+                ["a", Decimal("NaN"), "b", Decimal("NaN")], dtype=object
+            )
             match_but_not_identical = True
         else:
             match_but_not_identical = False
@@ -109,14 +114,20 @@ class TestGetIndexerNonUnique:
             tm.assert_numpy_array_equal(missing, expected_missing)
 
     @pytest.mark.filterwarnings("ignore:elementwise comp:DeprecationWarning")
-    def test_get_indexer_non_unique_np_nats(self, np_nat_fixture, np_nat_fixture2):
+    def test_get_indexer_non_unique_np_nats(
+        self, np_nat_fixture, np_nat_fixture2
+    ):
         expected_missing = np.array([], dtype=np.intp)
         # matching-but-not-identical nats
         if is_matching_na(np_nat_fixture, np_nat_fixture2):
             # ensure nats are different objects
             index = Index(
                 np.array(
-                    ["2021-10-02", np_nat_fixture.copy(), np_nat_fixture2.copy()],
+                    [
+                        "2021-10-02",
+                        np_nat_fixture.copy(),
+                        np_nat_fixture2.copy(),
+                    ],
                     dtype=object,
                 ),
                 dtype=object,

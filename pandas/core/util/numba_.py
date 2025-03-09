@@ -29,7 +29,9 @@ def set_use_numba(enable: bool = False) -> None:
     GLOBAL_USE_NUMBA = enable
 
 
-def get_jit_arguments(engine_kwargs: dict[str, bool] | None = None) -> dict[str, bool]:
+def get_jit_arguments(
+    engine_kwargs: dict[str, bool] | None = None,
+) -> dict[str, bool]:
     """
     Return arguments to pass to numba.JIT, falling back on pandas default JIT settings.
 
@@ -127,7 +129,9 @@ def prepare_function_arguments(
 
     # the udf should have this pattern: def udf(arg1, arg2, ..., *args, **kwargs):...
     signature = inspect.signature(func)
-    arguments = signature.bind(*[_sentinel] * num_required_args, *args, **kwargs)
+    arguments = signature.bind(
+        *[_sentinel] * num_required_args, *args, **kwargs
+    )
     arguments.apply_defaults()
     # Ref: https://peps.python.org/pep-0362/
     # Arguments which could be passed as part of either *args or **kwargs

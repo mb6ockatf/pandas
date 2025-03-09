@@ -349,7 +349,9 @@ def test_fwf_comment(comment):
     colspecs = [(0, 3), (4, 9), (9, 25)]
     expected = DataFrame([[1, 2.0, 4], [5, np.nan, 10.0]])
 
-    result = read_fwf(StringIO(data), colspecs=colspecs, header=None, comment=comment)
+    result = read_fwf(
+        StringIO(data), colspecs=colspecs, header=None, comment=comment
+    )
     tm.assert_almost_equal(result, expected)
 
 
@@ -473,7 +475,9 @@ Account                 Name  Balance     CreditLimit   AccountCreated
 868     Jennifer Love Hewitt  0           17000.00           5/25/1985
 761     Jada Pinkett-Smith    49654.87    100000.00          12/5/2006
 317     Bill Murray           789.65      5000.00             2/5/2007
-""".strip("\r\n")
+""".strip(
+        "\r\n"
+    )
     colspecs = ((0, 7), (8, 28), (30, 38), (42, 53), (56, 70))
     expected = read_fwf(StringIO(test), colspecs=colspecs)
 
@@ -490,7 +494,9 @@ Account               Name    Balance     CreditLimit   AccountCreated
 868                                                          5/25/1985
 761     Jada Pinkett-Smith    49654.87    100000.00          12/5/2006
 317     Bill Murray           789.65
-""".strip("\r\n")
+""".strip(
+        "\r\n"
+    )
     colspecs = ((0, 7), (8, 28), (30, 38), (42, 53), (56, 70))
     expected = read_fwf(StringIO(test), colspecs=colspecs)
 
@@ -507,7 +513,9 @@ def test_messed_up_data():
 
        761     Jada Pinkett-Smith    49654.87    100000.00          12/5/2006
   317          Bill Murray           789.65
-""".strip("\r\n")
+""".strip(
+        "\r\n"
+    )
     colspecs = ((2, 10), (15, 33), (37, 45), (49, 61), (64, 79))
     expected = read_fwf(StringIO(test), colspecs=colspecs)
 
@@ -523,7 +531,9 @@ col1~~~~~col2  col3++++++++++++++++++col4
 ++44~~~~12.01   baz~~Jennifer Love Hewitt
 ~~55       11+++foo++++Jada Pinkett-Smith
 ..66++++++.03~~~bar           Bill Murray
-""".strip("\r\n")
+""".strip(
+        "\r\n"
+    )
     delimiter = " +~.\\"
     colspecs = ((0, 4), (7, 13), (15, 19), (21, 41))
     expected = read_fwf(StringIO(test), colspecs=colspecs, delimiter=delimiter)
@@ -537,7 +547,9 @@ def test_variable_width_unicode():
 שלום שלום
 ום   שלל
 של   ום
-""".strip("\r\n")
+""".strip(
+        "\r\n"
+    )
     encoding = "utf8"
     kwargs = {"header": None, "encoding": encoding}
 
@@ -548,7 +560,9 @@ def test_variable_width_unicode():
     tm.assert_frame_equal(result, expected)
 
 
-@pytest.mark.parametrize("dtype", [{}, {"a": "float64", "b": str, "c": "int32"}])
+@pytest.mark.parametrize(
+    "dtype", [{}, {"a": "float64", "b": str, "c": "int32"}]
+)
 def test_dtype(dtype):
     data = """ a    b    c
 1    2    3.2
@@ -621,7 +635,11 @@ def test_whitespace_preservation():
  a bbb
  ccdd """
     result = read_fwf(
-        StringIO(fwf_data), widths=[3, 3], header=header, skiprows=[0], delimiter="\n\t"
+        StringIO(fwf_data),
+        widths=[3, 3],
+        header=header,
+        skiprows=[0],
+        delimiter="\n\t",
     )
     expected = read_csv(StringIO(csv_data), header=header)
     tm.assert_frame_equal(result, expected)
@@ -636,7 +654,9 @@ cc,dd"""
     fwf_data = """
 a \tbbb
 cc\tdd """
-    result = read_fwf(StringIO(fwf_data), widths=[3, 3], header=header, skiprows=[0])
+    result = read_fwf(
+        StringIO(fwf_data), widths=[3, 3], header=header, skiprows=[0]
+    )
     expected = read_csv(StringIO(csv_data), header=header)
     tm.assert_frame_equal(result, expected)
 
@@ -851,7 +871,10 @@ def test_len_colspecs_len_names_with_index_col(
 def test_colspecs_with_comment():
     # GH 14135
     result = read_fwf(
-        StringIO("#\nA1K\n"), colspecs=[(1, 2), (2, 3)], comment="#", header=None
+        StringIO("#\nA1K\n"),
+        colspecs=[(1, 2), (2, 3)],
+        comment="#",
+        header=None,
     )
     expected = DataFrame([[1, "K"]], columns=[0, 1])
     tm.assert_frame_equal(result, expected)
@@ -907,7 +930,9 @@ def test_names_and_infer_colspecs():
     data = """X   Y   Z
       959.0    345   22.2
     """
-    result = read_fwf(StringIO(data), skiprows=1, usecols=[0, 2], names=["a", "b"])
+    result = read_fwf(
+        StringIO(data), skiprows=1, usecols=[0, 2], names=["a", "b"]
+    )
     expected = DataFrame({"a": [959.0], "b": 22.2})
     tm.assert_frame_equal(result, expected)
 
@@ -968,7 +993,9 @@ def test_dtype_backend(string_storage, dtype_backend):
 
         expected = DataFrame(
             {
-                col: ArrowExtensionArray(pa.array(expected[col], from_pandas=True))
+                col: ArrowExtensionArray(
+                    pa.array(expected[col], from_pandas=True)
+                )
                 for col in expected.columns
             }
         )

@@ -61,7 +61,11 @@ def _unpack_zerodim_and_defer(method: F, name: str) -> F:
 
     @wraps(method)
     def new_method(self, other):
-        if is_cmp and isinstance(self, ABCIndex) and isinstance(other, ABCSeries):
+        if (
+            is_cmp
+            and isinstance(self, ABCIndex)
+            and isinstance(other, ABCSeries)
+        ):
             # For comparison ops, Index does *not* defer to Series
             pass
         else:

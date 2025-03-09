@@ -61,7 +61,10 @@ class Convert:
         data = {
             "Series": pd.Series(np.random.randint(N, size=N)),
             "DataFrame": pd.DataFrame(
-                {"A": np.random.randint(N, size=N), "B": np.random.randint(N, size=N)}
+                {
+                    "A": np.random.randint(N, size=N),
+                    "B": np.random.randint(N, size=N),
+                }
             ),
         }
         self.to_replace = {i: getattr(pd, replace_data) for i in range(N)}

@@ -58,10 +58,18 @@ class TestSeriesConvertDtypes:
                 np.dtype("float"),
                 "Int64",
                 {
-                    ("convert_integer", False, "convert_floating", True): "Float64",
-                    ("convert_integer", False, "convert_floating", False): np.dtype(
-                        "float"
-                    ),
+                    (
+                        "convert_integer",
+                        False,
+                        "convert_floating",
+                        True,
+                    ): "Float64",
+                    (
+                        "convert_integer",
+                        False,
+                        "convert_floating",
+                        False,
+                    ): np.dtype("float"),
                 },
             ),
             (
@@ -106,9 +114,12 @@ class TestSeriesConvertDtypes:
                 "Int64",
                 {
                     ("convert_integer", False): "Float64",
-                    ("convert_integer", False, "convert_floating", False): np.dtype(
-                        "float"
-                    ),
+                    (
+                        "convert_integer",
+                        False,
+                        "convert_floating",
+                        False,
+                    ): np.dtype("float"),
                     ("infer_objects", False): np.dtype("object"),
                 },
             ),
@@ -123,37 +134,49 @@ class TestSeriesConvertDtypes:
             ),
             (["a", "b"], pd.CategoricalDtype(), pd.CategoricalDtype(), {}),
             (
-                pd.to_datetime(["2020-01-14 10:00", "2020-01-15 11:11"]).as_unit("s"),
+                pd.to_datetime(
+                    ["2020-01-14 10:00", "2020-01-15 11:11"]
+                ).as_unit("s"),
                 pd.DatetimeTZDtype(tz="UTC"),
                 pd.DatetimeTZDtype(tz="UTC"),
                 {},
             ),
             (
-                pd.to_datetime(["2020-01-14 10:00", "2020-01-15 11:11"]).as_unit("ms"),
+                pd.to_datetime(
+                    ["2020-01-14 10:00", "2020-01-15 11:11"]
+                ).as_unit("ms"),
                 pd.DatetimeTZDtype(tz="UTC"),
                 pd.DatetimeTZDtype(tz="UTC"),
                 {},
             ),
             (
-                pd.to_datetime(["2020-01-14 10:00", "2020-01-15 11:11"]).as_unit("us"),
+                pd.to_datetime(
+                    ["2020-01-14 10:00", "2020-01-15 11:11"]
+                ).as_unit("us"),
                 pd.DatetimeTZDtype(tz="UTC"),
                 pd.DatetimeTZDtype(tz="UTC"),
                 {},
             ),
             (
-                pd.to_datetime(["2020-01-14 10:00", "2020-01-15 11:11"]).as_unit("ns"),
+                pd.to_datetime(
+                    ["2020-01-14 10:00", "2020-01-15 11:11"]
+                ).as_unit("ns"),
                 pd.DatetimeTZDtype(tz="UTC"),
                 pd.DatetimeTZDtype(tz="UTC"),
                 {},
             ),
             (
-                pd.to_datetime(["2020-01-14 10:00", "2020-01-15 11:11"]).as_unit("ns"),
+                pd.to_datetime(
+                    ["2020-01-14 10:00", "2020-01-15 11:11"]
+                ).as_unit("ns"),
                 "datetime64[ns]",
                 np.dtype("datetime64[ns]"),
                 {},
             ),
             (
-                pd.to_datetime(["2020-01-14 10:00", "2020-01-15 11:11"]).as_unit("ns"),
+                pd.to_datetime(
+                    ["2020-01-14 10:00", "2020-01-15 11:11"]
+                ).as_unit("ns"),
                 object,
                 np.dtype("datetime64[ns]"),
                 {("infer_objects", False): np.dtype("object")},
@@ -165,7 +188,9 @@ class TestSeriesConvertDtypes:
                 {},
             ),
             (
-                pd.arrays.IntervalArray([pd.Interval(0, 1), pd.Interval(1, 5)]),
+                pd.arrays.IntervalArray(
+                    [pd.Interval(0, 1), pd.Interval(1, 5)]
+                ),
                 None,
                 pd.IntervalDtype("int64", "right"),
                 {},
@@ -211,7 +236,10 @@ class TestSeriesConvertDtypes:
 
         expected_dtype = expected_default
         for spec, dtype in expected_other.items():
-            if all(params_dict[key] is val for key, val in zip(spec[::2], spec[1::2])):
+            if all(
+                params_dict[key] is val
+                for key, val in zip(spec[::2], spec[1::2])
+            ):
                 expected_dtype = dtype
         if (
             using_infer_string
@@ -230,7 +258,9 @@ class TestSeriesConvertDtypes:
         # Test that it is a copy
         copy = series.copy(deep=True)
 
-        if result.notna().sum() > 0 and result.dtype in ["interval[int64, right]"]:
+        if result.notna().sum() > 0 and result.dtype in [
+            "interval[int64, right]"
+        ]:
             with pytest.raises(TypeError, match="Invalid value"):
                 result[result.notna()] = np.nan
         else:
@@ -243,7 +273,8 @@ class TestSeriesConvertDtypes:
         # https://github.com/pandas-dev/pandas/issues/31731 -> converting columns
         # that are already string dtype
         df = pd.DataFrame(
-            {"A": ["a", "b", pd.NA], "B": ["ä", "ö", "ü"]}, dtype=nullable_string_dtype
+            {"A": ["a", "b", pd.NA], "B": ["ä", "ö", "ü"]},
+            dtype=nullable_string_dtype,
         )
         result = df.convert_dtypes()
         tm.assert_frame_equal(df, result)

@@ -133,7 +133,9 @@ def assert_almost_equal(
                 # Do not compare bool classes, like np.bool_ and bool.
                 pass
             else:
-                if isinstance(left, np.ndarray) or isinstance(right, np.ndarray):
+                if isinstance(left, np.ndarray) or isinstance(
+                    right, np.ndarray
+                ):
                     obj = "numpy array"
                 else:
                     obj = "Input"
@@ -141,7 +143,12 @@ def assert_almost_equal(
 
         # if we have "equiv", this becomes True
         _testing.assert_almost_equal(
-            left, right, check_dtype=bool(check_dtype), rtol=rtol, atol=atol, **kwargs
+            left,
+            right,
+            check_dtype=bool(check_dtype),
+            rtol=rtol,
+            atol=atol,
+            **kwargs,
         )
 
 
@@ -251,7 +258,9 @@ def assert_index_equal(
         ):
             if check_categorical:
                 assert_attr_equal("dtype", left, right, obj=obj)
-                assert_index_equal(left.categories, right.categories, exact=exact)
+                assert_index_equal(
+                    left.categories, right.categories, exact=exact
+                )
             return
 
         assert_attr_equal("dtype", left, right, obj=obj)
@@ -356,7 +365,9 @@ def assert_index_equal(
         if isinstance(left.dtype, CategoricalDtype) or isinstance(
             right.dtype, CategoricalDtype
         ):
-            assert_categorical_equal(left._values, right._values, obj=f"{obj} category")
+            assert_categorical_equal(
+                left._values, right._values, obj=f"{obj} category"
+            )
 
 
 def assert_class_equal(
@@ -481,10 +492,16 @@ def assert_categorical_equal(
 
     if check_category_order:
         assert_index_equal(
-            left.categories, right.categories, obj=f"{obj}.categories", exact=exact
+            left.categories,
+            right.categories,
+            obj=f"{obj}.categories",
+            exact=exact,
         )
         assert_numpy_array_equal(
-            left.codes, right.codes, check_dtype=check_dtype, obj=f"{obj}.codes"
+            left.codes,
+            right.codes,
+            check_dtype=check_dtype,
+            obj=f"{obj}.codes",
         )
     else:
         try:
@@ -505,7 +522,10 @@ def assert_categorical_equal(
 
 
 def assert_interval_array_equal(
-    left, right, exact: bool | Literal["equiv"] = "equiv", obj: str = "IntervalArray"
+    left,
+    right,
+    exact: bool | Literal["equiv"] = "equiv",
+    obj: str = "IntervalArray",
 ) -> None:
     """
     Test that two IntervalArrays are equivalent.
@@ -538,7 +558,9 @@ def assert_interval_array_equal(
 def assert_period_array_equal(left, right, obj: str = "PeriodArray") -> None:
     _check_isinstance(left, right, PeriodArray)
 
-    assert_numpy_array_equal(left._ndarray, right._ndarray, obj=f"{obj}._ndarray")
+    assert_numpy_array_equal(
+        left._ndarray, right._ndarray, obj=f"{obj}._ndarray"
+    )
     assert_attr_equal("dtype", left, right, obj=obj)
 
 
@@ -548,7 +570,9 @@ def assert_datetime_array_equal(
     __tracebackhide__ = True
     _check_isinstance(left, right, DatetimeArray)
 
-    assert_numpy_array_equal(left._ndarray, right._ndarray, obj=f"{obj}._ndarray")
+    assert_numpy_array_equal(
+        left._ndarray, right._ndarray, obj=f"{obj}._ndarray"
+    )
     if check_freq:
         assert_attr_equal("freq", left, right, obj=obj)
     assert_attr_equal("tz", left, right, obj=obj)
@@ -559,7 +583,9 @@ def assert_timedelta_array_equal(
 ) -> None:
     __tracebackhide__ = True
     _check_isinstance(left, right, TimedeltaArray)
-    assert_numpy_array_equal(left._ndarray, right._ndarray, obj=f"{obj}._ndarray")
+    assert_numpy_array_equal(
+        left._ndarray, right._ndarray, obj=f"{obj}._ndarray"
+    )
     if check_freq:
         assert_attr_equal("freq", left, right, obj=obj)
 
@@ -593,7 +619,9 @@ def raise_assert_detail(
     elif isinstance(right, (CategoricalDtype, NumpyEADtype)):
         right = repr(right)
     elif isinstance(right, StringDtype):
-        right = f"StringDtype(storage={right.storage}, na_value={right.na_value})"
+        right = (
+            f"StringDtype(storage={right.storage}, na_value={right.na_value})"
+        )
 
     msg += f"""
 [left]:  {left}
@@ -670,12 +698,16 @@ def assert_numpy_array_equal(
             diff = 0
             for left_arr, right_arr in zip(left, right):
                 # count up differences
-                if not array_equivalent(left_arr, right_arr, strict_nan=strict_nan):
+                if not array_equivalent(
+                    left_arr, right_arr, strict_nan=strict_nan
+                ):
                     diff += 1
 
             diff = diff * 100.0 / left.size
             msg = f"{obj} values are different ({np.round(diff, 5)} %)"
-            raise_assert_detail(obj, msg, left, right, index_values=index_values)
+            raise_assert_detail(
+                obj, msg, left, right, index_values=index_values
+            )
 
         raise AssertionError(err_msg)
 
@@ -756,7 +788,9 @@ def assert_extension_array_equal(
     ):
         check_exact = (
             is_numeric_dtype(left.dtype) and not is_float_dtype(left.dtype)
-        ) or (is_numeric_dtype(right.dtype) and not is_float_dtype(right.dtype))
+        ) or (
+            is_numeric_dtype(right.dtype) and not is_float_dtype(right.dtype)
+        )
     elif check_exact is lib.no_default:
         check_exact = False
 
@@ -942,12 +976,18 @@ def assert_series_equal(
     ):
         check_exact = (
             is_numeric_dtype(left.dtype) and not is_float_dtype(left.dtype)
-        ) or (is_numeric_dtype(right.dtype) and not is_float_dtype(right.dtype))
+        ) or (
+            is_numeric_dtype(right.dtype) and not is_float_dtype(right.dtype)
+        )
         left_index_dtypes = (
-            [left.index.dtype] if left.index.nlevels == 1 else left.index.dtypes
+            [left.index.dtype]
+            if left.index.nlevels == 1
+            else left.index.dtypes
         )
         right_index_dtypes = (
-            [right.index.dtype] if right.index.nlevels == 1 else right.index.dtypes
+            [right.index.dtype]
+            if right.index.nlevels == 1
+            else right.index.dtypes
         )
         check_exact_index = all(
             dtype.kind in "iu" for dtype in left_index_dtypes
@@ -1087,7 +1127,9 @@ def assert_series_equal(
         )
     elif is_extension_array_dtype_and_needs_i8_conversion(
         left.dtype, right.dtype
-    ) or is_extension_array_dtype_and_needs_i8_conversion(right.dtype, left.dtype):
+    ) or is_extension_array_dtype_and_needs_i8_conversion(
+        right.dtype, left.dtype
+    ):
         assert_extension_array_equal(
             left._values,
             right._values,
@@ -1305,7 +1347,10 @@ def assert_frame_equal(
             assert dtype in lblocks
             assert dtype in rblocks
             assert_frame_equal(
-                lblocks[dtype], rblocks[dtype], check_dtype=check_dtype, obj=obj
+                lblocks[dtype],
+                rblocks[dtype],
+                check_dtype=check_dtype,
+                obj=obj,
             )
 
     # compare by columns
@@ -1448,10 +1493,14 @@ def is_extension_array_dtype_and_needs_i8_conversion(
 
     Related to issue #37609
     """
-    return isinstance(left_dtype, ExtensionDtype) and needs_i8_conversion(right_dtype)
+    return isinstance(left_dtype, ExtensionDtype) and needs_i8_conversion(
+        right_dtype
+    )
 
 
-def assert_indexing_slices_equivalent(ser: Series, l_slc: slice, i_slc: slice) -> None:
+def assert_indexing_slices_equivalent(
+    ser: Series, l_slc: slice, i_slc: slice
+) -> None:
     """
     Check that ser.iloc[i_slc] matches ser.loc[l_slc] and, if applicable,
     ser[l_slc].

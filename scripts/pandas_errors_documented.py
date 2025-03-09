@@ -6,6 +6,7 @@ This is meant to be run as a pre-commit hook - to run it manually, you can do:
 
     pre-commit run pandas-errors-documented --all-files
 """
+
 from __future__ import annotations
 
 import argparse
@@ -39,7 +40,9 @@ def main(argv: Sequence[str] | None = None) -> None:
         file_errors = get_defined_errors(f.read())
     with open(API_PATH, encoding="utf-8") as f:
         doc_errors = {
-            line.split(".")[1].strip() for line in f.readlines() if "errors" in line
+            line.split(".")[1].strip()
+            for line in f.readlines()
+            if "errors" in line
         }
     missing = file_errors.difference(doc_errors)
     if missing:

@@ -91,7 +91,11 @@ class TestSeriesMisc:
         dir_s = dir(s)
         for i, x in enumerate(s.index.unique(level=0)):
             if i < 100:
-                assert not isinstance(x, str) or not x.isidentifier() or x in dir_s
+                assert (
+                    not isinstance(x, str)
+                    or not x.isidentifier()
+                    or x in dir_s
+                )
             else:
                 assert x not in dir_s
 

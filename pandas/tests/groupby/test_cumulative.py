@@ -14,7 +14,14 @@ import pandas._testing as tm
 
 @pytest.fixture(
     params=[np.int32, np.int64, np.float32, np.float64, "Int64", "Float64"],
-    ids=["np.int32", "np.int64", "np.float32", "np.float64", "Int64", "Float64"],
+    ids=[
+        "np.int32",
+        "np.int64",
+        "np.float32",
+        "np.float64",
+        "Int64",
+        "Float64",
+    ],
 )
 def dtypes_for_minmax(request):
     """
@@ -48,14 +55,18 @@ def test_groupby_cumprod():
     df = DataFrame({"key": ["b"] * 10, "value": 2})
 
     actual = df.groupby("key")["value"].cumprod()
-    expected = df.groupby("key", group_keys=False)["value"].apply(lambda x: x.cumprod())
+    expected = df.groupby("key", group_keys=False)["value"].apply(
+        lambda x: x.cumprod()
+    )
     expected.name = "value"
     tm.assert_series_equal(actual, expected)
 
     df = DataFrame({"key": ["b"] * 100, "value": 2})
     df["value"] = df["value"].astype(float)
     actual = df.groupby("key")["value"].cumprod()
-    expected = df.groupby("key", group_keys=False)["value"].apply(lambda x: x.cumprod())
+    expected = df.groupby("key", group_keys=False)["value"].apply(
+        lambda x: x.cumprod()
+    )
     expected.name = "value"
     tm.assert_series_equal(actual, expected)
 
@@ -96,14 +107,20 @@ def test_cummin(dtypes_for_minmax):
     dtype = dtypes_for_minmax[0]
 
     # GH 15048
-    base_df = DataFrame({"A": [1, 1, 1, 1, 2, 2, 2, 2], "B": [3, 4, 3, 2, 2, 3, 2, 1]})
+    base_df = DataFrame(
+        {"A": [1, 1, 1, 1, 2, 2, 2, 2], "B": [3, 4, 3, 2, 2, 3, 2, 1]}
+    )
     expected_mins = [3, 3, 3, 2, 2, 2, 2, 1]
 
     df = base_df.astype(dtype)
     expected = DataFrame({"B": expected_mins}).astype(dtype)
     result = df.groupby("A").cummin()
     tm.assert_frame_equal(result, expected)
-    result = df.groupby("A", group_keys=False).B.apply(lambda x: x.cummin()).to_frame()
+    result = (
+        df.groupby("A", group_keys=False)
+        .B.apply(lambda x: x.cummin())
+        .to_frame()
+    )
     tm.assert_frame_equal(result, expected)
 
 
@@ -112,7 +129,9 @@ def test_cummin_min_value_for_dtype(dtypes_for_minmax):
     min_val = dtypes_for_minmax[1]
 
     # GH 15048
-    base_df = DataFrame({"A": [1, 1, 1, 1, 2, 2, 2, 2], "B": [3, 4, 3, 2, 2, 3, 2, 1]})
+    base_df = DataFrame(
+        {"A": [1, 1, 1, 1, 2, 2, 2, 2], "B": [3, 4, 3, 2, 2, 3, 2, 1]}
+    )
     expected_mins = [3, 3, 3, 2, 2, 2, 2, 1]
     expected = DataFrame({"B": expected_mins}).astype(dtype)
     df = base_df.astype(dtype)
@@ -123,21 +142,27 @@ def test_cummin_min_value_for_dtype(dtypes_for_minmax):
     result = df.groupby("A").cummin()
     tm.assert_frame_equal(result, expected, check_exact=True)
     expected = (
-        df.groupby("A", group_keys=False).B.apply(lambda x: x.cummin()).to_frame()
+        df.groupby("A", group_keys=False)
+        .B.apply(lambda x: x.cummin())
+        .to_frame()
     )
     tm.assert_frame_equal(result, expected, check_exact=True)
 
 
 def test_cummin_nan_in_some_values(dtypes_for_minmax):
     # Explicit cast to float to avoid implicit cast when setting nan
-    base_df = DataFrame({"A": [1, 1, 1, 1, 2, 2, 2, 2], "B": [3, 4, 3, 2, 2, 3, 2, 1]})
+    base_df = DataFrame(
+        {"A": [1, 1, 1, 1, 2, 2, 2, 2], "B": [3, 4, 3, 2, 2, 3, 2, 1]}
+    )
     base_df = base_df.astype({"B": "float"})
     base_df.loc[[0, 2, 4, 6], "B"] = np.nan
     expected = DataFrame({"B": [np.nan, 4, np.nan, 2, np.nan, 3, np.nan, 1]})
     result = base_df.groupby("A").cummin()
     tm.assert_frame_equal(result, expected)
     expected = (
-        base_df.groupby("A", group_keys=False).B.apply(lambda x: x.cummin()).to_frame()
+        base_df.groupby("A", group_keys=False)
+        .B.apply(lambda x: x.cummin())
+        .to_frame()
     )
     tm.assert_frame_equal(result, expected)
 
@@ -160,7 +185,9 @@ def test_cummin_getattr_series():
 
 
 @pytest.mark.parametrize("method", ["cummin", "cummax"])
-@pytest.mark.parametrize("dtype", ["UInt64", "Int64", "Float64", "float", "boolean"])
+@pytest.mark.parametrize(
+    "dtype", ["UInt64", "Int64", "Float64", "float", "boolean"]
+)
 def test_cummin_max_all_nan_column(method, dtype):
     base_df = DataFrame({"A": [1, 1, 1, 1, 2, 2, 2, 2], "B": [np.nan] * 8})
     base_df["B"] = base_df["B"].astype(dtype)
@@ -178,7 +205,9 @@ def test_cummax(dtypes_for_minmax):
     dtype = dtypes_for_minmax[0]
 
     # GH 15048
-    base_df = DataFrame({"A": [1, 1, 1, 1, 2, 2, 2, 2], "B": [3, 4, 3, 2, 2, 3, 2, 1]})
+    base_df = DataFrame(
+        {"A": [1, 1, 1, 1, 2, 2, 2, 2], "B": [3, 4, 3, 2, 2, 3, 2, 1]}
+    )
     expected_maxs = [3, 4, 4, 4, 2, 3, 3, 3]
 
     df = base_df.astype(dtype)
@@ -186,7 +215,11 @@ def test_cummax(dtypes_for_minmax):
     expected = DataFrame({"B": expected_maxs}).astype(dtype)
     result = df.groupby("A").cummax()
     tm.assert_frame_equal(result, expected)
-    result = df.groupby("A", group_keys=False).B.apply(lambda x: x.cummax()).to_frame()
+    result = (
+        df.groupby("A", group_keys=False)
+        .B.apply(lambda x: x.cummax())
+        .to_frame()
+    )
     tm.assert_frame_equal(result, expected)
 
 
@@ -195,7 +228,9 @@ def test_cummax_min_value_for_dtype(dtypes_for_minmax):
     max_val = dtypes_for_minmax[2]
 
     # GH 15048
-    base_df = DataFrame({"A": [1, 1, 1, 1, 2, 2, 2, 2], "B": [3, 4, 3, 2, 2, 3, 2, 1]})
+    base_df = DataFrame(
+        {"A": [1, 1, 1, 1, 2, 2, 2, 2], "B": [3, 4, 3, 2, 2, 3, 2, 1]}
+    )
     expected_maxs = [3, 4, 4, 4, 2, 3, 3, 3]
 
     df = base_df.astype(dtype)
@@ -205,7 +240,9 @@ def test_cummax_min_value_for_dtype(dtypes_for_minmax):
     result = df.groupby("A").cummax()
     tm.assert_frame_equal(result, expected)
     expected = (
-        df.groupby("A", group_keys=False).B.apply(lambda x: x.cummax()).to_frame()
+        df.groupby("A", group_keys=False)
+        .B.apply(lambda x: x.cummax())
+        .to_frame()
     )
     tm.assert_frame_equal(result, expected)
 
@@ -213,14 +250,18 @@ def test_cummax_min_value_for_dtype(dtypes_for_minmax):
 def test_cummax_nan_in_some_values(dtypes_for_minmax):
     # Test nan in some values
     # Explicit cast to float to avoid implicit cast when setting nan
-    base_df = DataFrame({"A": [1, 1, 1, 1, 2, 2, 2, 2], "B": [3, 4, 3, 2, 2, 3, 2, 1]})
+    base_df = DataFrame(
+        {"A": [1, 1, 1, 1, 2, 2, 2, 2], "B": [3, 4, 3, 2, 2, 3, 2, 1]}
+    )
     base_df = base_df.astype({"B": "float"})
     base_df.loc[[0, 2, 4, 6], "B"] = np.nan
     expected = DataFrame({"B": [np.nan, 4, np.nan, 4, np.nan, 3, np.nan, 3]})
     result = base_df.groupby("A").cummax()
     tm.assert_frame_equal(result, expected)
     expected = (
-        base_df.groupby("A", group_keys=False).B.apply(lambda x: x.cummax()).to_frame()
+        base_df.groupby("A", group_keys=False)
+        .B.apply(lambda x: x.cummax())
+        .to_frame()
     )
     tm.assert_frame_equal(result, expected)
 
@@ -326,7 +367,11 @@ def test_cython_api2(as_index):
 
     # cumsum (GH5614)
     # GH 5755 - cumsum is a transformer and should ignore as_index
-    df = DataFrame([[1, 2, np.nan], [1, np.nan, 9], [3, 4, 9]], columns=["A", "B", "C"])
-    expected = DataFrame([[2, np.nan], [np.nan, 9], [4, 9]], columns=["B", "C"])
+    df = DataFrame(
+        [[1, 2, np.nan], [1, np.nan, 9], [3, 4, 9]], columns=["A", "B", "C"]
+    )
+    expected = DataFrame(
+        [[2, np.nan], [np.nan, 9], [4, 9]], columns=["B", "C"]
+    )
     result = df.groupby("A", as_index=as_index).cumsum()
     tm.assert_frame_equal(result, expected)

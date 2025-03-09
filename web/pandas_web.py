@@ -101,7 +101,8 @@ class Preprocessors:
         # posts from the file system
         if context["blog"]["posts_path"]:
             posts_path = os.path.join(
-                context["source_path"], *context["blog"]["posts_path"].split("/")
+                context["source_path"],
+                *context["blog"]["posts_path"].split("/"),
             )
             for fname in os.listdir(posts_path):
                 if fname.startswith("index."):
@@ -113,7 +114,9 @@ class Preprocessors:
                 md = markdown.Markdown(
                     extensions=context["main"]["markdown_extensions"]
                 )
-                with open(os.path.join(posts_path, fname), encoding="utf-8") as f:
+                with open(
+                    os.path.join(posts_path, fname), encoding="utf-8"
+                ) as f:
                     html = md.convert(f.read())
                 title = md.Meta["title"][0]
                 summary = re.sub(tag_expr, "", html)
@@ -171,11 +174,14 @@ class Preprocessors:
             context["maintainers"]["inactive"]
         )
         if repeated:
-            raise ValueError(f"Maintainers {repeated} are both active and inactive")
+            raise ValueError(
+                f"Maintainers {repeated} are both active and inactive"
+            )
 
         maintainers_info = {}
         for user in (
-            context["maintainers"]["active"] + context["maintainers"]["inactive"]
+            context["maintainers"]["active"]
+            + context["maintainers"]["inactive"]
         ):
             resp = requests.get(
                 f"https://api.github.com/users/{user}",
@@ -189,7 +195,8 @@ class Preprocessors:
                 # if we exceed github api quota, we use the github info
                 # of maintainers saved with the website
                 resp_bkp = requests.get(
-                    context["main"]["production_url"] + "maintainers.json", timeout=5
+                    context["main"]["production_url"] + "maintainers.json",
+                    timeout=5,
                 )
                 resp_bkp.raise_for_status()
                 maintainers_info = resp_bkp.json()
@@ -222,7 +229,9 @@ class Preprocessors:
             timeout=5,
         )
         if resp.status_code == 403:
-            sys.stderr.write("WARN: GitHub API quota exceeded when fetching releases\n")
+            sys.stderr.write(
+                "WARN: GitHub API quota exceeded when fetching releases\n"
+            )
             resp_bkp = requests.get(
                 context["main"]["production_url"] + "releases.json", timeout=5
             )
@@ -248,7 +257,9 @@ class Preprocessors:
             context["releases"].append(
                 {
                     "name": release["tag_name"].lstrip("v"),
-                    "parsed_version": version.parse(release["tag_name"].lstrip("v")),
+                    "parsed_version": version.parse(
+                        release["tag_name"].lstrip("v")
+                    ),
                     "tag": release["tag_name"],
                     "published": published,
                     "url": (
@@ -261,14 +272,19 @@ class Preprocessors:
         # sorting out obsolete versions
         grouped_releases = itertools.groupby(
             context["releases"],
-            key=lambda r: (r["parsed_version"].major, r["parsed_version"].minor),
+            key=lambda r: (
+                r["parsed_version"].major,
+                r["parsed_version"].minor,
+            ),
         )
         context["releases"] = [
             max(release_group, key=lambda r: r["parsed_version"].minor)
             for _, release_group in grouped_releases
         ]
         # sorting releases by version number
-        context["releases"].sort(key=lambda r: r["parsed_version"], reverse=True)
+        context["releases"].sort(
+            key=lambda r: r["parsed_version"], reverse=True
+        )
         return context
 
     @staticmethod
@@ -291,7 +307,8 @@ class Preprocessors:
 
         # accepted, rejected and implemented
         pdeps_path = (
-            pathlib.Path(context["source_path"]) / context["roadmap"]["pdeps_path"]
+            pathlib.Path(context["source_path"])
+            / context["roadmap"]["pdeps_path"]
         )
         for pdep in sorted(pdeps_path.iterdir()):
             if pdep.suffix != ".md":
@@ -325,7 +342,9 @@ class Preprocessors:
             timeout=5,
         )
         if resp.status_code == 403:
-            sys.stderr.write("WARN: GitHub API quota exceeded when fetching pdeps\n")
+            sys.stderr.write(
+                "WARN: GitHub API quota exceeded when fetching pdeps\n"
+            )
             resp_bkp = requests.get(
                 context["main"]["production_url"] + "pdeps.json", timeout=5
             )
@@ -336,7 +355,9 @@ class Preprocessors:
             pdeps = resp.json()
 
         with open(
-            pathlib.Path(context["target_path"]) / "pdeps.json", "w", encoding="utf-8"
+            pathlib.Path(context["target_path"]) / "pdeps.json",
+            "w",
+            encoding="utf-8",
         ) as f:
             json.dump(pdeps, f)
 
@@ -450,8 +471,12 @@ def main(
     context = get_context(config_fname, target_path=target_path)
     sys.stderr.write("Context generated\n")
 
-    templates_path = os.path.join(source_path, context["main"]["templates_path"])
-    jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(templates_path))
+    templates_path = os.path.join(
+        source_path, context["main"]["templates_path"]
+    )
+    jinja_env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(templates_path)
+    )
 
     for fname in get_source_files(source_path):
         if os.path.normpath(fname) in context["main"]["ignore"]:
@@ -471,9 +496,15 @@ def main(
                 )
                 # Apply Bootstrap's table formatting manually
                 # Python-Markdown doesn't let us config table attributes by hand
-                body = body.replace("<table>", '<table class="table table-bordered">')
-                content = extend_base_template(body, context["main"]["base_template"])
-            context["base_url"] = "".join(["../"] * os.path.normpath(fname).count("/"))
+                body = body.replace(
+                    "<table>", '<table class="table table-bordered">'
+                )
+                content = extend_base_template(
+                    body, context["main"]["base_template"]
+                )
+            context["base_url"] = "".join(
+                ["../"] * os.path.normpath(fname).count("/")
+            )
             content = jinja_env.from_string(content).render(**context)
             fname_html = os.path.splitext(fname)[0] + ".html"
             with open(
@@ -482,17 +513,21 @@ def main(
                 f.write(content)
         else:
             shutil.copy(
-                os.path.join(source_path, fname), os.path.join(target_path, dirname)
+                os.path.join(source_path, fname),
+                os.path.join(target_path, dirname),
             )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Documentation builder.")
     parser.add_argument(
-        "source_path", help="path to the source directory (must contain config.yml)"
+        "source_path",
+        help="path to the source directory (must contain config.yml)",
     )
     parser.add_argument(
-        "--target-path", default="build", help="directory where to write the output"
+        "--target-path",
+        default="build",
+        help="directory where to write the output",
     )
     args = parser.parse_args()
     sys.exit(main(args.source_path, args.target_path))

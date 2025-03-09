@@ -174,7 +174,11 @@ def _ensure_term(where, scope_level: int):
     level = scope_level + 1
     if isinstance(where, (list, tuple)):
         where = [
-            Term(term, scope_level=level + 1) if maybe_expression(term) else term
+            (
+                Term(term, scope_level=level + 1)
+                if maybe_expression(term)
+                else term
+            )
             for term in where
             if term is not None
         ]
@@ -217,7 +221,9 @@ format_doc: Final = """
 """
 
 with config.config_prefix("io.hdf"):
-    config.register_option("dropna_table", False, dropna_doc, validator=config.is_bool)
+    config.register_option(
+        "dropna_table", False, dropna_doc, validator=config.is_bool
+    )
     config.register_option(
         "default_format",
         None,
@@ -684,7 +690,8 @@ class HDFStore:
         elif include == "native":
             assert self._handle is not None  # mypy
             return [
-                n._v_pathname for n in self._handle.walk_nodes("/", classname="Table")
+                n._v_pathname
+                for n in self._handle.walk_nodes("/", classname="Table")
             ]
         raise ValueError(
             f"`include` should be either 'pandas' or 'native' but is '{include}'"
@@ -900,7 +907,9 @@ class HDFStore:
 
         # function to call on iteration
         def func(_start, _stop, _where):
-            return s.read(start=_start, stop=_stop, where=_where, columns=columns)
+            return s.read(
+                start=_start, stop=_stop, where=_where, columns=columns
+            )
 
         # create the iterator
         it = TableIterator(
@@ -1075,7 +1084,9 @@ class HDFStore:
             if nrows is None:
                 nrows = t.nrows
             elif t.nrows != nrows:
-                raise ValueError("all tables must have exactly the same nrows!")
+                raise ValueError(
+                    "all tables must have exactly the same nrows!"
+                )
 
         # The isinstance checks here are redundant with the check above,
         #  but necessary for mypy; see GH#29757
@@ -1093,7 +1104,9 @@ class HDFStore:
             ]
 
             # concat and return
-            return concat(objs, axis=axis, verify_integrity=False)._consolidate()
+            return concat(
+                objs, axis=axis, verify_integrity=False
+            )._consolidate()
 
         # create the iterator
         it = TableIterator(
@@ -1215,7 +1228,9 @@ class HDFStore:
             dropna=dropna,
         )
 
-    def remove(self, key: str, where=None, start=None, stop=None) -> int | None:
+    def remove(
+        self, key: str, where=None, start=None, stop=None
+    ) -> int | None:
         """
         Remove pandas object partially by specifying the where condition
 
@@ -1267,7 +1282,9 @@ class HDFStore:
 
         # delete from the table
         if not s.is_table:
-            raise ValueError("can only remove with where on objects written as tables")
+            raise ValueError(
+                "can only remove with where on objects written as tables"
+            )
         return s.delete(where=where, start=start, stop=stop)
 
     def append(
@@ -1489,11 +1506,17 @@ class HDFStore:
             val = value.reindex(v, axis=axis)
 
             filtered = (
-                {key: value for (key, value) in min_itemsize.items() if key in v}
+                {
+                    key: value
+                    for (key, value) in min_itemsize.items()
+                    if key in v
+                }
                 if min_itemsize is not None
                 else None
             )
-            self.append(k, val, data_columns=dc, min_itemsize=filtered, **kwargs)
+            self.append(
+                k, val, data_columns=dc, min_itemsize=filtered, **kwargs
+            )
 
     def create_table_index(
         self,
@@ -1532,7 +1555,9 @@ class HDFStore:
             return
 
         if not isinstance(s, Table):
-            raise TypeError("cannot create table index on a Fixed format store")
+            raise TypeError(
+                "cannot create table index on a Fixed format store"
+            )
         s.create_index(columns=columns, optlevel=optlevel, kind=kind)
 
     def groups(self) -> list:
@@ -1573,12 +1598,17 @@ class HDFStore:
                 and (
                     getattr(g._v_attrs, "pandas_type", None)
                     or getattr(g, "table", None)
-                    or (isinstance(g, _table_mod.table.Table) and g._v_name != "table")
+                    or (
+                        isinstance(g, _table_mod.table.Table)
+                        and g._v_name != "table"
+                    )
                 )
             )
         ]
 
-    def walk(self, where: str = "/") -> Iterator[tuple[str, list[str], list[str]]]:
+    def walk(
+        self, where: str = "/"
+    ) -> Iterator[tuple[str, list[str], list[str]]]:
         """
         Walk the pytables group hierarchy for pandas objects.
 
@@ -1697,7 +1727,11 @@ class HDFStore:
         open file handle of the new store
         """
         new_store = HDFStore(
-            file, mode=mode, complib=complib, complevel=complevel, fletcher32=fletcher32
+            file,
+            mode=mode,
+            complib=complib,
+            complevel=complevel,
+            fletcher32=fletcher32,
         )
         if keys is None:
             keys = list(self.keys())
@@ -1769,7 +1803,9 @@ class HDFStore:
                         s = self.get_storer(k)
                         if s is not None:
                             keys.append(pprint_thing(s.pathname or k))
-                            values.append(pprint_thing(s or "invalid_HDFStore node"))
+                            values.append(
+                                pprint_thing(s or "invalid_HDFStore node")
+                            )
                     except AssertionError:
                         # surface any assertion errors for e.g. debugging
                         raise
@@ -1799,7 +1835,9 @@ class HDFStore:
         try:
             format = _FORMAT_MAP[format.lower()]
         except KeyError as err:
-            raise TypeError(f"invalid HDFStore format specified [{format}]") from err
+            raise TypeError(
+                f"invalid HDFStore format specified [{format}]"
+            ) from err
 
         return format
 
@@ -1922,11 +1960,15 @@ class HDFStore:
 
         group = self._identify_group(key, append)
 
-        s = self._create_storer(group, format, value, encoding=encoding, errors=errors)
+        s = self._create_storer(
+            group, format, value, encoding=encoding, errors=errors
+        )
         if append:
             # raise if we are trying to append to a Fixed format,
             #       or a table that exists (and we are putting)
-            if not s.is_table or (s.is_table and format == "fixed" and s.is_exists):
+            if not s.is_table or (
+                s.is_table and format == "fixed" and s.is_exists
+            ):
                 raise ValueError("Can only append to Tables")
             if not s.is_exists:
                 s.set_object_info()
@@ -1934,7 +1976,9 @@ class HDFStore:
             s.set_object_info()
 
         if not s.is_table and complib:
-            raise ValueError("Compression not supported on Fixed format stores")
+            raise ValueError(
+                "Compression not supported on Fixed format stores"
+            )
 
         # write the object
         s.write(
@@ -2091,7 +2135,9 @@ class TableIterator:
         #  return the actual iterator
         if self.chunksize is not None:
             if not isinstance(self.s, Table):
-                raise TypeError("can only use an iterator or chunksize on a table")
+                raise TypeError(
+                    "can only use an iterator or chunksize on a table"
+                )
 
             self.coordinates = self.s.read_coordinates(where=self.where)
 
@@ -2191,12 +2237,17 @@ class IndexCol:
 
     def __repr__(self) -> str:
         temp = tuple(
-            map(pprint_thing, (self.name, self.cname, self.axis, self.pos, self.kind))
+            map(
+                pprint_thing,
+                (self.name, self.cname, self.axis, self.pos, self.kind),
+            )
         )
         return ",".join(
             [
                 f"{key}->{value}"
-                for key, value in zip(["name", "cname", "axis", "pos", "kind"], temp)
+                for key, value in zip(
+                    ["name", "cname", "axis", "pos", "kind"], temp
+                )
             ]
         )
 
@@ -2252,7 +2303,9 @@ class IndexCol:
             # "Union[Type[Index], Type[DatetimeIndex]]")
             factory = lambda x, **kwds: PeriodIndex.from_ordinals(  # type: ignore[assignment]
                 x, freq=kwds.get("freq", None)
-            )._rename(kwds["name"])
+            )._rename(
+                kwds["name"]
+            )
 
         # making an Index instance could throw a number of different errors
         try:
@@ -2266,7 +2319,9 @@ class IndexCol:
 
         final_pd_index: Index
         if self.tz is not None and isinstance(new_pd_index, DatetimeIndex):
-            final_pd_index = new_pd_index.tz_localize("UTC").tz_convert(self.tz)
+            final_pd_index = new_pd_index.tz_localize("UTC").tz_convert(
+                self.tz
+            )
         else:
             final_pd_index = new_pd_index
         return final_pd_index, final_pd_index
@@ -2307,7 +2362,9 @@ class IndexCol:
                 min_itemsize = min_itemsize.get(self.name)
 
             if min_itemsize is not None and self.typ.itemsize < min_itemsize:
-                self.typ = _tables().StringCol(itemsize=min_itemsize, pos=self.pos)
+                self.typ = _tables().StringCol(
+                    itemsize=min_itemsize, pos=self.pos
+                )
 
     def validate_names(self) -> None:
         pass
@@ -2363,7 +2420,9 @@ class IndexCol:
                 if key in ["freq", "index_name"]:
                     ws = attribute_conflict_doc % (key, existing_value, value)
                     warnings.warn(
-                        ws, AttributeConflictWarning, stacklevel=find_stack_level()
+                        ws,
+                        AttributeConflictWarning,
+                        stacklevel=find_stack_level(),
                     )
 
                     # reset
@@ -2398,7 +2457,10 @@ class IndexCol:
                 new_metadata is not None
                 and cur_metadata is not None
                 and not array_equivalent(
-                    new_metadata, cur_metadata, strict_nan=True, dtype_equal=True
+                    new_metadata,
+                    cur_metadata,
+                    strict_nan=True,
+                    dtype_equal=True,
                 )
             ):
                 raise ValueError(
@@ -2501,13 +2563,16 @@ class DataCol(IndexCol):
     def __repr__(self) -> str:
         temp = tuple(
             map(
-                pprint_thing, (self.name, self.cname, self.dtype, self.kind, self.shape)
+                pprint_thing,
+                (self.name, self.cname, self.dtype, self.kind, self.shape),
             )
         )
         return ",".join(
             [
                 f"{key}->{value}"
-                for key, value in zip(["name", "cname", "dtype", "kind", "shape"], temp)
+                for key, value in zip(
+                    ["name", "cname", "dtype", "kind", "shape"], temp
+                )
             ]
         )
 
@@ -2608,8 +2673,12 @@ class DataCol(IndexCol):
         """validate that we have the same order as the existing & same dtype"""
         if append:
             existing_fields = getattr(self.attrs, self.kind_attr, None)
-            if existing_fields is not None and existing_fields != list(self.values):
-                raise ValueError("appended items do not match existing items in table!")
+            if existing_fields is not None and existing_fields != list(
+                self.values
+            ):
+                raise ValueError(
+                    "appended items do not match existing items in table!"
+                )
 
             existing_dtype = getattr(self.attrs, self.dtype_attr, None)
             if existing_dtype is not None and existing_dtype != self.dtype:
@@ -2793,7 +2862,11 @@ class Fixed:
 
     @property
     def is_old_version(self) -> bool:
-        return self.version[0] <= 0 and self.version[1] <= 10 and self.version[2] < 1
+        return (
+            self.version[0] <= 0
+            and self.version[1] <= 10
+            and self.version[2] < 1
+        )
 
     @property
     def version(self) -> tuple[int, int, int]:
@@ -3022,7 +3095,9 @@ class GenericFixed(Fixed):
     def write(self, obj, **kwargs) -> None:
         self.set_attrs()
 
-    def read_array(self, key: str, start: int | None = None, stop: int | None = None):
+    def read_array(
+        self, key: str, start: int | None = None, stop: int | None = None
+    ):
         """read an array for the specified node (off of group"""
         import tables
 
@@ -3079,7 +3154,9 @@ class GenericFixed(Fixed):
             self.write_multi_index(key, index)
         else:
             setattr(self.attrs, f"{key}_variety", "regular")
-            converted = _convert_index("index", index, self.encoding, self.errors)
+            converted = _convert_index(
+                "index", index, self.encoding, self.errors
+            )
 
             self.write_array(key, converted.values)
 
@@ -3108,7 +3185,9 @@ class GenericFixed(Fixed):
                     "Saving a MultiIndex with an extension dtype is not supported."
                 )
             level_key = f"{key}_level{i}"
-            conv_level = _convert_index(level_key, lev, self.encoding, self.errors)
+            conv_level = _convert_index(
+                level_key, lev, self.encoding, self.errors
+            )
             self.write_array(level_key, conv_level.values)
             node = getattr(self.group, level_key)
             node._v_attrs.kind = conv_level.kind
@@ -3151,7 +3230,9 @@ class GenericFixed(Fixed):
         # If the index was an empty array write_array_empty() will
         # have written a sentinel. Here we replace it with the original.
         if "shape" in node._v_attrs and np.prod(node._v_attrs.shape) == 0:
-            data = np.empty(node._v_attrs.shape, dtype=node._v_attrs.value_type)
+            data = np.empty(
+                node._v_attrs.shape, dtype=node._v_attrs.value_type
+            )
         kind = node._v_attrs.kind
         name = None
 
@@ -3247,9 +3328,13 @@ class GenericFixed(Fixed):
                 pass
             elif get_option("performance_warnings"):
                 ws = performance_doc % (inferred_type, key, items)
-                warnings.warn(ws, PerformanceWarning, stacklevel=find_stack_level())
+                warnings.warn(
+                    ws, PerformanceWarning, stacklevel=find_stack_level()
+                )
 
-            vlarr = self._handle.create_vlarray(self.group, key, _tables().ObjectAtom())
+            vlarr = self._handle.create_vlarray(
+                self.group, key, _tables().ObjectAtom()
+            )
             vlarr.append(value)
 
         elif lib.is_np_dtype(value.dtype, "M"):
@@ -3276,7 +3361,9 @@ class GenericFixed(Fixed):
             self._handle.create_array(self.group, key, value.view("i8"))
             getattr(self.group, key)._v_attrs.value_type = "timedelta64"
         elif isinstance(value, BaseStringArray):
-            vlarr = self._handle.create_vlarray(self.group, key, _tables().ObjectAtom())
+            vlarr = self._handle.create_vlarray(
+                self.group, key, _tables().ObjectAtom()
+            )
             vlarr.append(value.to_numpy())
             node = getattr(self.group, key)
             node._v_attrs.value_type = str(value.dtype)
@@ -3381,10 +3468,14 @@ class BlockManagerFixed(GenericFixed):
 
         for i in range(self.nblocks):
             blk_items = self.read_index(f"block{i}_items")
-            values = self.read_array(f"block{i}_values", start=_start, stop=_stop)
+            values = self.read_array(
+                f"block{i}_values", start=_start, stop=_stop
+            )
 
             columns = items[items.get_indexer(blk_items)]
-            df = DataFrame(values.T, columns=columns, index=axes[1], copy=False)
+            df = DataFrame(
+                values.T, columns=columns, index=axes[1], copy=False
+            )
             if (
                 using_string_dtype()
                 and isinstance(values, np.ndarray)
@@ -3409,7 +3500,9 @@ class BlockManagerFixed(GenericFixed):
         self.attrs.ndim = data.ndim
         for i, ax in enumerate(data.axes):
             if i == 0 and (not ax.is_unique):
-                raise ValueError("Columns index has to be unique for fixed format")
+                raise ValueError(
+                    "Columns index has to be unique for fixed format"
+                )
             self.write_index(f"axis{i}", ax)
 
         # Supporting mixed-type DataFrame objects...nontrivial
@@ -3628,7 +3721,9 @@ class Table(Fixed):
         d1 = [(a.cname, a) for a in self.index_axes]
         d2 = [(axis_names[axis], None) for axis, values in self.non_index_axes]
         d3 = [
-            (v.cname, v) for v in self.values_axes if v.name in set(self.data_columns)
+            (v.cname, v)
+            for v in self.values_axes
+            if v.name in set(self.data_columns)
         ]
 
         return dict(d1 + d2 + d3)
@@ -3694,13 +3789,17 @@ class Table(Fixed):
         self.errors = getattr(self.attrs, "errors", "strict")
         self.levels: list[Hashable] = getattr(self.attrs, "levels", None) or []
         self.index_axes = [a for a in self.indexables if a.is_an_indexable]
-        self.values_axes = [a for a in self.indexables if not a.is_an_indexable]
+        self.values_axes = [
+            a for a in self.indexables if not a.is_an_indexable
+        ]
 
     def validate_version(self, where=None) -> None:
         """are we trying to operate on an old version?"""
         if where is not None:
             if self.is_old_version:
-                ws = incompatibility_doc % ".".join([str(x) for x in self.version])
+                ws = incompatibility_doc % ".".join(
+                    [str(x) for x in self.version]
+                )
                 warnings.warn(
                     ws,
                     IncompatibilityWarning,
@@ -3800,7 +3899,9 @@ class Table(Fixed):
 
         # Note: the definition of `values_cols` ensures that each
         #  `c` below is a str.
-        _indexables.extend([f(i, c) for i, c in enumerate(self.attrs.values_cols)])
+        _indexables.extend(
+            [f(i, c) for i, c in enumerate(self.attrs.values_cols)]
+        )
 
         return _indexables
 
@@ -3929,7 +4030,9 @@ class Table(Fixed):
         """return the data for this obj"""
         return obj
 
-    def validate_data_columns(self, data_columns, min_itemsize, non_index_axes) -> list:
+    def validate_data_columns(
+        self, data_columns, min_itemsize, non_index_axes
+    ) -> list:
         """
         take the input data_columns and min_itemize and create a data
         columns spec
@@ -4102,7 +4205,11 @@ class Table(Fixed):
         frame = self.get_object(obj, transposed)._consolidate()
 
         blocks, blk_items = self._get_blocks_and_items(
-            frame, table_exists, new_non_index_axes, self.values_axes, data_columns
+            frame,
+            table_exists,
+            new_non_index_axes,
+            self.values_axes,
+            data_columns,
         )
 
         # add my values
@@ -4113,12 +4220,18 @@ class Table(Fixed):
             name = None
 
             # we have a data_column
-            if data_columns and len(b_items) == 1 and b_items[0] in data_columns:
+            if (
+                data_columns
+                and len(b_items) == 1
+                and b_items[0] in data_columns
+            ):
                 klass = DataIndexableCol
                 name = b_items[0]
                 if not (name is None or isinstance(name, str)):
                     # TODO: should the message here be more specifically non-str?
-                    raise ValueError("cannot have non-object label DataIndexableCol")
+                    raise ValueError(
+                        "cannot have non-object label DataIndexableCol"
+                    )
 
             # make sure that we match up the existing columns
             # if we have an existing table
@@ -4269,7 +4382,9 @@ class Table(Fixed):
 
         return blocks, blk_items
 
-    def process_axes(self, obj, selection: Selection, columns=None) -> DataFrame:
+    def process_axes(
+        self, obj, selection: Selection, columns=None
+    ) -> DataFrame:
         """process axes filters"""
         # make a copy to avoid side effects
         if columns is not None:
@@ -4315,7 +4430,9 @@ class Table(Fixed):
                         takers = op(values, filt)
                         return obj.loc(axis=axis_number)[takers]
 
-                raise ValueError(f"cannot find the field [{field}] for filtering!")
+                raise ValueError(
+                    f"cannot find the field [{field}] for filtering!"
+                )
 
         # apply the selection filters (but keep in the same order)
         if selection.filter is not None:
@@ -4377,7 +4494,9 @@ class Table(Fixed):
                 data = self.read_column(
                     field, start=coords.min(), stop=coords.max() + 1
                 )
-                coords = coords[op(data.iloc[coords - coords.min()], filt).values]
+                coords = coords[
+                    op(data.iloc[coords - coords.min()], filt).values
+                ]
 
         return Index(coords)
 
@@ -4400,7 +4519,9 @@ class Table(Fixed):
             return False
 
         if where is not None:
-            raise TypeError("read_column does not currently accept a where clause")
+            raise TypeError(
+                "read_column does not currently accept a where clause"
+            )
 
         # find the axes
         for a in self.axes:
@@ -4556,7 +4677,9 @@ class AppendableTable(Table):
         # transpose the values so first dimension is last
         # reshape the values if needed
         values = [a.take_data() for a in self.values_axes]
-        values = [v.transpose(np.roll(np.arange(v.ndim), v.ndim - 1)) for v in values]
+        values = [
+            v.transpose(np.roll(np.arange(v.ndim), v.ndim - 1)) for v in values
+        ]
         bvalues = []
         for i, v in enumerate(values):
             new_shape = (nrows,) + self.dtype[names[nindexes + i]].shape
@@ -4727,7 +4850,9 @@ class AppendableFrameTable(AppendableTable):
             else {}
         )
 
-        inds = [i for i, ax in enumerate(self.axes) if ax is self.index_axes[0]]
+        inds = [
+            i for i, ax in enumerate(self.axes) if ax is self.index_axes[0]
+        ]
         assert len(inds) == 1
         ind = inds[0]
 
@@ -4764,14 +4889,21 @@ class AppendableFrameTable(AppendableTable):
                 values = values.reshape((1, values.shape[0]))
 
             if isinstance(values, (np.ndarray, DatetimeArray)):
-                df = DataFrame(values.T, columns=cols_, index=index_, copy=False)
+                df = DataFrame(
+                    values.T, columns=cols_, index=index_, copy=False
+                )
             elif isinstance(values, Index):
                 df = DataFrame(values, columns=cols_, index=index_)
             else:
                 # Categorical
-                df = DataFrame._from_arrays([values], columns=cols_, index=index_)
+                df = DataFrame._from_arrays(
+                    [values], columns=cols_, index=index_
+                )
             if not (using_string_dtype() and values.dtype.kind == "O"):
-                assert (df.dtypes == values.dtype).all(), (df.dtypes, values.dtype)
+                assert (df.dtypes == values.dtype).all(), (
+                    df.dtypes,
+                    values.dtype,
+                )
 
             # If str / string dtype is stored in meta, use that.
             converted = False
@@ -4895,7 +5027,9 @@ class GenericTable(AppendableFrameTable):
         self.levels = []
 
         self.index_axes = [a for a in self.indexables if a.is_an_indexable]
-        self.values_axes = [a for a in self.indexables if not a.is_an_indexable]
+        self.values_axes = [
+            a for a in self.indexables if not a.is_an_indexable
+        ]
         self.data_columns = [a.name for a in self.values_axes]
 
     @cache_readonly
@@ -4912,7 +5046,9 @@ class GenericTable(AppendableFrameTable):
             name="index", axis=0, table=self.table, meta=meta, metadata=md
         )
 
-        _indexables: list[GenericIndexCol | GenericDataIndexableCol] = [index_col]
+        _indexables: list[GenericIndexCol | GenericDataIndexableCol] = [
+            index_col
+        ]
 
         for i, n in enumerate(d._v_names):
             assert isinstance(n, str)
@@ -4975,7 +5111,10 @@ class AppendableMultiFrameTable(AppendableFrameTable):
 
         # remove names for 'level_%d'
         df.index = df.index.set_names(
-            [None if self._re_levels.search(name) else name for name in df.index.names]
+            [
+                None if self._re_levels.search(name) else name
+                for name in df.index.names
+            ]
         )
 
         return df
@@ -5014,7 +5153,9 @@ def _get_tz(tz: tzinfo) -> str | tzinfo:
 
 
 def _set_tz(
-    values: npt.NDArray[np.int64], tz: str | tzinfo | None, datetime64_dtype: str
+    values: npt.NDArray[np.int64],
+    tz: str | tzinfo | None,
+    datetime64_dtype: str,
 ) -> DatetimeArray:
     """
     Coerce the values to a DatetimeArray with appropriate tz.
@@ -5034,7 +5175,9 @@ def _set_tz(
     return dta
 
 
-def _convert_index(name: str, index: Index, encoding: str, errors: str) -> IndexCol:
+def _convert_index(
+    name: str, index: Index, encoding: str, errors: str
+) -> IndexCol:
     assert isinstance(name, str)
 
     index_name = index.name
@@ -5074,7 +5217,11 @@ def _convert_index(name: str, index: Index, encoding: str, errors: str) -> Index
     if inferred_type == "date":
         converted = np.asarray([v.toordinal() for v in values], dtype=np.int32)
         return IndexCol(
-            name, converted, "date", _tables().Time32Col(), index_name=index_name
+            name,
+            converted,
+            "date",
+            _tables().Time32Col(),
+            index_name=index_name,
         )
     elif inferred_type == "string":
         converted = _convert_string_array(values, encoding, errors)
@@ -5098,7 +5245,9 @@ def _convert_index(name: str, index: Index, encoding: str, errors: str) -> Index
         return IndexCol(name, converted, kind, atom, index_name=index_name)
 
 
-def _unconvert_index(data, kind: str, encoding: str, errors: str) -> np.ndarray | Index:
+def _unconvert_index(
+    data, kind: str, encoding: str, errors: str
+) -> np.ndarray | Index:
     index: Index | np.ndarray
 
     if kind.startswith("datetime64"):
@@ -5111,9 +5260,13 @@ def _unconvert_index(data, kind: str, encoding: str, errors: str) -> np.ndarray 
         index = TimedeltaIndex(data)
     elif kind == "date":
         try:
-            index = np.asarray([date.fromordinal(v) for v in data], dtype=object)
+            index = np.asarray(
+                [date.fromordinal(v) for v in data], dtype=object
+            )
         except ValueError:
-            index = np.asarray([date.fromtimestamp(v) for v in data], dtype=object)
+            index = np.asarray(
+                [date.fromtimestamp(v) for v in data], dtype=object
+            )
     elif kind in ("integer", "float", "bool"):
         index = np.asarray(data)
     elif kind in ("string"):
@@ -5165,7 +5318,9 @@ def _maybe_convert_for_string_atom(
     data[mask] = nan_rep
 
     if existing_col and mask.any() and len(nan_rep) > existing_col.itemsize:
-        raise ValueError("NaN representation is too large for existing column size")
+        raise ValueError(
+            "NaN representation is too large for existing column size"
+        )
 
     # see if we have a valid string type
     inferred_type = lib.infer_dtype(data, skipna=False)
@@ -5179,7 +5334,9 @@ def _maybe_convert_for_string_atom(
             col = data[i]
             inferred_type = lib.infer_dtype(col, skipna=False)
             if inferred_type != "string":
-                error_column_label = columns[i] if len(columns) > i else f"No.{i}"
+                error_column_label = (
+                    columns[i] if len(columns) > i else f"No.{i}"
+                )
                 raise TypeError(
                     f"Cannot serialize the column [{error_column_label}]\n"
                     f"because its data contents are not [string] but "
@@ -5188,12 +5345,16 @@ def _maybe_convert_for_string_atom(
 
     # itemsize is the maximum length of a string (along any dimension)
 
-    data_converted = _convert_string_array(data, encoding, errors).reshape(data.shape)
+    data_converted = _convert_string_array(data, encoding, errors).reshape(
+        data.shape
+    )
     itemsize = data_converted.itemsize
 
     # specified min_itemsize?
     if isinstance(min_itemsize, dict):
-        min_itemsize = int(min_itemsize.get(name) or min_itemsize.get("values") or 0)
+        min_itemsize = int(
+            min_itemsize.get(name) or min_itemsize.get("values") or 0
+        )
     itemsize = max(min_itemsize or 0, itemsize)
 
     # check for column in the values conflicts
@@ -5206,7 +5367,9 @@ def _maybe_convert_for_string_atom(
     return data_converted
 
 
-def _convert_string_array(data: np.ndarray, encoding: str, errors: str) -> np.ndarray:
+def _convert_string_array(
+    data: np.ndarray, encoding: str, errors: str
+) -> np.ndarray:
     """
     Take a string-like that is object dtype and coerce to a fixed size string type.
 
@@ -5277,7 +5440,9 @@ def _unconvert_string_array(
     return data.reshape(shape)
 
 
-def _maybe_convert(values: np.ndarray, val_kind: str, encoding: str, errors: str):
+def _maybe_convert(
+    values: np.ndarray, val_kind: str, encoding: str, errors: str
+):
     assert isinstance(val_kind, str), type(val_kind)
     if _need_convert(val_kind):
         conv = _get_converter(val_kind, encoding, errors)
@@ -5319,7 +5484,9 @@ def _maybe_adjust_name(name: str, version: Sequence[int]) -> str:
     str
     """
     if isinstance(version, str) or len(version) < 3:
-        raise ValueError("Version is incorrect, expected sequence of 3 integers.")
+        raise ValueError(
+            "Version is incorrect, expected sequence of 3 integers."
+        )
 
     if version[0] == 0 and version[1] <= 10 and version[2] == 0:
         m = re.search(r"values_block_(\d+)", name)
@@ -5429,8 +5596,12 @@ class Selection:
                             stop = self.table.nrows
                         self.coordinates = np.arange(start, stop)[where]
                     elif issubclass(where.dtype.type, np.integer):
-                        if (self.start is not None and (where < self.start).any()) or (
-                            self.stop is not None and (where >= self.stop).any()
+                        if (
+                            self.start is not None
+                            and (where < self.start).any()
+                        ) or (
+                            self.stop is not None
+                            and (where >= self.stop).any()
                         ):
                             raise ValueError(
                                 "where must have index locations >= start and < stop"
@@ -5450,14 +5621,18 @@ class Selection:
     @overload
     def generate(self, where: None) -> None: ...
 
-    def generate(self, where: dict | list | tuple | str | None) -> PyTablesExpr | None:
+    def generate(
+        self, where: dict | list | tuple | str | None
+    ) -> PyTablesExpr | None:
         """where can be a : dict,list,tuple,string"""
         if where is None:
             return None
 
         q = self.table.queryables()
         try:
-            return PyTablesExpr(where, queryables=q, encoding=self.table.encoding)
+            return PyTablesExpr(
+                where, queryables=q, encoding=self.table.encoding
+            )
         except NameError as err:
             # raise a nice message, suggesting that the user should use
             # data_columns

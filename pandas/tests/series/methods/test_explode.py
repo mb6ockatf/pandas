@@ -6,17 +6,23 @@ import pandas._testing as tm
 
 
 def test_basic():
-    s = pd.Series([[0, 1, 2], np.nan, [], (3, 4)], index=list("abcd"), name="foo")
+    s = pd.Series(
+        [[0, 1, 2], np.nan, [], (3, 4)], index=list("abcd"), name="foo"
+    )
     result = s.explode()
     expected = pd.Series(
-        [0, 1, 2, np.nan, np.nan, 3, 4], index=list("aaabcdd"), dtype=object, name="foo"
+        [0, 1, 2, np.nan, np.nan, 3, 4],
+        index=list("aaabcdd"),
+        dtype=object,
+        name="foo",
     )
     tm.assert_series_equal(result, expected)
 
 
 def test_mixed_type():
     s = pd.Series(
-        [[0, 1, 2], np.nan, None, np.array([]), pd.Series(["a", "b"])], name="foo"
+        [[0, 1, 2], np.nan, None, np.array([]), pd.Series(["a", "b"])],
+        name="foo",
     )
     result = s.explode()
     expected = pd.Series(
@@ -46,7 +52,9 @@ def test_multi_index():
     s = pd.Series(
         [[0, 1, 2], np.nan, [], (3, 4)],
         name="foo",
-        index=pd.MultiIndex.from_product([list("ab"), range(2)], names=["foo", "bar"]),
+        index=pd.MultiIndex.from_product(
+            [list("ab"), range(2)], names=["foo", "bar"]
+        ),
     )
     result = s.explode()
     index = pd.MultiIndex.from_tuples(
@@ -107,7 +115,8 @@ def test_nested_EA():
     )
     result = s.explode()
     expected = pd.Series(
-        pd.date_range("20170101", periods=6, tz="UTC"), index=[0, 0, 0, 1, 1, 1]
+        pd.date_range("20170101", periods=6, tz="UTC"),
+        index=[0, 0, 0, 1, 1, 1],
     )
     tm.assert_series_equal(result, expected)
 

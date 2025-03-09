@@ -126,7 +126,9 @@ _index_doc_kwargs.update(
 )
 
 
-class MultiIndexUInt64Engine(libindex.BaseMultiIndexCodesEngine, libindex.UInt64Engine):
+class MultiIndexUInt64Engine(
+    libindex.BaseMultiIndexCodesEngine, libindex.UInt64Engine
+):
     """Manages a MultiIndex by mapping label combinations to positive integers.
 
     The number of possible label combinations must not overflow the 64 bits integers.
@@ -136,7 +138,9 @@ class MultiIndexUInt64Engine(libindex.BaseMultiIndexCodesEngine, libindex.UInt64
     _codes_dtype = "uint64"
 
 
-class MultiIndexUInt32Engine(libindex.BaseMultiIndexCodesEngine, libindex.UInt32Engine):
+class MultiIndexUInt32Engine(
+    libindex.BaseMultiIndexCodesEngine, libindex.UInt32Engine
+):
     """Manages a MultiIndex by mapping label combinations to positive integers.
 
     The number of possible label combinations must not overflow the 32 bits integers.
@@ -146,7 +150,9 @@ class MultiIndexUInt32Engine(libindex.BaseMultiIndexCodesEngine, libindex.UInt32
     _codes_dtype = "uint32"
 
 
-class MultiIndexUInt16Engine(libindex.BaseMultiIndexCodesEngine, libindex.UInt16Engine):
+class MultiIndexUInt16Engine(
+    libindex.BaseMultiIndexCodesEngine, libindex.UInt16Engine
+):
     """Manages a MultiIndex by mapping label combinations to positive integers.
 
     The number of possible label combinations must not overflow the 16 bits integers.
@@ -156,7 +162,9 @@ class MultiIndexUInt16Engine(libindex.BaseMultiIndexCodesEngine, libindex.UInt16
     _codes_dtype = "uint16"
 
 
-class MultiIndexUInt8Engine(libindex.BaseMultiIndexCodesEngine, libindex.UInt8Engine):
+class MultiIndexUInt8Engine(
+    libindex.BaseMultiIndexCodesEngine, libindex.UInt8Engine
+):
     """Manages a MultiIndex by mapping label combinations to positive integers.
 
     The number of possible label combinations must not overflow the 8 bits integers.
@@ -166,7 +174,9 @@ class MultiIndexUInt8Engine(libindex.BaseMultiIndexCodesEngine, libindex.UInt8En
     _codes_dtype = "uint8"
 
 
-class MultiIndexPyIntEngine(libindex.BaseMultiIndexCodesEngine, libindex.ObjectEngine):
+class MultiIndexPyIntEngine(
+    libindex.BaseMultiIndexCodesEngine, libindex.ObjectEngine
+):
     """Manages a MultiIndex by mapping label combinations to positive integers.
 
     This class manages those (extreme) cases in which the number of possible
@@ -420,7 +430,9 @@ class MultiIndex(Index):
                     "inconsistent state"
                 )
             if len(level_codes) and level_codes.min() < -1:
-                raise ValueError(f"On level {i}, code value ({level_codes.min()}) < -1")
+                raise ValueError(
+                    f"On level {i}, code value ({level_codes.min()}) < -1"
+                )
             if not level.is_unique:
                 raise ValueError(
                     f"Level values must be unique: {list(level)} on level {i}"
@@ -565,7 +577,9 @@ class MultiIndex(Index):
         # handling the empty tuple cases
         if len(tuples) and all(isinstance(e, tuple) and not e for e in tuples):
             codes = [np.zeros(len(tuples))]
-            levels = [Index(com.asarray_tuplesafe(tuples, dtype=np.dtype("object")))]
+            levels = [
+                Index(com.asarray_tuplesafe(tuples, dtype=np.dtype("object")))
+            ]
             return cls(
                 levels=levels,
                 codes=codes,
@@ -577,7 +591,9 @@ class MultiIndex(Index):
         arrays: list[Sequence[Hashable]]
         if len(tuples) == 0:
             if names is None:
-                raise TypeError("Cannot infer number of levels from empty list")
+                raise TypeError(
+                    "Cannot infer number of levels from empty list"
+                )
             # error: Argument 1 to "len" has incompatible type "Hashable";
             # expected "Sized"
             arrays = [[]] * len(names)  # type: ignore[arg-type]
@@ -745,7 +761,9 @@ class MultiIndex(Index):
                 vals = vals.astype(object)
 
             array_vals = np.asarray(vals)
-            array_vals = algos.take_nd(array_vals, codes, fill_value=index._na_value)
+            array_vals = algos.take_nd(
+                array_vals, codes, fill_value=index._na_value
+            )
             values.append(array_vals)
 
         arr = lib.fast_zip(values)
@@ -801,7 +819,9 @@ class MultiIndex(Index):
         from pandas import Series
 
         names = com.fill_missing_names(self.names)
-        return Series([level.dtype for level in self.levels], index=Index(names))
+        return Series(
+            [level.dtype for level in self.levels], index=Index(names)
+        )
 
     def __len__(self) -> int:
         return len(self.codes[0])
@@ -877,7 +897,9 @@ class MultiIndex(Index):
         # Use cache_readonly to ensure that self.get_locs doesn't repeatedly
         # create new IndexEngine
         # https://github.com/pandas-dev/pandas/issues/31648
-        result = [x._rename(name=name) for x, name in zip(self._levels, self._names)]
+        result = [
+            x._rename(name=name) for x, name in zip(self._levels, self._names)
+        ]
         for level in result:
             # disallow midx.levels[0].name = "foo"
             level._no_setting_name = True
@@ -899,9 +921,13 @@ class MultiIndex(Index):
             if len(levels) == 0:
                 raise ValueError("Must set non-zero number of levels.")
             if level is None and len(levels) != self.nlevels:
-                raise ValueError("Length of levels must match number of levels.")
+                raise ValueError(
+                    "Length of levels must match number of levels."
+                )
             if level is not None and len(levels) != len(level):
-                raise ValueError("Length of levels must match length of level.")
+                raise ValueError(
+                    "Length of levels must match length of level."
+                )
 
         if level is None:
             new_levels = FrozenList(
@@ -1043,7 +1069,10 @@ class MultiIndex(Index):
         idx = self._view()
         idx._reset_identity()
         idx._set_levels(
-            levels, level=level, validate=True, verify_integrity=verify_integrity
+            levels,
+            level=level,
+            validate=True,
+            verify_integrity=verify_integrity,
         )
         return idx
 
@@ -1141,7 +1170,9 @@ class MultiIndex(Index):
             if level is None and len(codes) != self.nlevels:
                 raise ValueError("Length of codes must match number of levels")
             if level is not None and len(codes) != len(level):
-                raise ValueError("Length of codes must match length of levels.")
+                raise ValueError(
+                    "Length of codes must match length of levels."
+                )
 
         level_numbers: list[int] | range
         if level is None:
@@ -1250,7 +1281,10 @@ class MultiIndex(Index):
         # calculating the indexer are shifted to 0
         sizes = np.ceil(
             np.log2(
-                [len(level) + libindex.multiindex_nulls_shift for level in self.levels]
+                [
+                    len(level) + libindex.multiindex_nulls_shift
+                    for level in self.levels
+                ]
             )
         )
 
@@ -1289,7 +1323,9 @@ class MultiIndex(Index):
         return type(self).from_tuples
 
     @doc(Index._shallow_copy)
-    def _shallow_copy(self, values: np.ndarray, name=lib.no_default) -> MultiIndex:
+    def _shallow_copy(
+        self, values: np.ndarray, name=lib.no_default
+    ) -> MultiIndex:
         names = name if name is not lib.no_default else self.names
 
         return type(self).from_tuples(values, sortorder=None, names=names)
@@ -1503,7 +1539,9 @@ class MultiIndex(Index):
 
         if len(new_levels) == 1:
             # a single-level multi-index
-            return Index(new_levels[0].take(new_codes[0]))._get_values_for_csv()
+            return Index(
+                new_levels[0].take(new_codes[0])
+            )._get_values_for_csv()
         else:
             # reconstruct the multi-index
             mi = MultiIndex(
@@ -1531,7 +1569,9 @@ class MultiIndex(Index):
 
             if len(lev) > 0:
                 taken = formatted = lev.take(level_codes)
-                formatted = taken._format_flat(include_name=False, formatter=formatter)
+                formatted = taken._format_flat(
+                    include_name=False, formatter=formatter
+                )
 
                 # we have some NA
                 mask = level_codes == -1
@@ -1543,7 +1583,9 @@ class MultiIndex(Index):
             else:
                 # weird all NA case
                 formatted = [
-                    pprint_thing(na if isna(x) else x, escape_chars=("\t", "\r", "\n"))
+                    pprint_thing(
+                        na if isna(x) else x, escape_chars=("\t", "\r", "\n")
+                    )
                     for x in algos.take_nd(lev._values, level_codes)
                 ]
             stringified_levels.append(formatted)
@@ -1720,7 +1762,8 @@ class MultiIndex(Index):
 
         # reversed() because lexsort() wants the most significant key last.
         values = [
-            self._get_level_values(i)._values for i in reversed(range(len(self.levels)))
+            self._get_level_values(i)._values
+            for i in reversed(range(len(self.levels)))
         ]
         try:
             # error: Argument 1 to "lexsort" has incompatible type
@@ -1795,7 +1838,9 @@ class MultiIndex(Index):
         name = self._names[level]
         if unique:
             level_codes = algos.unique(level_codes)
-        filled = algos.take_nd(lev._values, level_codes, fill_value=lev._na_value)
+        filled = algos.take_nd(
+            lev._values, level_codes, fill_value=lev._na_value
+        )
         return lev._shallow_copy(filled, name=name)
 
     # error: Signature of "get_level_values" incompatible with supertype "Index"
@@ -1941,7 +1986,9 @@ class MultiIndex(Index):
 
         if name is not lib.no_default:
             if not is_list_like(name):
-                raise TypeError("'name' must be a list / sequence of column names.")
+                raise TypeError(
+                    "'name' must be a list / sequence of column names."
+                )
 
             if len(name) != len(self.levels):
                 raise ValueError(
@@ -1958,7 +2005,10 @@ class MultiIndex(Index):
 
         # Guarantee resulting column order - PY36+ dict maintains insertion order
         result = DataFrame(
-            {level: self._get_level_values(level) for level in range(len(self.levels))},
+            {
+                level: self._get_level_values(level)
+                for level in range(len(self.levels))
+            },
             copy=False,
         )
         result.columns = idx_names
@@ -2053,7 +2103,9 @@ class MultiIndex(Index):
             return self.sortorder
         return _lexsort_depth(self.codes, self.nlevels)
 
-    def _sort_levels_monotonic(self, raise_if_incomparable: bool = False) -> MultiIndex:
+    def _sort_levels_monotonic(
+        self, raise_if_incomparable: bool = False
+    ) -> MultiIndex:
         """
         This is an *internal* function.
 
@@ -2318,7 +2370,10 @@ class MultiIndex(Index):
                 taken = masked
 
         return MultiIndex(
-            levels=self.levels, codes=taken, names=self.names, verify_integrity=False
+            levels=self.levels,
+            codes=taken,
+            names=self.names,
+            verify_integrity=False,
         )
 
     def append(self, other):
@@ -2361,7 +2416,8 @@ class MultiIndex(Index):
             other = [other]
 
         if all(
-            (isinstance(o, MultiIndex) and o.nlevels >= self.nlevels) for o in other
+            (isinstance(o, MultiIndex) and o.nlevels >= self.nlevels)
+            for o in other
         ):
             codes = []
             levels = []
@@ -2413,7 +2469,9 @@ class MultiIndex(Index):
         return MultiIndex(
             levels=self.levels,
             codes=[
-                level_codes.view(np.ndarray).astype(np.intp, copy=False).repeat(repeats)
+                level_codes.view(np.ndarray)
+                .astype(np.intp, copy=False)
+                .repeat(repeats)
                 for level_codes in self.codes
             ],
             names=self.names,
@@ -2496,7 +2554,9 @@ class MultiIndex(Index):
 
         if not isinstance(codes, (np.ndarray, Index)):
             try:
-                codes = com.index_labels_to_array(codes, dtype=np.dtype("object"))
+                codes = com.index_labels_to_array(
+                    codes, dtype=np.dtype("object")
+                )
             except ValueError:
                 pass
 
@@ -2512,7 +2572,10 @@ class MultiIndex(Index):
                     step = loc.step if loc.step is not None else 1
                     inds.extend(range(loc.start, loc.stop, step))
                 elif com.is_bool_indexer(loc):
-                    if get_option("performance_warnings") and self._lexsort_depth == 0:
+                    if (
+                        get_option("performance_warnings")
+                        and self._lexsort_depth == 0
+                    ):
                         warnings.warn(
                             "dropping on a non-lexsorted multi-index "
                             "without a level parameter may impact performance.",
@@ -2607,7 +2670,10 @@ class MultiIndex(Index):
         new_names[i], new_names[j] = new_names[j], new_names[i]
 
         return MultiIndex(
-            levels=new_levels, codes=new_codes, names=new_names, verify_integrity=False
+            levels=new_levels,
+            codes=new_codes,
+            names=new_names,
+            verify_integrity=False,
         )
 
     def reorder_levels(self, order) -> MultiIndex:
@@ -2671,7 +2737,10 @@ class MultiIndex(Index):
         new_names = [self.names[i] for i in order]
 
         return MultiIndex(
-            levels=new_levels, codes=new_codes, names=new_names, verify_integrity=False
+            levels=new_levels,
+            codes=new_codes,
+            names=new_names,
+            verify_integrity=False,
         )
 
     def _recode_for_new_levels(
@@ -2703,7 +2772,9 @@ class MultiIndex(Index):
             )
 
         return [
-            Categorical.from_codes(level_codes, cats(level_codes), True, validate=False)
+            Categorical.from_codes(
+                level_codes, cats(level_codes), True, validate=False
+            )
             for level_codes in self.codes
         ]
 
@@ -2803,7 +2874,11 @@ class MultiIndex(Index):
                 raise ValueError("level must have same length as ascending")
         elif sort_remaining:
             codes.extend(
-                [self.codes[lev] for lev in range(len(self.levels)) if lev not in level]
+                [
+                    self.codes[lev]
+                    for lev in range(len(self.levels))
+                    if lev not in level
+                ]
             )
         else:
             sortorder = level[0]
@@ -2841,7 +2916,9 @@ class MultiIndex(Index):
         target = self._maybe_preserve_names(target, preserve_names)
         return target
 
-    def _maybe_preserve_names(self, target: IndexT, preserve_names: bool) -> IndexT:
+    def _maybe_preserve_names(
+        self, target: IndexT, preserve_names: bool
+    ) -> IndexT:
         if (
             preserve_names
             and target.nlevels == self.nlevels
@@ -2910,7 +2987,9 @@ class MultiIndex(Index):
         """
         lev = self.levels[0]
         codes = self._codes[0]
-        cat = Categorical.from_codes(codes=codes, categories=lev, validate=False)
+        cat = Categorical.from_codes(
+            codes=codes, categories=lev, validate=False
+        )
         ci = Index(cat)
         return ci.get_indexer_for(target)
 
@@ -3022,7 +3101,9 @@ class MultiIndex(Index):
         # happens in get_slice_bound method), but it adds meaningful doc.
         return super().slice_locs(start, end, step)
 
-    def _partial_tup_index(self, tup: tuple, side: Literal["left", "right"] = "left"):
+    def _partial_tup_index(
+        self, tup: tuple, side: Literal["left", "right"] = "left"
+    ):
         if len(tup) > self._lexsort_depth:
             raise UnsortedIndexError(
                 f"Key length ({len(tup)}) was greater than MultiIndex lexsort depth "
@@ -3073,7 +3154,9 @@ class MultiIndex(Index):
             else:
                 return start + algos.searchsorted(section, idx, side=side)
 
-    def _get_loc_single_level_index(self, level_index: Index, key: Hashable) -> int:
+    def _get_loc_single_level_index(
+        self, level_index: Index, key: Hashable
+    ) -> int:
         """
         If key is NA value, location of index unify as -1.
 
@@ -3224,9 +3307,15 @@ class MultiIndex(Index):
             if not len(loc):
                 raise KeyError(key)
 
-        return _maybe_to_slice(loc) if len(loc) != stop - start else slice(start, stop)
+        return (
+            _maybe_to_slice(loc)
+            if len(loc) != stop - start
+            else slice(start, stop)
+        )
 
-    def get_loc_level(self, key, level: IndexLabel = 0, drop_level: bool = True):
+    def get_loc_level(
+        self, key, level: IndexLabel = 0, drop_level: bool = True
+    ):
         """
         Get location and sliced index for requested label(s)/level(s).
 
@@ -3362,7 +3451,9 @@ class MultiIndex(Index):
 
                 # partial selection
                 indexer = self.get_loc(key)
-                ilevels = [i for i in range(len(key)) if key[i] != slice(None, None)]
+                ilevels = [
+                    i for i in range(len(key)) if key[i] != slice(None, None)
+                ]
                 if len(ilevels) == self.nlevels:
                     if is_integer(indexer):
                         # we are dropping all levels
@@ -3376,7 +3467,9 @@ class MultiIndex(Index):
                         for i in range(len(key))
                         if (
                             not isinstance(key[i], str)
-                            or not self.levels[i]._supports_partial_string_indexing
+                            or not self.levels[
+                                i
+                            ]._supports_partial_string_indexing
                         )
                         and key[i] != slice(None, None)
                     ]
@@ -3391,9 +3484,9 @@ class MultiIndex(Index):
                     if not isinstance(k, slice):
                         loc_level = self._get_level_indexer(k, level=i)
                         if isinstance(loc_level, slice):
-                            if com.is_null_slice(loc_level) or com.is_full_slice(
-                                loc_level, len(self)
-                            ):
+                            if com.is_null_slice(
+                                loc_level
+                            ) or com.is_full_slice(loc_level, len(self)):
                                 # everything
                                 continue
 
@@ -3411,7 +3504,9 @@ class MultiIndex(Index):
                     else:
                         # FIXME: this message can be inaccurate, e.g.
                         #  test_series_varied_multiindex_alignment
-                        raise TypeError(f"Expected label or tuple of labels, got {key}")
+                        raise TypeError(
+                            f"Expected label or tuple of labels, got {key}"
+                        )
 
                     if indexer is None:
                         indexer = k_index
@@ -3419,7 +3514,9 @@ class MultiIndex(Index):
                         indexer &= k_index
                 if indexer is None:
                     indexer = slice(None, None)
-                ilevels = [i for i in range(len(key)) if key[i] != slice(None, None)]
+                ilevels = [
+                    i for i in range(len(key)) if key[i] != slice(None, None)
+                ]
                 return indexer, maybe_mi_droplevels(indexer, ilevels)
         else:
             indexer = self._get_level_indexer(key, level=level)
@@ -3451,7 +3548,9 @@ class MultiIndex(Index):
         level_index = self.levels[level]
         level_codes = self.codes[level]
 
-        def convert_indexer(start, stop, step, indexer=indexer, codes=level_codes):
+        def convert_indexer(
+            start, stop, step, indexer=indexer, codes=level_codes
+        ):
             # Compute a bool indexer to identify the positions to take.
             # If we have an existing indexer, we only need to examine the
             # subset of positions where the existing indexer is True.
@@ -3498,7 +3597,9 @@ class MultiIndex(Index):
             except KeyError:
                 # we have a partial slice (like looking up a partial date
                 # string)
-                start = stop = level_index.slice_indexer(key.start, key.stop, key.step)
+                start = stop = level_index.slice_indexer(
+                    key.start, key.stop, key.step
+                )
                 step = start.step
 
             if isinstance(start, slice) or isinstance(stop, slice):
@@ -3529,7 +3630,9 @@ class MultiIndex(Index):
                 # Desired level is not sorted
                 if isinstance(idx, slice):
                     # test_get_loc_partial_timestamp_multiindex
-                    locs = (level_codes >= idx.start) & (level_codes < idx.stop)
+                    locs = (level_codes >= idx.start) & (
+                        level_codes < idx.stop
+                    )
                     return locs
 
                 locs = np.asarray(level_codes == idx, dtype=bool)
@@ -3633,7 +3736,9 @@ class MultiIndex(Index):
 
                 # GH#27591 check if this is a single tuple key in the level
                 try:
-                    lvl_indexer = self._get_level_indexer(k, level=i, indexer=indexer)
+                    lvl_indexer = self._get_level_indexer(
+                        k, level=i, indexer=indexer
+                    )
                 except (InvalidIndexError, TypeError, KeyError) as err:
                     # InvalidIndexError e.g. non-hashable, fall back to treating
                     #  this as a sequence of labels
@@ -3670,7 +3775,9 @@ class MultiIndex(Index):
 
             else:
                 # a slice or a single label
-                lvl_indexer = self._get_level_indexer(k, level=i, indexer=indexer)
+                lvl_indexer = self._get_level_indexer(
+                    k, level=i, indexer=indexer
+                )
 
             # update indexer
             lvl_indexer = _to_bool_indexer(lvl_indexer)
@@ -3751,15 +3858,19 @@ class MultiIndex(Index):
                 new_order = np.arange(n)[indexer]
             elif is_list_like(k):
                 # Generate a map with all level codes as sorted initially
-                if not isinstance(k, (np.ndarray, ExtensionArray, Index, ABCSeries)):
+                if not isinstance(
+                    k, (np.ndarray, ExtensionArray, Index, ABCSeries)
+                ):
                     k = sanitize_array(k, None)
                 k = algos.unique(k)
-                key_order_map = np.ones(len(self.levels[i]), dtype=np.uint64) * len(
-                    self.levels[i]
-                )
+                key_order_map = np.ones(
+                    len(self.levels[i]), dtype=np.uint64
+                ) * len(self.levels[i])
                 # Set order as given in the indexer list
                 level_indexer = self.levels[i].get_indexer(k)
-                level_indexer = level_indexer[level_indexer >= 0]  # Filter absent keys
+                level_indexer = level_indexer[
+                    level_indexer >= 0
+                ]  # Filter absent keys
                 key_order_map[level_indexer] = np.arange(len(level_indexer))
 
                 new_order = key_order_map[self.codes[i][indexer]]
@@ -4009,14 +4120,18 @@ class MultiIndex(Index):
         if isinstance(item, MultiIndex):
             # GH#43212
             if item.nlevels != self.nlevels:
-                raise ValueError("Item must have length equal to number of levels.")
+                raise ValueError(
+                    "Item must have length equal to number of levels."
+                )
             return item._values
         elif not isinstance(item, tuple):
             # Pad the key with empty strings if lower levels of the key
             # aren't specified:
             item = (item,) + ("",) * (self.nlevels - 1)
         elif len(item) != self.nlevels:
-            raise ValueError("Item must have length equal to number of levels.")
+            raise ValueError(
+                "Item must have length equal to number of levels."
+            )
         return item
 
     def putmask(self, mask, value: MultiIndex) -> MultiIndex:
@@ -4056,7 +4171,10 @@ class MultiIndex(Index):
             new_codes.append(new_code)
 
         return MultiIndex(
-            levels=new_levels, codes=new_codes, names=self.names, verify_integrity=False
+            levels=new_levels,
+            codes=new_codes,
+            names=self.names,
+            verify_integrity=False,
         )
 
     def insert(self, loc: int, item) -> MultiIndex:
@@ -4090,10 +4208,15 @@ class MultiIndex(Index):
                 lev_loc = level.get_loc(k)
 
             new_levels.append(level)
-            new_codes.append(np.insert(ensure_int64(level_codes), loc, lev_loc))
+            new_codes.append(
+                np.insert(ensure_int64(level_codes), loc, lev_loc)
+            )
 
         return MultiIndex(
-            levels=new_levels, codes=new_codes, names=self.names, verify_integrity=False
+            levels=new_levels,
+            codes=new_codes,
+            names=self.names,
+            verify_integrity=False,
         )
 
     def delete(self, loc) -> MultiIndex:
@@ -4242,7 +4365,9 @@ def maybe_droplevels(index: Index, key) -> Index:
     return index
 
 
-def _coerce_indexer_frozen(array_like, categories, copy: bool = False) -> np.ndarray:
+def _coerce_indexer_frozen(
+    array_like, categories, copy: bool = False
+) -> np.ndarray:
     """
     Coerce the array-like indexer to the smallest integer dtype that can encode all
     of the given categories.

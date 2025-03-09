@@ -63,10 +63,14 @@ class TestAstype:
 
     def test_astype_mixed_float(self, mixed_float_frame):
         # mixed casting
-        casted = mixed_float_frame.reindex(columns=["A", "B"]).astype("float32")
+        casted = mixed_float_frame.reindex(columns=["A", "B"]).astype(
+            "float32"
+        )
         _check_cast(casted, "float32")
 
-        casted = mixed_float_frame.reindex(columns=["A", "B"]).astype("float16")
+        casted = mixed_float_frame.reindex(columns=["A", "B"]).astype(
+            "float16"
+        )
         _check_cast(casted, "float16")
 
     def test_astype_mixed_type(self):
@@ -162,7 +166,9 @@ class TestAstype:
 
         expected = DataFrame(
             {
-                "a": list(map(str, (Timestamp(x)._date_repr for x in a._values))),
+                "a": list(
+                    map(str, (Timestamp(x)._date_repr for x in a._values))
+                ),
                 "b": list(map(str, map(Timestamp, b._values))),
                 "c": [Timedelta(x)._repr_base() for x in c._values],
                 "d": list(map(str, d._values)),
@@ -176,7 +182,9 @@ class TestAstype:
     def test_astype_str_float(self, using_infer_string):
         # see GH#11302
         result = DataFrame([np.nan]).astype(str)
-        expected = DataFrame([np.nan if using_infer_string else "nan"], dtype="str")
+        expected = DataFrame(
+            [np.nan if using_infer_string else "nan"], dtype="str"
+        )
 
         tm.assert_frame_equal(result, expected)
         result = DataFrame([1.12345678901234567890]).astype(str)
@@ -251,7 +259,11 @@ class TestAstype:
         # GH#16717
         # if dtypes provided is empty, the resulting DataFrame
         # should be the same as the original DataFrame
-        dt7 = dtype_class({}) if dtype_class is dict else dtype_class({}, dtype=object)
+        dt7 = (
+            dtype_class({})
+            if dtype_class is dict
+            else dtype_class({}, dtype=object)
+        )
         equiv = df.astype(dt7)
         tm.assert_frame_equal(df, equiv)
         tm.assert_frame_equal(df, original)
@@ -264,7 +276,9 @@ class TestAstype:
 
         result = df.astype("str")
         a1_str = Series(["1", "2", "3", "4", "5"], dtype="str", name="a")
-        b_str = Series(["0.1", "0.2", "0.4", "0.6", "0.8"], dtype="str", name="b")
+        b_str = Series(
+            ["0.1", "0.2", "0.4", "0.6", "0.8"], dtype="str", name="b"
+        )
         a2_str = Series(["0", "1", "2", "3", "4"], dtype="str", name="a")
         expected = concat([a1_str, b_str, a2_str], axis=1)
         tm.assert_frame_equal(result, expected)
@@ -311,10 +325,14 @@ class TestAstype:
         d = {"A": list("abbc"), "B": list("bccd"), "C": list("cdde")}
         df = DataFrame(d)
         result = df.astype(dtype)
-        expected = DataFrame({k: Categorical(v, dtype=dtype) for k, v in d.items()})
+        expected = DataFrame(
+            {k: Categorical(v, dtype=dtype) for k, v in d.items()}
+        )
         tm.assert_frame_equal(result, expected)
 
-    @pytest.mark.parametrize("cls", [CategoricalDtype, DatetimeTZDtype, IntervalDtype])
+    @pytest.mark.parametrize(
+        "cls", [CategoricalDtype, DatetimeTZDtype, IntervalDtype]
+    )
     def test_astype_categoricaldtype_class_raises(self, cls):
         df = DataFrame({"A": ["a", "a", "b", "c"]})
         xpr = f"Expected an instance of {cls.__name__}"
@@ -327,7 +345,9 @@ class TestAstype:
     def test_astype_extension_dtypes(self, any_int_ea_dtype):
         # GH#22578
         dtype = any_int_ea_dtype
-        df = DataFrame([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], columns=["a", "b"])
+        df = DataFrame(
+            [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], columns=["a", "b"]
+        )
 
         expected1 = DataFrame(
             {
@@ -339,7 +359,9 @@ class TestAstype:
         tm.assert_frame_equal(df.astype("int64").astype(dtype), expected1)
         tm.assert_frame_equal(df.astype(dtype).astype("float64"), df)
 
-        df = DataFrame([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], columns=["a", "b"])
+        df = DataFrame(
+            [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], columns=["a", "b"]
+        )
         df["b"] = df["b"].astype(dtype)
         expected2 = DataFrame(
             {"a": [1.0, 3.0, 5.0], "b": pd.array([2, 4, 6], dtype=dtype)}
@@ -436,7 +458,9 @@ class TestAstype:
 
     @pytest.mark.parametrize("dtype", ["M8", "m8"])
     @pytest.mark.parametrize("unit", ["ns", "us", "ms", "s", "h", "m", "D"])
-    def test_astype_to_datetimelike_unit(self, any_real_numpy_dtype, dtype, unit):
+    def test_astype_to_datetimelike_unit(
+        self, any_real_numpy_dtype, dtype, unit
+    ):
         # tests all units from numeric origination
         # GH#19223 / GH#12425
         dtype = f"{dtype}[{unit}]"
@@ -705,7 +729,9 @@ class TestAstype:
         ],
     )
     @pytest.mark.parametrize("errors", ["raise", "ignore"])
-    def test_astype_ignores_errors_for_extension_dtypes(self, data, dtype, errors):
+    def test_astype_ignores_errors_for_extension_dtypes(
+        self, data, dtype, errors
+    ):
         # https://github.com/pandas-dev/pandas/issues/35471
         df = DataFrame(Series(data, dtype=dtype))
         if errors == "ignore":
@@ -722,7 +748,9 @@ class TestAstype:
         msg = "'d' is deprecated and will be removed in a future version."
         with tm.assert_produces_warning(FutureWarning, match=msg):
             val = {
-                "tz": date_range("2020-08-30", freq="d", periods=2, tz="Europe/London")
+                "tz": date_range(
+                    "2020-08-30", freq="d", periods=2, tz="Europe/London"
+                )
             }
         df = DataFrame(val)
         result = df.astype({"tz": "datetime64[ns, Europe/Berlin]"})
@@ -734,7 +762,11 @@ class TestAstype:
     @pytest.mark.parametrize("tz", ["UTC", "Europe/Berlin"])
     def test_astype_tz_object_conversion(self, tz):
         # GH 35973
-        val = {"tz": date_range("2020-08-30", freq="D", periods=2, tz="Europe/London")}
+        val = {
+            "tz": date_range(
+                "2020-08-30", freq="D", periods=2, tz="Europe/London"
+            )
+        }
         expected = DataFrame(val)
 
         # convert expected to object dtype from other tz str (independently tested)
@@ -745,7 +777,9 @@ class TestAstype:
         result = result.astype({"tz": "datetime64[ns, Europe/London]"})
         tm.assert_frame_equal(result, expected)
 
-    @pytest.mark.xfail(using_string_dtype(), reason="TODO(infer_string) GH#60639")
+    @pytest.mark.xfail(
+        using_string_dtype(), reason="TODO(infer_string) GH#60639"
+    )
     def test_astype_dt64_to_string(
         self, frame_or_series, tz_naive_fixture, using_infer_string
     ):
@@ -780,7 +814,9 @@ class TestAstype:
         tdi = pd.timedelta_range("1 Day", periods=3)
         obj = frame_or_series(tdi)
 
-        expected = frame_or_series(["1 days", "2 days", "3 days"], dtype="string")
+        expected = frame_or_series(
+            ["1 days", "2 days", "3 days"], dtype="string"
+        )
         result = obj.astype("string")
         tm.assert_equal(result, expected)
 
@@ -822,7 +858,9 @@ class TestAstype:
 
 class TestAstypeCategorical:
     def test_astype_from_categorical3(self):
-        df = DataFrame({"cats": [1, 2, 3, 4, 5, 6], "vals": [1, 2, 3, 4, 5, 6]})
+        df = DataFrame(
+            {"cats": [1, 2, 3, 4, 5, 6], "vals": [1, 2, 3, 4, 5, 6]}
+        )
         cats = Categorical([1, 2, 3, 4, 5, 6])
         exp_df = DataFrame({"cats": cats, "vals": [1, 2, 3, 4, 5, 6]})
         df["cats"] = df["cats"].astype("category")
@@ -830,7 +868,10 @@ class TestAstypeCategorical:
 
     def test_astype_from_categorical4(self):
         df = DataFrame(
-            {"cats": ["a", "b", "b", "a", "a", "d"], "vals": [1, 2, 3, 4, 5, 6]}
+            {
+                "cats": ["a", "b", "b", "a", "a", "d"],
+                "vals": [1, 2, 3, 4, 5, 6],
+            }
         )
         cats = Categorical(["a", "b", "b", "a", "a", "d"])
         exp_df = DataFrame({"cats": cats, "vals": [1, 2, 3, 4, 5, 6]})
@@ -843,7 +884,9 @@ class TestAstypeCategorical:
         df = DataFrame(data={"col1": pd.array([2.0, 1.0, 3.0])})
         df.col1 = df.col1.astype("category")
         df.col1 = df.col1.astype(any_int_dtype)
-        expected = DataFrame({"col1": pd.array([2, 1, 3], dtype=any_int_dtype)})
+        expected = DataFrame(
+            {"col1": pd.array([2, 1, 3], dtype=any_int_dtype)}
+        )
         tm.assert_frame_equal(df, expected)
 
     def test_astype_categorical_to_string_missing(self):

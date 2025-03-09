@@ -104,15 +104,19 @@ def test_union_different_types(index_flat, index_flat2, request):
     msg = "'<' not supported between"
     if not len(idx1) or not len(idx2):
         pass
-    elif (idx1.dtype.kind == "c" and (not lib.is_np_dtype(idx2.dtype, "iufc"))) or (
+    elif (
+        idx1.dtype.kind == "c" and (not lib.is_np_dtype(idx2.dtype, "iufc"))
+    ) or (
         idx2.dtype.kind == "c" and (not lib.is_np_dtype(idx1.dtype, "iufc"))
     ):
         # complex objects non-sortable
         warn = RuntimeWarning
     elif (
-        isinstance(idx1.dtype, PeriodDtype) and isinstance(idx2.dtype, CategoricalDtype)
+        isinstance(idx1.dtype, PeriodDtype)
+        and isinstance(idx2.dtype, CategoricalDtype)
     ) or (
-        isinstance(idx2.dtype, PeriodDtype) and isinstance(idx1.dtype, CategoricalDtype)
+        isinstance(idx2.dtype, PeriodDtype)
+        and isinstance(idx1.dtype, CategoricalDtype)
     ):
         warn = FutureWarning
         msg = r"PeriodDtype\[B\] is deprecated"
@@ -148,9 +152,15 @@ def test_union_different_types(index_flat, index_flat2, request):
     "idx1,idx2",
     [
         (Index(np.arange(5), dtype=np.int64), RangeIndex(5)),
-        (Index(np.arange(5), dtype=np.float64), Index(np.arange(5), dtype=np.int64)),
+        (
+            Index(np.arange(5), dtype=np.float64),
+            Index(np.arange(5), dtype=np.int64),
+        ),
         (Index(np.arange(5), dtype=np.float64), RangeIndex(5)),
-        (Index(np.arange(5), dtype=np.float64), Index(np.arange(5), dtype=np.uint64)),
+        (
+            Index(np.arange(5), dtype=np.float64),
+            Index(np.arange(5), dtype=np.uint64),
+        ),
     ],
 )
 def test_compatible_inconsistent_pairs(idx1, idx2):
@@ -182,7 +192,9 @@ def test_compatible_inconsistent_pairs(idx1, idx2):
         ("Period[D]", "float64", "object"),
     ],
 )
-@pytest.mark.parametrize("names", [("foo", "foo", "foo"), ("foo", "bar", None)])
+@pytest.mark.parametrize(
+    "names", [("foo", "foo", "foo"), ("foo", "bar", None)]
+)
 def test_union_dtypes(left, right, expected, names):
     left = pandas_dtype(left)
     right = pandas_dtype(right)
@@ -212,7 +224,8 @@ class TestSetOps:
     # Set operation tests shared by all indexes in the `index` fixture
     @pytest.mark.parametrize("case", [0.5, "xxx"])
     @pytest.mark.parametrize(
-        "method", ["intersection", "union", "difference", "symmetric_difference"]
+        "method",
+        ["intersection", "union", "difference", "symmetric_difference"],
     )
     def test_set_ops_error_cases(self, case, method, index):
         # non-iterable input
@@ -220,7 +233,9 @@ class TestSetOps:
         with pytest.raises(TypeError, match=msg):
             getattr(index, method)(case)
 
-    @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+    @pytest.mark.filterwarnings(
+        r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+    )
     def test_intersection_base(self, index):
         if isinstance(index, CategoricalIndex):
             pytest.skip(f"Not relevant for {type(index).__name__}")
@@ -246,7 +261,9 @@ class TestSetOps:
             with pytest.raises(TypeError, match=msg):
                 first.intersection([1, 2, 3])
 
-    @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+    @pytest.mark.filterwarnings(
+        r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+    )
     def test_union_base(self, index):
         index = index.unique()
         first = index[3:]
@@ -272,7 +289,9 @@ class TestSetOps:
             with pytest.raises(TypeError, match=msg):
                 first.union([1, 2, 3])
 
-    @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+    @pytest.mark.filterwarnings(
+        r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+    )
     def test_difference_base(self, sort, index):
         first = index[2:]
         second = index[:4]
@@ -298,7 +317,9 @@ class TestSetOps:
             with pytest.raises(TypeError, match=msg):
                 first.difference([1, 2, 3], sort)
 
-    @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+    @pytest.mark.filterwarnings(
+        r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+    )
     def test_symmetric_difference(self, index, using_infer_string, request):
         if (
             using_infer_string
@@ -471,7 +492,9 @@ class TestSetOps:
         expected = index[1:].set_names(expected_name).sort_values()
         tm.assert_index_equal(intersect, expected)
 
-    @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+    @pytest.mark.filterwarnings(
+        r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+    )
     def test_intersection_name_retention_with_nameless(self, index):
         if isinstance(index, MultiIndex):
             index = index.rename(list(range(index.nlevels)))
@@ -525,8 +548,12 @@ class TestSetOps:
         tm.assert_index_equal(inter, diff, exact=True)
 
 
-@pytest.mark.filterwarnings("ignore:invalid value encountered in cast:RuntimeWarning")
-@pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+@pytest.mark.filterwarnings(
+    "ignore:invalid value encountered in cast:RuntimeWarning"
+)
+@pytest.mark.filterwarnings(
+    r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning"
+)
 @pytest.mark.parametrize(
     "method", ["intersection", "union", "difference", "symmetric_difference"]
 )
@@ -567,7 +594,9 @@ def test_intersection_duplicates_all_indexes(index):
     idx = index
     idx_non_unique = idx[[0, 0, 1, 2]]
 
-    assert idx.intersection(idx_non_unique).equals(idx_non_unique.intersection(idx))
+    assert idx.intersection(idx_non_unique).equals(
+        idx_non_unique.intersection(idx)
+    )
     assert idx.intersection(idx_non_unique).is_unique
 
 
@@ -720,7 +749,9 @@ class TestSetOpsUnsorted:
         second = index[:10]
         intersect = first.intersection(second, sort=sort)
         if sort in (None, False):
-            tm.assert_index_equal(intersect.sort_values(), second.sort_values())
+            tm.assert_index_equal(
+                intersect.sort_values(), second.sort_values()
+            )
         else:
             tm.assert_index_equal(intersect, second)
 
@@ -736,7 +767,9 @@ class TestSetOpsUnsorted:
             (None, False),
         ],
     )
-    def test_intersection_name_preservation(self, index2_name, keeps_name, sort):
+    def test_intersection_name_preservation(
+        self, index2_name, keeps_name, sort
+    ):
         index2 = Index([3, 4, 5, 6, 7], name=index2_name)
         index1 = Index([1, 2, 3, 4, 5], name="index")
         expected = Index([3, 4, 5])
@@ -787,7 +820,9 @@ class TestSetOpsUnsorted:
 
         union = first.union(second, sort=sort)
         if sort in (None, False):
-            tm.assert_index_equal(union.sort_values(), everything.sort_values())
+            tm.assert_index_equal(
+                union.sort_values(), everything.sort_values()
+            )
         else:
             tm.assert_index_equal(union, everything)
 
@@ -802,7 +837,9 @@ class TestSetOpsUnsorted:
         case = klass(second.values)
         result = first.union(case, sort=sort)
         if sort in (None, False):
-            tm.assert_index_equal(result.sort_values(), everything.sort_values())
+            tm.assert_index_equal(
+                result.sort_values(), everything.sort_values()
+            )
         else:
             tm.assert_index_equal(result, everything)
 
@@ -823,8 +860,12 @@ class TestSetOpsUnsorted:
         assert (union is first) is (not sort)
 
     @pytest.mark.parametrize("index", ["string"], indirect=True)
-    @pytest.mark.parametrize("second_name,expected", [(None, None), ("name", "name")])
-    def test_difference_name_preservation(self, index, second_name, expected, sort):
+    @pytest.mark.parametrize(
+        "second_name,expected", [(None, None), ("name", "name")]
+    )
+    def test_difference_name_preservation(
+        self, index, second_name, expected, sort
+    ):
         first = index[5:20]
         second = index[:10]
         answer = index[10:20]
@@ -889,7 +930,9 @@ class TestSetOpsUnsorted:
         b = Index([2, Timestamp("1999"), 1])
         op = operator.methodcaller(opname, b)
 
-        with tm.assert_produces_warning(RuntimeWarning, match="not supported between"):
+        with tm.assert_produces_warning(
+            RuntimeWarning, match="not supported between"
+        ):
             # sort=None, the default
             result = op(a)
         expected = Index([3, Timestamp("2000"), 2, Timestamp("1999")])
@@ -951,7 +994,9 @@ class TestSetOpsUnsorted:
             tm.assert_index_equal(result.sort_values(), expected)
         assert result.name == "index1"
 
-        result = index1.symmetric_difference(index2, result_name="new_name", sort=sort)
+        result = index1.symmetric_difference(
+            index2, result_name="new_name", sort=sort
+        )
         expected.name = "new_name"
         if sort in (None, True):
             tm.assert_index_equal(result, expected)

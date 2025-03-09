@@ -89,7 +89,14 @@ class TestToLatex:
 
     @pytest.mark.parametrize(
         "bad_column_format",
-        [5, 1.2, ["l", "r"], ("r", "c"), {"r", "c", "l"}, {"a": "r", "b": "l"}],
+        [
+            5,
+            1.2,
+            ["l", "r"],
+            ("r", "c"),
+            {"r", "c", "l"},
+            {"a": "r", "b": "l"},
+        ],
     )
     def test_to_latex_bad_column_format(self, bad_column_format):
         df = DataFrame({"a": [1, 2], "b": ["b1", "b2"]})
@@ -274,7 +281,9 @@ class TestToLatexLongtable:
             ({"a": [1, 2], "b": [3, 4], "c": [5, 6]}, 3),
         ],
     )
-    def test_to_latex_longtable_continued_on_next_page(self, df_data, expected_number):
+    def test_to_latex_longtable_continued_on_next_page(
+        self, df_data, expected_number
+    ):
         df = DataFrame(df_data)
         result = df.to_latex(index=False, longtable=True)
         assert rf"\multicolumn{{{expected_number}}}" in result
@@ -494,7 +503,9 @@ class TestToLatexCaptionLabel:
         )
         assert result == expected
 
-    def test_to_latex_caption_and_label(self, df_short, caption_table, label_table):
+    def test_to_latex_caption_and_label(
+        self, df_short, caption_table, label_table
+    ):
         # GH 25436
         result = df_short.to_latex(caption=caption_table, label=label_table)
         expected = _dedent(
@@ -613,7 +624,9 @@ class TestToLatexCaptionLabel:
         )
         assert result == expected
 
-    def test_to_latex_longtable_caption_only(self, df_short, caption_longtable):
+    def test_to_latex_longtable_caption_only(
+        self, df_short, caption_longtable
+    ):
         # GH 25436
         # test when no caption and no label is provided
         # is performed by test_to_latex_longtable()
@@ -756,7 +769,9 @@ class TestToLatexEscape:
         """Dataframe with special characters for testing chars escaping."""
         a = "a"
         b = "b"
-        return DataFrame({"co$e^x$": {a: "a", b: "b"}, "co^l1": {a: "a", b: "b"}})
+        return DataFrame(
+            {"co$e^x$": {a: "a", b: "b"}, "co^l1": {a: "a", b: "b"}}
+        )
 
     def test_to_latex_escape_false(self, df_with_symbols):
         result = df_with_symbols.to_latex(escape=False)
@@ -799,7 +814,18 @@ class TestToLatexEscape:
         assert result == expected
 
     def test_to_latex_escape_special_chars(self):
-        special_characters = ["&", "%", "$", "#", "_", "{", "}", "~", "^", "\\"]
+        special_characters = [
+            "&",
+            "%",
+            "$",
+            "#",
+            "_",
+            "{",
+            "}",
+            "~",
+            "^",
+            "\\",
+        ]
         df = DataFrame(data=special_characters)
         result = df.to_latex(escape=True)
         expected = _dedent(
@@ -1133,7 +1159,9 @@ class TestToLatexMultiindex:
 
     def test_to_latex_index_has_name_tabular(self):
         # GH 10660
-        df = DataFrame({"a": [0, 0, 1, 1], "b": list("abab"), "c": [1, 2, 3, 4]})
+        df = DataFrame(
+            {"a": [0, 0, 1, 1], "b": list("abab"), "c": [1, 2, 3, 4]}
+        )
         result = df.set_index(["a", "b"]).to_latex(multirow=False)
         expected = _dedent(
             r"""
@@ -1154,7 +1182,9 @@ class TestToLatexMultiindex:
 
     def test_to_latex_groupby_tabular(self):
         # GH 10660
-        df = DataFrame({"a": [0, 0, 1, 1], "b": list("abab"), "c": [1, 2, 3, 4]})
+        df = DataFrame(
+            {"a": [0, 0, 1, 1], "b": list("abab"), "c": [1, 2, 3, 4]}
+        )
         result = (
             df.groupby("a")
             .describe()
@@ -1185,7 +1215,8 @@ class TestToLatexMultiindex:
         # equal too. In this test, 'c' has to be printed both times
         # because the higher order index 'A' != 'B'.
         df = DataFrame(
-            index=pd.MultiIndex.from_tuples([("A", "c"), ("B", "c")]), columns=["col"]
+            index=pd.MultiIndex.from_tuples([("A", "c"), ("B", "c")]),
+            columns=["col"],
         )
         result = df.to_latex(multirow=False)
         expected = _dedent(
@@ -1223,7 +1254,9 @@ class TestToLatexMultiindex:
         assert result == expected
 
     def test_to_latex_multicolumn_false(self, multicolumn_frame):
-        result = multicolumn_frame.to_latex(multicolumn=False, multicolumn_format="l")
+        result = multicolumn_frame.to_latex(
+            multicolumn=False, multicolumn_format="l"
+        )
         expected = _dedent(
             r"""
             \begin{tabular}{lrrrrr}
@@ -1264,7 +1297,9 @@ class TestToLatexMultiindex:
         )
         assert result == expected
 
-    def test_to_latex_multicolumnrow_with_multicol_format(self, multicolumn_frame):
+    def test_to_latex_multicolumnrow_with_multicol_format(
+        self, multicolumn_frame
+    ):
         multicolumn_frame.index = multicolumn_frame.T.index
         result = multicolumn_frame.T.to_latex(
             multirow=True,
@@ -1322,7 +1357,9 @@ class TestToLatexMultiindex:
  & 4 & -1 & -1 & -1 & -1 \\
 \bottomrule
 \end{tabular}
-""" % tuple(list(col_names) + [idx_names_row])
+""" % tuple(
+            list(col_names) + [idx_names_row]
+        )
         assert observed == expected
 
     @pytest.mark.parametrize("one_row", [True, False])
@@ -1372,7 +1409,8 @@ class TestToLatexMultiindex:
     def test_to_latex_multiindex_multirow(self):
         # GH 16719
         mi = pd.MultiIndex.from_product(
-            [[0.0, 1.0], [3.0, 2.0, 1.0], ["0", "1"]], names=["i", "val0", "val1"]
+            [[0.0, 1.0], [3.0, 2.0, 1.0], ["0", "1"]],
+            names=["i", "val0", "val1"],
         )
         df = DataFrame(index=mi)
         result = df.to_latex(multirow=True, escape=False)
@@ -1419,13 +1457,15 @@ class TestToLatexMultiindex:
             .map_index(lambda v: "textbf:--rwrap;", axis="columns")
             .to_latex()
         )
-        expected = _dedent(r"""
+        expected = _dedent(
+            r"""
             \begin{tabular}{rr}
             \textbf{A} & \textbf{B} \\
             1 & 4 \\
             2 & 5 \\
             \end{tabular}
-            """)
+            """
+        )
         assert result == expected
 
     def test_to_latex_multiindex_format_triple_index_two_hidden(self):
@@ -1448,7 +1488,8 @@ class TestToLatexMultiindex:
             .map_index(lambda v: "textbf:--rwrap;", axis="columns")
             .to_latex()
         )
-        expected = _dedent(r"""
+        expected = _dedent(
+            r"""
             \begin{tabular}{lrrr}
              & \textbf{C1} & \textbf{C2} & \textbf{C3} \\
             Level 2 &  &  &  \\
@@ -1457,7 +1498,8 @@ class TestToLatexMultiindex:
             y & 0 & 0 & 0 \\
             y & 0 & 0 & 0 \\
             \end{tabular}
-            """)
+            """
+        )
         assert result == expected
 
     def test_to_latex_multiindex_format_triple_index_all_hidden(self):
@@ -1480,7 +1522,8 @@ class TestToLatexMultiindex:
             .map_index(lambda v: "textbf:--rwrap;", axis="columns")
             .to_latex()
         )
-        expected = _dedent(r"""
+        expected = _dedent(
+            r"""
             \begin{tabular}{rrr}
             \textbf{C1} & \textbf{C2} & \textbf{C3} \\
             0 & 0 & 0 \\
@@ -1488,5 +1531,6 @@ class TestToLatexMultiindex:
             0 & 0 & 0 \\
             0 & 0 & 0 \\
             \end{tabular}
-            """)
+            """
+        )
         assert result == expected

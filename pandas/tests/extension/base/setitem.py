@@ -49,7 +49,9 @@ class BaseSetitemTests:
             #  class/file.
             defined_in = node.function.__qualname__.split(".")[0]
             if defined_in == "BaseSetitemTests":
-                pytest.skip("__setitem__ test not applicable with immutable dtype")
+                pytest.skip(
+                    "__setitem__ test not applicable with immutable dtype"
+                )
 
     def test_is_immutable(self, data):
         if data.dtype._is_immutable:
@@ -207,7 +209,9 @@ class BaseSetitemTests:
         [[0, 0, 1], pd.array([0, 0, 1], dtype="Int64"), np.array([0, 0, 1])],
         ids=["list", "integer-array", "numpy-array"],
     )
-    def test_setitem_integer_array_with_repeats(self, data, idx, box_in_series):
+    def test_setitem_integer_array_with_repeats(
+        self, data, idx, box_in_series
+    ):
         arr = data[:5].copy()
         expected = data.take([2, 3, 2, 3, 4])
 
@@ -223,21 +227,32 @@ class BaseSetitemTests:
         [
             ([0, 1, 2, pd.NA], False),
             pytest.param(
-                [0, 1, 2, pd.NA], True, marks=pytest.mark.xfail(reason="GH-31948")
+                [0, 1, 2, pd.NA],
+                True,
+                marks=pytest.mark.xfail(reason="GH-31948"),
             ),
             (pd.array([0, 1, 2, pd.NA], dtype="Int64"), False),
             # TODO: change False to True?
             (pd.array([0, 1, 2, pd.NA], dtype="Int64"), False),  # noqa: PT014
         ],
-        ids=["list-False", "list-True", "integer-array-False", "integer-array-True"],
+        ids=[
+            "list-False",
+            "list-True",
+            "integer-array-False",
+            "integer-array-True",
+        ],
     )
-    def test_setitem_integer_with_missing_raises(self, data, idx, box_in_series):
+    def test_setitem_integer_with_missing_raises(
+        self, data, idx, box_in_series
+    ):
         arr = data.copy()
 
         # TODO(xfail) this raises KeyError about labels not found (it tries label-based)
         # for list of labels with Series
         if box_in_series:
-            arr = pd.Series(data, index=[chr(100 + i) for i in range(len(data))])
+            arr = pd.Series(
+                data, index=[chr(100 + i) for i in range(len(data))]
+            )
 
         msg = "Cannot index with an integer indexer containing NA values"
         with pytest.raises(ValueError, match=msg):

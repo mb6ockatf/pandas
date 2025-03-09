@@ -126,7 +126,10 @@ class ODFReader(BaseExcelReader["OpenDocument"]):
             table_row: list[Scalar | NaTType] = []
 
             for sheet_cell in sheet_row.childNodes:
-                if hasattr(sheet_cell, "qname") and sheet_cell.qname in cell_names:
+                if (
+                    hasattr(sheet_cell, "qname")
+                    and sheet_cell.qname in cell_names
+                ):
                     if sheet_cell.qname == table_cell_name:
                         value = self._get_cell_value(sheet_cell)
                     else:
@@ -176,7 +179,9 @@ class ODFReader(BaseExcelReader["OpenDocument"]):
     def _get_column_repeat(self, cell) -> int:
         from odf.namespaces import TABLENS
 
-        return int(cell.attributes.get((TABLENS, "number-columns-repeated"), 1))
+        return int(
+            cell.attributes.get((TABLENS, "number-columns-repeated"), 1)
+        )
 
     def _get_cell_value(self, cell) -> Scalar | NaTType:
         from odf.namespaces import OFFICENS

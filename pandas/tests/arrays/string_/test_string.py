@@ -265,8 +265,12 @@ def test_comparison_methods_scalar(comparison_op, dtype):
             expected[1] = False
         tm.assert_numpy_array_equal(result, expected.astype(np.bool_))
     else:
-        expected_dtype = "boolean[pyarrow]" if dtype.storage == "pyarrow" else "boolean"
-        expected = np.array([getattr(item, op_name)(other) for item in a], dtype=object)
+        expected_dtype = (
+            "boolean[pyarrow]" if dtype.storage == "pyarrow" else "boolean"
+        )
+        expected = np.array(
+            [getattr(item, op_name)(other) for item in a], dtype=object
+        )
         expected = pd.array(expected, dtype=expected_dtype)
         tm.assert_extension_array_equal(result, expected)
 
@@ -283,7 +287,9 @@ def test_comparison_methods_scalar_pd_na(comparison_op, dtype):
             expected = np.array([False, False, False])
         tm.assert_numpy_array_equal(result, expected)
     else:
-        expected_dtype = "boolean[pyarrow]" if dtype.storage == "pyarrow" else "boolean"
+        expected_dtype = (
+            "boolean[pyarrow]" if dtype.storage == "pyarrow" else "boolean"
+        )
         expected = pd.array([None, None, None], dtype=expected_dtype)
         tm.assert_extension_array_equal(result, expected)
         tm.assert_extension_array_equal(result, expected)
@@ -296,7 +302,9 @@ def test_comparison_methods_scalar_not_string(comparison_op, dtype):
     other = 42
 
     if op_name not in ["__eq__", "__ne__"]:
-        with pytest.raises(TypeError, match="Invalid comparison|not supported between"):
+        with pytest.raises(
+            TypeError, match="Invalid comparison|not supported between"
+        ):
             getattr(a, op_name)(other)
 
         return
@@ -311,10 +319,13 @@ def test_comparison_methods_scalar_not_string(comparison_op, dtype):
         expected = np.array(expected_data)
         tm.assert_numpy_array_equal(result, expected)
     else:
-        expected_data = {"__eq__": [False, None, False], "__ne__": [True, None, True]}[
-            op_name
-        ]
-        expected_dtype = "boolean[pyarrow]" if dtype.storage == "pyarrow" else "boolean"
+        expected_data = {
+            "__eq__": [False, None, False],
+            "__ne__": [True, None, True],
+        }[op_name]
+        expected_dtype = (
+            "boolean[pyarrow]" if dtype.storage == "pyarrow" else "boolean"
+        )
         expected = pd.array(expected_data, dtype=expected_dtype)
         tm.assert_extension_array_equal(result, expected)
 
@@ -341,7 +352,9 @@ def test_comparison_methods_array(comparison_op, dtype):
         tm.assert_numpy_array_equal(result, expected)
 
     else:
-        expected_dtype = "boolean[pyarrow]" if dtype.storage == "pyarrow" else "boolean"
+        expected_dtype = (
+            "boolean[pyarrow]" if dtype.storage == "pyarrow" else "boolean"
+        )
         expected = np.full(len(a), fill_value=None, dtype="object")
         expected[-1] = getattr(other[-1], op_name)(a[-1])
         expected = pd.array(expected, dtype=expected_dtype)
@@ -387,7 +400,9 @@ def test_constructor_raises(cls):
         cls(np.array(["a", np.timedelta64("NaT", "ns")], dtype=object))
 
 
-@pytest.mark.parametrize("na", [np.nan, np.float64("nan"), float("nan"), None, pd.NA])
+@pytest.mark.parametrize(
+    "na", [np.nan, np.float64("nan"), float("nan"), None, pd.NA]
+)
 def test_constructor_nan_like(na):
     expected = pd.arrays.StringArray(np.array(["a", pd.NA]))
     tm.assert_extension_array_equal(
@@ -483,7 +498,9 @@ def test_min_max(method, skipna, dtype):
 def test_min_max_numpy(method, box, dtype, request):
     if dtype.storage == "pyarrow" and box is pd.array:
         if box is pd.array:
-            reason = "'<=' not supported between instances of 'str' and 'NoneType'"
+            reason = (
+                "'<=' not supported between instances of 'str' and 'NoneType'"
+            )
         else:
             reason = "'ArrowStringArray' object has no attribute 'max'"
         mark = pytest.mark.xfail(raises=TypeError, reason=reason)
@@ -546,7 +563,9 @@ def test_arrow_roundtrip(dtype, string_storage, using_infer_string):
         assert result["a"].dtype == "object"
     else:
         assert isinstance(result["a"].dtype, pd.StringDtype)
-        expected = df.astype(pd.StringDtype(string_storage, na_value=dtype.na_value))
+        expected = df.astype(
+            pd.StringDtype(string_storage, na_value=dtype.na_value)
+        )
         if using_infer_string:
             expected.columns = expected.columns.astype(
                 pd.StringDtype(string_storage, na_value=np.nan)
@@ -572,7 +591,9 @@ def test_arrow_from_string(using_infer_string):
 
 
 @pytest.mark.filterwarnings("ignore:Passing a BlockManager:DeprecationWarning")
-def test_arrow_load_from_zero_chunks(dtype, string_storage, using_infer_string):
+def test_arrow_load_from_zero_chunks(
+    dtype, string_storage, using_infer_string
+):
     # GH-41040
     pa = pytest.importorskip("pyarrow")
 
@@ -584,7 +605,9 @@ def test_arrow_load_from_zero_chunks(dtype, string_storage, using_infer_string):
     else:
         assert table.field("a").type == "large_string"
     # Instantiate the same table with no chunks at all
-    table = pa.table([pa.chunked_array([], type=pa.string())], schema=table.schema)
+    table = pa.table(
+        [pa.chunked_array([], type=pa.string())], schema=table.schema
+    )
     with pd.option_context("string_storage", string_storage):
         result = table.to_pandas()
 
@@ -592,7 +615,9 @@ def test_arrow_load_from_zero_chunks(dtype, string_storage, using_infer_string):
         assert result["a"].dtype == "object"
     else:
         assert isinstance(result["a"].dtype, pd.StringDtype)
-        expected = df.astype(pd.StringDtype(string_storage, na_value=dtype.na_value))
+        expected = df.astype(
+            pd.StringDtype(string_storage, na_value=dtype.na_value)
+        )
         if using_infer_string:
             expected.columns = expected.columns.astype(
                 pd.StringDtype(string_storage, na_value=np.nan)
@@ -609,7 +634,9 @@ def test_value_counts_na(dtype):
         exp_dtype = "Int64"
     arr = pd.array(["a", "b", "a", pd.NA], dtype=dtype)
     result = arr.value_counts(dropna=False)
-    expected = pd.Series([2, 1, 1], index=arr[[0, 1, 3]], dtype=exp_dtype, name="count")
+    expected = pd.Series(
+        [2, 1, 1], index=arr[[0, 1, 3]], dtype=exp_dtype, name="count"
+    )
     tm.assert_series_equal(result, expected)
 
     result = arr.value_counts(dropna=True)
@@ -626,7 +653,10 @@ def test_value_counts_with_normalize(dtype):
         exp_dtype = "Float64"
     ser = pd.Series(["a", "b", "a", pd.NA], dtype=dtype)
     result = ser.value_counts(normalize=True)
-    expected = pd.Series([2, 1], index=ser[:2], dtype=exp_dtype, name="proportion") / 3
+    expected = (
+        pd.Series([2, 1], index=ser[:2], dtype=exp_dtype, name="proportion")
+        / 3
+    )
     tm.assert_series_equal(result, expected)
 
 
@@ -639,7 +669,9 @@ def test_value_counts_sort_false(dtype):
         exp_dtype = "Int64"
     ser = pd.Series(["a", "b", "c", "b"], dtype=dtype)
     result = ser.value_counts(sort=False)
-    expected = pd.Series([1, 2, 1], index=ser[:3], dtype=exp_dtype, name="count")
+    expected = pd.Series(
+        [1, 2, 1], index=ser[:3], dtype=exp_dtype, name="count"
+    )
     tm.assert_series_equal(result, expected)
 
 
@@ -651,7 +683,12 @@ def test_memory_usage(dtype):
 
     series = pd.Series(["a", "b", "c"], dtype=dtype)
 
-    assert 0 < series.nbytes <= series.memory_usage() < series.memory_usage(deep=True)
+    assert (
+        0
+        < series.nbytes
+        <= series.memory_usage()
+        < series.memory_usage(deep=True)
+    )
 
 
 @pytest.mark.parametrize("float_dtype", [np.float16, np.float32, np.float64])
@@ -762,5 +799,7 @@ def test_tolist(dtype):
 
 def test_string_array_view_type_error():
     arr = pd.array(["a", "b", "c"], dtype="string")
-    with pytest.raises(TypeError, match="Cannot change data-type for string array."):
+    with pytest.raises(
+        TypeError, match="Cannot change data-type for string array."
+    ):
         arr.view("i8")

@@ -49,7 +49,10 @@ class TestGetCallableName:
 class TestRandomState:
     def test_seed(self):
         seed = 5
-        assert com.random_state(seed).uniform() == np.random.RandomState(seed).uniform()
+        assert (
+            com.random_state(seed).uniform()
+            == np.random.RandomState(seed).uniform()
+        )
 
     def test_object(self):
         seed = 10
@@ -63,9 +66,12 @@ class TestRandomState:
         assert com.random_state() is np.random
 
     def test_array_like(self):
-        state = np.random.default_rng(None).integers(0, 2**31, size=624, dtype="uint32")
+        state = np.random.default_rng(None).integers(
+            0, 2**31, size=624, dtype="uint32"
+        )
         assert (
-            com.random_state(state).uniform() == np.random.RandomState(state).uniform()
+            com.random_state(state).uniform()
+            == np.random.RandomState(state).uniform()
         )
 
     def test_bit_generators(self):
@@ -91,7 +97,9 @@ class TestRandomState:
             com.random_state(state)
 
 
-@pytest.mark.parametrize("args, expected", [((1, 2, None), True), ((1, 2, 3), False)])
+@pytest.mark.parametrize(
+    "args, expected", [((1, 2, None), True), ((1, 2, 3), False)]
+)
 def test_any_none(args, expected):
     assert com.any_none(*args) is expected
 
@@ -243,7 +251,11 @@ def test_temp_setattr(with_exception):
     ser = Series(dtype=object)
     ser.name = "first"
     # Raise a ValueError in either case to satisfy pytest.raises
-    match = "Inside exception raised" if with_exception else "Outside exception raised"
+    match = (
+        "Inside exception raised"
+        if with_exception
+        else "Outside exception raised"
+    )
     with pytest.raises(ValueError, match=match):
         with com.temp_setattr(ser, "name", "second"):
             assert ser.name == "second"

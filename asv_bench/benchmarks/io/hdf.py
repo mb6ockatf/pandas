@@ -16,7 +16,8 @@ class HDFStoreDataFrame(BaseIO):
         N = 25000
         index = Index([f"i-{i}" for i in range(N)], dtype=object)
         self.df = DataFrame(
-            {"float1": np.random.randn(N), "float2": np.random.randn(N)}, index=index
+            {"float1": np.random.randn(N), "float2": np.random.randn(N)},
+            index=index,
         )
         self.df_mixed = DataFrame(
             {
@@ -93,11 +94,14 @@ class HDFStoreDataFrame(BaseIO):
 
     def time_query_store_table_wide(self):
         self.store.select(
-            "table_wide", where="index > self.start_wide and index < self.stop_wide"
+            "table_wide",
+            where="index > self.start_wide and index < self.stop_wide",
         )
 
     def time_query_store_table(self):
-        self.store.select("table", where="index > self.start and index < self.stop")
+        self.store.select(
+            "table", where="index > self.start and index < self.stop"
+        )
 
     def time_store_repr(self):
         repr(self.store)

@@ -39,7 +39,9 @@ class TestSeriesReplace:
 
     def test_replace_noop_doesnt_downcast(self):
         # GH#44498
-        ser = pd.Series([None, None, pd.Timestamp("2021-12-16 17:31")], dtype=object)
+        ser = pd.Series(
+            [None, None, pd.Timestamp("2021-12-16 17:31")], dtype=object
+        )
         res = ser.replace({np.nan: None})  # should be a no-op
         tm.assert_series_equal(res, ser)
         assert res.dtype == object
@@ -150,9 +152,13 @@ class TestSeriesReplace:
         ser = pd.Series(pd.date_range("20130101", periods=5))
         expected = ser.copy()
         expected.loc[2] = pd.Timestamp("20120101")
-        result = ser.replace({pd.Timestamp("20130103"): pd.Timestamp("20120101")})
+        result = ser.replace(
+            {pd.Timestamp("20130103"): pd.Timestamp("20120101")}
+        )
         tm.assert_series_equal(result, expected)
-        result = ser.replace(pd.Timestamp("20130103"), pd.Timestamp("20120101"))
+        result = ser.replace(
+            pd.Timestamp("20130103"), pd.Timestamp("20120101")
+        )
         tm.assert_series_equal(result, expected)
 
     def test_replace_nat_with_tz(self):
@@ -225,7 +231,9 @@ class TestSeriesReplace:
 
         # test an object with dates + floats + integers + strings
         dr = pd.Series(pd.date_range("1/1/2001", "1/10/2001", freq="D"))
-        result = dr.astype(object).replace([dr[0], dr[1], dr[2]], [1.0, 2, "a"])
+        result = dr.astype(object).replace(
+            [dr[0], dr[1], dr[2]], [1.0, 2, "a"]
+        )
         expected = pd.Series([1.0, 2, "a"] + dr[3:].tolist(), dtype=object)
         tm.assert_series_equal(result, expected)
 
@@ -313,7 +321,9 @@ class TestSeriesReplace:
         else:
             tm.assert_series_equal(res, expected)
 
-    def test_replace_with_dictlike_and_string_dtype(self, nullable_string_dtype):
+    def test_replace_with_dictlike_and_string_dtype(
+        self, nullable_string_dtype
+    ):
         # GH 32621, GH#44940
         ser = pd.Series(["one", "two", np.nan], dtype=nullable_string_dtype)
         expected = pd.Series(["1", "2", np.nan], dtype=nullable_string_dtype)
@@ -484,7 +494,9 @@ class TestSeriesReplace:
         ser = pd.Series([1, 2, "A", fixed_now_ts, True])
         to_replace = {0: 1, 2: "A"}
         value = "foo"
-        msg = "Series.replace cannot use dict-like to_replace and non-None value"
+        msg = (
+            "Series.replace cannot use dict-like to_replace and non-None value"
+        )
         with pytest.raises(ValueError, match=msg):
             ser.replace(to_replace, value)
 
@@ -521,7 +533,9 @@ class TestSeriesReplace:
     def test_pandas_replace_na(self):
         # GH#43344
         # GH#56599
-        ser = pd.Series(["AA", "BB", "CC", "DD", "EE", "", pd.NA, "AA"], dtype="string")
+        ser = pd.Series(
+            ["AA", "BB", "CC", "DD", "EE", "", pd.NA, "AA"], dtype="string"
+        )
         regex_mapping = {
             "AA": "CC",
             "BB": "CC",
@@ -530,7 +544,8 @@ class TestSeriesReplace:
         }
         result = ser.replace(regex_mapping, regex=True)
         exp = pd.Series(
-            ["CC", "CC", "CC-REPL", "DD", "CC", "", pd.NA, "CC"], dtype="string"
+            ["CC", "CC", "CC-REPL", "DD", "CC", "", pd.NA, "CC"],
+            dtype="string",
         )
         tm.assert_series_equal(result, exp)
 
@@ -553,12 +568,18 @@ class TestSeriesReplace:
                 pd.IntervalDtype("float64"),
                 IntervalArray([pd.Interval(1.0, 2.7), pd.Interval(2.8, 3.1)]),
                 {pd.Interval(1.0, 2.7): pd.Interval(10.6, 20.8)},
-                IntervalArray([pd.Interval(10.6, 20.8), pd.Interval(2.8, 3.1)]),
+                IntervalArray(
+                    [pd.Interval(10.6, 20.8), pd.Interval(2.8, 3.1)]
+                ),
             ),
             (
                 pd.PeriodDtype("M"),
                 [pd.Period("2020-05", freq="M")],
-                {pd.Period("2020-05", freq="M"): pd.Period("2020-06", freq="M")},
+                {
+                    pd.Period("2020-05", freq="M"): pd.Period(
+                        "2020-06", freq="M"
+                    )
+                },
                 [pd.Period("2020-06", freq="M")],
             ),
         ],

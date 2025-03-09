@@ -9,7 +9,8 @@ import pandas._testing as tm
 def test_reindex_like(datetime_series):
     other = datetime_series[::2]
     tm.assert_series_equal(
-        datetime_series.reindex(other.index), datetime_series.reindex_like(other)
+        datetime_series.reindex(other.index),
+        datetime_series.reindex_like(other),
     )
 
     # GH#7179
@@ -41,5 +42,7 @@ def test_reindex_like_nearest():
         result = ser.reindex_like(other, method="nearest", tolerance=1)
     tm.assert_series_equal(expected, result)
     with tm.assert_produces_warning(FutureWarning):
-        result = ser.reindex_like(other, method="nearest", tolerance=[1, 2, 3, 4])
+        result = ser.reindex_like(
+            other, method="nearest", tolerance=[1, 2, 3, 4]
+        )
     tm.assert_series_equal(expected, result)

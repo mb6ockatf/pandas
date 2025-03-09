@@ -304,7 +304,9 @@ def array(
     elif isinstance(data, ABCDataFrame):
         raise TypeError("Cannot pass DataFrame to 'pandas.array'")
 
-    if dtype is None and isinstance(data, (ABCSeries, ABCIndex, ExtensionArray)):
+    if dtype is None and isinstance(
+        data, (ABCSeries, ABCIndex, ExtensionArray)
+    ):
         # Note: we exclude np.ndarray here, will do type inference on it
         dtype = data.dtype
 
@@ -314,7 +316,9 @@ def array(
     if dtype is not None:
         dtype = pandas_dtype(dtype)
 
-    if isinstance(data, ExtensionArray) and (dtype is None or data.dtype == dtype):
+    if isinstance(data, ExtensionArray) and (
+        dtype is None or data.dtype == dtype
+    ):
         # e.g. TimedeltaArray[s], avoid casting to NumpyExtensionArray
         if copy:
             return data.copy()
@@ -375,10 +379,14 @@ def array(
             return FloatingArray._from_sequence(data, dtype=dtype, copy=copy)
 
         elif data.dtype.kind == "b":
-            return BooleanArray._from_sequence(data, dtype="boolean", copy=copy)
+            return BooleanArray._from_sequence(
+                data, dtype="boolean", copy=copy
+            )
         else:
             # e.g. complex
-            return NumpyExtensionArray._from_sequence(data, dtype=data.dtype, copy=copy)
+            return NumpyExtensionArray._from_sequence(
+                data, dtype=data.dtype, copy=copy
+            )
 
     # Pandas overrides NumPy for
     #   1. datetime64[ns,us,ms,s]
@@ -576,8 +584,14 @@ def sanitize_array(
 
     if not is_list_like(data):
         if index is None:
-            raise ValueError("index must be specified when data is not list-like")
-        if isinstance(data, str) and using_string_dtype() and original_dtype is None:
+            raise ValueError(
+                "index must be specified when data is not list-like"
+            )
+        if (
+            isinstance(data, str)
+            and using_string_dtype()
+            and original_dtype is None
+        ):
             from pandas.core.arrays.string_ import StringDtype
 
             dtype = StringDtype(na_value=np.nan)
@@ -617,7 +631,9 @@ def sanitize_array(
                 from pandas.core.arrays.string_ import StringDtype
 
                 dtype = StringDtype(na_value=np.nan)
-                subarr = dtype.construct_array_type()._from_sequence(data, dtype=dtype)
+                subarr = dtype.construct_array_type()._from_sequence(
+                    data, dtype=dtype
+                )
 
             if (
                 subarr is data
@@ -808,9 +824,9 @@ def _try_cast(
                 arr = arr.ravel()
         else:
             shape = (len(arr),)
-        return lib.ensure_string_array(arr, convert_na_value=False, copy=copy).reshape(
-            shape
-        )
+        return lib.ensure_string_array(
+            arr, convert_na_value=False, copy=copy
+        ).reshape(shape)
 
     elif dtype.kind in "mM":
         if is_ndarray:
@@ -818,7 +834,9 @@ def _try_cast(
             if arr.ndim == 2 and arr.shape[1] == 1:
                 # GH#60081: DataFrame Constructor converts 1D data to array of
                 # shape (N, 1), but maybe_cast_to_datetime assumes 1D input
-                return maybe_cast_to_datetime(arr[:, 0], dtype).reshape(arr.shape)
+                return maybe_cast_to_datetime(arr[:, 0], dtype).reshape(
+                    arr.shape
+                )
         return maybe_cast_to_datetime(arr, dtype)
 
     # GH#15832: Check if we are requesting a numeric dtype and

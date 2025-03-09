@@ -111,7 +111,9 @@ class TestCategoricalAPI:
 
         # Test for dicts with bigger length
         cat = Categorical(["a", "b", "c", "d"])
-        res = cat.rename_categories({"a": 1, "b": 2, "c": 3, "d": 4, "e": 5, "f": 6})
+        res = cat.rename_categories(
+            {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5, "f": 6}
+        )
         expected = Index([1, 2, 3, 4])
         tm.assert_index_equal(res.categories, expected)
 
@@ -166,7 +168,9 @@ class TestCategoricalAPI:
 
         # GH 9927
         cat = Categorical(list("abc"), ordered=True)
-        expected = Categorical(list("abc"), categories=list("abcde"), ordered=True)
+        expected = Categorical(
+            list("abc"), categories=list("abcde"), ordered=True
+        )
         # test with Series, np.array, index, list
         res = cat.add_categories(Series(["d", "e"]))
         tm.assert_categorical_equal(res, expected)
@@ -180,7 +184,9 @@ class TestCategoricalAPI:
     def test_add_categories_existing_raises(self):
         # new is in old categories
         cat = Categorical(["a", "b", "c", "d"], ordered=True)
-        msg = re.escape("new categories must not include old categories: {'d'}")
+        msg = re.escape(
+            "new categories must not include old categories: {'d'}"
+        )
         with pytest.raises(ValueError, match=msg):
             cat.add_categories(["d"])
 
@@ -190,7 +196,8 @@ class TestCategoricalAPI:
         ser = Series([4], dtype="Int64")
         result = cat.add_categories(ser)
         expected = Categorical(
-            Series([1, 2], dtype="Int64"), categories=Series([1, 2, 4], dtype="Int64")
+            Series([1, 2], dtype="Int64"),
+            categories=Series([1, 2, 4], dtype="Int64"),
         )
         tm.assert_categorical_equal(result, expected)
 
@@ -222,11 +229,15 @@ class TestCategoricalAPI:
         # np.nan
         cat = Categorical(["a", "b", "c", "a"], ordered=True)
         res = cat.set_categories(["a"])
-        tm.assert_numpy_array_equal(res.codes, np.array([0, -1, -1, 0], dtype=np.int8))
+        tm.assert_numpy_array_equal(
+            res.codes, np.array([0, -1, -1, 0], dtype=np.int8)
+        )
 
         # still not all "old" in "new"
         res = cat.set_categories(["a", "b", "d"])
-        tm.assert_numpy_array_equal(res.codes, np.array([0, 1, -1, 0], dtype=np.int8))
+        tm.assert_numpy_array_equal(
+            res.codes, np.array([0, 1, -1, 0], dtype=np.int8)
+        )
         tm.assert_index_equal(res.categories, Index(["a", "b", "d"]))
 
         # all "old" included in "new"
@@ -236,7 +247,9 @@ class TestCategoricalAPI:
 
         # internals...
         c = Categorical([1, 2, 3, 4, 1], categories=[1, 2, 3, 4], ordered=True)
-        tm.assert_numpy_array_equal(c._codes, np.array([0, 1, 2, 3, 0], dtype=np.int8))
+        tm.assert_numpy_array_equal(
+            c._codes, np.array([0, 1, 2, 3, 0], dtype=np.int8)
+        )
         tm.assert_index_equal(c.categories, Index([1, 2, 3, 4]))
 
         exp = np.array([1, 2, 3, 4, 1], dtype=np.int64)
@@ -246,7 +259,9 @@ class TestCategoricalAPI:
         c = c.set_categories([4, 3, 2, 1])
 
         # positions are changed
-        tm.assert_numpy_array_equal(c._codes, np.array([3, 2, 1, 0, 3], dtype=np.int8))
+        tm.assert_numpy_array_equal(
+            c._codes, np.array([3, 2, 1, 0, 3], dtype=np.int8)
+        )
 
         # categories are now in new order
         tm.assert_index_equal(c.categories, Index([4, 3, 2, 1]))
@@ -294,7 +309,9 @@ class TestCategoricalAPI:
             (["a", "b", "c"], ["a", "b"], ["d", "e"]),
         ],
     )
-    def test_set_categories_many(self, values, categories, new_categories, ordered):
+    def test_set_categories_many(
+        self, values, categories, new_categories, ordered
+    ):
         c = Categorical(values, categories)
         expected = Categorical(values, new_categories, ordered)
         result = c.set_categories(new_categories, ordered=ordered)
@@ -322,7 +339,9 @@ class TestCategoricalAPI:
     def test_remove_categories(self):
         cat = Categorical(["a", "b", "c", "a"], ordered=True)
         old = cat.copy()
-        new = Categorical(["a", "b", np.nan, "a"], categories=["a", "b"], ordered=True)
+        new = Categorical(
+            ["a", "b", np.nan, "a"], categories=["a", "b"], ordered=True
+        )
 
         res = cat.remove_categories("c")
         tm.assert_categorical_equal(cat, old)
@@ -332,7 +351,9 @@ class TestCategoricalAPI:
         tm.assert_categorical_equal(cat, old)
         tm.assert_categorical_equal(res, new)
 
-    @pytest.mark.parametrize("removals", [["c"], ["c", np.nan], "c", ["c", "c"]])
+    @pytest.mark.parametrize(
+        "removals", [["c"], ["c", np.nan], "c", ["c", "c"]]
+    )
     def test_remove_categories_raises(self, removals):
         cat = Categorical(["a", "b", "a"])
         message = re.escape("removals must all be in old categories: {'c'}")
@@ -341,7 +362,9 @@ class TestCategoricalAPI:
             cat.remove_categories(removals)
 
     def test_remove_unused_categories(self):
-        c = Categorical(["a", "b", "c", "d", "a"], categories=["a", "b", "c", "d", "e"])
+        c = Categorical(
+            ["a", "b", "c", "d", "a"], categories=["a", "b", "c", "d", "e"]
+        )
         exp_categories_all = Index(["a", "b", "c", "d", "e"])
         exp_categories_dropped = Index(["a", "b", "c", "d"])
 
@@ -352,7 +375,9 @@ class TestCategoricalAPI:
         tm.assert_index_equal(c.categories, exp_categories_all)
 
         # with NaN values (GH11599)
-        c = Categorical(["a", "b", "c", np.nan], categories=["a", "b", "c", "d", "e"])
+        c = Categorical(
+            ["a", "b", "c", np.nan], categories=["a", "b", "c", "d", "e"]
+        )
         res = c.remove_unused_categories()
         tm.assert_index_equal(res.categories, Index(np.array(["a", "b", "c"])))
         exp_codes = np.array([0, 1, 2, -1], dtype=np.int8)
@@ -368,7 +393,9 @@ class TestCategoricalAPI:
         assert out.tolist() == val
 
         alpha = list("abcdefghijklmnopqrstuvwxyz")
-        val = np.random.default_rng(2).choice(alpha[::2], 10000).astype("object")
+        val = (
+            np.random.default_rng(2).choice(alpha[::2], 10000).astype("object")
+        )
         val[np.random.default_rng(2).choice(len(val), 100)] = np.nan
 
         cat = Categorical(values=val, categories=alpha)
@@ -378,7 +405,9 @@ class TestCategoricalAPI:
 
 class TestCategoricalAPIWithFactor:
     def test_describe(self):
-        factor = Categorical(["a", "b", "b", "a", "a", "c", "c", "c"], ordered=True)
+        factor = Categorical(
+            ["a", "b", "b", "a", "a", "c", "c", "c"], ordered=True
+        )
         # string type
         desc = factor.describe()
         assert factor.ordered
@@ -386,7 +415,8 @@ class TestCategoricalAPIWithFactor:
             ["a", "b", "c"], name="categories", ordered=factor.ordered
         )
         expected = DataFrame(
-            {"counts": [3, 2, 3], "freqs": [3 / 8.0, 2 / 8.0, 3 / 8.0]}, index=exp_index
+            {"counts": [3, 2, 3], "freqs": [3 / 8.0, 2 / 8.0, 3 / 8.0]},
+            index=exp_index,
         )
         tm.assert_frame_equal(desc, expected)
 
@@ -407,7 +437,9 @@ class TestCategoricalAPIWithFactor:
         # check an integer one
         cat = Categorical([1, 2, 3, 1, 2, 3, 3, 2, 1, 1, 1])
         desc = cat.describe()
-        exp_index = CategoricalIndex([1, 2, 3], ordered=cat.ordered, name="categories")
+        exp_index = CategoricalIndex(
+            [1, 2, 3], ordered=cat.ordered, name="categories"
+        )
         expected = DataFrame(
             {"counts": [5, 3, 3], "freqs": [5 / 11.0, 3 / 11.0, 3 / 11.0]},
             index=exp_index,
@@ -446,7 +478,9 @@ class TestPrivateCategoricalAPI:
         # changes in the codes array should raise
         codes = c.codes
 
-        with pytest.raises(ValueError, match="assignment destination is read-only"):
+        with pytest.raises(
+            ValueError, match="assignment destination is read-only"
+        ):
             codes[4] = 1
 
         # But even after getting the codes, the original array should still be

@@ -38,9 +38,13 @@ def _assert_attr_equal(attr: str, left, right, obj: str = "Attributes"):
     if attr == "dtype":
         lattr = getattr(left, "dtype", None)
         rattr = getattr(right, "dtype", None)
-        if isinstance(lattr, NumpyEADtype) and not isinstance(rattr, NumpyEADtype):
+        if isinstance(lattr, NumpyEADtype) and not isinstance(
+            rattr, NumpyEADtype
+        ):
             left = left.astype(lattr.numpy_dtype)
-        elif isinstance(rattr, NumpyEADtype) and not isinstance(lattr, NumpyEADtype):
+        elif isinstance(rattr, NumpyEADtype) and not isinstance(
+            lattr, NumpyEADtype
+        ):
             right = right.astype(rattr.numpy_dtype)
 
     orig_assert_attr_equal(attr, left, right, obj)
@@ -106,7 +110,9 @@ def data_for_sorting(allow_in_pandas, dtype):
     if dtype.numpy_dtype == "object":
         # Use an empty tuple for first element, then remove,
         # to disable np.array's shape inference.
-        return NumpyExtensionArray(np.array([(), (2,), (3,), (1,)], dtype=object)[1:])
+        return NumpyExtensionArray(
+            np.array([(), (2,), (3,), (1,)], dtype=object)[1:]
+        )
     return NumpyExtensionArray(np.array([1, 2, 0]))
 
 
@@ -118,7 +124,9 @@ def data_missing_for_sorting(allow_in_pandas, dtype):
     A < B and NA missing.
     """
     if dtype.numpy_dtype == "object":
-        return NumpyExtensionArray(np.array([(1,), np.nan, (0,)], dtype=object))
+        return NumpyExtensionArray(
+            np.array([(1,), np.nan, (0,)], dtype=object)
+        )
     return NumpyExtensionArray(np.array([1, np.nan, 0]))
 
 
@@ -240,7 +248,9 @@ class TestNumpyExtensionArray(base.ExtensionTests):
 
     def test_insert(self, data, request):
         if data.dtype.numpy_dtype == object:
-            mark = pytest.mark.xfail(reason="Dimension mismatch in np.concatenate")
+            mark = pytest.mark.xfail(
+                reason="Dimension mismatch in np.concatenate"
+            )
             request.applymarker(mark)
 
         super().test_insert(data)
@@ -270,7 +280,9 @@ class TestNumpyExtensionArray(base.ExtensionTests):
             self.divmod_exc = exc
         self._check_divmod_op(ser, divmod, data)
 
-    def test_arith_series_with_scalar(self, data, all_arithmetic_operators, request):
+    def test_arith_series_with_scalar(
+        self, data, all_arithmetic_operators, request
+    ):
         opname = all_arithmetic_operators
         series_scalar_exc = None
         if data.dtype.numpy_dtype == object:
@@ -286,12 +298,17 @@ class TestNumpyExtensionArray(base.ExtensionTests):
     def test_arith_series_with_array(self, data, all_arithmetic_operators):
         opname = all_arithmetic_operators
         series_array_exc = None
-        if data.dtype.numpy_dtype == object and opname not in ["__add__", "__radd__"]:
+        if data.dtype.numpy_dtype == object and opname not in [
+            "__add__",
+            "__radd__",
+        ]:
             series_array_exc = TypeError
         self.series_array_exc = series_array_exc
         super().test_arith_series_with_array(data, all_arithmetic_operators)
 
-    def test_arith_frame_with_scalar(self, data, all_arithmetic_operators, request):
+    def test_arith_frame_with_scalar(
+        self, data, all_arithmetic_operators, request
+    ):
         opname = all_arithmetic_operators
         frame_scalar_exc = None
         if data.dtype.numpy_dtype == object:

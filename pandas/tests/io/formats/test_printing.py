@@ -24,7 +24,9 @@ from pandas.io.formats import printing
 )
 def test_formatted_index_names(input_names, expected_names):
     # GH#60190
-    df = pd.DataFrame({name: [1, 2, 3] for name in input_names}).set_index(input_names)
+    df = pd.DataFrame({name: [1, 2, 3] for name in input_names}).set_index(
+        input_names
+    )
     formatted_names = str(df.index.names)
 
     assert formatted_names == expected_names
@@ -96,7 +98,11 @@ class TestFormatBase:
         assert adjoined == expected
 
     def test_adjoin_unicode(self):
-        data = [["あ", "b", "c"], ["dd", "ええ", "ff"], ["ggg", "hhh", "いいい"]]
+        data = [
+            ["あ", "b", "c"],
+            ["dd", "ええ", "ff"],
+            ["ggg", "hhh", "いいい"],
+        ]
         expected = "あ  dd  ggg\nb  ええ  hhh\nc  ff  いいい"
         adjoined = printing.adjoin(2, *data)
         assert adjoined == expected
@@ -166,7 +172,11 @@ c        ff         いいい"""
             adj = printing._EastAsianTextAdjustment()
             assert adj.len("¡¡ab") == 6
 
-        data = [["あ", "b", "c"], ["dd", "ええ", "ff"], ["ggg", "¡¡ab", "いいい"]]
+        data = [
+            ["あ", "b", "c"],
+            ["dd", "ええ", "ff"],
+            ["ggg", "¡¡ab", "いいい"],
+        ]
         expected = "あ  dd    ggg \nb   ええ  ¡¡ab\nc   ff    いいい"
         adjoined = adj.adjoin(2, *data)
         assert adjoined == expected

@@ -66,7 +66,9 @@ def assert_block_equal(left, right):
     assert left.dtype == right.dtype
     assert isinstance(left.mgr_locs, BlockPlacement)
     assert isinstance(right.mgr_locs, BlockPlacement)
-    tm.assert_numpy_array_equal(left.mgr_locs.as_array, right.mgr_locs.as_array)
+    tm.assert_numpy_array_equal(
+        left.mgr_locs.as_array, right.mgr_locs.as_array
+    )
 
 
 def get_numeric_mat(shape):
@@ -79,7 +81,9 @@ def get_numeric_mat(shape):
 N = 10
 
 
-def create_block(typestr, placement, item_shape=None, num_offset=0, maker=new_block):
+def create_block(
+    typestr, placement, item_shape=None, num_offset=0, maker=new_block
+):
     """
     Supported typestr:
 
@@ -126,7 +130,9 @@ def create_block(typestr, placement, item_shape=None, num_offset=0, maker=new_bl
     elif typestr in ("complex", "c16", "c8"):
         values = 1.0j * (mat.astype(typestr) + num_offset)
     elif typestr in ("object", "string", "O"):
-        values = np.reshape([f"A{i:d}" for i in mat.ravel() + num_offset], shape)
+        values = np.reshape(
+            [f"A{i:d}" for i in mat.ravel() + num_offset], shape
+        )
     elif typestr in ("b", "bool"):
         values = np.ones(shape, dtype=np.bool_)
     elif typestr in ("datetime", "dt", "M8[ns]"):
@@ -144,7 +150,9 @@ def create_block(typestr, placement, item_shape=None, num_offset=0, maker=new_bl
     elif typestr in ("category",):
         values = Categorical([1, 1, 2, 2, 3, 3, 3, 3, 4, 4])
     elif typestr in ("category2",):
-        values = Categorical(["a", "a", "a", "a", "b", "b", "c", "c", "c", "d"])
+        values = Categorical(
+            ["a", "a", "a", "a", "b", "b", "c", "c", "c", "d"]
+        )
     elif typestr in ("sparse", "sparse_na"):
         if shape[-1] != 10:
             # We also are implicitly assuming this in the category cases above
@@ -229,7 +237,10 @@ def create_mgr(descr, item_shape=None):
         typestr = blockstr.split("-")[0]
         blocks.append(
             create_block(
-                typestr, placement, item_shape=item_shape, num_offset=num_offset
+                typestr,
+                placement,
+                item_shape=item_shape,
+                num_offset=num_offset,
             )
         )
         num_offset += len(placement)
@@ -448,13 +459,19 @@ class TestBlockManager:
 
         mgr.insert(len(mgr.items), "d", np.array(["foo"] * 3))
         mgr.iset(1, np.array(["bar"] * 3))
-        tm.assert_numpy_array_equal(mgr.iget(0).internal_values(), np.array([0] * 3))
         tm.assert_numpy_array_equal(
-            mgr.iget(1).internal_values(), np.array(["bar"] * 3, dtype=np.object_)
+            mgr.iget(0).internal_values(), np.array([0] * 3)
         )
-        tm.assert_numpy_array_equal(mgr.iget(2).internal_values(), np.array([2] * 3))
         tm.assert_numpy_array_equal(
-            mgr.iget(3).internal_values(), np.array(["foo"] * 3, dtype=np.object_)
+            mgr.iget(1).internal_values(),
+            np.array(["bar"] * 3, dtype=np.object_),
+        )
+        tm.assert_numpy_array_equal(
+            mgr.iget(2).internal_values(), np.array([2] * 3)
+        )
+        tm.assert_numpy_array_equal(
+            mgr.iget(3).internal_values(),
+            np.array(["foo"] * 3, dtype=np.object_),
         )
 
     def test_set_change_dtype(self, mgr):
@@ -478,7 +495,8 @@ class TestBlockManager:
         assert mgr2.iget(idx).dtype == np.dtype(int)
 
         mgr2.iset(
-            mgr2.items.get_loc("quux"), np.random.default_rng(2).standard_normal(N)
+            mgr2.items.get_loc("quux"),
+            np.random.default_rng(2).standard_normal(N),
         )
         assert mgr2.iget(idx).dtype == np.float64
 
@@ -513,7 +531,9 @@ class TestBlockManager:
             # copy assertion we either have a None for a base or in case of
             # some blocks it is an array (e.g. datetimetz), but was copied
             if isinstance(cpvals, DatetimeArray):
-                assert (lbase is None and rbase is None) or (lbase is not rbase)
+                assert (lbase is None and rbase is None) or (
+                    lbase is not rbase
+                )
             elif not isinstance(cpvals, np.ndarray):
                 assert lbase is not rbase
             else:
@@ -558,7 +578,9 @@ class TestBlockManager:
         assert mgr.iget(1).dtype == "datetime64[ns, CET]"
         assert mgr.as_array().dtype == "object"
 
-    @pytest.mark.parametrize("t", ["float16", "float32", "float64", "int32", "int64"])
+    @pytest.mark.parametrize(
+        "t", ["float16", "float32", "float64", "int32", "int64"]
+    )
     def test_astype(self, t):
         # coerce all
         mgr = create_mgr("c: f4; d: f2; e: f8")
@@ -570,7 +592,9 @@ class TestBlockManager:
         assert tmgr.iget(2).dtype.type == t
 
         # mixed
-        mgr = create_mgr("a,b: object; c: bool; d: datetime; e: f4; f: f2; g: f8")
+        mgr = create_mgr(
+            "a,b: object; c: bool; d: datetime; e: f4; f: f2; g: f8"
+        )
 
         t = np.dtype(t)
         tmgr = mgr.astype(t, errors="ignore")
@@ -647,7 +671,15 @@ class TestBlockManager:
 
     def test_interleave(self):
         # self
-        for dtype in ["f8", "i8", "object", "bool", "complex", "M8[ns]", "m8[ns]"]:
+        for dtype in [
+            "f8",
+            "i8",
+            "object",
+            "bool",
+            "complex",
+            "M8[ns]",
+            "m8[ns]",
+        ]:
             mgr = create_mgr(f"a: {dtype}")
             assert mgr.as_array().dtype == dtype
             mgr = create_mgr(f"a: {dtype}; b: {dtype}")
@@ -714,11 +746,21 @@ class TestBlockManager:
         assert mgr.as_array().dtype == "object"
 
     def test_consolidate_ordering_issues(self, mgr):
-        mgr.iset(mgr.items.get_loc("f"), np.random.default_rng(2).standard_normal(N))
-        mgr.iset(mgr.items.get_loc("d"), np.random.default_rng(2).standard_normal(N))
-        mgr.iset(mgr.items.get_loc("b"), np.random.default_rng(2).standard_normal(N))
-        mgr.iset(mgr.items.get_loc("g"), np.random.default_rng(2).standard_normal(N))
-        mgr.iset(mgr.items.get_loc("h"), np.random.default_rng(2).standard_normal(N))
+        mgr.iset(
+            mgr.items.get_loc("f"), np.random.default_rng(2).standard_normal(N)
+        )
+        mgr.iset(
+            mgr.items.get_loc("d"), np.random.default_rng(2).standard_normal(N)
+        )
+        mgr.iset(
+            mgr.items.get_loc("b"), np.random.default_rng(2).standard_normal(N)
+        )
+        mgr.iset(
+            mgr.items.get_loc("g"), np.random.default_rng(2).standard_normal(N)
+        )
+        mgr.iset(
+            mgr.items.get_loc("h"), np.random.default_rng(2).standard_normal(N)
+        )
 
         # we have datetime/tz blocks in mgr
         cons = mgr.consolidate()
@@ -727,7 +769,8 @@ class TestBlockManager:
         assert cons.nblocks == 1
         assert isinstance(cons.blocks[0].mgr_locs, BlockPlacement)
         tm.assert_numpy_array_equal(
-            cons.blocks[0].mgr_locs.as_array, np.arange(len(cons.items), dtype=np.intp)
+            cons.blocks[0].mgr_locs.as_array,
+            np.arange(len(cons.items), dtype=np.intp),
         )
 
     def test_reindex_items(self):
@@ -762,7 +805,9 @@ class TestBlockManager:
         mgr.iset(5, np.array([1, 2, 3], dtype=np.object_))
 
         numeric = mgr.get_numeric_data()
-        tm.assert_index_equal(numeric.items, Index(["int", "float", "complex", "bool"]))
+        tm.assert_index_equal(
+            numeric.items, Index(["int", "float", "complex", "bool"])
+        )
         tm.assert_almost_equal(
             mgr.iget(mgr.items.get_loc("float")).internal_values(),
             numeric.iget(numeric.items.get_loc("float")).internal_values(),
@@ -850,11 +895,13 @@ class TestBlockManager:
         bm = create_mgr("a,b,c: i8; d: f8")
         bm._iset_split_block(0, np.array([0]))
         tm.assert_numpy_array_equal(
-            bm.blklocs, np.array([0, 0, 1, 0], dtype="int64" if IS64 else "int32")
+            bm.blklocs,
+            np.array([0, 0, 1, 0], dtype="int64" if IS64 else "int32"),
         )
         # First indexer currently does not have a block associated with it in case
         tm.assert_numpy_array_equal(
-            bm.blknos, np.array([0, 0, 0, 1], dtype="int64" if IS64 else "int32")
+            bm.blknos,
+            np.array([0, 0, 0, 1], dtype="int64" if IS64 else "int32"),
         )
         assert len(bm.blocks) == 2
 
@@ -862,11 +909,13 @@ class TestBlockManager:
         bm = create_mgr("a,b,c: i8; d: f8")
         bm._iset_split_block(0, np.array([0]), np.array([list(range(10))]))
         tm.assert_numpy_array_equal(
-            bm.blklocs, np.array([0, 0, 1, 0], dtype="int64" if IS64 else "int32")
+            bm.blklocs,
+            np.array([0, 0, 1, 0], dtype="int64" if IS64 else "int32"),
         )
         # First indexer currently does not have a block associated with it in case
         tm.assert_numpy_array_equal(
-            bm.blknos, np.array([0, 2, 2, 1], dtype="int64" if IS64 else "int32")
+            bm.blknos,
+            np.array([0, 2, 2, 1], dtype="int64" if IS64 else "int32"),
         )
         assert len(bm.blocks) == 3
 
@@ -943,8 +992,12 @@ class TestIndexing:
                 # 2D only support slice objects
 
                 # boolean mask
-                assert_slice_ok(mgr, ax, np.ones(mgr.shape[ax], dtype=np.bool_))
-                assert_slice_ok(mgr, ax, np.zeros(mgr.shape[ax], dtype=np.bool_))
+                assert_slice_ok(
+                    mgr, ax, np.ones(mgr.shape[ax], dtype=np.bool_)
+                )
+                assert_slice_ok(
+                    mgr, ax, np.zeros(mgr.shape[ax], dtype=np.bool_)
+                )
 
                 if mgr.shape[ax] >= 3:
                     assert_slice_ok(mgr, ax, np.arange(mgr.shape[ax]) % 3 == 0)
@@ -958,21 +1011,31 @@ class TestIndexing:
             mat = _as_array(mgr)
             taken = mgr.take(indexer, axis)
             tm.assert_numpy_array_equal(
-                np.take(mat, indexer, axis), _as_array(taken), check_dtype=False
+                np.take(mat, indexer, axis),
+                _as_array(taken),
+                check_dtype=False,
             )
-            tm.assert_index_equal(mgr.axes[axis].take(indexer), taken.axes[axis])
+            tm.assert_index_equal(
+                mgr.axes[axis].take(indexer), taken.axes[axis]
+            )
 
         for ax in range(mgr.ndim):
             # take/fancy indexer
             assert_take_ok(mgr, ax, indexer=np.array([], dtype=np.intp))
             assert_take_ok(mgr, ax, indexer=np.array([0, 0, 0], dtype=np.intp))
             assert_take_ok(
-                mgr, ax, indexer=np.array(list(range(mgr.shape[ax])), dtype=np.intp)
+                mgr,
+                ax,
+                indexer=np.array(list(range(mgr.shape[ax])), dtype=np.intp),
             )
 
             if mgr.shape[ax] >= 3:
-                assert_take_ok(mgr, ax, indexer=np.array([0, 1, 2], dtype=np.intp))
-                assert_take_ok(mgr, ax, indexer=np.array([-1, -2, -3], dtype=np.intp))
+                assert_take_ok(
+                    mgr, ax, indexer=np.array([0, 1, 2], dtype=np.intp)
+                )
+                assert_take_ok(
+                    mgr, ax, indexer=np.array([-1, -2, -3], dtype=np.intp)
+                )
 
     @pytest.mark.parametrize("mgr", MANAGERS)
     @pytest.mark.parametrize("fill_value", [None, np.nan, 100.0])
@@ -981,7 +1044,9 @@ class TestIndexing:
             mat = _as_array(mgr)
             indexer = mgr.axes[axis].get_indexer_for(new_labels)
 
-            reindexed = mgr.reindex_axis(new_labels, axis, fill_value=fill_value)
+            reindexed = mgr.reindex_axis(
+                new_labels, axis, fill_value=fill_value
+            )
             tm.assert_numpy_array_equal(
                 algos.take_nd(mat, indexer, axis, fill_value=fill_value),
                 _as_array(reindexed),
@@ -992,15 +1057,23 @@ class TestIndexing:
         for ax in range(mgr.ndim):
             assert_reindex_axis_is_ok(mgr, ax, Index([]), fill_value)
             assert_reindex_axis_is_ok(mgr, ax, mgr.axes[ax], fill_value)
-            assert_reindex_axis_is_ok(mgr, ax, mgr.axes[ax][[0, 0, 0]], fill_value)
-            assert_reindex_axis_is_ok(mgr, ax, Index(["foo", "bar", "baz"]), fill_value)
+            assert_reindex_axis_is_ok(
+                mgr, ax, mgr.axes[ax][[0, 0, 0]], fill_value
+            )
+            assert_reindex_axis_is_ok(
+                mgr, ax, Index(["foo", "bar", "baz"]), fill_value
+            )
             assert_reindex_axis_is_ok(
                 mgr, ax, Index(["foo", mgr.axes[ax][0], "baz"]), fill_value
             )
 
             if mgr.shape[ax] >= 3:
-                assert_reindex_axis_is_ok(mgr, ax, mgr.axes[ax][:-3], fill_value)
-                assert_reindex_axis_is_ok(mgr, ax, mgr.axes[ax][-3::-1], fill_value)
+                assert_reindex_axis_is_ok(
+                    mgr, ax, mgr.axes[ax][:-3], fill_value
+                )
+                assert_reindex_axis_is_ok(
+                    mgr, ax, mgr.axes[ax][-3::-1], fill_value
+                )
                 assert_reindex_axis_is_ok(
                     mgr, ax, mgr.axes[ax][[0, 1, 2, 0, 1, 2]], fill_value
                 )
@@ -1008,9 +1081,13 @@ class TestIndexing:
     @pytest.mark.parametrize("mgr", MANAGERS)
     @pytest.mark.parametrize("fill_value", [None, np.nan, 100.0])
     def test_reindex_indexer(self, fill_value, mgr):
-        def assert_reindex_indexer_is_ok(mgr, axis, new_labels, indexer, fill_value):
+        def assert_reindex_indexer_is_ok(
+            mgr, axis, new_labels, indexer, fill_value
+        ):
             mat = _as_array(mgr)
-            reindexed_mat = algos.take_nd(mat, indexer, axis, fill_value=fill_value)
+            reindexed_mat = algos.take_nd(
+                mat, indexer, axis, fill_value=fill_value
+            )
             reindexed = mgr.reindex_indexer(
                 new_labels, indexer, axis, fill_value=fill_value
             )
@@ -1034,16 +1111,32 @@ class TestIndexing:
                 fill_value,
             )
             assert_reindex_indexer_is_ok(
-                mgr, ax, mgr.axes[ax][::-1], np.arange(mgr.shape[ax]), fill_value
+                mgr,
+                ax,
+                mgr.axes[ax][::-1],
+                np.arange(mgr.shape[ax]),
+                fill_value,
             )
             assert_reindex_indexer_is_ok(
-                mgr, ax, mgr.axes[ax], np.arange(mgr.shape[ax])[::-1], fill_value
+                mgr,
+                ax,
+                mgr.axes[ax],
+                np.arange(mgr.shape[ax])[::-1],
+                fill_value,
             )
             assert_reindex_indexer_is_ok(
-                mgr, ax, Index(["foo", "bar", "baz"]), np.array([0, 0, 0]), fill_value
+                mgr,
+                ax,
+                Index(["foo", "bar", "baz"]),
+                np.array([0, 0, 0]),
+                fill_value,
             )
             assert_reindex_indexer_is_ok(
-                mgr, ax, Index(["foo", "bar", "baz"]), np.array([-1, 0, -1]), fill_value
+                mgr,
+                ax,
+                Index(["foo", "bar", "baz"]),
+                np.array([-1, 0, -1]),
+                fill_value,
             )
             assert_reindex_indexer_is_ok(
                 mgr,
@@ -1284,13 +1377,17 @@ class TestCanHoldElement:
             self.check_series_setitem(elem, ii, False)
         assert not blk._can_hold_element(elem)
 
-        ii3 = IntervalIndex.from_breaks([Timestamp(1), Timestamp(3), Timestamp(4)])
+        ii3 = IntervalIndex.from_breaks(
+            [Timestamp(1), Timestamp(3), Timestamp(4)]
+        )
         elem = element(ii3)
         with pytest.raises(TypeError, match="Invalid value"):
             self.check_series_setitem(elem, ii, False)
         assert not blk._can_hold_element(elem)
 
-        ii4 = IntervalIndex.from_breaks([Timedelta(1), Timedelta(3), Timedelta(4)])
+        ii4 = IntervalIndex.from_breaks(
+            [Timedelta(1), Timedelta(3), Timedelta(4)]
+        )
         elem = element(ii4)
         with pytest.raises(TypeError, match="Invalid value"):
             self.check_series_setitem(elem, ii, False)
@@ -1377,7 +1474,9 @@ def test_block_shape():
     a = Series([1, 2, 3]).reindex(idx)
     b = Series(Categorical([1, 2, 3])).reindex(idx)
 
-    assert a._mgr.blocks[0].mgr_locs.indexer == b._mgr.blocks[0].mgr_locs.indexer
+    assert (
+        a._mgr.blocks[0].mgr_locs.indexer == b._mgr.blocks[0].mgr_locs.indexer
+    )
 
 
 def test_make_block_no_pandas_array(block_maker):
@@ -1389,7 +1488,9 @@ def test_make_block_no_pandas_array(block_maker):
 
     # NumpyExtensionArray, no dtype
     with tm.assert_produces_warning(warn, match=depr_msg):
-        result = block_maker(arr, BlockPlacement(slice(len(arr))), ndim=arr.ndim)
+        result = block_maker(
+            arr, BlockPlacement(slice(len(arr))), ndim=arr.ndim
+        )
     assert result.dtype.kind in ["i", "u"]
 
     if block_maker is make_block:
@@ -1398,7 +1499,9 @@ def test_make_block_no_pandas_array(block_maker):
 
         # NumpyExtensionArray, NumpyEADtype
         with tm.assert_produces_warning(warn, match=depr_msg):
-            result = block_maker(arr, slice(len(arr)), dtype=arr.dtype, ndim=arr.ndim)
+            result = block_maker(
+                arr, slice(len(arr)), dtype=arr.dtype, ndim=arr.ndim
+            )
         assert result.dtype.kind in ["i", "u"]
         assert result.is_extension is False
 

@@ -28,7 +28,8 @@ class TestSample:
 
         seed = np.random.default_rng(2).integers(0, 100)
         tm.assert_equal(
-            obj.sample(n=4, random_state=seed), obj.sample(n=4, random_state=seed)
+            obj.sample(n=4, random_state=seed),
+            obj.sample(n=4, random_state=seed),
         )
 
         tm.assert_equal(
@@ -101,7 +102,9 @@ class TestSample:
 
     def test_sample_requires_integer_n(self, obj):
         # Make sure float values of `n` give error
-        with pytest.raises(ValueError, match="Only integers accepted as `n` values"):
+        with pytest.raises(
+            ValueError, match="Only integers accepted as `n` values"
+        ):
             obj.sample(n=3.2)
 
     def test_sample_invalid_weight_lengths(self, obj):
@@ -113,7 +116,9 @@ class TestSample:
         with pytest.raises(ValueError, match=msg):
             obj.sample(n=3, weights=[0.5] * 11)
 
-        with pytest.raises(ValueError, match="Fewer non-zero entries in p than size"):
+        with pytest.raises(
+            ValueError, match="Fewer non-zero entries in p than size"
+        ):
             obj.sample(n=4, weights=Series([0, 0, 0.2]))
 
     def test_sample_negative_weights(self, obj):
@@ -141,14 +146,18 @@ class TestSample:
         # All zeros raises errors
 
         zero_weights = [0] * 10
-        with pytest.raises(ValueError, match="Invalid weights: weights sum to zero"):
+        with pytest.raises(
+            ValueError, match="Invalid weights: weights sum to zero"
+        ):
             obj.sample(n=3, weights=zero_weights)
 
     def test_sample_missing_weights(self, obj):
         # All missing weights
 
         nan_weights = [np.nan] * 10
-        with pytest.raises(ValueError, match="Invalid weights: weights sum to zero"):
+        with pytest.raises(
+            ValueError, match="Invalid weights: weights sum to zero"
+        ):
             obj.sample(n=3, weights=nan_weights)
 
     def test_sample_none_weights(self, obj):
@@ -172,7 +181,9 @@ class TestSample:
         obj = DataFrame({"col1": range(10, 20), "col2": range(20, 30)})
         obj = tm.get_obj(obj, frame_or_series)
         result = obj.sample(n=3, random_state=eval(func_str)(arg))
-        expected = obj.sample(n=3, random_state=com.random_state(eval(func_str)(arg)))
+        expected = obj.sample(
+            n=3, random_state=com.random_state(eval(func_str)(arg))
+        )
         tm.assert_equal(result, expected)
 
     def test_sample_generator(self, frame_or_series):
@@ -197,9 +208,7 @@ class TestSample:
         obj = DataFrame({"A": list("abc")})
         obj = tm.get_obj(obj, frame_or_series)
 
-        msg = (
-            "Replace has to be set to `True` when upsampling the population `frac` > 1."
-        )
+        msg = "Replace has to be set to `True` when upsampling the population `frac` > 1."
         with pytest.raises(ValueError, match=msg):
             obj.sample(frac=2, replace=False)
 
@@ -230,7 +239,9 @@ class TestSampleDataFrame:
         # Ensure proper error if string given as weight for Series or
         # DataFrame with axis = 1.
         ser = Series(range(10))
-        msg = "Strings cannot be passed as weights when sampling from a Series."
+        msg = (
+            "Strings cannot be passed as weights when sampling from a Series."
+        )
         with pytest.raises(ValueError, match=msg):
             ser.sample(n=3, weights="weight_column")
 
@@ -250,7 +261,9 @@ class TestSampleDataFrame:
         # Check that re-normalizes weights that don't sum to one.
         weights_less_than_1 = [0] * 10
         weights_less_than_1[0] = 0.5
-        tm.assert_frame_equal(df.sample(n=1, weights=weights_less_than_1), df.iloc[:1])
+        tm.assert_frame_equal(
+            df.sample(n=1, weights=weights_less_than_1), df.iloc[:1]
+        )
 
         ###
         # Test axis argument
@@ -265,12 +278,15 @@ class TestSampleDataFrame:
 
         # Different axis arg types
         tm.assert_frame_equal(
-            df.sample(n=1, axis="columns", weights=second_column_weight), df[["col2"]]
+            df.sample(n=1, axis="columns", weights=second_column_weight),
+            df[["col2"]],
         )
 
         weight = [0] * 10
         weight[5] = 0.5
-        tm.assert_frame_equal(df.sample(n=1, axis="rows", weights=weight), df.iloc[5:6])
+        tm.assert_frame_equal(
+            df.sample(n=1, axis="rows", weights=weight), df.iloc[5:6]
+        )
         tm.assert_frame_equal(
             df.sample(n=1, axis="index", weights=weight), df.iloc[5:6]
         )
@@ -285,7 +301,9 @@ class TestSampleDataFrame:
             df.sample(n=1, axis="not_a_name")
 
         ser = Series(range(10))
-        with pytest.raises(ValueError, match="No axis named 1 for object type Series"):
+        with pytest.raises(
+            ValueError, match="No axis named 1 for object type Series"
+        ):
             ser.sample(n=1, axis=1)
 
         # Test weight length compared to correct axis
@@ -299,19 +317,26 @@ class TestSampleDataFrame:
         easy_weight_list[2] = 1
 
         df = DataFrame(
-            {"col1": range(10, 20), "col2": range(20, 30), "colString": ["a"] * 10}
+            {
+                "col1": range(10, 20),
+                "col2": range(20, 30),
+                "colString": ["a"] * 10,
+            }
         )
         sample1 = df.sample(n=1, axis=1, weights=easy_weight_list)
         tm.assert_frame_equal(sample1, df[["colString"]])
 
         # Test default axes
         tm.assert_frame_equal(
-            df.sample(n=3, random_state=42), df.sample(n=3, axis=0, random_state=42)
+            df.sample(n=3, random_state=42),
+            df.sample(n=3, axis=0, random_state=42),
         )
 
     def test_sample_aligns_weights_with_frame(self):
         # Test that function aligns weights with frame
-        df = DataFrame({"col1": [5, 6, 7], "col2": ["a", "b", "c"]}, index=[9, 5, 3])
+        df = DataFrame(
+            {"col1": [5, 6, 7], "col2": ["a", "b", "c"]}, index=[9, 5, 3]
+        )
         ser = Series([1, 0, 0], index=[3, 5, 9])
         tm.assert_frame_equal(df.loc[[3]], df.sample(1, weights=ser))
 
@@ -327,14 +352,17 @@ class TestSampleDataFrame:
         # No overlap in weight and sampled DataFrame indices
         ser4 = Series([1, 0], index=[1, 2])
 
-        with pytest.raises(ValueError, match="Invalid weights: weights sum to zero"):
+        with pytest.raises(
+            ValueError, match="Invalid weights: weights sum to zero"
+        ):
             df.sample(1, weights=ser4)
 
     def test_sample_is_copy(self):
         # GH#27357, GH#30784: ensure the result of sample is an actual copy and
         # doesn't track the parent dataframe
         df = DataFrame(
-            np.random.default_rng(2).standard_normal((10, 3)), columns=["a", "b", "c"]
+            np.random.default_rng(2).standard_normal((10, 3)),
+            columns=["a", "b", "c"],
         )
         df2 = df.sample(3)
 
@@ -362,7 +390,11 @@ class TestSampleDataFrame:
     def test_sample_ignore_index(self):
         # GH 38581
         df = DataFrame(
-            {"col1": range(10, 20), "col2": range(20, 30), "colString": ["a"] * 10}
+            {
+                "col1": range(10, 20),
+                "col2": range(20, 30),
+                "colString": ["a"] * 10,
+            }
         )
         result = df.sample(3, ignore_index=True)
         expected_index = Index(range(3))

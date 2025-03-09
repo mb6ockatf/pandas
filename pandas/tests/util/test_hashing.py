@@ -90,7 +90,9 @@ def test_hash_tuples():
     tm.assert_numpy_array_equal(result, expected)
 
     # We only need to support MultiIndex and list-of-tuples
-    msg = "|".join(["object is not iterable", "zip argument #1 must support iteration"])
+    msg = "|".join(
+        ["object is not iterable", "zip argument #1 must support iteration"]
+    )
     with pytest.raises(TypeError, match=msg):
         hash_tuples(tuples[0])
 
@@ -142,7 +144,9 @@ def test_multiindex_objects():
             {
                 "A": [0.0, 1.0, 2.0, 3.0, 4.0],
                 "B": [0.0, 1.0, 0.0, 1.0, 0.0],
-                "C": Index(["foo1", "foo2", "foo3", "foo4", "foo5"], dtype=object),
+                "C": Index(
+                    ["foo1", "foo2", "foo3", "foo4", "foo5"], dtype=object
+                ),
                 "D": pd.date_range("20130101", periods=5),
             }
         ),
@@ -175,7 +179,9 @@ def test_hash_pandas_object(obj, index):
             {
                 "A": [0.0, 1.0, 2.0, 3.0, 4.0],
                 "B": [0.0, 1.0, 0.0, 1.0, 0.0],
-                "C": Index(["foo1", "foo2", "foo3", "foo4", "foo5"], dtype=object),
+                "C": Index(
+                    ["foo1", "foo2", "foo3", "foo4", "foo5"], dtype=object
+                ),
                 "D": pd.date_range("20130101", periods=5),
             }
         ),
@@ -199,7 +205,11 @@ def test_hash_pandas_object_diff_index_non_empty(obj):
         timedelta_range("1 day", periods=2),
         period_range("2020-01-01", freq="D", periods=2),
         MultiIndex.from_product(
-            [range(5), ["foo", "bar", "baz"], pd.date_range("20130101", periods=2)]
+            [
+                range(5),
+                ["foo", "bar", "baz"],
+                pd.date_range("20130101", periods=2),
+            ]
         ),
         MultiIndex.from_product([pd.CategoricalIndex(list("aabc")), range(3)]),
     ],
@@ -370,13 +380,18 @@ def test_hash_collisions():
     tm.assert_numpy_array_equal(result2, expected2)
 
     result = hash_array(np.asarray(hashes, dtype=object), "utf8")
-    tm.assert_numpy_array_equal(result, np.concatenate([expected1, expected2], axis=0))
+    tm.assert_numpy_array_equal(
+        result, np.concatenate([expected1, expected2], axis=0)
+    )
 
 
 @pytest.mark.parametrize(
     "data, result_data",
     [
-        [[tuple("1"), tuple("2")], [10345501319357378243, 8331063931016360761]],
+        [
+            [tuple("1"), tuple("2")],
+            [10345501319357378243, 8331063931016360761],
+        ],
         [[(1,), (2,)], [9408946347443669104, 3278256261030523334]],
     ],
 )
@@ -414,5 +429,7 @@ def test_hashable_tuple_args():
 def test_hash_object_none_key():
     # https://github.com/pandas-dev/pandas/issues/30887
     result = pd.util.hash_pandas_object(Series(["a", "b"]), hash_key=None)
-    expected = Series([4578374827886788867, 17338122309987883691], dtype="uint64")
+    expected = Series(
+        [4578374827886788867, 17338122309987883691], dtype="uint64"
+    )
     tm.assert_series_equal(result, expected)

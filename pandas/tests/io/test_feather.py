@@ -42,7 +42,9 @@ class TestFeather:
             with tm.ensure_clean() as path:
                 to_feather(df, path)
 
-    def check_round_trip(self, df, expected=None, write_kwargs=None, **read_kwargs):
+    def check_round_trip(
+        self, df, expected=None, write_kwargs=None, **read_kwargs
+    ):
         if write_kwargs is None:
             write_kwargs = {}
         if expected is None:
@@ -91,7 +93,8 @@ class TestFeather:
                     pd.Timestamp("20130103"),
                 ],
                 "dtns": pd.DatetimeIndex(
-                    list(pd.date_range("20130101", periods=3, freq="ns")), freq=None
+                    list(pd.date_range("20130101", periods=3, freq="ns")),
+                    freq=None,
                 ),
             }
         )
@@ -108,7 +111,9 @@ class TestFeather:
     def test_duplicate_columns(self):
         # https://github.com/wesm/feather/issues/53
         # not currently able to handle duplicate columns
-        df = pd.DataFrame(np.arange(12).reshape(4, 3), columns=list("aaa")).copy()
+        df = pd.DataFrame(
+            np.arange(12).reshape(4, 3), columns=list("aaa")
+        ).copy()
         self.check_external_error_on_write(df)
 
     def test_read_columns(self):
@@ -216,7 +221,9 @@ class TestFeather:
 
             expected = pd.DataFrame(
                 {
-                    col: ArrowExtensionArray(pa.array(expected[col], from_pandas=True))
+                    col: ArrowExtensionArray(
+                        pa.array(expected[col], from_pandas=True)
+                    )
                     for col in expected.columns
                 }
             )
@@ -228,7 +235,9 @@ class TestFeather:
         tm.assert_frame_equal(result, expected)
 
     def test_int_columns_and_index(self):
-        df = pd.DataFrame({"a": [1, 2, 3]}, index=pd.Index([3, 4, 5], name="test"))
+        df = pd.DataFrame(
+            {"a": [1, 2, 3]}, index=pd.Index([3, 4, 5], name="test")
+        )
         self.check_round_trip(df)
 
     def test_invalid_dtype_backend(self):
@@ -258,14 +267,18 @@ class TestFeather:
             dtype=dtype,
             columns=pd.Index(
                 ["a"],
-                dtype=object
-                if pa_version_under19p0 and not using_infer_string
-                else dtype,
+                dtype=(
+                    object
+                    if pa_version_under19p0 and not using_infer_string
+                    else dtype
+                ),
             ),
         )
         tm.assert_frame_equal(result, expected)
 
-    @pytest.mark.skipif(pa_version_under18p0, reason="not supported before 18.0")
+    @pytest.mark.skipif(
+        pa_version_under18p0, reason="not supported before 18.0"
+    )
     def test_string_inference_string_view_type(self, tmp_path):
         # GH#54798
         import pyarrow as pa
@@ -279,7 +292,8 @@ class TestFeather:
             result = read_feather(path)
 
             expected = pd.DataFrame(
-                data={"a": [None, "b", "c"]}, dtype=pd.StringDtype(na_value=np.nan)
+                data={"a": [None, "b", "c"]},
+                dtype=pd.StringDtype(na_value=np.nan),
             )
         tm.assert_frame_equal(result, expected)
 

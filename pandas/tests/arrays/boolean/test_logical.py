@@ -24,7 +24,9 @@ class TestLogicalOps(BaseOpsUtil):
 
     def get_op_from_name(self, op_name):
         short_opname = op_name.strip("_")
-        short_opname = short_opname if "xor" in short_opname else short_opname + "_"
+        short_opname = (
+            short_opname if "xor" in short_opname else short_opname + "_"
+        )
         try:
             op = getattr(operator, short_opname)
         except AttributeError:
@@ -60,8 +62,12 @@ class TestLogicalOps(BaseOpsUtil):
         expected = pd.array([True, True])
         tm.assert_extension_array_equal(result, expected)
 
-    @pytest.mark.parametrize("other", [[True, False], [True, False, True, False]])
-    def test_logical_length_mismatch_raises(self, other, all_logical_operators):
+    @pytest.mark.parametrize(
+        "other", [[True, False], [True, False, True, False]]
+    )
+    def test_logical_length_mismatch_raises(
+        self, other, all_logical_operators
+    ):
         op_name = all_logical_operators
         a = pd.array([True, False, None], dtype="boolean")
         msg = "Lengths must match"
@@ -95,7 +101,8 @@ class TestLogicalOps(BaseOpsUtil):
         b = pd.array([True, False, None] * 3, dtype="boolean")
         result = a | b
         expected = pd.array(
-            [True, True, True, True, False, None, True, None, None], dtype="boolean"
+            [True, True, True, True, False, None, True, None, None],
+            dtype="boolean",
         )
         tm.assert_extension_array_equal(result, expected)
 
@@ -141,7 +148,8 @@ class TestLogicalOps(BaseOpsUtil):
         b = pd.array([True, False, None] * 3, dtype="boolean")
         result = a & b
         expected = pd.array(
-            [True, False, None, False, False, False, None, False, None], dtype="boolean"
+            [True, False, None, False, False, False, None, False, None],
+            dtype="boolean",
         )
         tm.assert_extension_array_equal(result, expected)
 
@@ -185,7 +193,8 @@ class TestLogicalOps(BaseOpsUtil):
         b = pd.array([True, False, None] * 3, dtype="boolean")
         result = a ^ b
         expected = pd.array(
-            [False, True, None, True, False, None, None, None, None], dtype="boolean"
+            [False, True, None, True, False, None, None, None, None],
+            dtype="boolean",
         )
         tm.assert_extension_array_equal(result, expected)
 
@@ -223,11 +232,15 @@ class TestLogicalOps(BaseOpsUtil):
             a, pd.array([True, False, None], dtype="boolean")
         )
 
-    @pytest.mark.parametrize("other", [True, False, pd.NA, [True, False, None] * 3])
+    @pytest.mark.parametrize(
+        "other", [True, False, pd.NA, [True, False, None] * 3]
+    )
     def test_no_masked_assumptions(self, other, all_logical_operators):
         # The logical operations should not assume that masked values are False!
         a = pd.arrays.BooleanArray(
-            np.array([True, True, True, False, False, False, True, False, True]),
+            np.array(
+                [True, True, True, False, False, False, True, False, True]
+            ),
             np.array([False] * 6 + [True, True, True]),
         )
         b = pd.array([True] * 3 + [False] * 3 + [None] * 3, dtype="boolean")

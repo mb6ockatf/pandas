@@ -192,7 +192,9 @@ class StringDtype(StorageExtensionDtype):
             # a consistent NaN value (and we can use `dtype.na_value is np.nan`)
             na_value = np.nan
         elif na_value is not libmissing.NA:
-            raise ValueError(f"'na_value' must be np.nan or pd.NA, got {na_value}")
+            raise ValueError(
+                f"'na_value' must be np.nan or pd.NA, got {na_value}"
+            )
 
         self.storage = cast(str, storage)
         self._na_value = na_value
@@ -218,7 +220,10 @@ class StringDtype(StorageExtensionDtype):
                 # ImportError if pyarrow is not installed for "string[pyarrow]"
                 return False
         if isinstance(other, type(self)):
-            return self.storage == other.storage and self.na_value is other.na_value
+            return (
+                self.storage == other.storage
+                and self.na_value is other.na_value
+            )
         return False
 
     def __hash__(self) -> int:
@@ -276,7 +281,9 @@ class StringDtype(StorageExtensionDtype):
             # this is deprecated in the dtype __init__, remove this in pandas 3.0
             return cls(storage="pyarrow_numpy")
         else:
-            raise TypeError(f"Cannot construct a '{cls.__name__}' from '{string}'")
+            raise TypeError(
+                f"Cannot construct a '{cls.__name__}' from '{string}'"
+            )
 
     # https://github.com/pandas-dev/pandas/issues/36126
     # error: Signature of "construct_array_type" incompatible with supertype
@@ -415,7 +422,9 @@ class BaseStringArray(ExtensionArray):
         convert: bool = True,
     ):
         if self.dtype.na_value is np.nan:
-            return self._str_map_nan_semantics(f, na_value=na_value, dtype=dtype)
+            return self._str_map_nan_semantics(
+                f, na_value=na_value, dtype=dtype
+            )
 
         from pandas.arrays import BooleanArray
 
@@ -642,8 +651,12 @@ class StringArray(BaseStringArray, NumpyExtensionArray):  # type: ignore[misc]
 
     def _validate(self) -> None:
         """Validate that we only store NA or strings."""
-        if len(self._ndarray) and not lib.is_string_array(self._ndarray, skipna=True):
-            raise ValueError("StringArray requires a sequence of strings or pandas.NA")
+        if len(self._ndarray) and not lib.is_string_array(
+            self._ndarray, skipna=True
+        ):
+            raise ValueError(
+                "StringArray requires a sequence of strings or pandas.NA"
+            )
         if self._ndarray.dtype != "object":
             raise ValueError(
                 "StringArray requires a sequence of strings or pandas.NA. Got "
@@ -687,7 +700,9 @@ class StringArray(BaseStringArray, NumpyExtensionArray):  # type: ignore[misc]
             # avoid costly conversion to object dtype
             na_values = scalars._mask
             result = scalars._data
-            result = lib.ensure_string_array(result, copy=copy, convert_na_value=False)
+            result = lib.ensure_string_array(
+                result, copy=copy, convert_na_value=False
+            )
             result[na_values] = na_value
 
         else:
@@ -697,7 +712,9 @@ class StringArray(BaseStringArray, NumpyExtensionArray):  # type: ignore[misc]
                 #  zero_copy_only to True which caused problems see GH#52076
                 scalars = np.array(scalars)
             # convert non-na-likes to str, and nan-likes to StringDtype().na_value
-            result = lib.ensure_string_array(scalars, na_value=na_value, copy=copy)
+            result = lib.ensure_string_array(
+                scalars, na_value=na_value, copy=copy
+            )
 
         # Manually creating new array avoids the validation step in the __init__, so is
         # faster. Refactor need for validation?
@@ -799,13 +816,18 @@ class StringArray(BaseStringArray, NumpyExtensionArray):  # type: ignore[misc]
 
     def isin(self, values: ArrayLike) -> npt.NDArray[np.bool_]:
         if isinstance(values, BaseStringArray) or (
-            isinstance(values, ExtensionArray) and is_string_dtype(values.dtype)
+            isinstance(values, ExtensionArray)
+            and is_string_dtype(values.dtype)
         ):
             values = values.astype(self.dtype, copy=False)
         else:
             if not lib.is_string_array(np.asarray(values), skipna=True):
                 values = np.array(
-                    [val for val in values if isinstance(val, str) or isna(val)],
+                    [
+                        val
+                        for val in values
+                        if isinstance(val, str) or isna(val)
+                    ],
                     dtype=object,
                 )
                 if not len(values):
@@ -871,7 +893,9 @@ class StringArray(BaseStringArray, NumpyExtensionArray):  # type: ignore[misc]
 
         raise TypeError(f"Cannot perform reduction '{name}' with string dtype")
 
-    def _accumulate(self, name: str, *, skipna: bool = True, **kwargs) -> StringArray:
+    def _accumulate(
+        self, name: str, *, skipna: bool = True, **kwargs
+    ) -> StringArray:
         """
         Return an ExtensionArray performing an accumulation operation.
 
@@ -988,7 +1012,9 @@ class StringArray(BaseStringArray, NumpyExtensionArray):  # type: ignore[misc]
         return self._wrap_reduction_result(axis, result)
 
     def value_counts(self, dropna: bool = True) -> Series:
-        from pandas.core.algorithms import value_counts_internal as value_counts
+        from pandas.core.algorithms import (
+            value_counts_internal as value_counts,
+        )
 
         result = value_counts(self._ndarray, sort=False, dropna=dropna)
         result.index = result.index.astype(self.dtype)
@@ -1064,7 +1090,9 @@ class StringArrayNumpySemantics(StringArray):
 
     def _validate(self) -> None:
         """Validate that we only store NaN or strings."""
-        if len(self._ndarray) and not lib.is_string_array(self._ndarray, skipna=True):
+        if len(self._ndarray) and not lib.is_string_array(
+            self._ndarray, skipna=True
+        ):
             raise ValueError(
                 "StringArrayNumpySemantics requires a sequence of strings or NaN"
             )

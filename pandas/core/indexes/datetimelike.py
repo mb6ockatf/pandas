@@ -269,7 +269,9 @@ class DatetimeIndexOpsMixin(NDArrayBackedExtensionIndex, ABC):
             if self.freq is None or hasattr(self.freq, "rule_code"):
                 freq = self.freq
         except NotImplementedError:
-            freq = getattr(self, "freqstr", getattr(self, "inferred_freq", None))
+            freq = getattr(
+                self, "freqstr", getattr(self, "inferred_freq", None)
+            )
 
         freqstr: str | None
         if freq is not None and not isinstance(freq, str):
@@ -281,7 +283,9 @@ class DatetimeIndexOpsMixin(NDArrayBackedExtensionIndex, ABC):
             # GH#45580
             label = str(label)
 
-        parsed, reso_str = parsing.parse_datetime_string_with_reso(label, freqstr)
+        parsed, reso_str = parsing.parse_datetime_string_with_reso(
+            label, freqstr
+        )
         reso = Resolution.from_attrname(reso_str)
         return parsed, reso
 
@@ -318,7 +322,8 @@ class DatetimeIndexOpsMixin(NDArrayBackedExtensionIndex, ABC):
 
         if self.is_monotonic_increasing:
             if len(self) and (
-                (t1 < self[0] and t2 < self[0]) or (t1 > self[-1] and t2 > self[-1])
+                (t1 < self[0] and t2 < self[0])
+                or (t1 > self[-1] and t2 > self[-1])
             ):
                 # we are out of range
                 raise KeyError

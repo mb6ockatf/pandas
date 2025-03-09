@@ -43,7 +43,9 @@ def rand_str(nchars: int) -> str:
 class TestAstypeAPI:
     def test_astype_unitless_dt64_raises(self):
         # GH#47844
-        ser = Series(["1970-01-01", "1970-01-01", "1970-01-01"], dtype="datetime64[ns]")
+        ser = Series(
+            ["1970-01-01", "1970-01-01", "1970-01-01"], dtype="datetime64[ns]"
+        )
         df = ser.to_frame()
 
         msg = "Casting to unit-less dtype 'datetime64' is not supported"
@@ -81,7 +83,9 @@ class TestAstypeAPI:
 
         dt2 = dtype_class({"abc": "float64"})
         result = ser.astype(dt2)
-        expected = Series([0.0, 2.0, 4.0, 6.0, 8.0], dtype="float64", name="abc")
+        expected = Series(
+            [0.0, 2.0, 4.0, 6.0, 8.0], dtype="float64", name="abc"
+        )
         tm.assert_series_equal(result, expected)
 
         dt3 = dtype_class({"abc": str, "def": str})
@@ -143,7 +147,10 @@ class TestAstype:
         ser = Series([ts, ts2], dtype=object)
         res = ser.astype("datetime64[ns, Europe/Brussels]")
         expected = Series(
-            [ts.tz_convert("Europe/Brussels"), ts2.tz_convert("Europe/Brussels")],
+            [
+                ts.tz_convert("Europe/Brussels"),
+                ts2.tz_convert("Europe/Brussels"),
+            ],
             dtype="datetime64[ns, Europe/Brussels]",
         )
         tm.assert_series_equal(res, expected)
@@ -176,7 +183,9 @@ class TestAstype:
         using_string_dtype = using_infer_string and dtype is str
         result = series.astype(dtype)
         if using_string_dtype:
-            expected = series.map(lambda val: str(val) if val is not np.nan else np.nan)
+            expected = series.map(
+                lambda val: str(val) if val is not np.nan else np.nan
+            )
         else:
             expected = series.map(str)
             if using_infer_string:
@@ -217,7 +226,9 @@ class TestAstype:
         # GH#10442 : testing astype(str) is correct for Series/DatetimeIndex
         dti = date_range("2012-01-01", periods=3)
         result = Series(dti).astype(str)
-        expected = Series(["2012-01-01", "2012-01-02", "2012-01-03"], dtype="str")
+        expected = Series(
+            ["2012-01-01", "2012-01-02", "2012-01-03"], dtype="str"
+        )
         tm.assert_series_equal(result, expected)
 
     def test_astype_dt64tz_to_str(self):
@@ -263,7 +274,9 @@ class TestAstype:
         expected = Series(ser.astype(object), dtype=object)
         tm.assert_series_equal(result, expected)
 
-        result = Series(ser.values).dt.tz_localize("UTC").dt.tz_convert(ser.dt.tz)
+        result = (
+            Series(ser.values).dt.tz_localize("UTC").dt.tz_convert(ser.dt.tz)
+        )
         tm.assert_series_equal(result, ser)
 
         # astype - object, preserves on construction
@@ -335,7 +348,9 @@ class TestAstype:
         ],
     )
     @pytest.mark.parametrize("errors", ["raise", "ignore"])
-    def test_astype_ignores_errors_for_extension_dtypes(self, data, dtype, errors):
+    def test_astype_ignores_errors_for_extension_dtypes(
+        self, data, dtype, errors
+    ):
         # https://github.com/pandas-dev/pandas/issues/35471
         ser = Series(data, dtype=dtype)
         if errors == "ignore":
@@ -362,12 +377,15 @@ class TestAstype:
             (NA, "<NA>"),
         ],
     )
-    def test_astype_to_str_preserves_na(self, value, string_value, using_infer_string):
+    def test_astype_to_str_preserves_na(
+        self, value, string_value, using_infer_string
+    ):
         # https://github.com/pandas-dev/pandas/issues/36904
         ser = Series(["a", "b", value], dtype=object)
         result = ser.astype(str)
         expected = Series(
-            ["a", "b", None if using_infer_string else string_value], dtype="str"
+            ["a", "b", None if using_infer_string else string_value],
+            dtype="str",
         )
         tm.assert_series_equal(result, expected)
 
@@ -473,9 +491,15 @@ class TestAstype:
 
         expected = Series(
             {
-                0: Timestamp("1969-12-31 16:00:00.000000004-08:00", tz="US/Pacific"),
-                1: Timestamp("1969-12-31 16:00:00.000000000-08:00", tz="US/Pacific"),
-                2: Timestamp("1969-12-31 16:00:00.000000009-08:00", tz="US/Pacific"),
+                0: Timestamp(
+                    "1969-12-31 16:00:00.000000004-08:00", tz="US/Pacific"
+                ),
+                1: Timestamp(
+                    "1969-12-31 16:00:00.000000000-08:00", tz="US/Pacific"
+                ),
+                2: Timestamp(
+                    "1969-12-31 16:00:00.000000009-08:00", tz="US/Pacific"
+                ),
             }
         )
 
@@ -532,7 +556,9 @@ class TestAstypeString:
 class TestAstypeCategorical:
     def test_astype_categorical_to_other(self):
         cat = Categorical([f"{i} - {i + 499}" for i in range(0, 10000, 500)])
-        ser = Series(np.random.default_rng(2).integers(0, 10000, 100)).sort_values()
+        ser = Series(
+            np.random.default_rng(2).integers(0, 10000, 100)
+        ).sort_values()
         ser = cut(ser, range(0, 10500, 500), right=False, labels=cat)
 
         expected = ser
@@ -552,7 +578,9 @@ class TestAstypeCategorical:
         # object don't sort correctly, so just compare that we have the same
         # values
         def cmp(a, b):
-            tm.assert_almost_equal(np.sort(np.unique(a)), np.sort(np.unique(b)))
+            tm.assert_almost_equal(
+                np.sort(np.unique(a)), np.sort(np.unique(b))
+            )
 
         expected = Series(np.array(ser.values), name="value_group")
         cmp(ser.astype("object"), expected)
@@ -575,7 +603,9 @@ class TestAstypeCategorical:
     def test_astype_categorical_invalid_conversions(self):
         # invalid conversion (these are NOT a dtype)
         cat = Categorical([f"{i} - {i + 499}" for i in range(0, 10000, 500)])
-        ser = Series(np.random.default_rng(2).integers(0, 10000, 100)).sort_values()
+        ser = Series(
+            np.random.default_rng(2).integers(0, 10000, 100)
+        ).sort_values()
         ser = cut(ser, range(0, 10500, 500), right=False, labels=cat)
 
         msg = (
@@ -599,7 +629,9 @@ class TestAstypeCategorical:
 
         result = ser.astype(CategoricalDtype(["a", "b", "c"], ordered=False))
         expected = Series(
-            Categorical(["a", "b", "a"], categories=["a", "b", "c"], ordered=False)
+            Categorical(
+                ["a", "b", "a"], categories=["a", "b", "c"], ordered=False
+            )
         )
         tm.assert_series_equal(result, expected)
         tm.assert_index_equal(result.cat.categories, Index(["a", "b", "c"]))
@@ -640,7 +672,9 @@ class TestAstypeCategorical:
         assert ser.dtypes == np.object_
 
         result = ser.astype(CategoricalDtype(categories=[True, False]))
-        expected = Series(Categorical([True, False, np.nan], categories=[True, False]))
+        expected = Series(
+            Categorical([True, False, np.nan], categories=[True, False])
+        )
         tm.assert_series_equal(result, expected)
 
     def test_astype_categories_raises(self):

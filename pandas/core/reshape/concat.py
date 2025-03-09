@@ -104,7 +104,9 @@ def concat(
 
 @overload
 def concat(
-    objs: Iterable[Series | DataFrame] | Mapping[HashableT, Series | DataFrame],
+    objs: (
+        Iterable[Series | DataFrame] | Mapping[HashableT, Series | DataFrame]
+    ),
     *,
     axis: Literal[0, "index"] = ...,
     join: str = ...,
@@ -120,7 +122,9 @@ def concat(
 
 @overload
 def concat(
-    objs: Iterable[Series | DataFrame] | Mapping[HashableT, Series | DataFrame],
+    objs: (
+        Iterable[Series | DataFrame] | Mapping[HashableT, Series | DataFrame]
+    ),
     *,
     axis: Literal[1, "columns"],
     join: str = ...,
@@ -136,7 +140,9 @@ def concat(
 
 @overload
 def concat(
-    objs: Iterable[Series | DataFrame] | Mapping[HashableT, Series | DataFrame],
+    objs: (
+        Iterable[Series | DataFrame] | Mapping[HashableT, Series | DataFrame]
+    ),
     *,
     axis: Axis = ...,
     join: str = ...,
@@ -152,7 +158,9 @@ def concat(
 
 @set_module("pandas")
 def concat(
-    objs: Iterable[Series | DataFrame] | Mapping[HashableT, Series | DataFrame],
+    objs: (
+        Iterable[Series | DataFrame] | Mapping[HashableT, Series | DataFrame]
+    ),
     *,
     axis: Axis = 0,
     join: str = "outer",
@@ -413,7 +421,9 @@ def concat(
     objs, keys, ndims = _clean_keys_and_objs(objs, keys)
 
     # select an object to be our result reference
-    sample, objs = _get_sample_object(objs, ndims, keys, names, levels, intersect)
+    sample, objs = _get_sample_object(
+        objs, ndims, keys, names, levels, intersect
+    )
 
     # Standardize axis parameter to int
     if sample.ndim == 1:
@@ -567,11 +577,19 @@ def _get_result(
                 sort=sort,
             )
             columns = _get_concat_axis_series(
-                objs, ignore_index, bm_axis, keys, levels, verify_integrity, names
+                objs,
+                ignore_index,
+                bm_axis,
+                keys,
+                levels,
+                verify_integrity,
+                names,
             )
             df = cons(data, index=index, copy=False)
             df.columns = columns
-            return df.__finalize__(types.SimpleNamespace(objs=objs), method="concat")
+            return df.__finalize__(
+                types.SimpleNamespace(objs=objs), method="concat"
+            )
 
     # combine block managers
     else:
@@ -610,7 +628,9 @@ def _get_result(
         )
 
         out = sample._constructor_from_mgr(new_data, axes=new_data.axes)
-        return out.__finalize__(types.SimpleNamespace(objs=objs), method="concat")
+        return out.__finalize__(
+            types.SimpleNamespace(objs=objs), method="concat"
+        )
 
 
 def new_axes(
@@ -627,21 +647,23 @@ def new_axes(
 ) -> list[Index]:
     """Return the new [index, column] result for concat."""
     return [
-        _get_concat_axis_dataframe(
-            objs,
-            axis,
-            ignore_index,
-            keys,
-            names,
-            levels,
-            verify_integrity,
-        )
-        if i == bm_axis
-        else get_objs_combined_axis(
-            objs,
-            axis=objs[0]._get_block_manager_axis(i),
-            intersect=intersect,
-            sort=sort,
+        (
+            _get_concat_axis_dataframe(
+                objs,
+                axis,
+                ignore_index,
+                keys,
+                names,
+                levels,
+                verify_integrity,
+            )
+            if i == bm_axis
+            else get_objs_combined_axis(
+                objs,
+                axis=objs[0]._get_block_manager_axis(i),
+                intersect=intersect,
+                sort=sort,
+            )
         )
         for i in range(2)
     ]
@@ -727,7 +749,9 @@ def _get_concat_axis_dataframe(
 
 
 def _clean_keys_and_objs(
-    objs: Iterable[Series | DataFrame] | Mapping[HashableT, Series | DataFrame],
+    objs: (
+        Iterable[Series | DataFrame] | Mapping[HashableT, Series | DataFrame]
+    ),
     keys,
 ) -> tuple[list[Series | DataFrame], Index | None, set[int]]:
     """
@@ -833,7 +857,9 @@ def validate_unique_levels(levels: list[Index]) -> None:
             raise ValueError(f"Level values not unique: {level.tolist()}")
 
 
-def _make_concat_multiindex(indexes, keys, levels=None, names=None) -> MultiIndex:
+def _make_concat_multiindex(
+    indexes, keys, levels=None, names=None
+) -> MultiIndex:
     if (levels is None and isinstance(keys[0], tuple)) or (
         levels is not None and len(levels) > 1
     ):
@@ -903,7 +929,10 @@ def _make_concat_multiindex(indexes, keys, levels=None, names=None) -> MultiInde
             names = list(names) + list(get_unanimous_names(*indexes))
 
         return MultiIndex(
-            levels=levels, codes=codes_list, names=names, verify_integrity=False
+            levels=levels,
+            codes=codes_list,
+            names=names,
+            verify_integrity=False,
         )
 
     new_index = indexes[0]
@@ -943,5 +972,8 @@ def _make_concat_multiindex(indexes, keys, levels=None, names=None) -> MultiInde
         new_names.extend(new_index.names)
 
     return MultiIndex(
-        levels=new_levels, codes=new_codes, names=new_names, verify_integrity=False
+        levels=new_levels,
+        codes=new_codes,
+        names=new_names,
+        verify_integrity=False,
     )

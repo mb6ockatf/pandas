@@ -17,8 +17,12 @@ class TestDataFrameAlign:
     def test_frame_align_aware(self):
         idx1 = date_range("2001", periods=5, freq="h", tz="US/Eastern")
         idx2 = date_range("2001", periods=5, freq="2h", tz="US/Eastern")
-        df1 = DataFrame(np.random.default_rng(2).standard_normal((len(idx1), 3)), idx1)
-        df2 = DataFrame(np.random.default_rng(2).standard_normal((len(idx2), 3)), idx2)
+        df1 = DataFrame(
+            np.random.default_rng(2).standard_normal((len(idx1), 3)), idx1
+        )
+        df2 = DataFrame(
+            np.random.default_rng(2).standard_normal((len(idx2), 3)), idx2
+        )
         new1, new2 = df1.align(df2)
         assert df1.index.tz == new1.index.tz
         assert df2.index.tz == new2.index.tz
@@ -226,13 +230,17 @@ class TestDataFrameAlign:
         tm.assert_frame_equal(result_l, df)
         tm.assert_series_equal(result_r, expected_r)
 
-    def test_multiindex_align_to_series_with_common_index_level_missing_in_left(self):
+    def test_multiindex_align_to_series_with_common_index_level_missing_in_left(
+        self,
+    ):
         #  GH-46001
         foo_index = Index([1, 2, 3], name="foo")
         bar_index = Index([1, 2], name="bar")
 
         series = Series(
-            [1, 2, 3, 4], index=Index([1, 2, 3, 4], name="bar"), name="foo_series"
+            [1, 2, 3, 4],
+            index=Index([1, 2, 3, 4], name="bar"),
+            name="foo_series",
         )
         df = DataFrame(
             {"col": np.arange(6)},
@@ -245,12 +253,16 @@ class TestDataFrameAlign:
         tm.assert_frame_equal(result_l, df)
         tm.assert_series_equal(result_r, expected_r)
 
-    def test_multiindex_align_to_series_with_common_index_level_missing_in_right(self):
+    def test_multiindex_align_to_series_with_common_index_level_missing_in_right(
+        self,
+    ):
         #  GH-46001
         foo_index = Index([1, 2, 3], name="foo")
         bar_index = Index([1, 2, 3, 4], name="bar")
 
-        series = Series([1, 2], index=Index([1, 2], name="bar"), name="foo_series")
+        series = Series(
+            [1, 2], index=Index([1, 2], name="bar"), name="foo_series"
+        )
         df = DataFrame(
             {"col": np.arange(12)},
             index=pd.MultiIndex.from_product([foo_index, bar_index]),
@@ -264,7 +276,9 @@ class TestDataFrameAlign:
         tm.assert_frame_equal(result_l, df)
         tm.assert_series_equal(result_r, expected_r)
 
-    def test_multiindex_align_to_series_with_common_index_level_missing_in_both(self):
+    def test_multiindex_align_to_series_with_common_index_level_missing_in_both(
+        self,
+    ):
         #  GH-46001
         foo_index = Index([1, 2, 3], name="foo")
         bar_index = Index([1, 3, 4], name="bar")
@@ -277,13 +291,17 @@ class TestDataFrameAlign:
             index=pd.MultiIndex.from_product([foo_index, bar_index]),
         )
 
-        expected_r = Series([1, np.nan, 3] * 3, index=df.index, name="foo_series")
+        expected_r = Series(
+            [1, np.nan, 3] * 3, index=df.index, name="foo_series"
+        )
         result_l, result_r = df.align(series, axis=0)
 
         tm.assert_frame_equal(result_l, df)
         tm.assert_series_equal(result_r, expected_r)
 
-    def test_multiindex_align_to_series_with_common_index_level_non_unique_cols(self):
+    def test_multiindex_align_to_series_with_common_index_level_non_unique_cols(
+        self,
+    ):
         #  GH-46001
         foo_index = Index([1, 2, 3], name="foo")
         bar_index = Index([1, 2], name="bar")

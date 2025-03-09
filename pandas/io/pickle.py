@@ -33,7 +33,8 @@ if TYPE_CHECKING:
 
 @doc(
     storage_options=_shared_docs["storage_options"],
-    compression_options=_shared_docs["compression_options"] % "filepath_or_buffer",
+    compression_options=_shared_docs["compression_options"]
+    % "filepath_or_buffer",
 )
 def to_pickle(
     obj: Any,
@@ -116,7 +117,8 @@ def to_pickle(
 
 @doc(
     storage_options=_shared_docs["storage_options"],
-    decompression_options=_shared_docs["decompression_options"] % "filepath_or_buffer",
+    decompression_options=_shared_docs["decompression_options"]
+    % "filepath_or_buffer",
 )
 def read_pickle(
     filepath_or_buffer: FilePath | ReadPickleBuffer,
@@ -186,7 +188,12 @@ def read_pickle(
     4    4    9
     """
     # TypeError for Cython complaints about object.__new__ vs Tick.__new__
-    excs_to_catch = (AttributeError, ImportError, ModuleNotFoundError, TypeError)
+    excs_to_catch = (
+        AttributeError,
+        ImportError,
+        ModuleNotFoundError,
+        TypeError,
+    )
     with get_handle(
         filepath_or_buffer,
         "rb",

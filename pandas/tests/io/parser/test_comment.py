@@ -31,7 +31,9 @@ def test_comment(all_parsers, na_values):
     tm.assert_frame_equal(result, expected)
 
 
-@pytest.mark.parametrize("read_kwargs", [{}, {"lineterminator": "*"}, {"sep": r"\s+"}])
+@pytest.mark.parametrize(
+    "read_kwargs", [{}, {"lineterminator": "*"}, {"sep": r"\s+"}]
+)
 def test_line_comment(all_parsers, read_kwargs):
     parser = all_parsers
     data = """# empty
@@ -48,9 +50,7 @@ A,B,C
     read_kwargs["comment"] = "#"
     if parser.engine == "pyarrow":
         if "lineterminator" in read_kwargs:
-            msg = (
-                "The 'lineterminator' option is not supported with the 'pyarrow' engine"
-            )
+            msg = "The 'lineterminator' option is not supported with the 'pyarrow' engine"
         else:
             msg = "The 'comment' option is not supported with the 'pyarrow' engine"
         with pytest.raises(ValueError, match=msg):
@@ -185,9 +185,13 @@ def test_comment_first_line(all_parsers, header):
 def test_comment_char_in_default_value(all_parsers, request):
     # GH#34002
     if all_parsers.engine == "c":
-        reason = "see gh-34002: works on the python engine but not the c engine"
+        reason = (
+            "see gh-34002: works on the python engine but not the c engine"
+        )
         # NA value containing comment char is interpreted as comment
-        request.applymarker(pytest.mark.xfail(reason=reason, raises=AssertionError))
+        request.applymarker(
+            pytest.mark.xfail(reason=reason, raises=AssertionError)
+        )
     parser = all_parsers
 
     data = (

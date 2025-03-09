@@ -207,7 +207,10 @@ def to_json(
     if path_or_buf is not None:
         # apply compression and byte/text conversion
         with get_handle(
-            path_or_buf, mode, compression=compression, storage_options=storage_options
+            path_or_buf,
+            mode,
+            compression=compression,
+            storage_options=storage_options,
         ) as handles:
             handles.handle.write(s)
     else:
@@ -279,7 +282,9 @@ class SeriesWriter(Writer):
 
     def _format_axes(self) -> None:
         if not self.obj.index.is_unique and self.orient == "index":
-            raise ValueError(f"Series index must be unique for orient='{self.orient}'")
+            raise ValueError(
+                f"Series index must be unique for orient='{self.orient}'"
+            )
 
 
 class FrameWriter(Writer):
@@ -298,7 +303,10 @@ class FrameWriter(Writer):
         """
         Try to format axes if they are datelike.
         """
-        if not self.obj.index.is_unique and self.orient in ("index", "columns"):
+        if not self.obj.index.is_unique and self.orient in (
+            "index",
+            "columns",
+        ):
             raise ValueError(
                 f"DataFrame index must be unique for orient='{self.orient}'."
             )
@@ -494,7 +502,8 @@ def read_json(
 
 @doc(
     storage_options=_shared_docs["storage_options"],
-    decompression_options=_shared_docs["decompression_options"] % "path_or_buf",
+    decompression_options=_shared_docs["decompression_options"]
+    % "path_or_buf",
 )
 def read_json(
     path_or_buf: FilePath | ReadBuffer[str] | ReadBuffer[bytes],
@@ -922,9 +931,7 @@ class JsonReader(abc.Iterator, Generic[FrameSeriesStrT]):
         """
         Combines a list of JSON objects into one JSON object.
         """
-        return (
-            f"[{','.join([line for line in (line.strip() for line in lines) if line])}]"
-        )
+        return f"[{','.join([line for line in (line.strip() for line in lines) if line])}]"
 
     @overload
     def read(self: JsonReader[Literal["frame"]]) -> DataFrame: ...
@@ -933,7 +940,9 @@ class JsonReader(abc.Iterator, Generic[FrameSeriesStrT]):
     def read(self: JsonReader[Literal["series"]]) -> Series: ...
 
     @overload
-    def read(self: JsonReader[Literal["frame", "series"]]) -> DataFrame | Series: ...
+    def read(
+        self: JsonReader[Literal["frame", "series"]],
+    ) -> DataFrame | Series: ...
 
     def read(self) -> DataFrame | Series:
         """
@@ -944,7 +953,9 @@ class JsonReader(abc.Iterator, Generic[FrameSeriesStrT]):
             if self.engine == "pyarrow":
                 pyarrow_json = import_optional_dependency("pyarrow.json")
                 pa_table = pyarrow_json.read_json(self.data)
-                return arrow_table_to_pandas(pa_table, dtype_backend=self.dtype_backend)
+                return arrow_table_to_pandas(
+                    pa_table, dtype_backend=self.dtype_backend
+                )
             elif self.engine == "ujson":
                 if self.lines:
                     if self.chunksize:
@@ -956,7 +967,9 @@ class JsonReader(abc.Iterator, Generic[FrameSeriesStrT]):
                     else:
                         data = ensure_str(self.data)
                         data_lines = data.split("\n")
-                        obj = self._get_object_parser(self._combine_lines(data_lines))
+                        obj = self._get_object_parser(
+                            self._combine_lines(data_lines)
+                        )
                 else:
                     obj = self._get_object_parser(self.data)
                 if self.dtype_backend is not lib.no_default:
@@ -1092,7 +1105,9 @@ class Parser:
         if date_unit is not None:
             date_unit = date_unit.lower()
             if date_unit not in self._STAMP_UNITS:
-                raise ValueError(f"date_unit must be one of {self._STAMP_UNITS}")
+                raise ValueError(
+                    f"date_unit must be one of {self._STAMP_UNITS}"
+                )
             self.min_stamp = self._MIN_STAMPS[date_unit]
         else:
             self.min_stamp = self._MIN_STAMPS["s"]
@@ -1112,7 +1127,9 @@ class Parser:
         bad_keys = set(decoded.keys()).difference(set(self._split_keys))
         if bad_keys:
             bad_keys_joined = ", ".join(bad_keys)
-            raise ValueError(f"JSON data had unexpected key(s): {bad_keys_joined}")
+            raise ValueError(
+                f"JSON data had unexpected key(s): {bad_keys_joined}"
+            )
 
     @final
     def parse(self) -> DataFrame | Series:
@@ -1179,7 +1196,9 @@ class Parser:
             ):
                 # convert_dates takes precedence over columns listed in dtypes
                 dtype = (
-                    self.dtype.get(name) if isinstance(self.dtype, dict) else self.dtype
+                    self.dtype.get(name)
+                    if isinstance(self.dtype, dict)
+                    else self.dtype
                 )
                 if dtype is not None:
                     try:
@@ -1297,7 +1316,9 @@ class SeriesParser(Parser):
             return Series(data)
 
     def _try_convert_types(self, obj: Series) -> Series:
-        obj, _ = self._try_convert_data("data", obj, convert_dates=self.convert_dates)
+        obj, _ = self._try_convert_data(
+            "data", obj, convert_dates=self.convert_dates
+        )
         return obj
 
 
@@ -1312,7 +1333,9 @@ class FrameParser(Parser):
         if orient == "split":
             decoded = {
                 str(k): v
-                for k, v in ujson_loads(json, precise_float=self.precise_float).items()
+                for k, v in ujson_loads(
+                    json, precise_float=self.precise_float
+                ).items()
             }
             self.check_keys_split(decoded)
             orig_names = [

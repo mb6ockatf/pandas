@@ -133,7 +133,9 @@ class DocBuilder:
         >>> DocBuilder(num_jobs=4)._sphinx_build("html")
         """
         if kind not in ("html", "latex", "linkcheck"):
-            raise ValueError(f"kind must be html, latex or linkcheck, not {kind}")
+            raise ValueError(
+                f"kind must be html, latex or linkcheck, not {kind}"
+            )
 
         cmd = ["sphinx-build", "-b", kind]
         if self.num_jobs:
@@ -154,7 +156,9 @@ class DocBuilder:
         """
         Open a browser tab showing single
         """
-        url = os.path.join("file://", DOC_PATH, "build", "html", single_doc_html)
+        url = os.path.join(
+            "file://", DOC_PATH, "build", "html", single_doc_html
+        )
         webbrowser.open(url, new=2)
 
     def _get_page_title(self, page):
@@ -164,7 +168,9 @@ class DocBuilder:
         fname = os.path.join(SOURCE_PATH, f"{page}.rst")
         doc = docutils.utils.new_document(
             "<doc>",
-            docutils.frontend.get_default_settings(docutils.parsers.rst.Parser),
+            docutils.frontend.get_default_settings(
+                docutils.parsers.rst.Parser
+            ),
         )
         with open(fname, encoding="utf-8") as f:
             data = f.read()
@@ -176,10 +182,14 @@ class DocBuilder:
             parser.parse(data, doc)
 
         section = next(
-            node for node in doc.children if isinstance(node, docutils.nodes.section)
+            node
+            for node in doc.children
+            if isinstance(node, docutils.nodes.section)
         )
         title = next(
-            node for node in section.children if isinstance(node, docutils.nodes.title)
+            node
+            for node in section.children
+            if isinstance(node, docutils.nodes.title)
         )
 
         return title.astext()
@@ -258,7 +268,9 @@ class DocBuilder:
             os.chdir(os.path.join(BUILD_PATH, "latex"))
             if force:
                 for i in range(3):
-                    self._run_os("pdflatex", "-interaction=nonstopmode", "pandas.tex")
+                    self._run_os(
+                        "pdflatex", "-interaction=nonstopmode", "pandas.tex"
+                    )
                 raise SystemExit(
                     'You should check the file "build/latex/pandas.pdf" for problems.'
                 )
@@ -277,7 +289,9 @@ class DocBuilder:
         Clean documentation generated files.
         """
         shutil.rmtree(BUILD_PATH, ignore_errors=True)
-        shutil.rmtree(os.path.join(SOURCE_PATH, "reference", "api"), ignore_errors=True)
+        shutil.rmtree(
+            os.path.join(SOURCE_PATH, "reference", "api"), ignore_errors=True
+        )
 
     def zip_html(self) -> None:
         """
@@ -303,7 +317,8 @@ def main():
 
     joined = ",".join(cmds)
     argparser = argparse.ArgumentParser(
-        description="pandas documentation builder", epilog=f"Commands: {joined}"
+        description="pandas documentation builder",
+        epilog=f"Commands: {joined}",
     )
 
     joined = ", ".join(cmds)
@@ -311,10 +326,15 @@ def main():
         "command", nargs="?", default="html", help=f"command to run: {joined}"
     )
     argparser.add_argument(
-        "--num-jobs", default="auto", help="number of jobs used by sphinx-build"
+        "--num-jobs",
+        default="auto",
+        help="number of jobs used by sphinx-build",
     )
     argparser.add_argument(
-        "--no-api", default=False, help="omit api and autosummary", action="store_true"
+        "--no-api",
+        default=False,
+        help="omit api and autosummary",
+        action="store_true",
     )
     argparser.add_argument(
         "--whatsnew",
@@ -334,7 +354,10 @@ def main():
         ),
     )
     argparser.add_argument(
-        "--python-path", type=str, default=os.path.dirname(DOC_PATH), help="path"
+        "--python-path",
+        type=str,
+        default=os.path.dirname(DOC_PATH),
+        help="path",
     )
     argparser.add_argument(
         "-v",
@@ -361,7 +384,9 @@ def main():
 
     if args.command not in cmds:
         joined = ", ".join(cmds)
-        raise ValueError(f"Unknown command {args.command}. Available options: {joined}")
+        raise ValueError(
+            f"Unknown command {args.command}. Available options: {joined}"
+        )
 
     # Below we update both os.environ and sys.path. The former is used by
     # external libraries (namely Sphinx) to compile this module and resolve

@@ -103,8 +103,12 @@ if TYPE_CHECKING:
         from typing import Self  # pyright: ignore[reportUnusedImport]
         from typing import Unpack  # pyright: ignore[reportUnusedImport]
     else:
-        from typing_extensions import Self  # pyright: ignore[reportUnusedImport]
-        from typing_extensions import Unpack  # pyright: ignore[reportUnusedImport]
+        from typing_extensions import (
+            Self,
+        )  # pyright: ignore[reportUnusedImport]
+        from typing_extensions import (
+            Unpack,
+        )  # pyright: ignore[reportUnusedImport]
 
 else:
     npt: Any = None
@@ -145,7 +149,9 @@ class SequenceNotStr(Protocol[_T_co]):
 
     def __iter__(self) -> Iterator[_T_co]: ...
 
-    def index(self, value: Any, start: int = ..., stop: int = ..., /) -> int: ...
+    def index(
+        self, value: Any, start: int = ..., stop: int = ..., /
+    ) -> int: ...
 
     def count(self, value: Any, /) -> int: ...
 
@@ -185,7 +191,9 @@ ToTimestampHow = Literal["s", "e", "start", "end"]
 NDFrameT = TypeVar("NDFrameT", bound="NDFrame")
 
 IndexT = TypeVar("IndexT", bound="Index")
-FreqIndexT = TypeVar("FreqIndexT", "DatetimeIndex", "PeriodIndex", "TimedeltaIndex")
+FreqIndexT = TypeVar(
+    "FreqIndexT", "DatetimeIndex", "PeriodIndex", "TimedeltaIndex"
+)
 NumpyIndexT = TypeVar("NumpyIndexT", np.ndarray, "Index")
 
 AxisInt = int
@@ -339,7 +347,10 @@ StorageOptions = Optional[dict[str, Any]]
 # compression keywords and compression
 CompressionDict = dict[str, Any]
 CompressionOptions = Optional[
-    Union[Literal["infer", "gzip", "bz2", "zip", "xz", "zstd", "tar"], CompressionDict]
+    Union[
+        Literal["infer", "gzip", "bz2", "zip", "xz", "zstd", "tar"],
+        CompressionDict,
+    ]
 ]
 
 # types in DataFrameFormatter
@@ -395,7 +406,9 @@ PositionalIndexer = Union[ScalarIndexer, SequenceIndexer]
 PositionalIndexerTuple = tuple[PositionalIndexer, PositionalIndexer]
 PositionalIndexer2D = Union[PositionalIndexer, PositionalIndexerTuple]
 if TYPE_CHECKING:
-    TakeIndexer = Union[Sequence[int], Sequence[np.integer], npt.NDArray[np.integer]]
+    TakeIndexer = Union[
+        Sequence[int], Sequence[np.integer], npt.NDArray[np.integer]
+    ]
 else:
     TakeIndexer = Any
 
@@ -433,7 +446,9 @@ NaPosition = Literal["first", "last"]
 NsmallestNlargestKeep = Literal["first", "last", "all"]
 
 # quantile interpolation
-QuantileInterpolation = Literal["linear", "lower", "higher", "midpoint", "nearest"]
+QuantileInterpolation = Literal[
+    "linear", "lower", "higher", "midpoint", "nearest"
+]
 
 # plotting
 PlottingOrientation = Literal["horizontal", "vertical"]
@@ -476,13 +491,16 @@ MatplotlibColor = Union[str, Sequence[float]]
 TimeGrouperOrigin = Union[
     "Timestamp", Literal["epoch", "start", "start_day", "end", "end_day"]
 ]
-TimeAmbiguous = Union[Literal["infer", "NaT", "raise"], "npt.NDArray[np.bool_]"]
+TimeAmbiguous = Union[
+    Literal["infer", "NaT", "raise"], "npt.NDArray[np.bool_]"
+]
 TimeNonexistent = Union[
     Literal["shift_forward", "shift_backward", "NaT", "raise"], timedelta
 ]
 DropKeep = Literal["first", "last", False]
 CorrelationMethod = Union[
-    Literal["pearson", "kendall", "spearman"], Callable[[np.ndarray, np.ndarray], float]
+    Literal["pearson", "kendall", "spearman"],
+    Callable[[np.ndarray, np.ndarray], float],
 ]
 AlignJoin = Literal["outer", "inner", "left", "right"]
 DtypeBackend = Literal["pyarrow", "numpy_nullable"]

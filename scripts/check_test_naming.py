@@ -8,6 +8,7 @@ This is meant to be run as a pre-commit hook - to run it manually, you can do:
 NOTE: if this finds a false positive, you can add the comment `# not a test` to the
 class or function definition. Though hopefully that shouldn't be necessary.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -56,10 +57,17 @@ def is_misnamed_test_func(
         isinstance(node, ast.FunctionDef)
         and not node.name.startswith("test")
         and names.count(node.name) == 0
-        and not any(_is_fixture(decorator) for decorator in node.decorator_list)
+        and not any(
+            _is_fixture(decorator) for decorator in node.decorator_list
+        )
         and PRAGMA not in line
         and node.name
-        not in ("teardown_method", "setup_method", "teardown_class", "setup_class")
+        not in (
+            "teardown_method",
+            "setup_method",
+            "teardown_class",
+            "setup_class",
+        )
     )
 
 
@@ -70,7 +78,9 @@ def is_misnamed_test_class(
         isinstance(node, ast.ClassDef)
         and not node.name.startswith("Test")
         and names.count(node.name) == 0
-        and not any(_is_register_dtype(decorator) for decorator in node.decorator_list)
+        and not any(
+            _is_register_dtype(decorator) for decorator in node.decorator_list
+        )
         and PRAGMA not in line
     )
 
@@ -97,12 +107,15 @@ def main(content: str, file: str) -> int:
             isinstance(node, ast.ClassDef)
             and names.count(node.name) == 0
             and not any(
-                _is_register_dtype(decorator) for decorator in node.decorator_list
+                _is_register_dtype(decorator)
+                for decorator in node.decorator_list
             )
             and PRAGMA not in lines[node.lineno - 1]
         ):
             for _node in node.body:
-                if is_misnamed_test_func(_node, names, lines[_node.lineno - 1]):
+                if is_misnamed_test_func(
+                    _node, names, lines[_node.lineno - 1]
+                ):
                     # It could be that this function is used somewhere by the
                     # parent class. For example, there might be a base class
                     # with

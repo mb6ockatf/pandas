@@ -104,7 +104,9 @@ def test_binary_ufunc_with_index(flip, sparse, ufunc, arrays_for_binary_ufunc):
     tm.assert_series_equal(result, expected)
 
 
-@pytest.mark.parametrize("shuffle", [True, False], ids=["unaligned", "aligned"])
+@pytest.mark.parametrize(
+    "shuffle", [True, False], ids=["unaligned", "aligned"]
+)
 @pytest.mark.parametrize("flip", [True, False], ids=["flipped", "straight"])
 def test_binary_ufunc_with_series(
     flip, shuffle, sparse, ufunc, arrays_for_binary_ufunc
@@ -171,7 +173,9 @@ def test_binary_ufunc_scalar(ufunc, sparse, flip, arrays_for_binary_ufunc):
 @pytest.mark.parametrize("ufunc", [np.divmod])  # TODO: np.modf, np.frexp
 @pytest.mark.parametrize("shuffle", [True, False])
 @pytest.mark.filterwarnings("ignore:divide by zero:RuntimeWarning")
-def test_multiple_output_binary_ufuncs(ufunc, sparse, shuffle, arrays_for_binary_ufunc):
+def test_multiple_output_binary_ufuncs(
+    ufunc, sparse, shuffle, arrays_for_binary_ufunc
+):
     # Test that
     #  the same conditions from binary_ufunc_scalar apply to
     #  ufuncs with multiple outputs.
@@ -220,7 +224,9 @@ def test_multiple_output_ufunc(sparse, arrays_for_binary_ufunc):
     tm.assert_series_equal(result[1], pd.Series(expected[1], name="name"))
 
 
-def test_binary_ufunc_drops_series_name(ufunc, sparse, arrays_for_binary_ufunc):
+def test_binary_ufunc_drops_series_name(
+    ufunc, sparse, arrays_for_binary_ufunc
+):
     # Drop the names when they differ.
     a1, a2 = arrays_for_binary_ufunc
     s1 = pd.Series(a1, name="a")
@@ -241,7 +247,9 @@ def test_object_series_ok():
     arr = np.array([Dummy(0), Dummy(1)])
     ser = pd.Series(arr)
     tm.assert_series_equal(np.add(ser, ser), pd.Series(np.add(ser, arr)))
-    tm.assert_series_equal(np.add(ser, Dummy(1)), pd.Series(np.add(ser, Dummy(1))))
+    tm.assert_series_equal(
+        np.add(ser, Dummy(1)), pd.Series(np.add(ser, Dummy(1)))
+    )
 
 
 @pytest.fixture(
@@ -254,7 +262,9 @@ def test_object_series_ok():
         pd.to_datetime(["2000", "2010", "2001"]).tz_localize("CET"),
         pd.to_datetime(["2000", "2010", "2001"]).to_period(freq="D"),
         pd.to_timedelta(["1 Day", "3 Days", "2 Days"]),
-        pd.IntervalIndex([pd.Interval(0, 1), pd.Interval(2, 3), pd.Interval(1, 2)]),
+        pd.IntervalIndex(
+            [pd.Interval(0, 1), pd.Interval(2, 3), pd.Interval(1, 2)]
+        ),
     ],
     ids=lambda x: str(x.dtype),
 )
@@ -457,7 +467,9 @@ def test_array_ufuncs_for_many_arguments():
         ufunc(ser, ser, df)
 
 
-@pytest.mark.xfail(reason="see https://github.com/pandas-dev/pandas/pull/51082")
+@pytest.mark.xfail(
+    reason="see https://github.com/pandas-dev/pandas/pull/51082"
+)
 def test_np_fix():
     # np.fix is not a ufunc but is composed of several ufunc calls under the hood
     # with `out` and `where` keywords

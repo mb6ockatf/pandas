@@ -78,14 +78,26 @@ class TestTimestampConstructorUnitKeyword:
                 (946688461000000000 + 500000000) / 1000000000,
                 {"unit": "s", "us": 500000},
             ],
-            [(946688461000000000 + 500000) / 1000000, {"unit": "ms", "us": 500}],
+            [
+                (946688461000000000 + 500000) / 1000000,
+                {"unit": "ms", "us": 500},
+            ],
             [(946688461000000000 + 500000) / 1000, {"unit": "us", "us": 500}],
-            [(946688461000000000 + 500000000) / 1000000, {"unit": "ms", "us": 500000}],
+            [
+                (946688461000000000 + 500000000) / 1000000,
+                {"unit": "ms", "us": 500000},
+            ],
             [946688461000000000 / 1000.0 + 5, {"unit": "us", "us": 5}],
             [946688461000000000 / 1000.0 + 5000, {"unit": "us", "us": 5000}],
             [946688461000000000 / 1000000.0 + 0.5, {"unit": "ms", "us": 500}],
-            [946688461000000000 / 1000000.0 + 0.005, {"unit": "ms", "us": 5, "ns": 5}],
-            [946688461000000000 / 1000000000.0 + 0.5, {"unit": "s", "us": 500000}],
+            [
+                946688461000000000 / 1000000.0 + 0.005,
+                {"unit": "ms", "us": 5, "ns": 5},
+            ],
+            [
+                946688461000000000 / 1000000000.0 + 0.5,
+                {"unit": "s", "us": 500000},
+            ],
             [10957 + 0.5, {"unit": "D", "h": 12}],
         ],
     )
@@ -154,7 +166,9 @@ class TestTimestampConstructorFoldKeyword:
     def test_timestamp_constructor_retain_fold(self, tz, fold):
         # Test for GH#25057
         # Check that we retain fold
-        ts = Timestamp(year=2019, month=10, day=27, hour=1, minute=30, tz=tz, fold=fold)
+        ts = Timestamp(
+            year=2019, month=10, day=27, hour=1, minute=30, tz=tz, fold=fold
+        )
         result = ts.fold
         expected = fold
         assert result == expected
@@ -177,7 +191,9 @@ class TestTimestampConstructorFoldKeyword:
             (datetime(2019, 10, 27, 1, 30, 0, 0, fold=1), 1),
         ],
     )
-    def test_timestamp_constructor_infer_fold_from_value(self, tz, ts_input, fold_out):
+    def test_timestamp_constructor_infer_fold_from_value(
+        self, tz, ts_input, fold_out
+    ):
         # Test for GH#25057
         # Check that we infer fold correctly based on timestamps since utc
         # or strings
@@ -194,7 +210,9 @@ class TestTimestampConstructorFoldKeyword:
             (1, 1572139800000000),
         ],
     )
-    def test_timestamp_constructor_adjust_value_for_fold(self, tz, fold, value_out):
+    def test_timestamp_constructor_adjust_value_for_fold(
+        self, tz, fold, value_out
+    ):
         # Test for GH#25057
         # Check that we adjust value for fold correctly
         # based on timestamps since utc
@@ -232,7 +250,9 @@ class TestTimestampConstructorPositionalAndKeywordSupport:
 
     def test_constructor_keyword(self):
         # GH#10758
-        msg = "function missing required argument 'day'|Required argument 'day'"
+        msg = (
+            "function missing required argument 'day'|Required argument 'day'"
+        )
         with pytest.raises(TypeError, match=msg):
             Timestamp(year=2000, month=1)
 
@@ -283,7 +303,9 @@ class TestTimestampConstructorPositionalAndKeywordSupport:
         with pytest.raises(ValueError, match=msg):
             Timestamp("2010-10-10 12:59:59.999999999", **kwarg)
 
-    @pytest.mark.parametrize("kwargs", [{}, {"year": 2020}, {"year": 2020, "month": 1}])
+    @pytest.mark.parametrize(
+        "kwargs", [{}, {"year": 2020}, {"year": 2020, "month": 1}]
+    )
     def test_constructor_missing_keyword(self, kwargs):
         # GH#31200
 
@@ -301,8 +323,12 @@ class TestTimestampConstructorPositionalAndKeywordSupport:
         expected = Timestamp("2020-12-31", tzinfo=timezone.utc)
         assert ts == expected
 
-    @pytest.mark.parametrize("kwd", ["nanosecond", "microsecond", "second", "minute"])
-    def test_constructor_positional_keyword_mixed_with_tzinfo(self, kwd, request):
+    @pytest.mark.parametrize(
+        "kwd", ["nanosecond", "microsecond", "second", "minute"]
+    )
+    def test_constructor_positional_keyword_mixed_with_tzinfo(
+        self, kwd, request
+    ):
         # TODO: if we passed microsecond with a keyword we would mess up
         #  xref GH#45307
         if kwd != "nanosecond":
@@ -534,7 +560,10 @@ class TestTimestampConstructors:
         base_expected = 1_404_205_200_000_000_000
 
         # confirm base representation is correct
-        assert calendar.timegm(base_dt.timetuple()) * 1_000_000_000 == base_expected
+        assert (
+            calendar.timegm(base_dt.timetuple()) * 1_000_000_000
+            == base_expected
+        )
 
         tests = [
             (base_str, base_dt, base_expected),
@@ -568,7 +597,9 @@ class TestTimestampConstructors:
 
         for date_str, date_obj, expected in tests:
             for result in [Timestamp(date_str), Timestamp(date_obj)]:
-                result = result.as_unit("ns")  # test originally written before non-nano
+                result = result.as_unit(
+                    "ns"
+                )  # test originally written before non-nano
                 # only with timestring
                 assert result.as_unit("ns")._value == expected
 
@@ -578,7 +609,10 @@ class TestTimestampConstructors:
 
             # with timezone
             for tz, offset in timezones:
-                for result in [Timestamp(date_str, tz=tz), Timestamp(date_obj, tz=tz)]:
+                for result in [
+                    Timestamp(date_str, tz=tz),
+                    Timestamp(date_obj, tz=tz),
+                ]:
                     result = result.as_unit(
                         "ns"
                     )  # test originally written before non-nano
@@ -604,11 +638,17 @@ class TestTimestampConstructors:
         base_expected = 1_404_205_200_000_000_000
 
         # confirm base representation is correct
-        assert calendar.timegm(base_dt.timetuple()) * 1_000_000_000 == base_expected
+        assert (
+            calendar.timegm(base_dt.timetuple()) * 1_000_000_000
+            == base_expected
+        )
 
         tests = [
             (base_str, base_expected),
-            ("2014-07-01 12:00:00+02:00", base_expected + 3600 * 1_000_000_000),
+            (
+                "2014-07-01 12:00:00+02:00",
+                base_expected + 3600 * 1_000_000_000,
+            ),
             ("2014-07-01 11:00:00.000008000+02:00", base_expected + 8000),
             ("2014-07-01 11:00:00.000000005+02:00", base_expected + 5),
         ]
@@ -651,7 +691,9 @@ class TestTimestampConstructors:
         # converted to Chicago tz
         result = Timestamp("2013-11-01 00:00:00-0500", tz="America/Chicago")
         assert result._value == Timestamp("2013-11-01 05:00")._value
-        expected = "Timestamp('2013-11-01 00:00:00-0500', tz='America/Chicago')"
+        expected = (
+            "Timestamp('2013-11-01 00:00:00-0500', tz='America/Chicago')"
+        )
         assert repr(result) == expected
         assert result == eval(repr(result))
 
@@ -881,7 +923,9 @@ class TestTimestampConstructors:
     @pytest.mark.parametrize("offset", ["+0300", "+0200"])
     def test_construct_timestamp_near_dst(self, offset):
         # GH 20854
-        expected = Timestamp(f"2016-10-30 03:00:00{offset}", tz="Europe/Helsinki")
+        expected = Timestamp(
+            f"2016-10-30 03:00:00{offset}", tz="Europe/Helsinki"
+        )
         result = Timestamp(expected).tz_convert("Europe/Helsinki")
         assert result == expected
 
@@ -891,7 +935,9 @@ class TestTimestampConstructors:
     def test_construct_with_different_string_format(self, arg):
         # GH 12064
         result = Timestamp(arg)
-        expected = Timestamp(datetime(2013, 1, 1), tz=timezone(timedelta(hours=9)))
+        expected = Timestamp(
+            datetime(2013, 1, 1), tz=timezone(timedelta(hours=9))
+        )
         assert result == expected
 
     @pytest.mark.parametrize("box", [datetime, Timestamp])
@@ -1078,7 +1124,9 @@ def test_non_nano_value():
     assert result == -52700112000
 
 
-@pytest.mark.parametrize("na_value", [None, np.nan, np.datetime64("NaT"), NaT, NA])
+@pytest.mark.parametrize(
+    "na_value", [None, np.nan, np.datetime64("NaT"), NaT, NA]
+)
 def test_timestamp_constructor_na_value(na_value):
     # GH45481
     result = Timestamp(na_value)

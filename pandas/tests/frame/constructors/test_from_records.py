@@ -57,24 +57,30 @@ class TestFromRecords:
         expected["EXPIRY"] = expected["EXPIRY"].astype("M8[s]")
         tm.assert_frame_equal(result, expected)
 
-    @pytest.mark.xfail(using_string_dtype(), reason="dtype checking logic doesn't work")
+    @pytest.mark.xfail(
+        using_string_dtype(), reason="dtype checking logic doesn't work"
+    )
     def test_from_records_sequencelike(self):
         df = DataFrame(
             {
                 "A": np.array(
-                    np.random.default_rng(2).standard_normal(6), dtype=np.float64
+                    np.random.default_rng(2).standard_normal(6),
+                    dtype=np.float64,
                 ),
                 "A1": np.array(
-                    np.random.default_rng(2).standard_normal(6), dtype=np.float64
+                    np.random.default_rng(2).standard_normal(6),
+                    dtype=np.float64,
                 ),
                 "B": np.array(np.arange(6), dtype=np.int64),
                 "C": ["foo"] * 6,
                 "D": np.array([True, False] * 3, dtype=bool),
                 "E": np.array(
-                    np.random.default_rng(2).standard_normal(6), dtype=np.float32
+                    np.random.default_rng(2).standard_normal(6),
+                    dtype=np.float32,
                 ),
                 "E1": np.array(
-                    np.random.default_rng(2).standard_normal(6), dtype=np.float32
+                    np.random.default_rng(2).standard_normal(6),
+                    dtype=np.float32,
                 ),
                 "F": np.array(np.arange(6), dtype=np.int32),
             }
@@ -88,7 +94,9 @@ class TestFromRecords:
         dtypes = []
         for dtype, b in blocks.items():
             columns.extend(b.columns)
-            dtypes.extend([(c, np.dtype(dtype).descr[0][1]) for c in b.columns])
+            dtypes.extend(
+                [(c, np.dtype(dtype).descr[0][1]) for c in b.columns]
+            )
         for i in range(len(df.index)):
             tup = []
             for _, b in blocks.items():
@@ -157,19 +165,23 @@ class TestFromRecords:
         df = DataFrame(
             {
                 "A": np.array(
-                    np.random.default_rng(2).standard_normal(6), dtype=np.float64
+                    np.random.default_rng(2).standard_normal(6),
+                    dtype=np.float64,
                 ),
                 "A1": np.array(
-                    np.random.default_rng(2).standard_normal(6), dtype=np.float64
+                    np.random.default_rng(2).standard_normal(6),
+                    dtype=np.float64,
                 ),
                 "B": np.array(np.arange(6), dtype=np.int64),
                 "C": ["foo"] * 6,
                 "D": np.array([True, False] * 3, dtype=bool),
                 "E": np.array(
-                    np.random.default_rng(2).standard_normal(6), dtype=np.float32
+                    np.random.default_rng(2).standard_normal(6),
+                    dtype=np.float32,
                 ),
                 "E1": np.array(
-                    np.random.default_rng(2).standard_normal(6), dtype=np.float32
+                    np.random.default_rng(2).standard_normal(6),
+                    dtype=np.float32,
                 ),
                 "F": np.array(np.arange(6), dtype=np.int32),
             }
@@ -187,12 +199,18 @@ class TestFromRecords:
 
         # dict of series & dict of ndarrays (have dtype info)
         results = []
-        results.append(DataFrame.from_records(asdict).reindex(columns=df.columns))
         results.append(
-            DataFrame.from_records(asdict, columns=columns).reindex(columns=df.columns)
+            DataFrame.from_records(asdict).reindex(columns=df.columns)
         )
         results.append(
-            DataFrame.from_records(asdict2, columns=columns).reindex(columns=df.columns)
+            DataFrame.from_records(asdict, columns=columns).reindex(
+                columns=df.columns
+            )
+        )
+        results.append(
+            DataFrame.from_records(asdict2, columns=columns).reindex(
+                columns=df.columns
+            )
         )
 
         for r in results:
@@ -218,7 +236,9 @@ class TestFromRecords:
 
     def test_from_records_len0_with_columns(self):
         # GH#2633
-        result = DataFrame.from_records([], index="foo", columns=["foo", "bar"])
+        result = DataFrame.from_records(
+            [], index="foo", columns=["foo", "bar"]
+        )
         expected = Index(["bar"])
 
         assert len(result) == 0
@@ -245,7 +265,10 @@ class TestFromRecords:
         tm.assert_frame_equal(frame, expected)
 
     def test_frame_from_records_utc(self):
-        rec = {"datum": 1.5, "begin_time": datetime(2006, 4, 27, tzinfo=timezone.utc)}
+        rec = {
+            "datum": 1.5,
+            "begin_time": datetime(2006, 4, 27, tzinfo=timezone.utc),
+        }
 
         # it works
         DataFrame.from_records([rec], index="begin_time")
@@ -292,7 +315,12 @@ class TestFromRecords:
 
     def test_from_records_iterator(self):
         arr = np.array(
-            [(1.0, 1.0, 2, 2), (3.0, 3.0, 4, 4), (5.0, 5.0, 6, 6), (7.0, 7.0, 8, 8)],
+            [
+                (1.0, 1.0, 2, 2),
+                (3.0, 3.0, 4, 4),
+                (5.0, 5.0, 6, 6),
+                (7.0, 7.0, 8, 8),
+            ],
             dtype=[
                 ("x", np.float64),
                 ("u", np.float32),
@@ -314,7 +342,9 @@ class TestFromRecords:
         # no dtypes specified here, so just compare with the default
         arr = [(1.0, 2), (3.0, 4), (5.0, 6), (7.0, 8)]
         df = DataFrame.from_records(iter(arr), columns=["x", "y"], nrows=2)
-        tm.assert_frame_equal(df, xp.reindex(columns=["x", "y"]), check_dtype=False)
+        tm.assert_frame_equal(
+            df, xp.reindex(columns=["x", "y"]), check_dtype=False
+        )
 
     def test_from_records_tuples_generator(self):
         def tuple_generator(length):
@@ -324,9 +354,14 @@ class TestFromRecords:
 
         columns_names = ["Integer", "String", "Float"]
         columns = [
-            [i[j] for i in tuple_generator(10)] for j in range(len(columns_names))
+            [i[j] for i in tuple_generator(10)]
+            for j in range(len(columns_names))
         ]
-        data = {"Integer": columns[0], "String": columns[1], "Float": columns[2]}
+        data = {
+            "Integer": columns[0],
+            "String": columns[1],
+            "Float": columns[2],
+        }
         expected = DataFrame(data, columns=columns_names)
 
         generator = tuple_generator(10)
@@ -341,9 +376,14 @@ class TestFromRecords:
 
         columns_names = ["Integer", "String", "Float"]
         columns = [
-            [i[j] for i in list_generator(10)] for j in range(len(columns_names))
+            [i[j] for i in list_generator(10)]
+            for j in range(len(columns_names))
         ]
-        data = {"Integer": columns[0], "String": columns[1], "Float": columns[2]}
+        data = {
+            "Integer": columns[0],
+            "String": columns[1],
+            "Float": columns[2],
+        }
         expected = DataFrame(data, columns=columns_names)
 
         generator = list_generator(10)
@@ -371,7 +411,9 @@ class TestFromRecords:
         assert np.isnan(df["a"].values[-1])
 
     def test_from_records_duplicates(self):
-        result = DataFrame.from_records([(1, 2, 3), (4, 5, 6)], columns=["a", "b", "a"])
+        result = DataFrame.from_records(
+            [(1, 2, 3), (4, 5, 6)], columns=["a", "b", "a"]
+        )
 
         expected = DataFrame([(1, 2, 3), (4, 5, 6)], columns=["a", "b", "a"])
 
@@ -393,7 +435,9 @@ class TestFromRecords:
         assert result.index.name == "order_id"
 
         # MultiIndex
-        result = DataFrame.from_records(documents, index=["order_id", "quantity"])
+        result = DataFrame.from_records(
+            documents, index=["order_id", "quantity"]
+        )
         assert result.index.names == ("order_id", "quantity")
 
     def test_from_records_misc_brokenness(self):
@@ -420,7 +464,10 @@ class TestFromRecords:
         rows.append([datetime(2010, 1, 2), "hi"])  # test col upconverts to obj
         result = DataFrame.from_records(rows, columns=["date", "test"])
         expected = DataFrame(
-            {"date": [row[0] for row in rows], "test": [row[1] for row in rows]}
+            {
+                "date": [row[0] for row in rows],
+                "test": [row[1] for row in rows],
+            }
         )
         tm.assert_frame_equal(result, expected)
         assert result.dtypes["test"] == np.dtype(object)
@@ -431,7 +478,10 @@ class TestFromRecords:
         rows.append([datetime(2010, 1, 2), 1])
         result = DataFrame.from_records(rows, columns=["date", "test"])
         expected = DataFrame(
-            {"date": [row[0] for row in rows], "test": [row[1] for row in rows]}
+            {
+                "date": [row[0] for row in rows],
+                "test": [row[1] for row in rows],
+            }
         )
         tm.assert_frame_equal(result, expected)
 
@@ -479,10 +529,17 @@ class TestFromRecords:
                 ("Bob", 35, "Chicago", 65000),
                 ("Alice", 28, "Los Angeles", 60000),
             ],
-            dtype=[("name", "U10"), ("age", "i4"), ("city", "U15"), ("salary", "i4")],
+            dtype=[
+                ("name", "U10"),
+                ("age", "i4"),
+                ("city", "U15"),
+                ("salary", "i4"),
+            ],
         )
 
-        actual_result = DataFrame.from_records(data, columns=["name", "salary", "city"])
+        actual_result = DataFrame.from_records(
+            data, columns=["name", "salary", "city"]
+        )
 
         modified_data = {
             "name": ["John", "Jane", "Bob", "Alice"],

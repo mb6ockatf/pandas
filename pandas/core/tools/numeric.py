@@ -237,7 +237,8 @@ def to_numeric(
         # downcasting
         values = values[~new_mask]
     elif (dtype_backend is not lib.no_default and new_mask is None) or (
-        isinstance(values_dtype, StringDtype) and values_dtype.na_value is libmissing.NA
+        isinstance(values_dtype, StringDtype)
+        and values_dtype.na_value is libmissing.NA
     ):
         new_mask = np.zeros(values.shape, dtype=np.bool_)
 
@@ -248,7 +249,9 @@ def to_numeric(
 
         if downcast in ("integer", "signed"):
             typecodes = np.typecodes["Integer"]
-        elif downcast == "unsigned" and (not len(values) or np.min(values) >= 0):
+        elif downcast == "unsigned" and (
+            not len(values) or np.min(values) >= 0
+        ):
             typecodes = np.typecodes["UnsignedInteger"]
         elif downcast == "float":
             typecodes = np.typecodes["Float"]
@@ -273,8 +276,12 @@ def to_numeric(
 
     # GH33013: for IntegerArray, BooleanArray & FloatingArray need to reconstruct
     # masked array
-    if (mask is not None or new_mask is not None) and not is_string_dtype(values.dtype):
-        if mask is None or (new_mask is not None and new_mask.shape == mask.shape):
+    if (mask is not None or new_mask is not None) and not is_string_dtype(
+        values.dtype
+    ):
+        if mask is None or (
+            new_mask is not None and new_mask.shape == mask.shape
+        ):
             # GH 52588
             mask = new_mask
         else:

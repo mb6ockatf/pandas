@@ -57,9 +57,13 @@ class ConcatDataFrames:
     param_names = ["axis", "ignore_index"]
 
     def setup(self, axis, ignore_index):
-        frame_c = DataFrame(np.zeros((10000, 200), dtype=np.float32, order="C"))
+        frame_c = DataFrame(
+            np.zeros((10000, 200), dtype=np.float32, order="C")
+        )
         self.frame_c = [frame_c] * 20
-        frame_f = DataFrame(np.zeros((10000, 200), dtype=np.float32, order="F"))
+        frame_f = DataFrame(
+            np.zeros((10000, 200), dtype=np.float32, order="F")
+        )
         self.frame_f = [frame_f] * 20
 
     def time_c_ordered(self, axis, ignore_index):
@@ -126,7 +130,9 @@ class Join:
         codes2 = np.tile(np.arange(1000), 10)
         index2 = MultiIndex(levels=[level1, level2], codes=[codes1, codes2])
         self.df_multi = DataFrame(
-            np.random.randn(len(index2), 4), index=index2, columns=["A", "B", "C", "D"]
+            np.random.randn(len(index2), 4),
+            index=index2,
+            columns=["A", "B", "C", "D"],
         )
 
         self.key1 = np.tile(level1.take(codes1), 10)
@@ -141,10 +147,14 @@ class Join:
         )
 
         self.df_key1 = DataFrame(
-            np.random.randn(len(level1), 4), index=level1, columns=["A", "B", "C", "D"]
+            np.random.randn(len(level1), 4),
+            index=level1,
+            columns=["A", "B", "C", "D"],
         )
         self.df_key2 = DataFrame(
-            np.random.randn(len(level2), 4), index=level2, columns=["A", "B", "C", "D"]
+            np.random.randn(len(level2), 4),
+            index=level2,
+            columns=["A", "B", "C", "D"],
         )
 
         shuf = np.arange(100000)
@@ -184,7 +194,9 @@ class JoinIndex:
 class JoinMultiindexSubset:
     def setup(self):
         N = 100_000
-        mi1 = MultiIndex.from_arrays([np.arange(N)] * 4, names=["a", "b", "c", "d"])
+        mi1 = MultiIndex.from_arrays(
+            [np.arange(N)] * 4, names=["a", "b", "c", "d"]
+        )
         mi2 = MultiIndex.from_arrays([np.arange(N)] * 2, names=["a", "b"])
         self.left = DataFrame({"col1": 1}, index=mi1)
         self.right = DataFrame({"col2": 2}, index=mi2)
@@ -251,7 +263,9 @@ class Merge:
                 "value": np.random.randn(10000),
             }
         )
-        self.df2 = DataFrame({"key1": np.arange(500), "value2": np.random.randn(500)})
+        self.df2 = DataFrame(
+            {"key1": np.arange(500), "value2": np.random.randn(500)}
+        )
         self.df3 = self.df[:5000]
 
     def time_merge_2intkey(self, sort):
@@ -270,7 +284,9 @@ class Merge:
         merge(self.left.iloc[:0], self.right, sort=sort)
 
     def time_merge_dataframes_cross(self, sort):
-        merge(self.left.loc[:2000], self.right.loc[:2000], how="cross", sort=sort)
+        merge(
+            self.left.loc[:2000], self.right.loc[:2000], how="cross", sort=sort
+        )
 
 
 class MergeEA:
@@ -334,11 +350,16 @@ class UniqueMerge:
 
     def setup(self, unique_elements):
         N = 1_000_000
-        self.left = DataFrame({"a": np.random.randint(1, unique_elements, (N,))})
-        self.right = DataFrame({"a": np.random.randint(1, unique_elements, (N,))})
+        self.left = DataFrame(
+            {"a": np.random.randint(1, unique_elements, (N,))}
+        )
+        self.right = DataFrame(
+            {"a": np.random.randint(1, unique_elements, (N,))}
+        )
         uniques = self.right.a.drop_duplicates()
         self.right["a"] = concat(
-            [uniques, Series(np.arange(0, -(N - len(uniques)), -1))], ignore_index=True
+            [uniques, Series(np.arange(0, -(N - len(uniques)), -1))],
+            ignore_index=True,
         )
 
     def time_unique_merge(self, unique_elements):
@@ -452,7 +473,9 @@ class MergeAsof:
         df1 = DataFrame(
             {
                 "time": np.random.randint(0, one_count / 20, one_count),
-                "key": np.random.choice(list(string.ascii_uppercase), one_count),
+                "key": np.random.choice(
+                    list(string.ascii_uppercase), one_count
+                ),
                 "key2": np.random.randint(0, 25, one_count),
                 "value1": np.random.randn(one_count),
             }
@@ -460,7 +483,9 @@ class MergeAsof:
         df2 = DataFrame(
             {
                 "time": np.random.randint(0, two_count / 20, two_count),
-                "key": np.random.choice(list(string.ascii_uppercase), two_count),
+                "key": np.random.choice(
+                    list(string.ascii_uppercase), two_count
+                ),
                 "key2": np.random.randint(0, 25, two_count),
                 "value2": np.random.randn(two_count),
             }
@@ -490,17 +515,29 @@ class MergeAsof:
 
     def time_on_int(self, direction, tolerance):
         merge_asof(
-            self.df1a, self.df2a, on="time", direction=direction, tolerance=tolerance
+            self.df1a,
+            self.df2a,
+            on="time",
+            direction=direction,
+            tolerance=tolerance,
         )
 
     def time_on_int32(self, direction, tolerance):
         merge_asof(
-            self.df1d, self.df2d, on="time32", direction=direction, tolerance=tolerance
+            self.df1d,
+            self.df2d,
+            on="time32",
+            direction=direction,
+            tolerance=tolerance,
         )
 
     def time_on_uint64(self, direction, tolerance):
         merge_asof(
-            self.df1f, self.df2f, on="timeu64", direction=direction, tolerance=tolerance
+            self.df1f,
+            self.df2f,
+            on="timeu64",
+            direction=direction,
+            tolerance=tolerance,
         )
 
     def time_by_object(self, direction, tolerance):

@@ -60,7 +60,8 @@ class Render:
     def _style_apply(self):
         def _apply_func(s):
             return [
-                "background-color: lightcyan" if s.name == "row_1" else "" for v in s
+                "background-color: lightcyan" if s.name == "row_1" else ""
+                for v in s
             ]
 
         self.st = self.df.style.apply(_apply_func, axis=1)
@@ -77,7 +78,7 @@ class Render:
         # subset is flexible but hinders vectorised solutions
         self.st = self.df.style.format(
             "{:,.3f}",
-            subset=IndexSlice["row_1" : f"row_{ir}", "float_1" : f"float_{ic}"],
+            subset=IndexSlice["row_1":f"row_{ir}", "float_1":f"float_{ic}"],
         )
 
     def _style_apply_format_hide(self):
@@ -87,7 +88,9 @@ class Render:
         self.st.hide(self.st.columns[1:], axis=1)
 
     def _style_tooltips(self):
-        ttips = DataFrame("abc", index=self.df.index[::2], columns=self.df.columns[::2])
+        ttips = DataFrame(
+            "abc", index=self.df.index[::2], columns=self.df.columns[::2]
+        )
         self.st = self.df.style.set_tooltips(ttips)
         self.st.hide(self.st.index[12:], axis=0)
         self.st.hide(self.st.columns[12:], axis=1)

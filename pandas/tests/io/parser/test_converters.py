@@ -70,7 +70,9 @@ def test_converters_no_implicit_conv(all_parsers):
             parser.read_csv(StringIO(data), header=None, converters=converters)
         return
 
-    result = parser.read_csv(StringIO(data), header=None, converters=converters)
+    result = parser.read_csv(
+        StringIO(data), header=None, converters=converters
+    )
 
     # Column 0 should not be casted to numeric and should remain as object.
     expected = DataFrame([["000102", 1.2, "A"], ["001245", 2, "B"]])
@@ -196,7 +198,10 @@ def test_converter_index_col_bug(all_parsers, conv_f):
         msg = "The 'converters' option is not supported with the 'pyarrow' engine"
         with pytest.raises(ValueError, match=msg):
             parser.read_csv(
-                StringIO(data), sep=";", index_col="A", converters={"A": conv_f}
+                StringIO(data),
+                sep=";",
+                index_col="A",
+                converters={"A": conv_f},
             )
         return
 

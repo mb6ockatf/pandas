@@ -72,7 +72,9 @@ def test_styler_to_excel_unstyled(engine, tmp_excel):
         df.to_excel(writer, sheet_name="dataframe")
         df.style.to_excel(writer, sheet_name="unstyled")
 
-    openpyxl = pytest.importorskip("openpyxl")  # test loading only with openpyxl
+    openpyxl = pytest.importorskip(
+        "openpyxl"
+    )  # test loading only with openpyxl
     with contextlib.closing(openpyxl.load_workbook(tmp_excel)) as wb:
         for col1, col2 in zip(wb["dataframe"].columns, wb["unstyled"].columns):
             assert len(col1) == len(col2)
@@ -107,9 +109,17 @@ shared_style_params = [
     # Border widths
     ("border-left: 2pt solid red", ["border", "left", "style"], "medium"),
     ("border-left: 1pt dotted red", ["border", "left", "style"], "dotted"),
-    ("border-left: 2pt dotted red", ["border", "left", "style"], "mediumDashDotDot"),
+    (
+        "border-left: 2pt dotted red",
+        ["border", "left", "style"],
+        "mediumDashDotDot",
+    ),
     ("border-left: 1pt dashed red", ["border", "left", "style"], "dashed"),
-    ("border-left: 2pt dashed red", ["border", "left", "style"], "mediumDashed"),
+    (
+        "border-left: 2pt dashed red",
+        ["border", "left", "style"],
+        "mediumDashed",
+    ),
     ("border-left: 1pt solid red", ["border", "left", "style"], "thin"),
     ("border-left: 3pt solid red", ["border", "left", "style"], "thick"),
     # Border expansion
@@ -191,7 +201,9 @@ def test_styler_to_excel_basic(engine, css, attrs, expected, tmp_excel):
         df.to_excel(writer, sheet_name="dataframe")
         styler.to_excel(writer, sheet_name="styled")
 
-    openpyxl = pytest.importorskip("openpyxl")  # test loading only with openpyxl
+    openpyxl = pytest.importorskip(
+        "openpyxl"
+    )  # test loading only with openpyxl
     with contextlib.closing(openpyxl.load_workbook(tmp_excel)) as wb:
         # test unstyled data cell does not have expected styles
         # test styled cell has expected styles
@@ -209,7 +221,9 @@ def test_styler_to_excel_basic(engine, css, attrs, expected, tmp_excel):
 
 @pytest.mark.parametrize("engine", ["xlsxwriter", "openpyxl"])
 @pytest.mark.parametrize("css, attrs, expected", shared_style_params)
-def test_styler_to_excel_basic_indexes(engine, css, attrs, expected, tmp_excel):
+def test_styler_to_excel_basic_indexes(
+    engine, css, attrs, expected, tmp_excel
+):
     pytest.importorskip(engine)
     df = DataFrame(np.random.default_rng(2).standard_normal((1, 1)))
 
@@ -226,12 +240,18 @@ def test_styler_to_excel_basic_indexes(engine, css, attrs, expected, tmp_excel):
         null_styler.to_excel(writer, sheet_name="null_styled")
         styler.to_excel(writer, sheet_name="styled")
 
-    openpyxl = pytest.importorskip("openpyxl")  # test loading only with openpyxl
+    openpyxl = pytest.importorskip(
+        "openpyxl"
+    )  # test loading only with openpyxl
     with contextlib.closing(openpyxl.load_workbook(tmp_excel)) as wb:
         # test null styled index cells does not have expected styles
         # test styled cell has expected styles
-        ui_cell, si_cell = wb["null_styled"].cell(2, 1), wb["styled"].cell(2, 1)
-        uc_cell, sc_cell = wb["null_styled"].cell(1, 2), wb["styled"].cell(1, 2)
+        ui_cell, si_cell = wb["null_styled"].cell(2, 1), wb["styled"].cell(
+            2, 1
+        )
+        uc_cell, sc_cell = wb["null_styled"].cell(1, 2), wb["styled"].cell(
+            1, 2
+        )
     for attr in attrs:
         ui_cell, si_cell = getattr(ui_cell, attr, None), getattr(si_cell, attr)
         uc_cell, sc_cell = getattr(uc_cell, attr, None), getattr(sc_cell, attr)
@@ -283,7 +303,9 @@ def test_styler_to_excel_border_style(engine, border_style, tmp_excel):
         df.to_excel(writer, sheet_name="dataframe")
         styler.to_excel(writer, sheet_name="styled")
 
-    openpyxl = pytest.importorskip("openpyxl")  # test loading only with openpyxl
+    openpyxl = pytest.importorskip(
+        "openpyxl"
+    )  # test loading only with openpyxl
     with contextlib.closing(openpyxl.load_workbook(tmp_excel)) as wb:
         # test unstyled data cell does not have expected styles
         # test styled cell has expected styles
@@ -324,7 +346,9 @@ def test_styler_to_s3(s3_public_bucket, s3so):
     mock_bucket_name, target_file = s3_public_bucket.name, "test.xlsx"
     df = DataFrame({"x": [1, 2, 3], "y": [2, 4, 6]})
     styler = df.style.set_sticky(axis="index")
-    styler.to_excel(f"s3://{mock_bucket_name}/{target_file}", storage_options=s3so)
+    styler.to_excel(
+        f"s3://{mock_bucket_name}/{target_file}", storage_options=s3so
+    )
     timeout = 5
     while True:
         if target_file in (obj.key for obj in s3_public_bucket.objects.all()):
@@ -333,7 +357,9 @@ def test_styler_to_s3(s3_public_bucket, s3so):
         timeout -= 0.1
         assert timeout > 0, "Timed out waiting for file to appear on moto"
         result = read_excel(
-            f"s3://{mock_bucket_name}/{target_file}", index_col=0, storage_options=s3so
+            f"s3://{mock_bucket_name}/{target_file}",
+            index_col=0,
+            storage_options=s3so,
         )
         tm.assert_frame_equal(result, df)
 
@@ -356,6 +382,6 @@ def test_format_hierarchical_rows_periodindex(merge_cells):
 
     for cell in formatted_cells:
         if cell.row != 0 and cell.col == 0:
-            assert isinstance(cell.val, Timestamp), (
-                "Period should be converted to Timestamp"
-            )
+            assert isinstance(
+                cell.val, Timestamp
+            ), "Period should be converted to Timestamp"

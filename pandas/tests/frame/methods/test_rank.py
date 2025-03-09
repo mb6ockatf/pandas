@@ -24,7 +24,9 @@ class TestRank:
     df = DataFrame({"A": s, "B": s})
 
     results = {
-        "average": np.array([1.5, 5.5, 7.0, 3.5, np.nan, 3.5, 1.5, 8.0, np.nan, 5.5]),
+        "average": np.array(
+            [1.5, 5.5, 7.0, 3.5, np.nan, 3.5, 1.5, 8.0, np.nan, 5.5]
+        ),
         "min": np.array([1, 5, 7, 3, np.nan, 3, 1, 8, np.nan, 5]),
         "max": np.array([2, 6, 7, 4, np.nan, 4, 2, 8, np.nan, 6]),
         "first": np.array([1, 5, 7, 3, np.nan, 4, 2, 8, np.nan, 6]),
@@ -112,7 +114,9 @@ class TestRank:
         result = df.rank(1, numeric_only=False, ascending=False)
         tm.assert_frame_equal(result, expected)
 
-        df = DataFrame({"a": [1e-20, -5, 1e-20 + 1e-40, 10, 1e60, 1e80, 1e-30]})
+        df = DataFrame(
+            {"a": [1e-20, -5, 1e-20 + 1e-40, 10, 1e60, 1e80, 1e-30]}
+        )
         exp = DataFrame({"a": [3.5, 1.0, 3.5, 5.0, 6.0, 7.0, 2.0]})
         tm.assert_frame_equal(df.rank(), exp)
 
@@ -132,7 +136,9 @@ class TestRank:
         float_string_frame["timedelta"] = timedelta(days=1, seconds=1)
 
         float_string_frame.rank(numeric_only=False)
-        with pytest.raises(TypeError, match="not supported between instances of"):
+        with pytest.raises(
+            TypeError, match="not supported between instances of"
+        ):
             float_string_frame.rank(axis=1)
 
     def test_rank_na_option(self, float_frame):
@@ -253,7 +259,9 @@ class TestRank:
         expected = (df.max() - df).rank(method=rank_method)
 
         if dtype != "O":
-            res2 = df.rank(method=rank_method, ascending=False, numeric_only=True)
+            res2 = df.rank(
+                method=rank_method, ascending=False, numeric_only=True
+            )
             tm.assert_frame_equal(res2, expected)
 
         res3 = df.rank(method=rank_method, ascending=False, numeric_only=False)
@@ -275,12 +283,17 @@ class TestRank:
             tm.assert_frame_equal(result, exp_df)
 
         frame = df if dtype is None else df.astype(dtype)
-        _check2d(frame, self.results[rank_method], method=rank_method, axis=axis)
+        _check2d(
+            frame, self.results[rank_method], method=rank_method, axis=axis
+        )
 
     @pytest.mark.parametrize(
         "rank_method,exp",
         [
-            ("dense", [[1.0, 1.0, 1.0], [1.0, 0.5, 2.0 / 3], [1.0, 0.5, 1.0 / 3]]),
+            (
+                "dense",
+                [[1.0, 1.0, 1.0], [1.0, 0.5, 2.0 / 3], [1.0, 0.5, 1.0 / 3]],
+            ),
             (
                 "min",
                 [
@@ -291,11 +304,19 @@ class TestRank:
             ),
             (
                 "max",
-                [[1.0, 1.0, 1.0], [1.0, 2.0 / 3, 2.0 / 3], [1.0, 2.0 / 3, 1.0 / 3]],
+                [
+                    [1.0, 1.0, 1.0],
+                    [1.0, 2.0 / 3, 2.0 / 3],
+                    [1.0, 2.0 / 3, 1.0 / 3],
+                ],
             ),
             (
                 "average",
-                [[2.0 / 3, 1.0, 1.0], [2.0 / 3, 0.5, 2.0 / 3], [2.0 / 3, 0.5, 1.0 / 3]],
+                [
+                    [2.0 / 3, 1.0, 1.0],
+                    [2.0 / 3, 0.5, 2.0 / 3],
+                    [2.0 / 3, 0.5, 1.0 / 3],
+                ],
             ),
             (
                 "first",
@@ -319,7 +340,9 @@ class TestRank:
     @pytest.mark.single_cpu
     def test_pct_max_many_rows(self):
         # GH 18271
-        df = DataFrame({"A": np.arange(2**24 + 1), "B": np.arange(2**24 + 1, 0, -1)})
+        df = DataFrame(
+            {"A": np.arange(2**24 + 1), "B": np.arange(2**24 + 1, 0, -1)}
+        )
         result = df.rank(pct=True).max()
         assert (result == 1).all()
 
@@ -362,7 +385,10 @@ class TestRank:
                 ],
                 "float32",
             ),
-            ([np.iinfo(np.uint8).min, 1, 2, 100, np.iinfo(np.uint8).max], "uint8"),
+            (
+                [np.iinfo(np.uint8).min, 1, 2, 100, np.iinfo(np.uint8).max],
+                "uint8",
+            ),
             (
                 [
                     np.iinfo(np.int64).min,
@@ -378,7 +404,11 @@ class TestRank:
             ),
             ([NegInfinity(), "1", "A", "BA", "Ba", "C", Infinity()], "object"),
             (
-                [datetime(2001, 1, 1), datetime(2001, 1, 2), datetime(2001, 1, 5)],
+                [
+                    datetime(2001, 1, 1),
+                    datetime(2001, 1, 2),
+                    datetime(2001, 1, 5),
+                ],
                 "datetime64",
             ),
         ],
@@ -398,7 +428,9 @@ class TestRank:
         exp_order = np.array(range(len(values)), dtype="float64") + 1.0
         if dtype in dtype_na_map:
             na_value = dtype_na_map[dtype]
-            nan_indices = np.random.default_rng(2).choice(range(len(values)), 5)
+            nan_indices = np.random.default_rng(2).choice(
+                range(len(values)), 5
+            )
             values = np.insert(values, nan_indices, na_value)
             exp_order = np.insert(exp_order, nan_indices, np.nan)
 
@@ -450,7 +482,9 @@ class TestRank:
         self, frame_or_series, rank_method, na_option, ascending, expected
     ):
         obj = frame_or_series([np.inf, np.nan, -np.inf])
-        result = obj.rank(method=rank_method, na_option=na_option, ascending=ascending)
+        result = obj.rank(
+            method=rank_method, na_option=na_option, ascending=ascending
+        )
         expected = frame_or_series(expected)
         tm.assert_equal(result, expected)
 
@@ -463,9 +497,13 @@ class TestRank:
             ("top", False, [2.0, 3.0, 1.0, 4.0]),
         ],
     )
-    def test_rank_object_first(self, frame_or_series, na_option, ascending, expected):
+    def test_rank_object_first(
+        self, frame_or_series, na_option, ascending, expected
+    ):
         obj = frame_or_series(["foo", "foo", None, "foo"])
-        result = obj.rank(method="first", na_option=na_option, ascending=ascending)
+        result = obj.rank(
+            method="first", na_option=na_option, ascending=ascending
+        )
         expected = frame_or_series(expected)
         tm.assert_equal(result, expected)
 
@@ -474,14 +512,18 @@ class TestRank:
         [
             (
                 {"a": [1, 2, "a"], "b": [4, 5, 6]},
-                DataFrame({"b": [1.0, 2.0, 3.0]}, columns=Index(["b"], dtype=object)),
+                DataFrame(
+                    {"b": [1.0, 2.0, 3.0]}, columns=Index(["b"], dtype=object)
+                ),
             ),
             ({"a": [1, 2, "a"]}, DataFrame(index=range(3), columns=[])),
         ],
     )
     def test_rank_mixed_axis_zero(self, data, expected):
         df = DataFrame(data, columns=Index(list(data.keys()), dtype=object))
-        with pytest.raises(TypeError, match="'<' not supported between instances of"):
+        with pytest.raises(
+            TypeError, match="'<' not supported between instances of"
+        ):
             df.rank()
         result = df.rank(numeric_only=True)
         tm.assert_frame_equal(result, expected)
@@ -491,7 +533,9 @@ class TestRank:
         obj = Series(["foo", "foo", None, "foo"], dtype=string_dtype_no_object)
         result = obj.rank(method="first")
         exp_dtype = (
-            "Float64" if string_dtype_no_object == "string[pyarrow]" else "float64"
+            "Float64"
+            if string_dtype_no_object == "string[pyarrow]"
+            else "float64"
         )
         if string_dtype_no_object.storage == "python":
             # TODO nullable string[python] should also return nullable Int64

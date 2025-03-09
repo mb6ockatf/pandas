@@ -114,7 +114,10 @@ if TYPE_CHECKING:
         skipfooter: int
         nrows: int | None
         na_values: (
-            Hashable | Iterable[Hashable] | Mapping[Hashable, Iterable[Hashable]] | None
+            Hashable
+            | Iterable[Hashable]
+            | Mapping[Hashable, Iterable[Hashable]]
+            | None
         )
         keep_default_na: bool
         na_filter: bool
@@ -141,6 +144,7 @@ if TYPE_CHECKING:
         float_precision: Literal["high", "legacy", "round_trip"] | None
         storage_options: StorageOptions | None
         dtype_backend: DtypeBackend | lib.NoDefault
+
 else:
     _read_shared = dict
 
@@ -578,7 +582,11 @@ class _Fwf_Defaults(TypedDict):
     widths: None
 
 
-_fwf_defaults: _Fwf_Defaults = {"colspecs": "infer", "infer_nrows": 100, "widths": None}
+_fwf_defaults: _Fwf_Defaults = {
+    "colspecs": "infer",
+    "infer_nrows": 100,
+    "widths": None,
+}
 _c_unsupported = {"skipfooter"}
 _python_unsupported = {"low_memory", "float_precision"}
 _pyarrow_unsupported = {
@@ -609,7 +617,9 @@ def validate_integer(name: str, val: float, min_val: int = ...) -> int: ...
 
 
 @overload
-def validate_integer(name: str, val: int | None, min_val: int = ...) -> int | None: ...
+def validate_integer(
+    name: str, val: int | None, min_val: int = ...
+) -> int | None: ...
 
 
 def validate_integer(
@@ -663,13 +673,15 @@ def _validate_names(names: Sequence[Hashable] | None) -> None:
         if len(names) != len(set(names)):
             raise ValueError("Duplicate names are not allowed.")
         if not (
-            is_list_like(names, allow_sets=False) or isinstance(names, abc.KeysView)
+            is_list_like(names, allow_sets=False)
+            or isinstance(names, abc.KeysView)
         ):
             raise ValueError("Names should be an ordered collection.")
 
 
 def _read(
-    filepath_or_buffer: FilePath | ReadCsvBuffer[bytes] | ReadCsvBuffer[str], kwds
+    filepath_or_buffer: FilePath | ReadCsvBuffer[bytes] | ReadCsvBuffer[str],
+    kwds,
 ) -> DataFrame | TextFileReader:
     """Generic reader of line files."""
     # if we pass a date_format and parse_dates=False, we should not parse the
@@ -796,10 +808,12 @@ def read_csv(
     skipfooter: int = 0,
     nrows: int | None = None,
     # NA and Missing Data Handling
-    na_values: Hashable
-    | Iterable[Hashable]
-    | Mapping[Hashable, Iterable[Hashable]]
-    | None = None,
+    na_values: (
+        Hashable
+        | Iterable[Hashable]
+        | Mapping[Hashable, Iterable[Hashable]]
+        | None
+    ) = None,
     keep_default_na: bool = True,
     na_filter: bool = True,
     skip_blank_lines: bool = True,
@@ -932,10 +946,12 @@ def read_table(
     skipfooter: int = 0,
     nrows: int | None = None,
     # NA and Missing Data Handling
-    na_values: Hashable
-    | Iterable[Hashable]
-    | Mapping[Hashable, Iterable[Hashable]]
-    | None = None,
+    na_values: (
+        Hashable
+        | Iterable[Hashable]
+        | Mapping[Hashable, Iterable[Hashable]]
+        | None
+    ) = None,
     keep_default_na: bool = True,
     na_filter: bool = True,
     skip_blank_lines: bool = True,
@@ -1095,7 +1111,9 @@ def read_fwf(
     if colspecs is None and widths is None:
         raise ValueError("Must specify either colspecs or widths")
     if colspecs not in (None, "infer") and widths is not None:
-        raise ValueError("You must specify only one of 'widths' and 'colspecs'")
+        raise ValueError(
+            "You must specify only one of 'widths' and 'colspecs'"
+        )
 
     # Compute 'colspecs' from 'widths', if specified.
     if widths is not None:
@@ -1125,9 +1143,13 @@ def read_fwf(
                         assert index_col is not lib.no_default
 
                         len_index = len(index_col)
-            if kwds.get("usecols") is None and len(names) + len_index != len(colspecs):
+            if kwds.get("usecols") is None and len(names) + len_index != len(
+                colspecs
+            ):
                 # If usecols is used colspec may be longer than names
-                raise ValueError("Length of colspecs must match length of names")
+                raise ValueError(
+                    "Length of colspecs must match length of names"
+                )
 
     check_dtype_backend(kwds.setdefault("dtype_backend", lib.no_default))
     return _read(
@@ -1229,9 +1251,15 @@ class TextFileReader(abc.Iterator):
 
                 if engine != "c" and value != default:
                     # TODO: Refactor this logic, its pretty convoluted
-                    if "python" in engine and argname not in _python_unsupported:
+                    if (
+                        "python" in engine
+                        and argname not in _python_unsupported
+                    ):
                         pass
-                    elif "pyarrow" in engine and argname not in _pyarrow_unsupported:
+                    elif (
+                        "pyarrow" in engine
+                        and argname not in _pyarrow_unsupported
+                    ):
                         pass
                     else:
                         raise ValueError(
@@ -1336,7 +1364,9 @@ class TextFileReader(abc.Iterator):
 
         if "python" in engine:
             for arg in _python_unsupported:
-                if fallback_reason and result[arg] != _c_parser_defaults.get(arg):
+                if fallback_reason and result[arg] != _c_parser_defaults.get(
+                    arg
+                ):
                     raise ValueError(
                         "Falling back to the 'python' engine because "
                         f"{fallback_reason}, but this causes {arg!r} to be "
@@ -1538,7 +1568,9 @@ class TextFileReader(abc.Iterator):
                         if pandas_dtype(dtype[k]) in (np.str_, np.object_)
                         else None
                     )
-                    new_col_dict[k] = Series(v, index=index, dtype=d, copy=False)
+                    new_col_dict[k] = Series(
+                        v, index=index, dtype=d, copy=False
+                    )
             else:
                 new_col_dict = col_dict
 
@@ -1629,7 +1661,9 @@ def TextParser(*args, **kwds) -> TextFileReader:
     return TextFileReader(*args, **kwds)
 
 
-def _clean_na_values(na_values, keep_default_na: bool = True, floatify: bool = True):
+def _clean_na_values(
+    na_values, keep_default_na: bool = True, floatify: bool = True
+):
     na_fvalues: set | dict
     if na_values is None:
         if keep_default_na:
@@ -1769,7 +1803,9 @@ def _refine_defaults_read(
         )
 
     if delimiter and (sep is not lib.no_default):
-        raise ValueError("Specified a sep and a delimiter; you can only specify one.")
+        raise ValueError(
+            "Specified a sep and a delimiter; you can only specify one."
+        )
 
     kwds["names"] = None if names is lib.no_default else names
 
@@ -1810,7 +1846,9 @@ def _refine_defaults_read(
             )
         kwds["on_bad_lines"] = on_bad_lines
     else:
-        raise ValueError(f"Argument {on_bad_lines} is invalid for on_bad_lines")
+        raise ValueError(
+            f"Argument {on_bad_lines} is invalid for on_bad_lines"
+        )
 
     check_dtype_backend(dtype_backend)
 
@@ -1911,7 +1949,9 @@ def _merge_with_dialect_properties(
 
         if conflict_msgs:
             warnings.warn(
-                "\n\n".join(conflict_msgs), ParserWarning, stacklevel=find_stack_level()
+                "\n\n".join(conflict_msgs),
+                ParserWarning,
+                stacklevel=find_stack_level(),
             )
         kwds[param] = dialect_val
     return kwds

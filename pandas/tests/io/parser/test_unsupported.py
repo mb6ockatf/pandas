@@ -88,7 +88,9 @@ x   q   30      3    -0.6662 -0.5243 -0.3580  0.89145  2.5838"""
             read_csv(StringIO(data), lineterminator="~~")
 
     def test_python_engine(self, python_engine):
-        from pandas.io.parsers.readers import _python_unsupported as py_unsupported
+        from pandas.io.parsers.readers import (
+            _python_unsupported as py_unsupported,
+        )
 
         data = """1,2,3,,
 1,2,3,4,
@@ -128,7 +130,9 @@ x   q   30      3    -0.6662 -0.5243 -0.3580  0.89145  2.5838"""
             read_csv(NoNextBuffer(data), engine=python_engine)
 
     def test_pyarrow_engine(self):
-        from pandas.io.parsers.readers import _pyarrow_unsupported as pa_unsupported
+        from pandas.io.parsers.readers import (
+            _pyarrow_unsupported as pa_unsupported,
+        )
 
         data = """1,2,3,,
         1,2,3,4,

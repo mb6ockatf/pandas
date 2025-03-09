@@ -153,7 +153,8 @@ class Iteration:
         self.df = DataFrame(np.random.randn(N * 10, N))
         self.df2 = DataFrame(np.random.randn(N * 50, 10))
         self.df3 = DataFrame(
-            np.random.randn(N, 5 * N), columns=["C" + str(c) for c in range(N * 5)]
+            np.random.randn(N, 5 * N),
+            columns=["C" + str(c) for c in range(N * 5)],
         )
         self.df4 = DataFrame(np.random.randn(N * 1000, 10))
 
@@ -430,13 +431,21 @@ class Fillna:
 
     def setup(self, inplace, dtype):
         N, M = 10000, 100
-        if dtype in ("datetime64[ns]", "datetime64[ns, tz]", "timedelta64[ns]"):
+        if dtype in (
+            "datetime64[ns]",
+            "datetime64[ns, tz]",
+            "timedelta64[ns]",
+        ):
             data = {
-                "datetime64[ns]": date_range("2011-01-01", freq="h", periods=N),
+                "datetime64[ns]": date_range(
+                    "2011-01-01", freq="h", periods=N
+                ),
                 "datetime64[ns, tz]": date_range(
                     "2011-01-01", freq="h", periods=N, tz="Asia/Tokyo"
                 ),
-                "timedelta64[ns]": timedelta_range(start="1 day", periods=N, freq="1D"),
+                "timedelta64[ns]": timedelta_range(
+                    start="1 day", periods=N, freq="1D"
+                ),
             }
             self.df = DataFrame({f"col_{i}": data[dtype] for i in range(M)})
             self.df[::2] = None
@@ -694,12 +703,12 @@ class SortMultiKey:
         K = 10
         df = DataFrame(
             {
-                "key1": Index([f"i-{i}" for i in range(N)], dtype=object).values.repeat(
-                    K
-                ),
-                "key2": Index([f"i-{i}" for i in range(N)], dtype=object).values.repeat(
-                    K
-                ),
+                "key1": Index(
+                    [f"i-{i}" for i in range(N)], dtype=object
+                ).values.repeat(K),
+                "key2": Index(
+                    [f"i-{i}" for i in range(N)], dtype=object
+                ).values.repeat(K),
                 "value": np.random.randn(N * K),
             }
         )
@@ -734,7 +743,9 @@ class Rank:
 
     def setup(self, dtype):
         self.df = DataFrame(
-            np.random.randn(10000, 10).astype(dtype), columns=range(10), dtype=dtype
+            np.random.randn(10000, 10).astype(dtype),
+            columns=range(10),
+            dtype=dtype,
         )
 
     def time_rank(self, dtype):

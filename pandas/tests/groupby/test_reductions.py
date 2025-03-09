@@ -187,11 +187,16 @@ def test_masked_mixed_types(dtype1, dtype2, exp_col1, exp_col2):
     # GH#37506
     data = [1.0, np.nan]
     df = DataFrame(
-        {"col1": pd.array(data, dtype=dtype1), "col2": pd.array(data, dtype=dtype2)}
+        {
+            "col1": pd.array(data, dtype=dtype1),
+            "col2": pd.array(data, dtype=dtype2),
+        }
     )
     result = df.groupby([1, 1]).agg("all", skipna=False)
 
-    expected = DataFrame({"col1": exp_col1, "col2": exp_col2}, index=np.array([1]))
+    expected = DataFrame(
+        {"col1": exp_col1, "col2": exp_col2}, index=np.array([1])
+    )
     tm.assert_frame_equal(result, expected)
 
 
@@ -204,7 +209,9 @@ def test_masked_bool_aggs_skipna(
     expected_res = True
     if not skipna and all_boolean_reductions == "all":
         expected_res = pd.NA
-    expected = frame_or_series([expected_res], index=np.array([1]), dtype="boolean")
+    expected = frame_or_series(
+        [expected_res], index=np.array([1]), dtype="boolean"
+    )
 
     result = obj.groupby([1, 1]).agg(all_boolean_reductions, skipna=skipna)
     tm.assert_equal(result, expected)
@@ -219,11 +226,15 @@ def test_masked_bool_aggs_skipna(
         ("all", [pd.NA, False, pd.NaT], False),
     ],
 )
-def test_object_type_missing_vals(bool_agg_func, data, expected_res, frame_or_series):
+def test_object_type_missing_vals(
+    bool_agg_func, data, expected_res, frame_or_series
+):
     # GH#37501
     obj = frame_or_series(data, dtype=object)
     result = obj.groupby([1] * len(data)).agg(bool_agg_func)
-    expected = frame_or_series([expected_res], index=np.array([1]), dtype="bool")
+    expected = frame_or_series(
+        [expected_res], index=np.array([1]), dtype="bool"
+    )
     tm.assert_equal(result, expected)
 
 
@@ -236,7 +247,9 @@ def test_object_NA_raises_with_skipna_false(all_boolean_reductions):
 
 def test_empty(frame_or_series, all_boolean_reductions):
     # GH 45231
-    kwargs = {"columns": ["a"]} if frame_or_series is DataFrame else {"name": "a"}
+    kwargs = (
+        {"columns": ["a"]} if frame_or_series is DataFrame else {"name": "a"}
+    )
     obj = frame_or_series(**kwargs, dtype=object)
     result = getattr(obj.groupby(obj.index), all_boolean_reductions)()
     expected = frame_or_series(**kwargs, dtype=bool)
@@ -259,7 +272,8 @@ def test_idxmin_idxmax_extremes(how, any_real_numpy_dtype):
     gb = df.groupby("a")
     result = getattr(gb, how)()
     expected = DataFrame(
-        {"b": [1, 0]}, index=pd.Index([1, 2], name="a", dtype=any_real_numpy_dtype)
+        {"b": [1, 0]},
+        index=pd.Index([1, 2], name="a", dtype=any_real_numpy_dtype),
     )
     tm.assert_frame_equal(result, expected)
 
@@ -298,7 +312,8 @@ def test_idxmin_idxmax_extremes_skipna(skipna, how, float_numpy_dtype):
         return
     result = getattr(gb, how)(skipna=skipna)
     expected = DataFrame(
-        {"b": [1, 3, 4, 6, np.nan]}, index=pd.Index(range(1, 6), name="a", dtype="intp")
+        {"b": [1, 3, 4, 6, np.nan]},
+        index=pd.Index(range(1, 6), name="a", dtype="intp"),
     )
     tm.assert_frame_equal(result, expected)
 
@@ -368,7 +383,9 @@ def test_groupby_non_arithmetic_agg_int_like_precision(method, data):
         expected_value = data[1]
     else:
         expected_value = getattr(df["b"], method)()
-    expected = DataFrame({"b": [expected_value]}, index=pd.Index([1], name="a"))
+    expected = DataFrame(
+        {"b": [expected_value]}, index=pd.Index([1], name="a")
+    )
 
     tm.assert_frame_equal(result, expected)
 
@@ -417,7 +434,9 @@ def test_mean_on_timedelta():
     df = DataFrame({"time": pd.to_timedelta(range(10)), "cat": ["A", "B"] * 5})
     result = df.groupby("cat")["time"].mean()
     expected = Series(
-        pd.to_timedelta([4, 5]), name="time", index=pd.Index(["A", "B"], name="cat")
+        pd.to_timedelta([4, 5]),
+        name="time",
+        index=pd.Index(["A", "B"], name="cat"),
     )
     tm.assert_series_equal(result, expected)
 
@@ -428,7 +447,11 @@ def test_mean_on_timedelta():
         ([0, 1, np.nan, 3, 4, 5, 6, 7, 8, 9], "float64", "float64"),
         ([0, 1, np.nan, 3, 4, 5, 6, 7, 8, 9], "Float64", "Float64"),
         ([0, 1, np.nan, 3, 4, 5, 6, 7, 8, 9], "Int64", "Float64"),
-        ([0, 1, np.nan, 3, 4, 5, 6, 7, 8, 9], "timedelta64[ns]", "timedelta64[ns]"),
+        (
+            [0, 1, np.nan, 3, 4, 5, 6, 7, 8, 9],
+            "timedelta64[ns]",
+            "timedelta64[ns]",
+        ),
         (
             pd.to_datetime(
                 [
@@ -488,7 +511,9 @@ def test_sum_skipna(values, dtype, skipna):
     # We need to recast the expected values to the original dtype because
     # Series.sum() changes the dtype
     expected = (
-        df.groupby("cat")["val"].apply(lambda x: x.sum(skipna=skipna)).astype(dtype)
+        df.groupby("cat")["val"]
+        .apply(lambda x: x.sum(skipna=skipna))
+        .astype(dtype)
     )
     result = df.groupby("cat")["val"].sum(skipna=skipna)
     tm.assert_series_equal(result, expected)
@@ -504,11 +529,15 @@ def test_sum_skipna_object(skipna):
     ).astype({"val": object})
     if skipna:
         expected = Series(
-            ["aegi", "bdfhj"], index=pd.Index(["A", "B"], name="cat"), name="val"
+            ["aegi", "bdfhj"],
+            index=pd.Index(["A", "B"], name="cat"),
+            name="val",
         ).astype(object)
     else:
         expected = Series(
-            [np.nan, "bdfhj"], index=pd.Index(["A", "B"], name="cat"), name="val"
+            [np.nan, "bdfhj"],
+            index=pd.Index(["A", "B"], name="cat"),
+            name="val",
         ).astype(object)
     result = df.groupby("cat")["val"].sum(skipna=skipna)
     tm.assert_series_equal(result, expected)
@@ -603,8 +632,18 @@ def test_sum_skipna_object(skipna):
         ("max", [np.nan] * 10, "float64", "float64"),
         ("max", [np.nan] * 10, "Float64", "Float64"),
         ("max", [np.nan] * 10, "Int64", "Int64"),
-        ("median", [0, -1, 3, 4, 5, -6, 7, np.nan, 8, 9], "float64", "float64"),
-        ("median", [0, 1, 3, -4, 5, 6, 7, -8, np.nan, 9], "Float64", "Float64"),
+        (
+            "median",
+            [0, -1, 3, 4, 5, -6, 7, np.nan, 8, 9],
+            "float64",
+            "float64",
+        ),
+        (
+            "median",
+            [0, 1, 3, -4, 5, 6, 7, -8, np.nan, 9],
+            "Float64",
+            "Float64",
+        ),
         ("median", [0, -1, 3, 4, 5, -6, 7, 8, 9, np.nan], "Int64", "Float64"),
         (
             "median",
@@ -686,7 +725,9 @@ def test_median_empty_bins(observed):
 
 def test_max_min_non_numeric():
     # #2700
-    aa = DataFrame({"nn": [11, 11, 22, 22], "ii": [1, 2, 3, 4], "ss": 4 * ["mama"]})
+    aa = DataFrame(
+        {"nn": [11, 11, 22, 22], "ii": [1, 2, 3, 4], "ss": 4 * ["mama"]}
+    )
 
     result = aa.groupby("nn").max()
     assert "ss" in result
@@ -816,7 +857,11 @@ def test_aggregate_numeric_object_dtype():
     # simplified case: multiple object columns where one is all-NaN
     # -> gets split as the all-NaN is inferred as float
     df = DataFrame(
-        {"key": ["A", "A", "B", "B"], "col1": list("abcd"), "col2": [np.nan] * 4},
+        {
+            "key": ["A", "A", "B", "B"],
+            "col1": list("abcd"),
+            "col2": [np.nan] * 4,
+        },
     ).astype(object)
     result = df.groupby("key").min()
     expected = (
@@ -855,7 +900,9 @@ def test_aggregate_categorical_lost_index(func: str):
     tm.assert_frame_equal(result, expected)
 
 
-@pytest.mark.parametrize("dtype", ["Int64", "Int32", "Float64", "Float32", "boolean"])
+@pytest.mark.parametrize(
+    "dtype", ["Int64", "Int32", "Float64", "Float32", "boolean"]
+)
 def test_groupby_min_max_nullable(dtype):
     if dtype == "Int64":
         # GH#41743 avoid precision loss
@@ -912,7 +959,9 @@ def test_min_max_nullable_uint64_empty_group():
     res = gb.min()
 
     idx = pd.CategoricalIndex([0, 1], dtype=cat.dtype, name="A")
-    expected = DataFrame({"B": pd.array([0, pd.NA], dtype="UInt64")}, index=idx)
+    expected = DataFrame(
+        {"B": pd.array([0, pd.NA], dtype="UInt64")}, index=idx
+    )
     tm.assert_frame_equal(res, expected)
 
     res = gb.max()
@@ -950,7 +999,9 @@ def test_min_empty_string_dtype(func, string_dtype_no_object):
     df = DataFrame({"a": ["a"], "b": "a", "c": "a"}, dtype=dtype).iloc[:0]
     result = getattr(df.groupby("a"), func)()
     expected = DataFrame(
-        columns=["b", "c"], dtype=dtype, index=pd.Index([], dtype=dtype, name="a")
+        columns=["b", "c"],
+        dtype=dtype,
+        index=pd.Index([], dtype=dtype, name="a"),
     )
     tm.assert_frame_equal(result, expected)
 
@@ -990,7 +1041,9 @@ def test_series_groupby_nunique(sort, dropna, as_index, with_nan, keys):
         }
     )
     if with_nan:
-        df = df.astype({"julie": float})  # Explicit cast to avoid implicit cast below
+        df = df.astype(
+            {"julie": float}
+        )  # Explicit cast to avoid implicit cast below
         df.loc[1::17, "jim"] = None
         df.loc[3::37, "joe"] = None
         df.loc[7::19, "julie"] = None
@@ -1013,7 +1066,9 @@ def test_series_groupby_nunique(sort, dropna, as_index, with_nan, keys):
 
 
 def test_nunique():
-    df = DataFrame({"A": list("abbacc"), "B": list("abxacc"), "C": list("abbacx")})
+    df = DataFrame(
+        {"A": list("abbacc"), "B": list("abxacc"), "C": list("abbacx")}
+    )
 
     expected = DataFrame({"A": list("abc"), "B": [1, 2, 1], "C": [1, 1, 2]})
     result = df.groupby("A", as_index=False).nunique()
@@ -1106,7 +1161,9 @@ def test_nunique_with_timegrouper():
                 dt.date(2019, 1, 1),
             ],
             False,
-            Series([2, 2], index=pd.Index(["x", "y"], name="key"), name="data"),
+            Series(
+                [2, 2], index=pd.Index(["x", "y"], name="key"), name="data"
+            ),
         ),
         (
             ["x", "x", "x", "x", "y"],
@@ -1118,7 +1175,9 @@ def test_nunique_with_timegrouper():
                 dt.date(2019, 1, 1),
             ],
             False,
-            Series([2, 1], index=pd.Index(["x", "y"], name="key"), name="data"),
+            Series(
+                [2, 1], index=pd.Index(["x", "y"], name="key"), name="data"
+            ),
         ),
     ],
 )
@@ -1196,7 +1255,9 @@ def test_groupby_sum_mincount_boolean(min_count):
 
 def test_groupby_sum_below_mincount_nullable_integer():
     # https://github.com/pandas-dev/pandas/issues/32861
-    df = DataFrame({"a": [0, 1, 2], "b": [0, 1, 2], "c": [0, 1, 2]}, dtype="Int64")
+    df = DataFrame(
+        {"a": [0, 1, 2], "b": [0, 1, 2], "c": [0, 1, 2]}, dtype="Int64"
+    )
     grouped = df.groupby("a")
     idx = pd.Index([0, 1, 2], name="a", dtype="Int64")
 
@@ -1205,7 +1266,9 @@ def test_groupby_sum_below_mincount_nullable_integer():
     tm.assert_series_equal(result, expected)
 
     result = grouped.sum(min_count=2)
-    expected = DataFrame({"b": [pd.NA] * 3, "c": [pd.NA] * 3}, dtype="Int64", index=idx)
+    expected = DataFrame(
+        {"b": [pd.NA] * 3, "c": [pd.NA] * 3}, dtype="Int64", index=idx
+    )
     tm.assert_frame_equal(result, expected)
 
 
@@ -1214,7 +1277,12 @@ def test_groupby_sum_timedelta_with_nat():
     df = DataFrame(
         {
             "a": [1, 1, 2, 2],
-            "b": [pd.Timedelta("1D"), pd.Timedelta("2D"), pd.Timedelta("3D"), pd.NaT],
+            "b": [
+                pd.Timedelta("1D"),
+                pd.Timedelta("2D"),
+                pd.Timedelta("3D"),
+                pd.NaT,
+            ],
         }
     )
     td3 = pd.Timedelta(days=3)
@@ -1229,12 +1297,15 @@ def test_groupby_sum_timedelta_with_nat():
     tm.assert_series_equal(res, expected["b"])
 
     res = gb["b"].sum(min_count=2)
-    expected = Series([td3, pd.NaT], dtype="m8[ns]", name="b", index=expected.index)
+    expected = Series(
+        [td3, pd.NaT], dtype="m8[ns]", name="b", index=expected.index
+    )
     tm.assert_series_equal(res, expected)
 
 
 @pytest.mark.parametrize(
-    "dtype", ["int8", "int16", "int32", "int64", "float32", "float64", "uint64"]
+    "dtype",
+    ["int8", "int16", "int32", "int64", "float32", "float64", "uint64"],
 )
 @pytest.mark.parametrize(
     "method,data",
@@ -1243,13 +1314,21 @@ def test_groupby_sum_timedelta_with_nat():
         ("last", {"df": [{"a": 1, "b": 2}, {"a": 2, "b": 4}]}),
         ("min", {"df": [{"a": 1, "b": 1}, {"a": 2, "b": 3}]}),
         ("max", {"df": [{"a": 1, "b": 2}, {"a": 2, "b": 4}]}),
-        ("count", {"df": [{"a": 1, "b": 2}, {"a": 2, "b": 2}], "out_type": "int64"}),
+        (
+            "count",
+            {"df": [{"a": 1, "b": 2}, {"a": 2, "b": 2}], "out_type": "int64"},
+        ),
     ],
 )
 def test_groupby_non_arithmetic_agg_types(dtype, method, data):
     # GH9311, GH6620
     df = DataFrame(
-        [{"a": 1, "b": 1}, {"a": 1, "b": 2}, {"a": 2, "b": 3}, {"a": 2, "b": 4}]
+        [
+            {"a": 1, "b": 1},
+            {"a": 1, "b": 2},
+            {"a": 2, "b": 3},
+            {"a": 2, "b": 4},
+        ]
     )
 
     df["b"] = df.b.astype(dtype)
@@ -1364,7 +1443,9 @@ def test_regression_allowlist_methods(op, skipna, sort):
     if op in ["skew", "kurt", "sum", "mean"]:
         # skew, kurt, sum, mean have skipna
         result = getattr(grouped, op)(skipna=skipna)
-        expected = frame.groupby(level=0).apply(lambda h: getattr(h, op)(skipna=skipna))
+        expected = frame.groupby(level=0).apply(
+            lambda h: getattr(h, op)(skipna=skipna)
+        )
         if sort:
             expected = expected.sort_index()
         tm.assert_frame_equal(result, expected)

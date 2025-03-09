@@ -40,7 +40,8 @@ def test_to_offset(freq_input, expected):
 
 
 @pytest.mark.parametrize(
-    "freqstr,expected", [("-1s", -1), ("-2SME", -2), ("-1SMS", -1), ("-5min10s", -310)]
+    "freqstr,expected",
+    [("-1s", -1), ("-2SME", -2), ("-1SMS", -1), ("-5min10s", -310)],
 )
 def test_to_offset_negative(freqstr, expected):
     result = to_offset(freqstr)
@@ -130,7 +131,8 @@ def test_to_offset_leading_zero(freqstr, expected):
 
 
 @pytest.mark.parametrize(
-    "freqstr,expected,wrn", [("+1d", 1, FutureWarning), ("+2h30min", 150, None)]
+    "freqstr,expected,wrn",
+    [("+1d", 1, FutureWarning), ("+2h30min", 150, None)],
 )
 def test_to_offset_leading_plus(freqstr, expected, wrn):
     msg = "'d' is deprecated and will be removed in a future version."

@@ -17,7 +17,11 @@ import pandas._testing as tm
 class TestIndexConcat:
     def test_concat_ignore_index(self, sort):
         frame1 = DataFrame(
-            {"test1": ["a", "b", "c"], "test2": [1, 2, 3], "test3": [4.5, 3.2, 1.2]}
+            {
+                "test1": ["a", "b", "c"],
+                "test2": [1, 2, 3],
+                "test3": [4.5, 3.2, 1.2],
+            }
         )
         frame2 = DataFrame({"test3": [5.2, 2.2, 4.3]})
         frame1.index = Index(["x", "y", "z"])
@@ -52,7 +56,9 @@ class TestIndexConcat:
             (None, None, None, None),
         ],
     )
-    def test_concat_same_index_names(self, name_in1, name_in2, name_in3, name_out):
+    def test_concat_same_index_names(
+        self, name_in1, name_in2, name_in3, name_out
+    ):
         # GH13475
         indices = [
             Index(["a", "b", "c"], name=name_in1),
@@ -60,7 +66,8 @@ class TestIndexConcat:
             Index(["c", "d", "e"], name=name_in3),
         ]
         frames = [
-            DataFrame({c: [0, 1, 2]}, index=i) for i, c in zip(indices, ["x", "y", "z"])
+            DataFrame({c: [0, 1, 2]}, index=i)
+            for i, c in zip(indices, ["x", "y", "z"])
         ]
         result = concat(frames, axis=1)
 
@@ -127,7 +134,9 @@ class TestIndexConcat:
         exp = DataFrame([[1, 4], [2, 5], [3, 6]])
         # use check_index_type=True to check the result have
         # RangeIndex (default index)
-        tm.assert_frame_equal(res, exp, check_index_type=True, check_column_type=True)
+        tm.assert_frame_equal(
+            res, exp, check_index_type=True, check_column_type=True
+        )
 
         # is_series and all inputs have no names
         s1 = Series([1, 2, 3])
@@ -136,7 +145,9 @@ class TestIndexConcat:
         assert isinstance(res.columns, pd.RangeIndex)
         exp = DataFrame([[1, 4], [2, 5], [3, 6]])
         exp.columns = pd.RangeIndex(2)
-        tm.assert_frame_equal(res, exp, check_index_type=True, check_column_type=True)
+        tm.assert_frame_equal(
+            res, exp, check_index_type=True, check_column_type=True
+        )
 
         # is_dataframe and ignore_index
         df1 = DataFrame({"A": [1, 2], "B": [5, 6]})
@@ -144,11 +155,15 @@ class TestIndexConcat:
 
         res = concat([df1, df2], axis=0, ignore_index=True)
         exp = DataFrame([[1, 5], [2, 6], [3, 7], [4, 8]], columns=["A", "B"])
-        tm.assert_frame_equal(res, exp, check_index_type=True, check_column_type=True)
+        tm.assert_frame_equal(
+            res, exp, check_index_type=True, check_column_type=True
+        )
 
         res = concat([df1, df2], axis=1, ignore_index=True)
         exp = DataFrame([[1, 5, 3, 7], [2, 6, 4, 8]])
-        tm.assert_frame_equal(res, exp, check_index_type=True, check_column_type=True)
+        tm.assert_frame_equal(
+            res, exp, check_index_type=True, check_column_type=True
+        )
 
     def test_dups_index(self):
         # GH 4771
@@ -175,7 +190,9 @@ class TestIndexConcat:
                     columns=["A", "A", "B", "B"],
                 ),
                 DataFrame(
-                    np.random.default_rng(2).integers(0, 10, size=20).reshape(10, 2),
+                    np.random.default_rng(2)
+                    .integers(0, 10, size=20)
+                    .reshape(10, 2),
                     columns=["A", "C"],
                 ),
             ],
@@ -203,7 +220,9 @@ class TestIndexConcat:
 
 
 class TestMultiIndexConcat:
-    def test_concat_multiindex_with_keys(self, multiindex_dataframe_random_data):
+    def test_concat_multiindex_with_keys(
+        self, multiindex_dataframe_random_data
+    ):
         frame = multiindex_dataframe_random_data
         index = frame.index
         result = concat([frame, frame], keys=[0, 1], names=["iteration"])
@@ -215,14 +234,18 @@ class TestMultiIndexConcat:
 
     def test_concat_multiindex_with_none_in_index_names(self):
         # GH 15787
-        index = MultiIndex.from_product([[1], range(5)], names=["level1", None])
+        index = MultiIndex.from_product(
+            [[1], range(5)], names=["level1", None]
+        )
         df = DataFrame({"col": range(5)}, index=index, dtype=np.int32)
 
         result = concat([df, df], keys=[1, 2], names=["level2"])
         index = MultiIndex.from_product(
             [[1, 2], [1], range(5)], names=["level2", "level1", None]
         )
-        expected = DataFrame({"col": list(range(5)) * 2}, index=index, dtype=np.int32)
+        expected = DataFrame(
+            {"col": list(range(5)) * 2}, index=index, dtype=np.int32
+        )
         tm.assert_frame_equal(result, expected)
 
         result = concat([df, df[:2]], keys=[1, 2], names=["level2"])
@@ -230,7 +253,9 @@ class TestMultiIndexConcat:
         level1 = [1] * 7
         no_name = list(range(5)) + list(range(2))
         tuples = list(zip(level2, level1, no_name))
-        index = MultiIndex.from_tuples(tuples, names=["level2", "level1", None])
+        index = MultiIndex.from_tuples(
+            tuples, names=["level2", "level1", None]
+        )
         expected = DataFrame({"col": no_name}, index=index, dtype=np.int32)
         tm.assert_frame_equal(result, expected)
 
@@ -311,7 +336,9 @@ class TestMultiIndexConcat:
                 codes=[[0, 0, 1, 1], [0, 1, 2, 3]],
             )
 
-        expected_df = DataFrame(np.zeros((1, len(expected_mi))), columns=expected_mi)
+        expected_df = DataFrame(
+            np.zeros((1, len(expected_mi))), columns=expected_mi
+        )
 
         with tm.assert_produces_warning(None):
             result_df = concat((df1, df2), axis=1)
@@ -416,7 +443,8 @@ class TestMultiIndexConcat:
         df2 = DataFrame([[0, 1]], columns=Index([1, 2], dtype="object"))
         result = concat([df1, df2], ignore_index=True, join="outer", sort=True)
         expected = DataFrame(
-            [[0, 1, 1.0], [0, 1, np.nan]], columns=Index([1, 2, 3], dtype="object")
+            [[0, 1, 1.0], [0, 1, np.nan]],
+            columns=Index([1, 2, 3], dtype="object"),
         )
         tm.assert_frame_equal(result, expected)
 
@@ -425,7 +453,9 @@ class TestMultiIndexConcat:
         df1 = DataFrame(
             [[0, 1, 1]], columns=Index([1, 2, 3], dtype=any_numeric_ea_dtype)
         )
-        df2 = DataFrame([[0, 1]], columns=Index([1, 2], dtype=any_numeric_ea_dtype))
+        df2 = DataFrame(
+            [[0, 1]], columns=Index([1, 2], dtype=any_numeric_ea_dtype)
+        )
         result = concat([df1, df2], ignore_index=True, join="outer", sort=True)
         expected = DataFrame(
             [[0, 1, 1.0], [0, 1, np.nan]],
@@ -440,7 +470,8 @@ class TestMultiIndexConcat:
         df2 = DataFrame([[0, 1]], columns=Index([1, 2], dtype="Int32"))
         result = concat([df1, df2], ignore_index=True, join="outer", sort=True)
         expected = DataFrame(
-            [[0, 1, 1.0], [0, 1, np.nan]], columns=Index([1, 2, 3], dtype="Int32")
+            [[0, 1, 1.0], [0, 1, np.nan]],
+            columns=Index([1, 2, 3], dtype="Int32"),
         )
         tm.assert_frame_equal(result, expected)
 
@@ -451,7 +482,11 @@ class TestMultiIndexConcat:
         s3 = Series(["a", "b", "c", "d"])
         s4 = Series([], dtype=object if not using_infer_string else "str")
         result = concat(
-            [s1, s2, s3, s4], sort=False, join="outer", ignore_index=False, axis=1
+            [s1, s2, s3, s4],
+            sort=False,
+            join="outer",
+            ignore_index=False,
+            axis=1,
         )
         expected = DataFrame(
             [

@@ -61,7 +61,11 @@ def test_bad_stream_exception(all_parsers, csv_dir_path):
     with (
         open(path, "rb") as handle,
         codecs.StreamRecoder(
-            handle, utf8.encode, utf8.decode, codec.streamreader, codec.streamwriter
+            handle,
+            utf8.encode,
+            utf8.decode,
+            codec.streamreader,
+            codec.streamwriter,
         ) as stream,
     ):
         with pytest.raises(UnicodeDecodeError, match=msg):
@@ -99,7 +103,9 @@ skip
     parser = all_parsers
 
     if parser.engine == "pyarrow":
-        msg = "The 'iterator' option is not supported with the 'pyarrow' engine"
+        msg = (
+            "The 'iterator' option is not supported with the 'pyarrow' engine"
+        )
         with pytest.raises(ValueError, match=msg):
             parser.read_csv(
                 StringIO(data),
@@ -113,7 +119,12 @@ skip
 
     msg = "Expected 3 fields in line 6, saw 5"
     with parser.read_csv(
-        StringIO(data), header=1, comment="#", iterator=True, chunksize=1, skiprows=[2]
+        StringIO(data),
+        header=1,
+        comment="#",
+        iterator=True,
+        chunksize=1,
+        skiprows=[2],
     ) as reader:
         with pytest.raises(ParserError, match=msg):
             reader.read(nrows)
@@ -275,7 +286,9 @@ def test_open_file(all_parsers):
 def test_invalid_on_bad_line(all_parsers):
     parser = all_parsers
     data = "a\n1\n1,2,3\n4\n5,6,7"
-    with pytest.raises(ValueError, match="Argument abc is invalid for on_bad_lines"):
+    with pytest.raises(
+        ValueError, match="Argument abc is invalid for on_bad_lines"
+    ):
         parser.read_csv(StringIO(data), on_bad_lines="abc")
 
 

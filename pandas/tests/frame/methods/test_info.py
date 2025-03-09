@@ -53,7 +53,9 @@ def test_info_empty():
 
 def test_info_categorical_column_smoke_test():
     n = 2500
-    df = DataFrame({"int64": np.random.default_rng(2).integers(100, size=n, dtype=int)})
+    df = DataFrame(
+        {"int64": np.random.default_rng(2).integers(100, size=n, dtype=int)}
+    )
     df["category"] = Series(
         np.array(list("abcdefghij")).take(
             np.random.default_rng(2).integers(0, 10, size=n, dtype=int)
@@ -109,8 +111,12 @@ def test_info_smoke_test2(float_frame):
         (10, 1, False),
     ],
 )
-def test_info_default_verbose_selection(num_columns, max_info_columns, verbose):
-    frame = DataFrame(np.random.default_rng(2).standard_normal((5, num_columns)))
+def test_info_default_verbose_selection(
+    num_columns, max_info_columns, verbose
+):
+    frame = DataFrame(
+        np.random.default_rng(2).standard_normal((5, num_columns))
+    )
     with option_context("display.max_info_columns", max_info_columns):
         io_default = StringIO()
         frame.info(buf=io_default)
@@ -364,7 +370,9 @@ def test_info_memory_usage():
     df = DataFrame(data)
     df.columns = dtypes
 
-    df_with_object_index = DataFrame({"a": [1]}, index=Index(["foo"], dtype=object))
+    df_with_object_index = DataFrame(
+        {"a": [1]}, index=Index(["foo"], dtype=object)
+    )
     df_with_object_index.info(buf=buf, memory_usage=True)
     res = buf.getvalue().splitlines()
     assert re.match(r"memory usage: [^+]+\+", res[-1])
@@ -390,7 +398,9 @@ def test_info_memory_usage():
     DataFrame(1, index=["a"], columns=["A"]).memory_usage(index=True)
     DataFrame(1, index=["a"], columns=["A"]).index.nbytes
     df = DataFrame(
-        data=1, index=MultiIndex.from_product([["a"], range(1000)]), columns=["A"]
+        data=1,
+        index=MultiIndex.from_product([["a"], range(1000)]),
+        columns=["A"],
     )
     df.index.nbytes
     df.memory_usage(index=True)
@@ -402,32 +412,44 @@ def test_info_memory_usage():
 
 @pytest.mark.skipif(PYPY, reason="on PyPy deep=True doesn't change result")
 def test_info_memory_usage_deep_not_pypy():
-    df_with_object_index = DataFrame({"a": [1]}, index=Index(["foo"], dtype=object))
+    df_with_object_index = DataFrame(
+        {"a": [1]}, index=Index(["foo"], dtype=object)
+    )
     assert (
         df_with_object_index.memory_usage(index=True, deep=True).sum()
         > df_with_object_index.memory_usage(index=True).sum()
     )
 
     df_object = DataFrame({"a": Series(["a"], dtype=object)})
-    assert df_object.memory_usage(deep=True).sum() > df_object.memory_usage().sum()
+    assert (
+        df_object.memory_usage(deep=True).sum()
+        > df_object.memory_usage().sum()
+    )
 
 
 @pytest.mark.xfail(not PYPY, reason="on PyPy deep=True does not change result")
 def test_info_memory_usage_deep_pypy():
-    df_with_object_index = DataFrame({"a": [1]}, index=Index(["foo"], dtype=object))
+    df_with_object_index = DataFrame(
+        {"a": [1]}, index=Index(["foo"], dtype=object)
+    )
     assert (
         df_with_object_index.memory_usage(index=True, deep=True).sum()
         == df_with_object_index.memory_usage(index=True).sum()
     )
 
     df_object = DataFrame({"a": Series(["a"], dtype=object)})
-    assert df_object.memory_usage(deep=True).sum() == df_object.memory_usage().sum()
+    assert (
+        df_object.memory_usage(deep=True).sum()
+        == df_object.memory_usage().sum()
+    )
 
 
 @pytest.mark.skipif(PYPY, reason="PyPy getsizeof() fails by design")
 def test_usage_via_getsizeof():
     df = DataFrame(
-        data=1, index=MultiIndex.from_product([["a"], range(1000)]), columns=["A"]
+        data=1,
+        index=MultiIndex.from_product([["a"], range(1000)]),
+        columns=["A"],
     )
     mem = df.memory_usage(deep=True).sum()
     # sys.getsizeof will call the .memory_usage with
@@ -443,12 +465,16 @@ def test_info_memory_usage_qualified(using_infer_string):
     assert "+" not in buf.getvalue()
 
     buf = StringIO()
-    df = DataFrame(1, columns=list("ab"), index=Index(list("ABC"), dtype=object))
+    df = DataFrame(
+        1, columns=list("ab"), index=Index(list("ABC"), dtype=object)
+    )
     df.info(buf=buf)
     assert "+" in buf.getvalue()
 
     buf = StringIO()
-    df = DataFrame(1, columns=list("ab"), index=Index(list("ABC"), dtype="str"))
+    df = DataFrame(
+        1, columns=list("ab"), index=Index(list("ABC"), dtype="str")
+    )
     df.info(buf=buf)
     if using_infer_string and HAS_PYARROW:
         assert "+" not in buf.getvalue()
@@ -457,14 +483,18 @@ def test_info_memory_usage_qualified(using_infer_string):
 
     buf = StringIO()
     df = DataFrame(
-        1, columns=list("ab"), index=MultiIndex.from_product([range(3), range(3)])
+        1,
+        columns=list("ab"),
+        index=MultiIndex.from_product([range(3), range(3)]),
     )
     df.info(buf=buf)
     assert "+" not in buf.getvalue()
 
     buf = StringIO()
     df = DataFrame(
-        1, columns=list("ab"), index=MultiIndex.from_product([range(3), ["foo", "bar"]])
+        1,
+        columns=list("ab"),
+        index=MultiIndex.from_product([range(3), ["foo", "bar"]]),
     )
     df.info(buf=buf)
     if using_infer_string and HAS_PYARROW:
@@ -548,7 +578,9 @@ def test_info_compute_numba():
     # GH#51922
     numba = pytest.importorskip("numba")
     if Version(numba.__version__) == Version("0.61") and is_platform_arm():
-        pytest.skip(f"Segfaults on ARM platforms with numba {numba.__version__}")
+        pytest.skip(
+            f"Segfaults on ARM platforms with numba {numba.__version__}"
+        )
     df = DataFrame([[1, 2], [3, 4]])
 
     with option_context("compute.use_numba", True):

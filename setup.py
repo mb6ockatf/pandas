@@ -46,7 +46,9 @@ try:
     )
     from Cython.Build import cythonize
 
-    _CYTHON_INSTALLED = parse_version(_CYTHON_VERSION) >= parse_version(min_cython_ver)
+    _CYTHON_INSTALLED = parse_version(_CYTHON_VERSION) >= parse_version(
+        min_cython_ver
+    )
 except ImportError:
     _CYTHON_VERSION = None
     _CYTHON_INSTALLED = False
@@ -54,7 +56,10 @@ except ImportError:
 
 
 _pxi_dep_template = {
-    "algos": ["_libs/algos_common_helper.pxi.in", "_libs/algos_take_helper.pxi.in"],
+    "algos": [
+        "_libs/algos_common_helper.pxi.in",
+        "_libs/algos_take_helper.pxi.in",
+    ],
     "hashtable": [
         "_libs/hashtable_class_helper.pxi.in",
         "_libs/hashtable_func_helper.pxi.in",
@@ -152,14 +157,18 @@ class CleanCommand(Command):
                     ".orig",
                 ):
                     self._clean_me.append(filepath)
-            self._clean_trees.append(pjoin(root, d) for d in dirs if d == "__pycache__")
+            self._clean_trees.append(
+                pjoin(root, d) for d in dirs if d == "__pycache__"
+            )
 
         # clean the generated pxi files
         for pxifile in _pxifiles:
             pxifile_replaced = pxifile.replace(".pxi.in", ".pxi")
             self._clean_me.append(pxifile_replaced)
 
-        self._clean_trees.append(d for d in ("build", "dist") if os.path.exists(d))
+        self._clean_trees.append(
+            d for d in ("build", "dist") if os.path.exists(d)
+        )
 
     def finalize_options(self) -> None:
         pass
@@ -372,7 +381,11 @@ if "--with-cython-coverage" in sys.argv:
 # Note: if not using `cythonize`, coverage can be enabled by
 # pinning `ext.cython_directives = directives` to each ext in extensions.
 # github.com/cython/cython/wiki/enhancements-compilerdirectives#in-setuppy
-directives = {"linetrace": False, "language_level": 3, "always_allow_keywords": True}
+directives = {
+    "linetrace": False,
+    "language_level": 3,
+    "always_allow_keywords": True,
+}
 macros = []
 if linetrace:
     # https://pypkg.com/pypi/pytest-cython/f/tests/example-project/setup.py
@@ -563,7 +576,8 @@ for name, data in ext_data.items():
     if (
         sys.platform == "zos"
         and data.get("language") == "c++"
-        and os.path.basename(os.environ.get("CXX", "/bin/xlc++")) in ("xlc", "xlc++")
+        and os.path.basename(os.environ.get("CXX", "/bin/xlc++"))
+        in ("xlc", "xlc++")
     ):
         data.get("macros", macros).append(("__s390__", "1"))
         extra_compile_args.append("-qlanglvl=extended0x:nolibext")
@@ -681,6 +695,8 @@ if __name__ == "__main__":
     multiprocessing.freeze_support()
     setup(
         version=versioneer.get_version(),
-        ext_modules=maybe_cythonize(extensions, compiler_directives=directives),
+        ext_modules=maybe_cythonize(
+            extensions, compiler_directives=directives
+        ),
         cmdclass=cmdclass,
     )

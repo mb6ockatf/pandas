@@ -154,7 +154,11 @@ class ObjectStringArrayMixin(BaseStringArrayMethods):
             else:
                 upper_pat = pat.upper()
                 f = lambda x: upper_pat in x.upper()
-        if na is not lib.no_default and not isna(na) and not isinstance(na, bool):
+        if (
+            na is not lib.no_default
+            and not isna(na)
+            and not isinstance(na, bool)
+        ):
             # GH#59561
             warnings.warn(
                 "Allowing a non-bool 'na' in obj.str.contains is deprecated "
@@ -166,7 +170,11 @@ class ObjectStringArrayMixin(BaseStringArrayMethods):
 
     def _str_startswith(self, pat, na=lib.no_default):
         f = lambda x: x.startswith(pat)
-        if na is not lib.no_default and not isna(na) and not isinstance(na, bool):
+        if (
+            na is not lib.no_default
+            and not isna(na)
+            and not isinstance(na, bool)
+        ):
             # GH#59561
             warnings.warn(
                 "Allowing a non-bool 'na' in obj.str.startswith is deprecated "
@@ -178,7 +186,11 @@ class ObjectStringArrayMixin(BaseStringArrayMethods):
 
     def _str_endswith(self, pat, na=lib.no_default):
         f = lambda x: x.endswith(pat)
-        if na is not lib.no_default and not isna(na) and not isinstance(na, bool):
+        if (
+            na is not lib.no_default
+            and not isna(na)
+            and not isinstance(na, bool)
+        ):
             # GH#59561
             warnings.warn(
                 "Allowing a non-bool 'na' in obj.str.endswith is deprecated "
@@ -434,7 +446,9 @@ class ObjectStringArrayMixin(BaseStringArrayMethods):
             dummies_dtype = _dtype
         else:
             dummies_dtype = np.bool_
-        dummies = np.empty((len(arr), len(tags2)), dtype=dummies_dtype, order="F")
+        dummies = np.empty(
+            (len(arr), len(tags2)), dtype=dummies_dtype, order="F"
+        )
 
         def _isin(test_elements: str, element: str) -> bool:
             return element in test_elements
@@ -532,7 +546,9 @@ class ObjectStringArrayMixin(BaseStringArrayMethods):
                 return empty_row
             m = regex.search(x)
             if m:
-                return [na_value if item is None else item for item in m.groups()]
+                return [
+                    na_value if item is None else item for item in m.groups()
+                ]
             else:
                 return empty_row
 

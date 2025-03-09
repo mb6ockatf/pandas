@@ -183,7 +183,9 @@ class TestValidator:
             (
                 "BadDocstrings",
                 "missing_whitespace_after_comma",
-                ("flake8 error: line 1, col 33: E231 missing whitespace after ','",),
+                (
+                    "flake8 error: line 1, col 33: E231 missing whitespace after ','",
+                ),
             ),
             (
                 "BadDocstrings",
@@ -215,7 +217,9 @@ class TestValidator:
                 "deprecated": True,
             },
         )
-        result = validate_docstrings.validate_all(prefix=None, ignore_deprecated=True)
+        result = validate_docstrings.validate_all(
+            prefix=None, ignore_deprecated=True
+        )
         assert len(result) == 0
 
     def test_validate_all_ignore_errors(self, monkeypatch):
@@ -227,13 +231,13 @@ class TestValidator:
                 "errors": [
                     ("ER01", "err desc"),
                     ("ER02", "err desc"),
-                    ("ER03", "err desc")
+                    ("ER03", "err desc"),
                 ],
                 "warnings": [],
                 "examples_errors": "",
                 "deprecated": True,
                 "file": "file1",
-                "file_line": "file_line1"
+                "file_line": "file_line1",
             },
         )
         monkeypatch.setattr(
@@ -272,12 +276,11 @@ class TestValidator:
                 None: {"ER03"},
                 "pandas.DataFrame.align": {"ER01"},
                 # ignoring an error that is not requested should be of no effect
-                "pandas.Index.all": {"ER03"}
-            }
+                "pandas.Index.all": {"ER03"},
+            },
         )
         # two functions * two not global ignored errors - one function ignored error
         assert exit_status == 2 * 2 - 1
-
 
 
 class TestApiItems:
@@ -338,7 +341,13 @@ class TestApiItems:
 
     @pytest.mark.parametrize(
         "idx,func",
-        [(0, "cycle"), (1, "count"), (2, "chain"), (3, "seed"), (4, "randint")],
+        [
+            (0, "cycle"),
+            (1, "count"),
+            (2, "chain"),
+            (3, "seed"),
+            (4, "randint"),
+        ],
     )
     def test_item_function(self, idx, func) -> None:
         result = list(validate_docstrings.get_api_items(self.api_doc))
@@ -361,7 +370,13 @@ class TestApiItems:
 
     @pytest.mark.parametrize(
         "idx,subsection",
-        [(0, "Infinite"), (1, "Infinite"), (2, "Finite"), (3, "All"), (4, "All")],
+        [
+            (0, "Infinite"),
+            (1, "Infinite"),
+            (2, "Finite"),
+            (3, "All"),
+            (4, "All"),
+        ],
     )
     def test_item_subsection(self, idx, subsection) -> None:
         result = list(validate_docstrings.get_api_items(self.api_doc))
@@ -433,12 +448,17 @@ class TestMainFunction:
         )
         assert exit_status == 5
 
-    def test_no_exit_status_noerrors_for_validate_all(self, monkeypatch) -> None:
+    def test_no_exit_status_noerrors_for_validate_all(
+        self, monkeypatch
+    ) -> None:
         monkeypatch.setattr(
             validate_docstrings,
             "validate_all",
             lambda prefix, ignore_deprecated=False, ignore_functions=None: {
-                "docstring1": {"errors": [], "warnings": [("WN01", "warn desc")]},
+                "docstring1": {
+                    "errors": [],
+                    "warnings": [("WN01", "warn desc")],
+                },
                 "docstring2": {"errors": []},
             },
         )
@@ -463,7 +483,9 @@ class TestMainFunction:
                         ("ER03", "err desc"),
                     ]
                 },
-                "docstring2": {"errors": [("ER04", "err desc"), ("ER05", "err desc")]},
+                "docstring2": {
+                    "errors": [("ER04", "err desc"), ("ER05", "err desc")]
+                },
             },
         )
         exit_status = validate_docstrings.main(

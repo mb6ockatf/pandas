@@ -165,7 +165,8 @@ def test_roll_qtr_day_mod_equal(other, month, exp_dict, n, day_opt):
 
 
 @pytest.mark.parametrize(
-    "n,expected", [(42, {29: 42, 1: 42, 31: 41}), (-4, {29: -4, 1: -3, 31: -4})]
+    "n,expected",
+    [(42, {29: 42, 1: 42, 31: 41}), (-4, {29: -4, 1: -3, 31: -4})],
 )
 @pytest.mark.parametrize("compare", [29, 1, 31])
 def test_roll_convention(n, expected, compare):

@@ -37,7 +37,9 @@ class ArrowStringArrayMixin:
     def __init__(self, *args, **kwargs) -> None:
         raise NotImplementedError
 
-    def _convert_bool_result(self, result, na=lib.no_default, method_name=None):
+    def _convert_bool_result(
+        self, result, na=lib.no_default, method_name=None
+    ):
         # Convert a bool-dtype result to the appropriate result type
         raise NotImplementedError
 
@@ -102,12 +104,16 @@ class ArrowStringArrayMixin:
                 # GH#54792
                 # https://github.com/apache/arrow/issues/15053#issuecomment-2317032347
                 lean_left = (width % 2) == 0
-                pa_pad = partial(pc.utf8_center, lean_left_on_odd_padding=lean_left)
+                pa_pad = partial(
+                    pc.utf8_center, lean_left_on_odd_padding=lean_left
+                )
         else:
             raise ValueError(
                 f"Invalid side: {side}. Side must be one of 'left', 'right', 'both'"
             )
-        return type(self)(pa_pad(self._pa_array, width=width, padding=fillchar))
+        return type(self)(
+            pa_pad(self._pa_array, width=width, padding=fillchar)
+        )
 
     def _str_get(self, i: int) -> Self:
         lengths = pc.utf8_length(self._pa_array)
@@ -130,12 +136,17 @@ class ArrowStringArrayMixin:
         return type(self)(result)
 
     def _str_slice(
-        self, start: int | None = None, stop: int | None = None, step: int | None = None
+        self,
+        start: int | None = None,
+        stop: int | None = None,
+        step: int | None = None,
     ) -> Self:
         if pa_version_under11p0:
             # GH#59724
             result = self._apply_elementwise(lambda val: val[start:stop:step])
-            return type(self)(pa.chunked_array(result, type=self._pa_array.type))
+            return type(self)(
+                pa.chunked_array(result, type=self._pa_array.type)
+            )
         if start is None:
             if step is not None and step < 0:
                 # GH#59710
@@ -145,11 +156,16 @@ class ArrowStringArrayMixin:
         if step is None:
             step = 1
         return type(self)(
-            pc.utf8_slice_codeunits(self._pa_array, start=start, stop=stop, step=step)
+            pc.utf8_slice_codeunits(
+                self._pa_array, start=start, stop=stop, step=step
+            )
         )
 
     def _str_slice_replace(
-        self, start: int | None = None, stop: int | None = None, repl: str | None = None
+        self,
+        start: int | None = None,
+        stop: int | None = None,
+        repl: str | None = None,
     ) -> Self:
         if repl is None:
             repl = ""
@@ -157,7 +173,9 @@ class ArrowStringArrayMixin:
             start = 0
         if stop is None:
             stop = np.iinfo(np.int64).max
-        return type(self)(pc.utf8_replace_slice(self._pa_array, start, stop, repl))
+        return type(self)(
+            pc.utf8_replace_slice(self._pa_array, start, stop, repl)
+        )
 
     def _str_replace(
         self,
@@ -212,7 +230,9 @@ class ArrowStringArrayMixin:
         return type(self)(result)
 
     def _str_startswith(
-        self, pat: str | tuple[str, ...], na: Scalar | lib.NoDefault = lib.no_default
+        self,
+        pat: str | tuple[str, ...],
+        na: Scalar | lib.NoDefault = lib.no_default,
     ):
         if isinstance(pat, str):
             result = pc.starts_with(self._pa_array, pattern=pat)
@@ -225,11 +245,17 @@ class ArrowStringArrayMixin:
                 result = pc.starts_with(self._pa_array, pattern=pat[0])
 
                 for p in pat[1:]:
-                    result = pc.or_(result, pc.starts_with(self._pa_array, pattern=p))
-        return self._convert_bool_result(result, na=na, method_name="startswith")
+                    result = pc.or_(
+                        result, pc.starts_with(self._pa_array, pattern=p)
+                    )
+        return self._convert_bool_result(
+            result, na=na, method_name="startswith"
+        )
 
     def _str_endswith(
-        self, pat: str | tuple[str, ...], na: Scalar | lib.NoDefault = lib.no_default
+        self,
+        pat: str | tuple[str, ...],
+        na: Scalar | lib.NoDefault = lib.no_default,
     ):
         if isinstance(pat, str):
             result = pc.ends_with(self._pa_array, pattern=pat)
@@ -242,7 +268,9 @@ class ArrowStringArrayMixin:
                 result = pc.ends_with(self._pa_array, pattern=pat[0])
 
                 for p in pat[1:]:
-                    result = pc.or_(result, pc.ends_with(self._pa_array, pattern=p))
+                    result = pc.or_(
+                        result, pc.ends_with(self._pa_array, pattern=p)
+                    )
         return self._convert_bool_result(result, na=na, method_name="endswith")
 
     def _str_isalnum(self):
@@ -294,7 +322,9 @@ class ArrowStringArrayMixin:
         regex: bool = True,
     ):
         if flags:
-            raise NotImplementedError(f"contains not implemented with {flags=}")
+            raise NotImplementedError(
+                f"contains not implemented with {flags=}"
+            )
 
         if regex:
             pa_contains = pc.match_substring_regex
@@ -332,7 +362,9 @@ class ArrowStringArrayMixin:
             and not (start == 0 and end is None)
         ):
             # GH#59562
-            res_list = self._apply_elementwise(lambda val: val.find(sub, start, end))
+            res_list = self._apply_elementwise(
+                lambda val: val.find(sub, start, end)
+            )
             return self._convert_int_result(pa.chunked_array(res_list))
 
         if (start == 0 or start is None) and end is None:
@@ -349,7 +381,9 @@ class ArrowStringArrayMixin:
                 start = 0
             elif start < 0:
                 start_offset = pc.add(start, pc.utf8_length(self._pa_array))
-                start_offset = pc.if_else(pc.less(start_offset, 0), 0, start_offset)
+                start_offset = pc.if_else(
+                    pc.less(start_offset, 0), 0, start_offset
+                )
             else:
                 start_offset = start
             slices = pc.utf8_slice_codeunits(self._pa_array, start, stop=end)

@@ -303,7 +303,9 @@ class PeriodIndex(DatetimeIndexOpsMixin):
             "minute": minute,
             "second": second,
         }
-        fields = {key: value for key, value in fields.items() if value is not None}
+        fields = {
+            key: value for key, value in fields.items() if value is not None
+        }
         arr = PeriodArray._from_fields(fields=fields, freq=freq)
         return cls._simple_new(arr)
 
@@ -392,7 +394,9 @@ class PeriodIndex(DatetimeIndexOpsMixin):
     # ------------------------------------------------------------------------
     # Index Methods
 
-    def asof_locs(self, where: Index, mask: npt.NDArray[np.bool_]) -> np.ndarray:
+    def asof_locs(
+        self, where: Index, mask: npt.NDArray[np.bool_]
+    ) -> np.ndarray:
         """
         where : array of timestamps
         mask : np.ndarray[bool]
@@ -401,7 +405,9 @@ class PeriodIndex(DatetimeIndexOpsMixin):
         if isinstance(where, DatetimeIndex):
             where = PeriodIndex(where._values, freq=self.freq)
         elif not isinstance(where, PeriodIndex):
-            raise TypeError("asof_locs `where` must be DatetimeIndex or PeriodIndex")
+            raise TypeError(
+                "asof_locs `where` must be DatetimeIndex or PeriodIndex"
+            )
 
         return super().asof_locs(where, mask)
 
@@ -524,7 +530,10 @@ class PeriodIndex(DatetimeIndexOpsMixin):
     def _parsed_string_to_bounds(self, reso: Resolution, parsed: datetime):
         freq = OFFSET_TO_PERIOD_FREQSTR.get(reso.attr_abbrev, reso.attr_abbrev)
         iv = Period(parsed, freq=freq)
-        return (iv.asfreq(self.freq, how="start"), iv.asfreq(self.freq, how="end"))
+        return (
+            iv.asfreq(self.freq, how="start"),
+            iv.asfreq(self.freq, how="end"),
+        )
 
     @doc(DatetimeIndexOpsMixin.shift)
     def shift(self, periods: int = 1, freq=None) -> Self:
@@ -607,7 +616,9 @@ def period_range(
             "Of the three parameters: start, end, and periods, "
             "exactly two must be specified"
         )
-    if freq is None and (not isinstance(start, Period) and not isinstance(end, Period)):
+    if freq is None and (
+        not isinstance(start, Period) and not isinstance(end, Period)
+    ):
         freq = "D"
 
     data, freq = PeriodArray._generate_range(start, end, periods, freq)

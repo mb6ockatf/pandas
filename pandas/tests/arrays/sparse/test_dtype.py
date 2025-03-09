@@ -199,7 +199,9 @@ def test_update_dtype(original, dtype, expected):
         (
             SparseDtype(float, np.nan),
             int,
-            re.escape("Cannot convert non-finite values (NA or inf) to integer"),
+            re.escape(
+                "Cannot convert non-finite values (NA or inf) to integer"
+            ),
         ),
         (
             SparseDtype(str, "abc"),

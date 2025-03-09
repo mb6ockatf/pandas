@@ -76,7 +76,8 @@ def test_series_from_series_with_reindex():
 @pytest.mark.parametrize("dtype", [None, "int64"])
 @pytest.mark.parametrize("idx", [None, pd.RangeIndex(start=0, stop=3, step=1)])
 @pytest.mark.parametrize(
-    "arr", [np.array([1, 2, 3], dtype="int64"), pd.array([1, 2, 3], dtype="Int64")]
+    "arr",
+    [np.array([1, 2, 3], dtype="int64"), pd.array([1, 2, 3], dtype="Int64")],
 )
 def test_series_from_array(idx, dtype, arr):
     ser = Series(arr, dtype=dtype, index=idx)
@@ -163,11 +164,18 @@ def test_dataframe_from_dict_of_series(columns, index, dtype):
     s2 = Series([4, 5, 6])
     s1_orig = s1.copy()
     expected = DataFrame(
-        {"a": [1, 2, 3], "b": [4, 5, 6]}, index=index, columns=columns, dtype=dtype
+        {"a": [1, 2, 3], "b": [4, 5, 6]},
+        index=index,
+        columns=columns,
+        dtype=dtype,
     )
 
     result = DataFrame(
-        {"a": s1, "b": s2}, index=index, columns=columns, dtype=dtype, copy=False
+        {"a": s1, "b": s2},
+        index=index,
+        columns=columns,
+        dtype=dtype,
+        copy=False,
     )
 
     # the shallow copy still shares memory
@@ -182,7 +190,11 @@ def test_dataframe_from_dict_of_series(columns, index, dtype):
     s1 = Series([1, 2, 3])
     s2 = Series([4, 5, 6])
     result = DataFrame(
-        {"a": s1, "b": s2}, index=index, columns=columns, dtype=dtype, copy=False
+        {"a": s1, "b": s2},
+        index=index,
+        columns=columns,
+        dtype=dtype,
+        copy=False,
     )
     s1.iloc[0] = 10
     assert not np.shares_memory(get_array(result, "a"), get_array(s1))
@@ -197,7 +209,9 @@ def test_dataframe_from_dict_of_series_with_reindex(dtype):
     # a copy on write
     s1 = Series([1, 2, 3])
     s2 = Series([4, 5, 6])
-    df = DataFrame({"a": s1, "b": s2}, index=[1, 2, 3], dtype=dtype, copy=False)
+    df = DataFrame(
+        {"a": s1, "b": s2}, index=[1, 2, 3], dtype=dtype, copy=False
+    )
 
     # df should own its memory, so mutating shouldn't trigger a copy
     arr_before = get_array(df, "a")
@@ -229,7 +243,9 @@ def test_dataframe_from_series_or_index_different_dtype(index_or_series):
 
 
 def test_dataframe_from_series_dont_infer_datetime():
-    ser = Series([Timestamp("2019-12-31"), Timestamp("2020-12-31")], dtype=object)
+    ser = Series(
+        [Timestamp("2019-12-31"), Timestamp("2020-12-31")], dtype=object
+    )
     df = DataFrame(ser)
     assert df.dtypes.iloc[0] == np.dtype(object)
     assert np.shares_memory(get_array(ser), get_array(df, 0))

@@ -82,7 +82,9 @@ def test_copy_shallow():
         lambda df, copy: df.to_period(freq="D", copy=copy),
         lambda df, copy: df.tz_localize("US/Central", copy=copy),
         lambda df, copy: df.tz_convert("US/Central", copy=copy),
-        lambda df, copy: df.set_flags(allows_duplicate_labels=False, copy=copy),
+        lambda df, copy: df.set_flags(
+            allows_duplicate_labels=False, copy=copy
+        ),
     ],
     ids=[
         "rename",
@@ -112,9 +114,13 @@ def test_methods_copy_keyword(request, method, copy):
     elif "tz_localize" in request.node.callspec.id:
         index = date_range("2012-01-01", freq="D", periods=3)
     elif "tz_convert" in request.node.callspec.id:
-        index = date_range("2012-01-01", freq="D", periods=3, tz="Europe/Brussels")
+        index = date_range(
+            "2012-01-01", freq="D", periods=3, tz="Europe/Brussels"
+        )
 
-    df = DataFrame({"a": [1, 2, 3], "b": [4, 5, 6], "c": [0.1, 0.2, 0.3]}, index=index)
+    df = DataFrame(
+        {"a": [1, 2, 3], "b": [4, 5, 6], "c": [0.1, 0.2, 0.3]}, index=index
+    )
     df2 = method(df, copy=copy)
     assert np.shares_memory(get_array(df2, "a"), get_array(df, "a"))
 
@@ -129,7 +135,9 @@ def test_methods_copy_keyword(request, method, copy):
         lambda ser, copy: ser.reindex(index=ser.index, copy=copy),
         lambda ser, copy: ser.reindex_like(ser, copy=copy),
         lambda ser, copy: ser.align(ser, copy=copy)[0],
-        lambda ser, copy: ser.set_axis(["a", "b", "c"], axis="index", copy=copy),
+        lambda ser, copy: ser.set_axis(
+            ["a", "b", "c"], axis="index", copy=copy
+        ),
         lambda ser, copy: ser.rename_axis(index="test", copy=copy),
         lambda ser, copy: ser.astype("int64", copy=copy),
         lambda ser, copy: ser.swaplevel(0, 1, copy=copy),
@@ -139,7 +147,9 @@ def test_methods_copy_keyword(request, method, copy):
         lambda ser, copy: ser.to_period(freq="D", copy=copy),
         lambda ser, copy: ser.tz_localize("US/Central", copy=copy),
         lambda ser, copy: ser.tz_convert("US/Central", copy=copy),
-        lambda ser, copy: ser.set_flags(allows_duplicate_labels=False, copy=copy),
+        lambda ser, copy: ser.set_flags(
+            allows_duplicate_labels=False, copy=copy
+        ),
     ],
     ids=[
         "rename (dict)",
@@ -169,7 +179,9 @@ def test_methods_series_copy_keyword(request, method, copy):
     elif "tz_localize" in request.node.callspec.id:
         index = date_range("2012-01-01", freq="D", periods=3)
     elif "tz_convert" in request.node.callspec.id:
-        index = date_range("2012-01-01", freq="D", periods=3, tz="Europe/Brussels")
+        index = date_range(
+            "2012-01-01", freq="D", periods=3, tz="Europe/Brussels"
+        )
     elif "swaplevel" in request.node.callspec.id:
         index = MultiIndex.from_arrays([[1, 2, 3], [4, 5, 6]])
 
@@ -186,7 +198,8 @@ def test_reset_index():
     # Case: resetting the index (i.e. adding a new column) + mutating the
     # resulting dataframe
     df = DataFrame(
-        {"a": [1, 2, 3], "b": [4, 5, 6], "c": [0.1, 0.2, 0.3]}, index=[10, 11, 12]
+        {"a": [1, 2, 3], "b": [4, 5, 6], "c": [0.1, 0.2, 0.3]},
+        index=[10, 11, 12],
     )
     df_orig = df.copy()
     df2 = df.reset_index()
@@ -216,7 +229,11 @@ def test_reset_index_series_drop(index):
 
 def test_groupby_column_index_in_references():
     df = DataFrame(
-        {"A": ["a", "b", "c", "d"], "B": [1, 2, 3, 4], "C": ["a", "a", "b", "b"]}
+        {
+            "A": ["a", "b", "c", "d"],
+            "B": [1, 2, 3, 4],
+            "C": ["a", "a", "b", "b"],
+        }
     )
     df = df.set_index("A")
     key = df["C"]
@@ -236,7 +253,9 @@ def test_rename_columns():
     df2.iloc[0, 0] = 0
     assert not np.shares_memory(get_array(df2, "A"), get_array(df, "a"))
     assert np.shares_memory(get_array(df2, "C"), get_array(df, "c"))
-    expected = DataFrame({"A": [0, 2, 3], "B": [4, 5, 6], "C": [0.1, 0.2, 0.3]})
+    expected = DataFrame(
+        {"A": [0, 2, 3], "B": [4, 5, 6], "C": [0.1, 0.2, 0.3]}
+    )
     tm.assert_frame_equal(df2, expected)
     tm.assert_frame_equal(df, df_orig)
 
@@ -252,7 +271,9 @@ def test_rename_columns_modify_parent():
     df.iloc[0, 0] = 0
     assert not np.shares_memory(get_array(df2, "A"), get_array(df, "a"))
     assert np.shares_memory(get_array(df2, "C"), get_array(df, "c"))
-    expected = DataFrame({"a": [0, 2, 3], "b": [4, 5, 6], "c": [0.1, 0.2, 0.3]})
+    expected = DataFrame(
+        {"a": [0, 2, 3], "b": [4, 5, 6], "c": [0.1, 0.2, 0.3]}
+    )
     tm.assert_frame_equal(df, expected)
     tm.assert_frame_equal(df2, df2_orig)
 
@@ -425,11 +446,14 @@ def test_shift_rows_freq():
 
 def test_shift_columns():
     df = DataFrame(
-        [[1, 2], [3, 4], [5, 6]], columns=date_range("2020-01-01", "2020-01-02")
+        [[1, 2], [3, 4], [5, 6]],
+        columns=date_range("2020-01-01", "2020-01-02"),
     )
     df2 = df.shift(periods=1, axis=1)
 
-    assert np.shares_memory(get_array(df2, "2020-01-02"), get_array(df, "2020-01-01"))
+    assert np.shares_memory(
+        get_array(df2, "2020-01-02"), get_array(df, "2020-01-01")
+    )
     df.iloc[0, 0] = 0
     assert not np.shares_memory(
         get_array(df2, "2020-01-02"), get_array(df, "2020-01-01")
@@ -453,7 +477,9 @@ def test_pop():
     result.iloc[0] = 0
     assert not np.shares_memory(result.values, get_array(view_original, "a"))
     df.iloc[0, 0] = 0
-    assert not np.shares_memory(get_array(df, "b"), get_array(view_original, "b"))
+    assert not np.shares_memory(
+        get_array(df, "b"), get_array(view_original, "b")
+    )
     tm.assert_frame_equal(view_original, df_orig)
 
 
@@ -574,9 +600,13 @@ def test_chained_methods(request, method, idx):
     tm.assert_frame_equal(df2.iloc[:, idx:], df_orig)
 
 
-@pytest.mark.parametrize("obj", [Series([1, 2], name="a"), DataFrame({"a": [1, 2]})])
+@pytest.mark.parametrize(
+    "obj", [Series([1, 2], name="a"), DataFrame({"a": [1, 2]})]
+)
 def test_to_timestamp(obj):
-    obj.index = Index([Period("2012-1-1", freq="D"), Period("2012-1-2", freq="D")])
+    obj.index = Index(
+        [Period("2012-1-1", freq="D"), Period("2012-1-2", freq="D")]
+    )
 
     obj_orig = obj.copy()
     obj2 = obj.to_timestamp()
@@ -589,7 +619,9 @@ def test_to_timestamp(obj):
     tm.assert_equal(obj, obj_orig)
 
 
-@pytest.mark.parametrize("obj", [Series([1, 2], name="a"), DataFrame({"a": [1, 2]})])
+@pytest.mark.parametrize(
+    "obj", [Series([1, 2], name="a"), DataFrame({"a": [1, 2]})]
+)
 def test_to_period(obj):
     obj.index = Index([Timestamp("2019-12-31"), Timestamp("2020-12-31")])
 
@@ -741,7 +773,8 @@ def test_infer_objects_no_reference(using_infer_string):
             "b": Series(["x", "y"], dtype=object),
             "c": 1,
             "d": Series(
-                [Timestamp("2019-12-31"), Timestamp("2020-12-31")], dtype="object"
+                [Timestamp("2019-12-31"), Timestamp("2020-12-31")],
+                dtype="object",
             ),
             "e": Series(["z", "w"], dtype=object),
         }
@@ -774,7 +807,8 @@ def test_infer_objects_reference():
             "b": Series(["x", "y"], dtype=object),
             "c": 1,
             "d": Series(
-                [Timestamp("2019-12-31"), Timestamp("2020-12-31")], dtype="object"
+                [Timestamp("2019-12-31"), Timestamp("2020-12-31")],
+                dtype="object",
             ),
         }
     )
@@ -879,7 +913,10 @@ def test_sort_index():
 
 @pytest.mark.parametrize(
     "obj, kwargs",
-    [(Series([1, 2, 3], name="a"), {}), (DataFrame({"a": [1, 2, 3]}), {"by": "a"})],
+    [
+        (Series([1, 2, 3], name="a"), {}),
+        (DataFrame({"a": [1, 2, 3]}), {"by": "a"}),
+    ],
 )
 def test_sort_values(obj, kwargs):
     obj_orig = obj.copy()
@@ -894,7 +931,10 @@ def test_sort_values(obj, kwargs):
 
 @pytest.mark.parametrize(
     "obj, kwargs",
-    [(Series([1, 2, 3], name="a"), {}), (DataFrame({"a": [1, 2, 3]}), {"by": "a"})],
+    [
+        (Series([1, 2, 3], name="a"), {}),
+        (DataFrame({"a": [1, 2, 3]}), {"by": "a"}),
+    ],
 )
 def test_sort_values_inplace(obj, kwargs):
     obj_orig = obj.copy()
@@ -958,9 +998,13 @@ def test_series_reorder_levels():
     tm.assert_series_equal(ser, ser_orig)
 
 
-@pytest.mark.parametrize("obj", [Series([1, 2, 3]), DataFrame({"a": [1, 2, 3]})])
+@pytest.mark.parametrize(
+    "obj", [Series([1, 2, 3]), DataFrame({"a": [1, 2, 3]})]
+)
 def test_swaplevel(obj):
-    index = MultiIndex.from_tuples([(1, 1), (1, 2), (2, 1)], names=["one", "two"])
+    index = MultiIndex.from_tuples(
+        [(1, 1), (1, 2), (2, 1)], names=["one", "two"]
+    )
     obj.index = index
     obj_orig = obj.copy()
     obj2 = obj.swaplevel()
@@ -1029,7 +1073,8 @@ def test_rename_axis(kwargs):
 def test_tz_convert_localize(func, tz):
     # GH 49473
     ser = Series(
-        [1, 2], index=date_range(start="2014-08-01 09:00", freq="h", periods=2, tz=tz)
+        [1, 2],
+        index=date_range(start="2014-08-01 09:00", freq="h", periods=2, tz=tz),
     )
     ser_orig = ser.copy()
     ser2 = getattr(ser, func)("US/Central")
@@ -1043,8 +1088,12 @@ def test_tz_convert_localize(func, tz):
 
 def test_droplevel():
     # GH 49473
-    index = MultiIndex.from_tuples([(1, 1), (1, 2), (2, 1)], names=["one", "two"])
-    df = DataFrame({"a": [1, 2, 3], "b": [4, 5, 6], "c": [7, 8, 9]}, index=index)
+    index = MultiIndex.from_tuples(
+        [(1, 1), (1, 2), (2, 1)], names=["one", "two"]
+    )
+    df = DataFrame(
+        {"a": [1, 2, 3], "b": [4, 5, 6], "c": [7, 8, 9]}, index=index
+    )
     df_orig = df.copy()
     df2 = df.droplevel(0)
 
@@ -1087,7 +1136,9 @@ def test_items():
             # mutating df triggers a copy-on-write for that column / block
             ser.iloc[0] = 0
 
-            assert not np.shares_memory(get_array(ser, name), get_array(df, name))
+            assert not np.shares_memory(
+                get_array(ser, name), get_array(df, name)
+            )
             tm.assert_frame_equal(df, df_orig)
 
 
@@ -1118,7 +1169,9 @@ def test_putmask_aligns_rhs_no_reference(dtype):
     assert np.shares_memory(arr_a, get_array(df, "a"))
 
 
-@pytest.mark.parametrize("val, exp, raises", [(5.5, True, True), (5, False, False)])
+@pytest.mark.parametrize(
+    "val, exp, raises", [(5.5, True, True), (5, False, False)]
+)
 def test_putmask_dont_copy_some_blocks(val, exp, raises: bool):
     df = DataFrame({"a": [1, 2], "b": 1, "c": 1.5})
     view = df[:]
@@ -1133,7 +1186,9 @@ def test_putmask_dont_copy_some_blocks(val, exp, raises: bool):
         df[indexer] = val
         assert not np.shares_memory(get_array(view, "a"), get_array(df, "a"))
         # TODO(CoW): Could split blocks to avoid copying the whole block
-        assert np.shares_memory(get_array(view, "b"), get_array(df, "b")) is exp
+        assert (
+            np.shares_memory(get_array(view, "b"), get_array(df, "b")) is exp
+        )
         assert np.shares_memory(get_array(view, "c"), get_array(df, "c"))
         assert df._mgr._has_no_reference(1) is not exp
         assert not df._mgr._has_no_reference(2)
@@ -1283,7 +1338,9 @@ def test_isetitem_series(dtype):
     df.isetitem(0, ser)
 
     ser.loc[0] = 0
-    expected = DataFrame({"a": [7, 8, 9], "b": np.array([4, 5, 6], dtype=dtype)})
+    expected = DataFrame(
+        {"a": [7, 8, 9], "b": np.array([4, 5, 6], dtype=dtype)}
+    )
     tm.assert_frame_equal(df, expected)
 
 
@@ -1339,7 +1396,9 @@ def test_xs(axis, key, dtype):
 @pytest.mark.parametrize("key, level", [("l1", 0), (2, 1)])
 def test_xs_multiindex(key, level, axis):
     arr = np.arange(18).reshape(6, 3)
-    index = MultiIndex.from_product([["l1", "l2"], [1, 2, 3]], names=["lev1", "lev2"])
+    index = MultiIndex.from_product(
+        [["l1", "l2"], [1, 2, 3]], names=["lev1", "lev2"]
+    )
     df = DataFrame(arr, index=index, columns=list("abc"))
     if axis == 1:
         df = df.transpose().copy()

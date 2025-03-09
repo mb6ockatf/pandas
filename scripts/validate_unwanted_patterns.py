@@ -92,7 +92,9 @@ def _get_literal_string_prefix_len(token_string: str) -> int:
 PRIVATE_FUNCTIONS_ALLOWED = {"sys._getframe"}  # no known alternative
 
 
-def private_function_across_module(file_obj: IO[str]) -> Iterable[tuple[int, str]]:
+def private_function_across_module(
+    file_obj: IO[str],
+) -> Iterable[tuple[int, str]]:
     """
     Checking that a private function is not used across modules.
     Parameters
@@ -114,7 +116,9 @@ def private_function_across_module(file_obj: IO[str]) -> Iterable[tuple[int, str
     for node in ast.walk(tree):
         if isinstance(node, (ast.Import, ast.ImportFrom)):
             for module in node.names:
-                module_fqdn = module.name if module.asname is None else module.asname
+                module_fqdn = (
+                    module.name if module.asname is None else module.asname
+                )
                 imported_modules.add(module_fqdn)
 
         if not isinstance(node, ast.Call):
@@ -138,10 +142,15 @@ def private_function_across_module(file_obj: IO[str]) -> Iterable[tuple[int, str
             continue
 
         if module_name in imported_modules and function_name.startswith("_"):
-            yield (node.lineno, f"Private function '{module_name}.{function_name}'")
+            yield (
+                node.lineno,
+                f"Private function '{module_name}.{function_name}'",
+            )
 
 
-def private_import_across_module(file_obj: IO[str]) -> Iterable[tuple[int, str]]:
+def private_import_across_module(
+    file_obj: IO[str],
+) -> Iterable[tuple[int, str]]:
     """
     Checking that a private function is not imported across modules.
     Parameters
@@ -168,7 +177,10 @@ def private_import_across_module(file_obj: IO[str]) -> Iterable[tuple[int, str]]
                 continue
 
             if module_name.startswith("_"):
-                yield (node.lineno, f"Import of internal function {module_name!r}")
+                yield (
+                    node.lineno,
+                    f"Import of internal function {module_name!r}",
+                )
 
 
 def strings_with_wrong_placed_whitespace(
@@ -272,7 +284,9 @@ def strings_with_wrong_placed_whitespace(
 
     tokens: list = list(tokenize.generate_tokens(file_obj.readline))
 
-    for first_token, second_token, third_token in zip(tokens, tokens[1:], tokens[2:]):
+    for first_token, second_token, third_token in zip(
+        tokens, tokens[1:], tokens[2:]
+    ):
         # Checking if we are in a block of concated string
         if (
             first_token.type == third_token.type == token.STRING
@@ -296,7 +310,9 @@ def strings_with_wrong_placed_whitespace(
                 )
 
 
-def nodefault_used_not_only_for_typing(file_obj: IO[str]) -> Iterable[tuple[int, str]]:
+def nodefault_used_not_only_for_typing(
+    file_obj: IO[str],
+) -> Iterable[tuple[int, str]]:
     """Test case where pandas._libs.lib.NoDefault is not used for typing.
 
     Parameters
@@ -319,10 +335,14 @@ def nodefault_used_not_only_for_typing(file_obj: IO[str]) -> Iterable[tuple[int,
     while nodes:
         in_annotation, node = nodes.pop()
         if not in_annotation and (
-            (isinstance(node, ast.Name)  # Case `NoDefault`
-            and node.id == "NoDefault")
-            or (isinstance(node, ast.Attribute)  # Cases e.g. `lib.NoDefault`
-            and node.attr == "NoDefault")
+            (
+                isinstance(node, ast.Name)  # Case `NoDefault`
+                and node.id == "NoDefault"
+            )
+            or (
+                isinstance(node, ast.Attribute)  # Cases e.g. `lib.NoDefault`
+                and node.attr == "NoDefault"
+            )
         ):
             yield (node.lineno, "NoDefault is used not only for typing")
 
@@ -400,7 +420,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Unwanted patterns checker.")
 
-    parser.add_argument("paths", nargs="*", help="Source paths of files to check.")
+    parser.add_argument(
+        "paths", nargs="*", help="Source paths of files to check."
+    )
     parser.add_argument(
         "--format",
         "-f",

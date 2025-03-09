@@ -99,14 +99,18 @@ def _check_visible(collections, visible=True):
     """
     from matplotlib.collections import Collection
 
-    if not isinstance(collections, Collection) and not is_list_like(collections):
+    if not isinstance(collections, Collection) and not is_list_like(
+        collections
+    ):
         collections = [collections]
 
     for patch in collections:
         assert patch.get_visible() == visible
 
 
-def _check_patches_all_filled(axes: Axes | Sequence[Axes], filled: bool = True) -> None:
+def _check_patches_all_filled(
+    axes: Axes | Sequence[Axes], filled: bool = True
+) -> None:
     """
     Check for each artist whether it is filled or not
 
@@ -215,7 +219,9 @@ def _check_text_labels(texts, expected):
             assert label == e
 
 
-def _check_ticks_props(axes, xlabelsize=None, xrot=None, ylabelsize=None, yrot=None):
+def _check_ticks_props(
+    axes, xlabelsize=None, xrot=None, ylabelsize=None, yrot=None
+):
     """
     Check each axes has expected tick properties
 

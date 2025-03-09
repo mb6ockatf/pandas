@@ -91,7 +91,9 @@ class TestSeriesInterpolateData:
         tm.assert_series_equal(res_per, expected_per)
 
     def test_interpolate(self, datetime_series):
-        ts = Series(np.arange(len(datetime_series), dtype=float), datetime_series.index)
+        ts = Series(
+            np.arange(len(datetime_series), dtype=float), datetime_series.index
+        )
 
         ts_copy = ts.copy()
 
@@ -105,7 +107,8 @@ class TestSeriesInterpolateData:
         tm.assert_series_equal(linear_interp, ts)
 
         ord_ts = Series(
-            [d.toordinal() for d in datetime_series.index], index=datetime_series.index
+            [d.toordinal() for d in datetime_series.index],
+            index=datetime_series.index,
         ).astype(float)
 
         ord_ts_copy = ord_ts.copy()
@@ -131,10 +134,12 @@ class TestSeriesInterpolateData:
             index=Index([1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]),
         )
         # interpolate at new_index
-        new_index = ser.index.union(Index([1.25, 1.5, 1.75, 2.25, 2.5, 2.75])).astype(
-            float
+        new_index = ser.index.union(
+            Index([1.25, 1.5, 1.75, 2.25, 2.5, 2.75])
+        ).astype(float)
+        result = (
+            ser.reindex(new_index).interpolate(method="cubicspline").loc[1:3]
         )
-        result = ser.reindex(new_index).interpolate(method="cubicspline").loc[1:3]
         tm.assert_series_equal(result, expected)
 
     def test_interpolate_pchip(self):
@@ -158,9 +163,9 @@ class TestSeriesInterpolateData:
             [11.00, 11.25, 11.50, 11.75, 12.00, 12.25, 12.50, 12.75, 13.00],
             index=Index([1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]),
         )
-        new_index = ser.index.union(Index([1.25, 1.5, 1.75, 2.25, 2.5, 2.75])).astype(
-            float
-        )
+        new_index = ser.index.union(
+            Index([1.25, 1.5, 1.75, 2.25, 2.5, 2.75])
+        ).astype(float)
         interp_s = ser.reindex(new_index).interpolate(method="akima")
         tm.assert_series_equal(interp_s.loc[1:3], expected)
 
@@ -169,9 +174,9 @@ class TestSeriesInterpolateData:
             [11.0, 1.0, 1.0, 1.0, 12.0, 1.0, 1.0, 1.0, 13.0],
             index=Index([1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]),
         )
-        new_index = ser.index.union(Index([1.25, 1.5, 1.75, 2.25, 2.5, 2.75])).astype(
-            float
-        )
+        new_index = ser.index.union(
+            Index([1.25, 1.5, 1.75, 2.25, 2.5, 2.75])
+        ).astype(float)
         interp_s = ser.reindex(new_index).interpolate(method="akima", der=1)
         tm.assert_series_equal(interp_s.loc[1:3], expected)
 
@@ -184,10 +189,12 @@ class TestSeriesInterpolateData:
             index=Index([1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]),
         )
         # interpolate at new_index
-        new_index = ser.index.union(Index([1.25, 1.5, 1.75, 2.25, 2.5, 2.75])).astype(
-            float
+        new_index = ser.index.union(
+            Index([1.25, 1.5, 1.75, 2.25, 2.5, 2.75])
+        ).astype(float)
+        interp_s = ser.reindex(new_index).interpolate(
+            method="piecewise_polynomial"
         )
-        interp_s = ser.reindex(new_index).interpolate(method="piecewise_polynomial")
         tm.assert_series_equal(interp_s.loc[1:3], expected)
 
     def test_interpolate_from_derivatives(self):
@@ -199,10 +206,12 @@ class TestSeriesInterpolateData:
             index=Index([1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]),
         )
         # interpolate at new_index
-        new_index = ser.index.union(Index([1.25, 1.5, 1.75, 2.25, 2.5, 2.75])).astype(
-            float
+        new_index = ser.index.union(
+            Index([1.25, 1.5, 1.75, 2.25, 2.5, 2.75])
+        ).astype(float)
+        interp_s = ser.reindex(new_index).interpolate(
+            method="from_derivatives"
         )
-        interp_s = ser.reindex(new_index).interpolate(method="from_derivatives")
         tm.assert_series_equal(interp_s.loc[1:3], expected)
 
     @pytest.mark.parametrize(
@@ -210,7 +219,8 @@ class TestSeriesInterpolateData:
         [
             {},
             pytest.param(
-                {"method": "polynomial", "order": 1}, marks=td.skip_if_no("scipy")
+                {"method": "polynomial", "order": 1},
+                marks=td.skip_if_no("scipy"),
             ),
         ],
     )
@@ -232,7 +242,8 @@ class TestSeriesInterpolateData:
         bad = isna(s)
         good = ~bad
         expected = Series(
-            np.interp(vals[bad], vals[good], s.values[good]), index=s.index[bad]
+            np.interp(vals[bad], vals[good], s.values[good]),
+            index=s.index[bad],
         )
 
         tm.assert_series_equal(result[bad], expected)
@@ -257,7 +268,8 @@ class TestSeriesInterpolateData:
         [
             {},
             pytest.param(
-                {"method": "polynomial", "order": 1}, marks=td.skip_if_no("scipy")
+                {"method": "polynomial", "order": 1},
+                marks=td.skip_if_no("scipy"),
             ),
         ],
     )
@@ -270,7 +282,9 @@ class TestSeriesInterpolateData:
     def test_nan_irregular_index(self):
         s = Series([1, 2, np.nan, 4], index=[1, 3, 5, 9])
         result = s.interpolate()
-        expected = Series([1.0, 2.0, 2.6666666666666665, 4.0], index=[1, 3, 5, 9])
+        expected = Series(
+            [1.0, 2.0, 2.6666666666666665, 4.0], index=[1, 3, 5, 9]
+        )
         tm.assert_series_equal(result, expected)
 
     def test_nan_str_index(self):
@@ -330,7 +344,9 @@ class TestSeriesInterpolateData:
         tm.assert_series_equal(result, expected)
 
     @pytest.mark.parametrize("limit", [-1, 0])
-    def test_interpolate_invalid_nonpositive_limit(self, nontemporal_method, limit):
+    def test_interpolate_invalid_nonpositive_limit(
+        self, nontemporal_method, limit
+    ):
         # GH 9217: make sure limit is greater than zero.
         s = Series([1, 2, np.nan, 4])
         method, kwargs = nontemporal_method
@@ -366,10 +382,14 @@ class TestSeriesInterpolateData:
         # Provide 'forward' (the default) explicitly here.
         expected = Series([1.0, 3.0, 5.0, 7.0, np.nan, 11.0])
 
-        result = s.interpolate(method="linear", limit=2, limit_direction="forward")
+        result = s.interpolate(
+            method="linear", limit=2, limit_direction="forward"
+        )
         tm.assert_series_equal(result, expected)
 
-        result = s.interpolate(method="linear", limit=2, limit_direction="FORWARD")
+        result = s.interpolate(
+            method="linear", limit=2, limit_direction="FORWARD"
+        )
         tm.assert_series_equal(result, expected)
 
     def test_interp_unlimited(self):
@@ -404,9 +424,13 @@ class TestSeriesInterpolateData:
     # limit_area introduced GH #16284
     def test_interp_limit_area(self):
         # These tests are for issue #9218 -- fill NaNs in both directions.
-        s = Series([np.nan, np.nan, 3, np.nan, np.nan, np.nan, 7, np.nan, np.nan])
+        s = Series(
+            [np.nan, np.nan, 3, np.nan, np.nan, np.nan, 7, np.nan, np.nan]
+        )
 
-        expected = Series([np.nan, np.nan, 3.0, 4.0, 5.0, 6.0, 7.0, np.nan, np.nan])
+        expected = Series(
+            [np.nan, np.nan, 3.0, 4.0, 5.0, 6.0, 7.0, np.nan, np.nan]
+        )
         result = s.interpolate(method="linear", limit_area="inside")
         tm.assert_series_equal(result, expected)
 
@@ -416,13 +440,20 @@ class TestSeriesInterpolateData:
         result = s.interpolate(method="linear", limit_area="inside", limit=1)
         tm.assert_series_equal(result, expected)
 
-        expected = Series([np.nan, np.nan, 3.0, 4.0, np.nan, 6.0, 7.0, np.nan, np.nan])
+        expected = Series(
+            [np.nan, np.nan, 3.0, 4.0, np.nan, 6.0, 7.0, np.nan, np.nan]
+        )
         result = s.interpolate(
-            method="linear", limit_area="inside", limit_direction="both", limit=1
+            method="linear",
+            limit_area="inside",
+            limit_direction="both",
+            limit=1,
         )
         tm.assert_series_equal(result, expected)
 
-        expected = Series([np.nan, np.nan, 3.0, np.nan, np.nan, np.nan, 7.0, 7.0, 7.0])
+        expected = Series(
+            [np.nan, np.nan, 3.0, np.nan, np.nan, np.nan, 7.0, 7.0, 7.0]
+        )
         result = s.interpolate(method="linear", limit_area="outside")
         tm.assert_series_equal(result, expected)
 
@@ -432,13 +463,20 @@ class TestSeriesInterpolateData:
         result = s.interpolate(method="linear", limit_area="outside", limit=1)
         tm.assert_series_equal(result, expected)
 
-        expected = Series([np.nan, 3.0, 3.0, np.nan, np.nan, np.nan, 7.0, 7.0, np.nan])
+        expected = Series(
+            [np.nan, 3.0, 3.0, np.nan, np.nan, np.nan, 7.0, 7.0, np.nan]
+        )
         result = s.interpolate(
-            method="linear", limit_area="outside", limit_direction="both", limit=1
+            method="linear",
+            limit_area="outside",
+            limit_direction="both",
+            limit=1,
         )
         tm.assert_series_equal(result, expected)
 
-        expected = Series([3.0, 3.0, 3.0, np.nan, np.nan, np.nan, 7.0, np.nan, np.nan])
+        expected = Series(
+            [3.0, 3.0, 3.0, np.nan, np.nan, np.nan, 7.0, np.nan, np.nan]
+        )
         result = s.interpolate(
             method="linear", limit_area="outside", limit_direction="backward"
         )
@@ -520,24 +558,36 @@ class TestSeriesInterpolateData:
         s = Series([1, 3, np.nan, np.nan, np.nan, 11])
 
         expected = Series([1.0, 3.0, np.nan, 7.0, 9.0, 11.0])
-        result = s.interpolate(method="linear", limit=2, limit_direction="backward")
+        result = s.interpolate(
+            method="linear", limit=2, limit_direction="backward"
+        )
         tm.assert_series_equal(result, expected)
 
         expected = Series([1.0, 3.0, 5.0, np.nan, 9.0, 11.0])
-        result = s.interpolate(method="linear", limit=1, limit_direction="both")
+        result = s.interpolate(
+            method="linear", limit=1, limit_direction="both"
+        )
         tm.assert_series_equal(result, expected)
 
         # Check that this works on a longer series of nans.
-        s = Series([1, 3, np.nan, np.nan, np.nan, 7, 9, np.nan, np.nan, 12, np.nan])
+        s = Series(
+            [1, 3, np.nan, np.nan, np.nan, 7, 9, np.nan, np.nan, 12, np.nan]
+        )
 
-        expected = Series([1.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 10.0, 11.0, 12.0, 12.0])
-        result = s.interpolate(method="linear", limit=2, limit_direction="both")
+        expected = Series(
+            [1.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 10.0, 11.0, 12.0, 12.0]
+        )
+        result = s.interpolate(
+            method="linear", limit=2, limit_direction="both"
+        )
         tm.assert_series_equal(result, expected)
 
         expected = Series(
             [1.0, 3.0, 4.0, np.nan, 6.0, 7.0, 9.0, 10.0, 11.0, 12.0, 12.0]
         )
-        result = s.interpolate(method="linear", limit=1, limit_direction="both")
+        result = s.interpolate(
+            method="linear", limit=1, limit_direction="both"
+        )
         tm.assert_series_equal(result, expected)
 
     def test_interp_limit_to_ends(self):
@@ -545,11 +595,15 @@ class TestSeriesInterpolateData:
         s = Series([np.nan, np.nan, 5, 7, 9, np.nan])
 
         expected = Series([5.0, 5.0, 5.0, 7.0, 9.0, np.nan])
-        result = s.interpolate(method="linear", limit=2, limit_direction="backward")
+        result = s.interpolate(
+            method="linear", limit=2, limit_direction="backward"
+        )
         tm.assert_series_equal(result, expected)
 
         expected = Series([5.0, 5.0, 5.0, 7.0, 9.0, 9.0])
-        result = s.interpolate(method="linear", limit=2, limit_direction="both")
+        result = s.interpolate(
+            method="linear", limit=2, limit_direction="both"
+        )
         tm.assert_series_equal(result, expected)
 
     def test_interp_limit_before_ends(self):
@@ -557,15 +611,21 @@ class TestSeriesInterpolateData:
         s = Series([np.nan, np.nan, 5, 7, np.nan, np.nan])
 
         expected = Series([np.nan, np.nan, 5.0, 7.0, 7.0, np.nan])
-        result = s.interpolate(method="linear", limit=1, limit_direction="forward")
+        result = s.interpolate(
+            method="linear", limit=1, limit_direction="forward"
+        )
         tm.assert_series_equal(result, expected)
 
         expected = Series([np.nan, 5.0, 5.0, 7.0, np.nan, np.nan])
-        result = s.interpolate(method="linear", limit=1, limit_direction="backward")
+        result = s.interpolate(
+            method="linear", limit=1, limit_direction="backward"
+        )
         tm.assert_series_equal(result, expected)
 
         expected = Series([np.nan, 5.0, 5.0, 7.0, 7.0, np.nan])
-        result = s.interpolate(method="linear", limit=1, limit_direction="both")
+        result = s.interpolate(
+            method="linear", limit=1, limit_direction="both"
+        )
         tm.assert_series_equal(result, expected)
 
     def test_interp_all_good(self):
@@ -579,7 +639,8 @@ class TestSeriesInterpolateData:
         tm.assert_series_equal(result, s)
 
     @pytest.mark.parametrize(
-        "check_scipy", [False, pytest.param(True, marks=td.skip_if_no("scipy"))]
+        "check_scipy",
+        [False, pytest.param(True, marks=td.skip_if_no("scipy"))],
     )
     def test_interp_multiIndex(self, check_scipy):
         idx = MultiIndex.from_tuples([(0, "a"), (1, "b"), (2, "c")])
@@ -606,7 +667,8 @@ class TestSeriesInterpolateData:
     def test_interp_datetime64(self, method, tz_naive_fixture):
         pytest.importorskip("scipy")
         df = Series(
-            [1, np.nan, 3], index=date_range("1/1/2000", periods=3, tz=tz_naive_fixture)
+            [1, np.nan, 3],
+            index=date_range("1/1/2000", periods=3, tz=tz_naive_fixture),
         )
 
         if method == "nearest":
@@ -700,13 +762,17 @@ class TestSeriesInterpolateData:
         # test for non uniform spacing
         df = Series([1, np.nan, 3], index=pd.to_timedelta([1, 2, 4]))
         result = df.interpolate(method="time")
-        expected = Series([1.0, 1.666667, 3.0], index=pd.to_timedelta([1, 2, 4]))
+        expected = Series(
+            [1.0, 1.666667, 3.0], index=pd.to_timedelta([1, 2, 4])
+        )
         tm.assert_series_equal(result, expected)
 
     def test_series_interpolate_method_values(self):
         # GH#1646
         rng = date_range("1/1/2000", "1/20/2000", freq="D")
-        ts = Series(np.random.default_rng(2).standard_normal(len(rng)), index=rng)
+        ts = Series(
+            np.random.default_rng(2).standard_normal(len(rng)), index=rng
+        )
 
         ts[::2] = np.nan
 
@@ -790,7 +856,9 @@ class TestSeriesInterpolateData:
         # GH 21037
         ts = Series(data=[10, 9, np.nan, 2, 1], index=[10, 9, 3, 2, 1])
         result = ts.sort_index(ascending=ascending).interpolate(method="index")
-        expected = Series(data=expected_values, index=expected_values, dtype=float)
+        expected = Series(
+            data=expected_values, index=expected_values, dtype=float
+        )
         tm.assert_series_equal(result, expected)
 
     def test_interpolate_asfreq_raises(self):

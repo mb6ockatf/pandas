@@ -110,7 +110,9 @@ class TestTimestampProperties:
         ts = Timestamp("2014-01-01 00:00:00", tz=tz)
         assert getattr(ts, start)
 
-    @pytest.mark.parametrize("end", ["is_month_end", "is_year_end", "is_quarter_end"])
+    @pytest.mark.parametrize(
+        "end", ["is_month_end", "is_year_end", "is_quarter_end"]
+    )
     @pytest.mark.parametrize("tz", [None, "US/Eastern"])
     def test_is_end(self, end, tz):
         ts = Timestamp("2014-12-31 23:59:59", tz=tz)
@@ -205,7 +207,12 @@ class TestTimestampProperties:
         result = np.array(
             [
                 Timestamp(datetime(*args)).week
-                for args in [(2000, 1, 1), (2000, 1, 2), (2005, 1, 1), (2005, 1, 2)]
+                for args in [
+                    (2000, 1, 1),
+                    (2000, 1, 2),
+                    (2005, 1, 1),
+                    (2005, 1, 2),
+                ]
             ]
         )
         assert (result == [52, 52, 53, 53]).all()
@@ -252,7 +259,8 @@ class TestTimestampProperties:
         )
         result = Timestamp(ts).weekday()
         expected = (
-            (np.datetime64(ts) - np.datetime64("1970-01-01")).astype("int64") - 4
+            (np.datetime64(ts) - np.datetime64("1970-01-01")).astype("int64")
+            - 4
         ) % 7
         assert result == expected
 
@@ -293,17 +301,23 @@ class TestTimestamp:
         assert conv.hour == 19
 
     def test_utc_z_designator(self):
-        assert get_timezone(Timestamp("2014-11-02 01:00Z").tzinfo) is timezone.utc
+        assert (
+            get_timezone(Timestamp("2014-11-02 01:00Z").tzinfo) is timezone.utc
+        )
 
     def test_asm8(self):
         ns = [Timestamp.min._value, Timestamp.max._value, 1000]
 
         for n in ns:
             assert (
-                Timestamp(n).asm8.view("i8") == np.datetime64(n, "ns").view("i8") == n
+                Timestamp(n).asm8.view("i8")
+                == np.datetime64(n, "ns").view("i8")
+                == n
             )
 
-        assert Timestamp("nat").asm8.view("i8") == np.datetime64("nat", "ns").view("i8")
+        assert Timestamp("nat").asm8.view("i8") == np.datetime64(
+            "nat", "ns"
+        ).view("i8")
 
     def test_class_ops(self):
         def compare(x, y):
@@ -323,7 +337,8 @@ class TestTimestamp:
             ts_utc = Timestamp.utcfromtimestamp(current_time)
         assert ts_utc.timestamp() == current_time
         compare(
-            Timestamp.fromtimestamp(current_time), datetime.fromtimestamp(current_time)
+            Timestamp.fromtimestamp(current_time),
+            datetime.fromtimestamp(current_time),
         )
         compare(
             # Support tz kwarg in Timestamp.fromtimestamp
@@ -393,7 +408,10 @@ class TestTimestamp:
 
     @pytest.mark.parametrize(
         "timezone, year, month, day, hour",
-        [["America/Chicago", 2013, 11, 3, 1], ["America/Santiago", 2021, 4, 3, 23]],
+        [
+            ["America/Chicago", 2013, 11, 3, 1],
+            ["America/Santiago", 2021, 4, 3, 23],
+        ],
     )
     def test_hash_timestamp_with_fold(self, timezone, year, month, day, hour):
         # see gh-33931
@@ -500,7 +518,9 @@ class TestTimestampConversion:
         # GH#21333 make sure a warning is issued when timezone
         # info is lost
         ts = Timestamp("2009-04-15 16:17:18", tz="US/Eastern")
-        with tm.assert_produces_warning(UserWarning, match="drop timezone information"):
+        with tm.assert_produces_warning(
+            UserWarning, match="drop timezone information"
+        ):
             ts.to_period("D")
 
     def test_to_numpy_alias(self):
@@ -836,7 +856,9 @@ class TestNonNano:
 
     def test_addition_doesnt_downcast_reso(self):
         # https://github.com/pandas-dev/pandas/pull/48748#pullrequestreview-1122635413
-        ts = Timestamp(year=2022, month=1, day=1, microsecond=999999).as_unit("us")
+        ts = Timestamp(year=2022, month=1, day=1, microsecond=999999).as_unit(
+            "us"
+        )
         td = Timedelta(microseconds=1).as_unit("us")
         res = ts + td
         assert res._creso == ts._creso

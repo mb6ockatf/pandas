@@ -88,7 +88,9 @@ def _filter_special_cases(f) -> Callable[[F], F]:
 
 @_filter_special_cases
 def _align_core(terms):
-    term_index = [i for i, term in enumerate(terms) if hasattr(term.value, "axes")]
+    term_index = [
+        i for i, term in enumerate(terms) if hasattr(term.value, "axes")
+    ]
     term_dims = [terms[i].value.ndim for i in term_index]
 
     from pandas import Series
@@ -138,7 +140,9 @@ def _align_core(terms):
                         f"by more than {ordm:.4g}; performance may suffer."
                     )
                     warnings.warn(
-                        w, category=PerformanceWarning, stacklevel=find_stack_level()
+                        w,
+                        category=PerformanceWarning,
+                        stacklevel=find_stack_level(),
                     )
 
                 obj = ti.reindex(reindexer, axis=axis)
@@ -160,16 +164,26 @@ def align_terms(terms):
         # can't iterate so it must just be a constant or single variable
         if isinstance(terms.value, (ABCSeries, ABCDataFrame)):
             typ = type(terms.value)
-            name = terms.value.name if isinstance(terms.value, ABCSeries) else None
+            name = (
+                terms.value.name
+                if isinstance(terms.value, ABCSeries)
+                else None
+            )
             return typ, _zip_axes_from_type(typ, terms.value.axes), name
         return np.result_type(terms.type), None, None
 
     # if all resolved variables are numeric scalars
     if all(term.is_scalar for term in terms):
-        return result_type_many(*(term.value for term in terms)).type, None, None
+        return (
+            result_type_many(*(term.value for term in terms)).type,
+            None,
+            None,
+        )
 
     # if all input series have a common name, propagate it to the returned series
-    names = {term.value.name for term in terms if isinstance(term.value, ABCSeries)}
+    names = {
+        term.value.name for term in terms if isinstance(term.value, ABCSeries)
+    }
     name = names.pop() if len(names) == 1 else None
 
     # perform the main alignment

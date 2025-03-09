@@ -48,14 +48,18 @@ def simple_period_range_series():
     def _simple_period_range_series(start, end, freq="D"):
         with warnings.catch_warnings():
             # suppress Period[B] deprecation warning
-            msg = "|".join(["Period with BDay freq", r"PeriodDtype\[B\] is deprecated"])
+            msg = "|".join(
+                ["Period with BDay freq", r"PeriodDtype\[B\] is deprecated"]
+            )
             warnings.filterwarnings(
                 "ignore",
                 msg,
                 category=FutureWarning,
             )
             rng = period_range(start, end, freq=freq)
-        return Series(np.random.default_rng(2).standard_normal(len(rng)), index=rng)
+        return Series(
+            np.random.default_rng(2).standard_normal(len(rng)), index=rng
+        )
 
     return _simple_period_range_series
 
@@ -65,7 +69,9 @@ class TestPeriodIndex:
     def test_asfreq(self, frame_or_series, freq):
         # GH 12884, 15944
 
-        obj = frame_or_series(range(5), index=period_range("2020-01-01", periods=5))
+        obj = frame_or_series(
+            range(5), index=period_range("2020-01-01", periods=5)
+        )
 
         expected = obj.to_timestamp().resample(freq).asfreq()
         result = obj.to_timestamp().resample(freq).asfreq()
@@ -73,7 +79,9 @@ class TestPeriodIndex:
 
         start = obj.index[0].to_timestamp(how="start")
         end = (obj.index[-1] + obj.index.freq).to_timestamp(how="start")
-        new_index = date_range(start=start, end=end, freq=freq, inclusive="left")
+        new_index = date_range(
+            start=start, end=end, freq=freq, inclusive="left"
+        )
         expected = obj.to_timestamp().reindex(new_index).to_period(freq)
 
         result = obj.resample(freq).asfreq()
@@ -85,7 +93,9 @@ class TestPeriodIndex:
     def test_asfreq_fill_value(self):
         # test for fill value during resampling, issue 3715
 
-        index = period_range(datetime(2005, 1, 1), datetime(2005, 1, 10), freq="D")
+        index = period_range(
+            datetime(2005, 1, 1), datetime(2005, 1, 10), freq="D"
+        )
         s = Series(range(len(index)), index=index)
         new_index = date_range(
             s.index[0].to_timestamp(how="start"),
@@ -111,7 +121,9 @@ class TestPeriodIndex:
     def test_selection(self, freq, kwargs):
         # This is a bug, these should be implemented
         # GH 14008
-        index = period_range(datetime(2005, 1, 1), datetime(2005, 1, 10), freq="D")
+        index = period_range(
+            datetime(2005, 1, 1), datetime(2005, 1, 10), freq="D"
+        )
         rng = np.arange(len(index), dtype=np.int64)
         df = DataFrame(
             {"date": index, "a": rng},
@@ -129,12 +141,15 @@ class TestPeriodIndex:
     @pytest.mark.parametrize("meth", ["ffill", "bfill"])
     @pytest.mark.parametrize("conv", ["start", "end"])
     @pytest.mark.parametrize(
-        ("offset", "period"), [("D", "D"), ("B", "B"), ("ME", "M"), ("QE", "Q")]
+        ("offset", "period"),
+        [("D", "D"), ("B", "B"), ("ME", "M"), ("QE", "Q")],
     )
     def test_annual_upsample_cases(
         self, offset, period, conv, meth, month, simple_period_range_series
     ):
-        ts = simple_period_range_series("1/1/1990", "12/31/1991", freq=f"Y-{month}")
+        ts = simple_period_range_series(
+            "1/1/1990", "12/31/1991", freq=f"Y-{month}"
+        )
         warn = FutureWarning if period == "B" else None
         msg = r"PeriodDtype\[B\] is deprecated"
         if warn is None:
@@ -167,7 +182,9 @@ class TestPeriodIndex:
             ("W-THU", "<Week: weekday=3>"),
         ],
     )
-    def test_not_subperiod(self, simple_period_range_series, rule, expected_error_msg):
+    def test_not_subperiod(
+        self, simple_period_range_series, rule, expected_error_msg
+    ):
         # These are incompatible period rules for resampling
         ts = simple_period_range_series("1/1/1990", "6/30/1995", freq="W-WED")
         msg = (
@@ -196,7 +213,9 @@ class TestPeriodIndex:
         msg = "The 'convention' keyword in Series.resample is deprecated"
         with tm.assert_produces_warning(FutureWarning, match=msg):
             result = ts.resample("M", convention="end").ffill(limit=2)
-        expected = ts.asfreq("M").reindex(result.index, method="ffill", limit=2)
+        expected = ts.asfreq("M").reindex(
+            result.index, method="ffill", limit=2
+        )
         tm.assert_series_equal(result, expected)
 
     def test_annual_upsample(self, simple_period_range_series):
@@ -213,7 +232,9 @@ class TestPeriodIndex:
         result = ts.resample("M").ffill()
         ex_index = period_range("2000-01", "2003-12", freq="M")
 
-        expected = ts.asfreq("M", how="start").reindex(ex_index, method="ffill")
+        expected = ts.asfreq("M", how="start").reindex(
+            ex_index, method="ffill"
+        )
         tm.assert_series_equal(result, expected)
 
     @pytest.mark.parametrize("month", MONTHS)
@@ -239,7 +260,9 @@ class TestPeriodIndex:
 
     @pytest.mark.parametrize("target", ["D", "B"])
     @pytest.mark.parametrize("convention", ["start", "end"])
-    def test_monthly_upsample(self, target, convention, simple_period_range_series):
+    def test_monthly_upsample(
+        self, target, convention, simple_period_range_series
+    ):
         ts = simple_period_range_series("1/1/1990", "12/31/1995", freq="M")
 
         warn = None if target == "D" else FutureWarning
@@ -262,7 +285,10 @@ class TestPeriodIndex:
         )
         s[10:30] = np.nan
         index = PeriodIndex(
-            [Period("2013-01-01 00:00", "min"), Period("2013-01-01 00:01", "min")],
+            [
+                Period("2013-01-01 00:00", "min"),
+                Period("2013-01-01 00:01", "min"),
+            ],
             name="idx",
         )
         expected = Series([34.5, 79.5], index=index)
@@ -272,7 +298,8 @@ class TestPeriodIndex:
         tm.assert_series_equal(result2, expected)
 
     @pytest.mark.parametrize(
-        "freq,expected_vals", [("M", [31, 29, 31, 9]), ("2M", [31 + 29, 31 + 9])]
+        "freq,expected_vals",
+        [("M", [31, 29, 31, 9]), ("2M", [31 + 29, 31 + 9])],
     )
     def test_resample_count(self, freq, expected_vals):
         # GH12774
@@ -286,7 +313,9 @@ class TestPeriodIndex:
 
     def test_resample_same_freq(self, resample_method):
         # GH12770
-        series = Series(range(3), index=period_range(start="2000", periods=3, freq="M"))
+        series = Series(
+            range(3), index=period_range(start="2000", periods=3, freq="M")
+        )
         expected = series
 
         result = getattr(series.resample("M"), resample_method)()
@@ -327,7 +356,9 @@ class TestPeriodIndex:
 
         series = Series(1, index=index)
         series = series.tz_convert(local_timezone)
-        msg = "Converting to PeriodArray/Index representation will drop timezone"
+        msg = (
+            "Converting to PeriodArray/Index representation will drop timezone"
+        )
         with tm.assert_produces_warning(UserWarning, match=msg):
             result = series.resample("D").mean().to_period()
 
@@ -335,7 +366,8 @@ class TestPeriodIndex:
         # Index is moved back a day with the timezone conversion from UTC to
         # Pacific
         expected_index = (
-            period_range(start=start, end=end, freq="D", name="idx") - offsets.Day()
+            period_range(start=start, end=end, freq="D", name="idx")
+            - offsets.Day()
         )
         expected = Series(1.0, index=expected_index)
         tm.assert_series_equal(result, expected)
@@ -411,7 +443,9 @@ class TestPeriodIndex:
     @pytest.mark.parametrize("day", DAYS)
     @pytest.mark.parametrize("target", ["D", "B"])
     @pytest.mark.parametrize("convention", ["start", "end"])
-    def test_weekly_upsample(self, day, target, convention, simple_period_range_series):
+    def test_weekly_upsample(
+        self, day, target, convention, simple_period_range_series
+    ):
         freq = f"W-{day}"
         ts = simple_period_range_series("1/1/1990", "12/31/1995", freq=freq)
 
@@ -445,13 +479,17 @@ class TestPeriodIndex:
             freq=f"Q-{month}",
         )
 
-        expected = stamps.reindex(qdates.to_timestamp("D", "s"), method="ffill")
+        expected = stamps.reindex(
+            qdates.to_timestamp("D", "s"), method="ffill"
+        )
         expected.index = qdates
 
         tm.assert_series_equal(quar_ts, expected)
 
     @pytest.mark.parametrize("how", ["start", "end"])
-    def test_resample_to_quarterly_start_end(self, simple_period_range_series, how):
+    def test_resample_to_quarterly_start_end(
+        self, simple_period_range_series, how
+    ):
         # conforms, but different month
         ts = simple_period_range_series("1990", "1992", freq="Y-JUN")
         msg = "The 'convention' keyword in Series.resample is deprecated"
@@ -485,7 +523,9 @@ class TestPeriodIndex:
 
     def test_resample_5minute(self):
         rng = period_range("1/1/2000", "1/5/2000", freq="min")
-        ts = Series(np.random.default_rng(2).standard_normal(len(rng)), index=rng)
+        ts = Series(
+            np.random.default_rng(2).standard_normal(len(rng)), index=rng
+        )
         expected = ts.to_timestamp().resample("5min").mean()
         result = ts.resample("5min").mean().to_timestamp()
         tm.assert_series_equal(result, expected)
@@ -523,7 +563,9 @@ class TestPeriodIndex:
 
     def test_resample_weekly_all_na(self):
         rng = date_range("1/1/2000", periods=10, freq="W-WED")
-        ts = Series(np.random.default_rng(2).standard_normal(len(rng)), index=rng)
+        ts = Series(
+            np.random.default_rng(2).standard_normal(len(rng)), index=rng
+        )
 
         result = ts.resample("W-THU").asfreq()
 
@@ -545,7 +587,11 @@ class TestPeriodIndex:
         ts_local_naive = ts_local.copy()
         ts_local_naive.index = ts_local_naive.index.tz_localize(None)
 
-        exp = ts_local_naive.resample("W").mean().tz_localize("America/Los_Angeles")
+        exp = (
+            ts_local_naive.resample("W")
+            .mean()
+            .tz_localize("America/Los_Angeles")
+        )
         exp.index = pd.DatetimeIndex(exp.index, freq="W")
 
         tm.assert_series_equal(result, exp)
@@ -556,12 +602,17 @@ class TestPeriodIndex:
     def test_resample_tz_localized2(self):
         # #2245
         idx = date_range(
-            "2001-09-20 15:59", "2001-09-20 16:00", freq="min", tz="Australia/Sydney"
+            "2001-09-20 15:59",
+            "2001-09-20 16:00",
+            freq="min",
+            tz="Australia/Sydney",
         )
         s = Series([1, 2], index=idx)
 
         result = s.resample("D", closed="right", label="right").mean()
-        ex_index = date_range("2001-09-21", periods=1, freq="D", tz="Australia/Sydney")
+        ex_index = date_range(
+            "2001-09-21", periods=1, freq="D", tz="Australia/Sydney"
+        )
         expected = Series([1.5], index=ex_index)
 
         tm.assert_series_equal(result, expected)
@@ -581,7 +632,9 @@ class TestPeriodIndex:
         rng = rng.tz_localize("EST")
         ts = DataFrame(index=rng)
         ts["first"] = np.random.default_rng(2).standard_normal(len(rng))
-        ts["second"] = np.cumsum(np.random.default_rng(2).standard_normal(len(rng)))
+        ts["second"] = np.cumsum(
+            np.random.default_rng(2).standard_normal(len(rng))
+        )
         expected = DataFrame(
             {
                 "first": ts.resample("YE").sum()["first"],
@@ -629,7 +682,9 @@ class TestPeriodIndex:
         ind = date_range(start="8/6/2012", end="8/26/2012", freq="D")
         n = len(ind)
         data = [[x] * 5 for x in range(n)]
-        df = DataFrame(data, columns=["open", "high", "low", "close", "vol"], index=ind)
+        df = DataFrame(
+            data, columns=["open", "high", "low", "close", "vol"], index=ind
+        )
 
         # it works!
         df.resample("W-MON", closed="left", label="left").first()
@@ -642,7 +697,9 @@ class TestPeriodIndex:
             .tz_convert("America/Chicago")
         )
         df = DataFrame([1, 2], index=index)
-        result = df.resample("12h", closed="right", label="right").last().ffill()
+        result = (
+            df.resample("12h", closed="right", label="right").last().ffill()
+        )
 
         expected_index_values = [
             "2016-03-09 12:00:00-06:00",
@@ -681,7 +738,9 @@ class TestPeriodIndex:
         assert res1.index[0] == Timestamp("20000103")
         assert res1.index[0] == res2.index[0]
 
-    @pytest.mark.xfail(reason="Commented out for more than 3 years. Should this work?")
+    @pytest.mark.xfail(
+        reason="Commented out for more than 3 years. Should this work?"
+    )
     def test_monthly_convention_span(self):
         rng = period_range("2000-01", periods=3, freq="ME")
         ts = Series(np.arange(3), index=rng)
@@ -696,15 +755,19 @@ class TestPeriodIndex:
         tm.assert_series_equal(result, expected)
 
     @pytest.mark.parametrize(
-        "from_freq, to_freq", [("D", "ME"), ("QE", "YE"), ("ME", "QE"), ("D", "W")]
+        "from_freq, to_freq",
+        [("D", "ME"), ("QE", "YE"), ("ME", "QE"), ("D", "W")],
     )
     def test_default_right_closed_label(self, from_freq, to_freq):
         idx = date_range(start="8/15/2012", periods=100, freq=from_freq)
-        df = DataFrame(np.random.default_rng(2).standard_normal((len(idx), 2)), idx)
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((len(idx), 2)), idx
+        )
 
         resampled = df.resample(to_freq).mean()
         tm.assert_frame_equal(
-            resampled, df.resample(to_freq, closed="right", label="right").mean()
+            resampled,
+            df.resample(to_freq, closed="right", label="right").mean(),
         )
 
     @pytest.mark.parametrize(
@@ -713,7 +776,9 @@ class TestPeriodIndex:
     )
     def test_default_left_closed_label(self, from_freq, to_freq):
         idx = date_range(start="8/15/2012", periods=100, freq=from_freq)
-        df = DataFrame(np.random.default_rng(2).standard_normal((len(idx), 2)), idx)
+        df = DataFrame(
+            np.random.default_rng(2).standard_normal((len(idx), 2)), idx
+        )
 
         resampled = df.resample(to_freq).mean()
         tm.assert_frame_equal(
@@ -723,7 +788,9 @@ class TestPeriodIndex:
     def test_all_values_single_bin(self):
         # GH#2070
         index = period_range(start="2012-01-01", end="2012-12-31", freq="M")
-        ser = Series(np.random.default_rng(2).standard_normal(len(index)), index=index)
+        ser = Series(
+            np.random.default_rng(2).standard_normal(len(index)), index=index
+        )
 
         result = ser.resample("Y").mean()
         tm.assert_almost_equal(result.iloc[0], ser.mean())
@@ -737,9 +804,13 @@ class TestPeriodIndex:
             index=date_range("2000-1-1", periods=9),
         )
         result = df.resample("5D").mean()
-        expected = pd.concat([df.iloc[0:5].mean(), df.iloc[5:].mean()], axis=1).T
+        expected = pd.concat(
+            [df.iloc[0:5].mean(), df.iloc[5:].mean()], axis=1
+        ).T
         expected.index = pd.DatetimeIndex(
-            [Timestamp("2000-1-1"), Timestamp("2000-1-6")], dtype="M8[ns]", freq="5D"
+            [Timestamp("2000-1-1"), Timestamp("2000-1-6")],
+            dtype="M8[ns]",
+            freq="5D",
         )
         tm.assert_frame_equal(result, expected)
 
@@ -811,7 +882,9 @@ class TestPeriodIndex:
 
         # timestamp-based resampling doesn't include all sub-periods
         # of the last original period, so extend accordingly:
-        new_index = period_range(start="2000", freq=freq, periods=period_mult * len(pi))
+        new_index = period_range(
+            start="2000", freq=freq, periods=period_mult * len(pi)
+        )
         expected = expected.reindex(new_index)
         result = s.resample(freq).ohlc()
         tm.assert_frame_equal(result, expected)
@@ -877,7 +950,9 @@ class TestPeriodIndex:
         pi = PeriodIndex([pd.NaT] * 3, freq="s")
         frame = DataFrame([2, 3, 5], index=pi, columns=["a"])
         expected_index = PeriodIndex(data=[], freq=pi.freq)
-        expected = DataFrame(index=expected_index, columns=["a"], dtype="float64")
+        expected = DataFrame(
+            index=expected_index, columns=["a"], dtype="float64"
+        )
         result = frame.resample("1s").mean()
         tm.assert_frame_equal(result, expected)
 
@@ -901,7 +976,9 @@ class TestPeriodIndex:
             ("19910905", "19910905 03:18", "2Min", "5Min", "3Min"),
         ],
     )
-    def test_resample_with_offset(self, start, end, start_freq, end_freq, offset):
+    def test_resample_with_offset(
+        self, start, end, start_freq, end_freq, offset
+    ):
         # GH 23882 & 31809
         pi = period_range(start, end, freq=start_freq)
         ser = Series(np.arange(len(pi)), index=pi)
@@ -932,7 +1009,14 @@ class TestPeriodIndex:
         "first,last,freq,freq_to_offset,exp_first,exp_last",
         [
             ("19910905", "19920406", "D", "D", "19910905", "19920406"),
-            ("19910905 00:00", "19920406 06:00", "D", "D", "19910905", "19920406"),
+            (
+                "19910905 00:00",
+                "19920406 06:00",
+                "D",
+                "D",
+                "19910905",
+                "19920406",
+            ),
             (
                 "19910905 06:00",
                 "19920406 06:00",
@@ -971,7 +1055,8 @@ class TestPeriodIndex:
             rs = s.resample("Q")
         result = rs.sum(min_count=1)
         expected = Series(
-            [3.0, np.nan], index=PeriodIndex(["2018Q1", "2018Q2"], freq="Q-DEC")
+            [3.0, np.nan],
+            index=PeriodIndex(["2018Q1", "2018Q2"], freq="Q-DEC"),
         )
         tm.assert_series_equal(result, expected)
 
@@ -982,7 +1067,9 @@ class TestPeriodIndex:
 
         with pytest.raises(ValueError, match=msg_l):
             period_range(
-                "2020-01-01 00:00:00 00:00", "2020-01-01 00:00:00 00:01", freq="L"
+                "2020-01-01 00:00:00 00:00",
+                "2020-01-01 00:00:00 00:01",
+                freq="L",
             )
         rng_l = period_range(
             "2020-01-01 00:00:00 00:00", "2020-01-01 00:00:00 00:01", freq="ms"
@@ -999,7 +1086,9 @@ class TestPeriodIndex:
             ("2M", "2m", "2q"),
         ],
     )
-    def test_resample_lowercase_frequency_raises(self, freq, freq_depr, freq_depr_res):
+    def test_resample_lowercase_frequency_raises(
+        self, freq, freq_depr, freq_depr_res
+    ):
         msg = f"Invalid frequency: {freq_depr}"
         with pytest.raises(ValueError, match=msg):
             period_range("2020-01-01", "2020-08-01", freq=freq_depr)
@@ -1022,7 +1111,9 @@ class TestPeriodIndex:
         # GH#55785
         msg = re.escape(f"{offset} is not supported as period frequency")
 
-        obj = frame_or_series(range(5), index=period_range("2020-01-01", periods=5))
+        obj = frame_or_series(
+            range(5), index=period_range("2020-01-01", periods=5)
+        )
         with pytest.raises(ValueError, match=msg):
             obj.asfreq(freq=offset)
 
@@ -1044,7 +1135,9 @@ def test_resample_frequency_ME_QE_YE_raises(frame_or_series, freq):
     # GH#9586
     msg = f"{freq[1:]} is not supported as period frequency"
 
-    obj = frame_or_series(range(5), index=period_range("2020-01-01", periods=5))
+    obj = frame_or_series(
+        range(5), index=period_range("2020-01-01", periods=5)
+    )
     msg = f"Invalid frequency: {freq}"
     with pytest.raises(ValueError, match=msg):
         obj.resample(freq)
@@ -1060,11 +1153,15 @@ def test_corner_cases_period(simple_period_range_series):
     assert len(result) == 0
 
 
-@pytest.mark.parametrize("freq", ["2BME", "2CBME", "2SME", "2BQE-FEB", "2BYE-MAR"])
+@pytest.mark.parametrize(
+    "freq", ["2BME", "2CBME", "2SME", "2BQE-FEB", "2BYE-MAR"]
+)
 def test_resample_frequency_invalid_freq(frame_or_series, freq):
     # GH#9586
     msg = f"Invalid frequency: {freq}"
 
-    obj = frame_or_series(range(5), index=period_range("2020-01-01", periods=5))
+    obj = frame_or_series(
+        range(5), index=period_range("2020-01-01", periods=5)
+    )
     with pytest.raises(ValueError, match=msg):
         obj.resample(freq)

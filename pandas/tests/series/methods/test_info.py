@@ -153,7 +153,10 @@ def test_info_memory_usage_deep_pypy():
     "index, plus",
     [
         ([1, 2, 3], False),
-        (Index(list("ABC"), dtype="str"), not (using_string_dtype() and HAS_PYARROW)),
+        (
+            Index(list("ABC"), dtype="str"),
+            not (using_string_dtype() and HAS_PYARROW),
+        ),
         (Index(list("ABC"), dtype=object), True),
         (MultiIndex.from_product([range(3), range(3)]), False),
         (

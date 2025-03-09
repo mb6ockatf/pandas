@@ -29,7 +29,10 @@ from pandas.tests.groupby import get_groupby_method_args
         np.array([0, 0, 0, 1, 2, 2, 2, 3, 3]),
         dict(zip(range(9), [0, 0, 0, 1, 2, 2, 2, 3, 3])),
         Series([1, 1, 1, 1, 1, 2, 2, 2, 2]),
-        [Series([1, 1, 1, 1, 1, 2, 2, 2, 2]), Series([3, 3, 4, 4, 4, 4, 4, 3, 3])],
+        [
+            Series([1, 1, 1, 1, 1, 2, 2, 2, 2]),
+            Series([3, 3, 4, 4, 4, 4, 4, 3, 3]),
+        ],
     ]
 )
 def by(request):
@@ -86,7 +89,9 @@ def df_with_cat_col():
 
 def _call_and_check(klass, msg, how, gb, groupby_func, args, warn_msg=""):
     warn_klass = None if warn_msg == "" else FutureWarning
-    with tm.assert_produces_warning(warn_klass, match=warn_msg, check_stacklevel=False):
+    with tm.assert_produces_warning(
+        warn_klass, match=warn_msg, check_stacklevel=False
+    ):
         if klass is None:
             if how == "method":
                 getattr(gb, groupby_func)(*args)
@@ -106,7 +111,12 @@ def _call_and_check(klass, msg, how, gb, groupby_func, args, warn_msg=""):
 
 @pytest.mark.parametrize("how", ["method", "agg", "transform"])
 def test_groupby_raises_string(
-    how, by, groupby_series, groupby_func, df_with_string_col, using_infer_string
+    how,
+    by,
+    groupby_series,
+    groupby_func,
+    df_with_string_col,
+    using_infer_string,
 ):
     df = df_with_string_col
     args = get_groupby_method_args(groupby_func, df)
@@ -165,7 +175,10 @@ def test_groupby_raises_string(
             TypeError,
             re.escape("agg function failed [how->prod,dtype->object]"),
         ),
-        "quantile": (TypeError, "dtype 'object' does not support operation 'quantile'"),
+        "quantile": (
+            TypeError,
+            "dtype 'object' does not support operation 'quantile'",
+        ),
         "rank": (None, ""),
         "sem": (ValueError, "could not convert string to float"),
         "shift": (None, ""),
@@ -198,7 +211,9 @@ def test_groupby_raises_string(
             if groupby_func in ["sem", "std", "skew", "kurt"]:
                 # The object-dtype raises ValueError when trying to convert to numeric.
                 klass = TypeError
-        elif groupby_func == "pct_change" and df["d"].dtype.storage == "pyarrow":
+        elif (
+            groupby_func == "pct_change" and df["d"].dtype.storage == "pyarrow"
+        ):
             # This doesn't go through EA._groupby_op so the message isn't controlled
             #  there.
             msg = "operation 'truediv' not supported for dtype 'str' with dtype 'str'"
@@ -220,7 +235,9 @@ def test_groupby_raises_string(
 
 
 @pytest.mark.parametrize("how", ["agg", "transform"])
-def test_groupby_raises_string_udf(how, by, groupby_series, df_with_string_col):
+def test_groupby_raises_string_udf(
+    how, by, groupby_series, df_with_string_col
+):
     df = df_with_string_col
     gb = df.groupby(by=by)
 
@@ -284,16 +301,28 @@ def test_groupby_raises_datetime(
             return
 
     klass, msg = {
-        "all": (TypeError, "'all' with datetime64 dtypes is no longer supported"),
-        "any": (TypeError, "'any' with datetime64 dtypes is no longer supported"),
+        "all": (
+            TypeError,
+            "'all' with datetime64 dtypes is no longer supported",
+        ),
+        "any": (
+            TypeError,
+            "'any' with datetime64 dtypes is no longer supported",
+        ),
         "bfill": (None, ""),
         "corrwith": (TypeError, "cannot perform __mul__ with this index type"),
         "count": (None, ""),
         "cumcount": (None, ""),
         "cummax": (None, ""),
         "cummin": (None, ""),
-        "cumprod": (TypeError, "datetime64 type does not support operation 'cumprod'"),
-        "cumsum": (TypeError, "datetime64 type does not support operation 'cumsum'"),
+        "cumprod": (
+            TypeError,
+            "datetime64 type does not support operation 'cumprod'",
+        ),
+        "cumsum": (
+            TypeError,
+            "datetime64 type does not support operation 'cumsum'",
+        ),
         "diff": (None, ""),
         "ffill": (None, ""),
         "first": (None, ""),
@@ -306,8 +335,14 @@ def test_groupby_raises_datetime(
         "min": (None, ""),
         "ngroup": (None, ""),
         "nunique": (None, ""),
-        "pct_change": (TypeError, "cannot perform __truediv__ with this index type"),
-        "prod": (TypeError, "datetime64 type does not support operation 'prod'"),
+        "pct_change": (
+            TypeError,
+            "cannot perform __truediv__ with this index type",
+        ),
+        "prod": (
+            TypeError,
+            "datetime64 type does not support operation 'prod'",
+        ),
         "quantile": (None, ""),
         "rank": (None, ""),
         "sem": (None, ""),
@@ -344,7 +379,9 @@ def test_groupby_raises_datetime(
 
 
 @pytest.mark.parametrize("how", ["agg", "transform"])
-def test_groupby_raises_datetime_udf(how, by, groupby_series, df_with_datetime_col):
+def test_groupby_raises_datetime_udf(
+    how, by, groupby_series, df_with_datetime_col
+):
     df = df_with_datetime_col
     gb = df.groupby(by=by)
 
@@ -614,7 +651,9 @@ def test_groupby_raises_category_on_category(
             assert not hasattr(gb, "corrwith")
             return
 
-    empty_groups = not observed and any(group.empty for group in gb.groups.values())
+    empty_groups = not observed and any(
+        group.empty for group in gb.groups.values()
+    )
     if how == "transform":
         # empty groups will be ignored
         empty_groups = False
@@ -656,16 +695,26 @@ def test_groupby_raises_category_on_category(
         "diff": (TypeError, "unsupported operand type"),
         "ffill": (None, ""),
         "first": (None, ""),
-        "idxmax": (ValueError, "empty group due to unobserved categories")
-        if empty_groups
-        else (None, ""),
-        "idxmin": (ValueError, "empty group due to unobserved categories")
-        if empty_groups
-        else (None, ""),
+        "idxmax": (
+            (ValueError, "empty group due to unobserved categories")
+            if empty_groups
+            else (None, "")
+        ),
+        "idxmin": (
+            (ValueError, "empty group due to unobserved categories")
+            if empty_groups
+            else (None, "")
+        ),
         "last": (None, ""),
         "max": (None, ""),
-        "mean": (TypeError, "category dtype does not support aggregation 'mean'"),
-        "median": (TypeError, "category dtype does not support aggregation 'median'"),
+        "mean": (
+            TypeError,
+            "category dtype does not support aggregation 'mean'",
+        ),
+        "median": (
+            TypeError,
+            "category dtype does not support aggregation 'median'",
+        ),
         "min": (None, ""),
         "ngroup": (None, ""),
         "nunique": (None, ""),
